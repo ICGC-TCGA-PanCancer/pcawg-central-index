@@ -19,6 +19,7 @@ import datetime
 import dateutil.parser
 from itertools import izip
 from distutils.version import LooseVersion
+import csv
 
 
 logger = logging.getLogger('gnos parser')
@@ -43,7 +44,7 @@ def init_es(es_host, es_index):
     return es
 
 
-def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations):
+def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations, santa_cruz_freeze_entries):
   analysis_attrib = get_analysis_attrib(gnos_analysis)
 
   if analysis_attrib and analysis_attrib.get('variant_workflow_name'):  # variant call gnos entry
@@ -70,7 +71,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.info('process Sanger variant call for donor: {}, in entry {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        current_vcf_entry = create_vcf_entry(analysis_attrib, gnos_analysis)
+        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
 
         if annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id): # the current donor has sanger variant calling result in jamboree
             if annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'): # this is the one expected
@@ -132,7 +133,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.info('process EMBL variant call for donor: {}, in entry {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        current_vcf_entry = create_vcf_entry(analysis_attrib, gnos_analysis)
+        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
 
         keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, 'EMBL')
 
@@ -143,7 +144,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.info('process DKFZ variant call for donor: {}, in entry {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        current_vcf_entry = create_vcf_entry(analysis_attrib, gnos_analysis)
+        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
 
         keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, 'DKFZ')
 
@@ -237,7 +238,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     if not donors.get(donor_unique_id):
         # create a new donor if not exist
-        donors[ donor_unique_id ] = create_donor(donor_unique_id, analysis_attrib, gnos_analysis)
+        donors[ donor_unique_id ] = create_donor(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
 
     else: # the donor this bam entry belongs to already exists
         # perform some comparison between existing donor and the info in the current bam entry
@@ -249,7 +250,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         # more such check may be added, no time for this now
 
     # now parse out gnos analysis object info to build bam_file doc
-    bam_file = create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis)
+    bam_file = create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
      
 
     # only do the following when it is WGS
@@ -383,7 +384,7 @@ def keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_v
                     .format(variant_workflow.upper(), donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
 
-def create_vcf_entry(analysis_attrib, gnos_analysis):
+def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries):
     files = []
     for f in gnos_analysis.get('files').get('file'):
         files.append({'file_name': f.get('filename'), 'file_size': f.get('filesize'), 'file_md5sum': f.get('checksum').get('#text')})
@@ -396,6 +397,7 @@ def create_vcf_entry(analysis_attrib, gnos_analysis):
         "gnos_last_modified": [dateutil.parser.parse(gnos_analysis.get('last_modified'))],
         "files": files,
         "study": gnos_analysis.get('study'),
+        "is_santa_cruz_entry": is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, gnos_analysis.get('analysis_id')),
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
             "variant_workflow_name": analysis_attrib.get('variant_workflow_name'),
@@ -453,7 +455,7 @@ def is_in_donor_blacklist(donor_unique_id):
         return False
 
 
-def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis):
+def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries):
     file_info = parse_bam_file_info(gnos_analysis.get('files').get('file'))
     bam_file = {
         "dcc_specimen_type": analysis_attrib.get('dcc_specimen_type'),
@@ -510,7 +512,17 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis):
         bam_file['bam_type'] = 'Unknown'
         bam_file['alignment'] = None
 
+    if bam_file.get('bam_type') == 'Specimen level aligned BAM' or bam_file.get('bam_type') == 'RNA-Seq aligned BAM':
+        bam_file['is_santa_cruz_entry'] = is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, bam_file.get('bam_gnos_ao_id'))
+
     return bam_file
+
+
+def is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, gnos_id):
+    if santa_cruz_freeze_entries.get(donor_unique_id) and santa_cruz_freeze_entries.get(donor_unique_id).get(gnos_id):
+        return True
+    else:
+        return False
 
 
 def get_rna_seq_alignment_detail(analysis_attrib, gnos_analysis):
@@ -577,7 +589,7 @@ def is_corrupted_train_2_alignment(analysis_attrib, gnos_analysis):
         return False
 
 
-def create_donor(donor_unique_id, analysis_attrib, gnos_analysis):
+def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries):
     donor = {
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': analysis_attrib['submitter_donor_id'],
@@ -589,6 +601,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis):
             'is_cell_line': is_cell_line(analysis_attrib, gnos_analysis),
             'is_train2_donor': False,
             'is_train2_pilot': False,
+            'is_santa_cruz_donor': False if not santa_cruz_freeze_entries.get(donor_unique_id) else True,
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -715,6 +728,11 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
 
+    santa_cruz_freeze_entries = read_santa_cruz_entries('santa_cruz_pilot.v2.2015_0504.tsv')
+
+    with open('test.json', 'w') as t:
+        t.write(json.dumps(santa_cruz_freeze_entries, default=set_default))
+
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = set()
     if exclude_gnos_id_lists:
@@ -737,14 +755,14 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
                     .format(f, gnos_analysis.get('analysis_id')) )
                 continue
 
-            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations )
+            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations, santa_cruz_freeze_entries)
         else:
             logger.warning( 'skipping invalid xml file: {}'.format(f) )
 
     for donor_id in donors.keys():
         donor = donors[donor_id]
 
-        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams)
+        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, santa_cruz_freeze_entries)
 
         # push to Elasticsearch
         es.index(index=es_index, doc_type='donor', id=donor['donor_unique_id'], \
@@ -799,6 +817,114 @@ def read_train2_bams(filename):
     return train2_bams
 
 
+def read_santa_cruz_entries(filename):
+    santa_cruz_entries = {}
+
+    with open(filename, 'r') as f:
+        reader = csv.DictReader(f, delimiter='\t')
+        for row in reader:
+            santa_cruz_entries[row.get('Project code')+"::"+row.get('Submitter donor ID')] = {}
+
+            if row.get('Normal WGS alignment GNOS analysis ID'):
+                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Normal WGS alignment GNOS analysis ID')] = \
+                    {
+                    'submitter_specimen_id': row.get('Normal WGS submitter specimen ID'),
+                    'submitter_sample_id': row.get('Normal WGS submitter sample ID'),
+                    'aliquot_id': row.get('Normal WGS aliquot ID'),
+                    'repo': row.get('Normal WGS alignment GNOS repo(s)'),
+                    'filename': row.get('Normal WGS alignment BAM file name'),
+                    'entry_type': 'normal_wgs_bwa_bam'
+                     }
+
+            if row.get('Tumour WGS alignment GNOS analysis ID(s)'):
+                specimens = str.split(row.get('Tumour WGS submitter specimen ID(s)'), ',')
+                samples = str.split(row.get('Tumour WGS submitter sample ID(s)'), ',')
+                aliquots = str.split(row.get('Tumour WGS aliquot ID(s)'), ',')
+                repos = str.split(row.get('Tumour WGS alignment GNOS repo(s)'), ',')
+                gnos_ids = str.split(row.get('Tumour WGS alignment GNOS analysis ID(s)'), ',')
+                filenames = str.split(row.get('Tumour WGS alignment BAM file name(s)'), ',')
+                for tumor_specimen, tumor_sample, tumor_aliquot, tumor_repo, tumor_gnos_id, tumor_filename in zip(specimens, \
+                                                               samples, aliquots, repos, gnos_ids, filenames):                
+                    santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[tumor_gnos_id] = \
+                        {
+                        'submitter_specimen_id': tumor_specimen,
+                        'submitter_sample_id': tumor_sample,
+                        'aliquot_id': tumor_aliquot,
+                        'repo': tumor_repo,
+                        'filename': tumor_filename,
+                        'entry_type': 'tumor_wgs_bwa_bam',
+                        'specimen_count': row.get('Tumour WGS Specimen Count')
+                         }
+
+            if row.get('Sanger variant call GNOS analysis ID(s)'):
+                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Sanger variant call GNOS analysis ID(s)')] = \
+                    {
+                    'repo': row.get('Sanger variant call GNOS repo(s)'),
+                    'filename_prefix': row.get('Sanger variant call GNOS file name prefix'),
+                    'entry_type': 'sanger_vcf'
+                    }
+
+            if row.get('Normal RNA-Seq STAR alignment GNOS analysis ID'):
+                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Normal RNA-Seq STAR alignment GNOS analysis ID')] = \
+                    {
+                    'submitter_specimen_id': row.get('Normal RNA-Seq submitter specimen ID'),
+                    'submitter_sample_id': row.get('Normal RNA-Seq submitter sample ID'),
+                    'aliquot_id': row.get('Normal RNA-Seq aliquot ID'),
+                    'repo': row.get('Normal RNA-Seq STAR alignment GNOS repo(s)'),
+                    'filename': row.get('Normal RNA-Seq STAR alignment BAM file name'),
+                    'entry_type': 'normal_RNA_Seq_STAR_bam'
+                    }
+
+            if row.get('Normal RNA-Seq TopHat2 alignment GNOS analysis ID'):
+                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Normal RNA-Seq TopHat2 alignment GNOS analysis ID')] = \
+                    {
+                    'submitter_specimen_id': row.get('Normal RNA-Seq submitter specimen ID'),
+                    'submitter_sample_id': row.get('Normal RNA-Seq submitter sample ID'),
+                    'aliquot_id': row.get('Normal RNA-Seq aliquot ID'),
+                    'repo': row.get('Normal RNA-Seq TopHat2 alignment GNOS repo(s)'),
+                    'filename': row.get('Normal RNA-Seq TopHat2 alignment BAM file name'),
+                    'entry_type': 'normal_RNA_Seq_TopHat2_bam'
+                    }
+
+            if row.get('Tumour RNA-Seq STAR alignment GNOS analysis ID'):
+                STAR_specimens = str.split(row.get('Tumour RNA-Seq submitter specimen ID'), ',')
+                STAR_samples = str.split(row.get('Tumour RNA-Seq submitter sample ID'), ',')
+                STAR_aliquots = str.split(row.get('Tumour RNA-Seq aliquot ID'), ',')
+                STAR_repos = str.split(row.get('Tumour RNA-Seq STAR alignment GNOS repo(s)'), ',')
+                STAR_gnos_ids = str.split(row.get('Tumour RNA-Seq STAR alignment GNOS analysis ID'), ',')
+                STAR_filenames = str.split(row.get('Tumour RNA-Seq STAR alignment BAM file name'), ',')
+                for STAR_specimen, STAR_sample, STAR_aliquot, STAR_repo, STAR_gnos_id, STAR_filename in zip(STAR_specimens, \
+                                                               STAR_samples, STAR_aliquots, STAR_repos, STAR_gnos_ids, STAR_filenames):                
+                    santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[STAR_gnos_id] = \
+                        {
+                        'submitter_specimen_id': STAR_specimen,
+                        'submitter_sample_id': STAR_sample,
+                        'aliquot_id': STAR_aliquot,
+                        'repo': STAR_repo,
+                        'filename': STAR_filename,
+                        'entry_type': 'tumor_RNA_Seq_STAR_bam'
+                         }
+
+            if row.get('Tumour RNA-Seq TopHat2 alignment GNOS analysis ID'):
+                TopHat2_specimens = str.split(row.get('Tumour RNA-Seq submitter specimen ID'), ',')
+                TopHat2_samples = str.split(row.get('Tumour RNA-Seq submitter sample ID'), ',')
+                TopHat2_aliquots = str.split(row.get('Tumour RNA-Seq aliquot ID'), ',')
+                TopHat2_repos = str.split(row.get('Tumour RNA-Seq TopHat2 alignment GNOS repo(s)'), ',')
+                TopHat2_gnos_ids = str.split(row.get('Tumour RNA-Seq TopHat2 alignment GNOS analysis ID'), ',')
+                TopHat2_filenames = str.split(row.get('Tumour RNA-Seq TopHat2 alignment BAM file name'), ',')
+                for TopHat2_specimen, TopHat2_sample, TopHat2_aliquot, TopHat2_repo, TopHat2_gnos_id, TopHat2_filename in zip(TopHat2_specimens, \
+                                                               TopHat2_samples, TopHat2_aliquots, TopHat2_repos, TopHat2_gnos_ids, TopHat2_filenames):                
+                    santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[TopHat2_gnos_id] = \
+                        {
+                        'submitter_specimen_id': TopHat2_specimen,
+                        'submitter_sample_id': TopHat2_sample,
+                        'aliquot_id': TopHat2_aliquot,
+                        'repo': TopHat2_repo,
+                        'filename': TopHat2_filename,
+                        'entry_type': 'tumor_RNA_Seq_TopHat2_bam'
+                         }
+    return santa_cruz_entries
+
 def read_annotations(annotations, type, file_name):
     with open(file_name, 'r') as r:
         if annotations.get(type): # reset annotation if exists
@@ -830,7 +956,7 @@ def read_annotations(annotations, type, file_name):
             logger.warning('unknown annotation type: {}'.format(type))
 
 
-def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
+def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, santa_cruz_freeze_entries):
     logger.info( 'processing donor: {} ...'.format(donor.get('donor_unique_id')) )
 
     # check whether all tumor specimen(s) aligned
@@ -1400,7 +1526,8 @@ def bam_aggregation(bam_files):
                     "bam_file_size": bam['bam_file_size'],
                     "bam_file_md5sum": bam['md5sum'],
                     "gnos_last_modified": [bam['last_modified']],
-                    "gnos_repo": [bam['gnos_repo']]
+                    "gnos_repo": [bam['gnos_repo']],
+                    "is_santa_cruz_entry": bam['is_santa_cruz_entry']
                  },
                  "bam_with_unmappable_reads": {},
                  "unaligned_bams": {}
@@ -1520,7 +1647,8 @@ def bam_aggregation(bam_files):
                     "submitter_specimen_id": bam['submitter_specimen_id'],
                     "submitter_sample_id": bam['submitter_sample_id'],
                     "dcc_specimen_type": bam['dcc_specimen_type'],
-                    "aligned": True,                
+                    "aligned": True, 
+                    "is_santa_cruz_entry": bam['is_santa_cruz_entry'],               
                     "gnos_info": {
                         "gnos_repo": [bam['gnos_repo']],
                         "gnos_id": bam['bam_gnos_ao_id'],
@@ -1550,7 +1678,8 @@ def bam_aggregation(bam_files):
                         "submitter_specimen_id": bam['submitter_specimen_id'],
                         "submitter_sample_id": bam['submitter_sample_id'],
                         "dcc_specimen_type": bam['dcc_specimen_type'],
-                        "aligned": True,                
+                        "aligned": True, 
+                        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],               
                         "gnos_info": {
                             "gnos_repo": [bam['gnos_repo']],
                             "gnos_id": bam['bam_gnos_ao_id'],
@@ -1590,7 +1719,8 @@ def bam_aggregation(bam_files):
                         "submitter_specimen_id": bam['submitter_specimen_id'],
                         "submitter_sample_id": bam['submitter_sample_id'],
                         "dcc_specimen_type": bam['dcc_specimen_type'],
-                        "aligned": True,                
+                        "aligned": True,    
+                        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],            
                         "gnos_info": {
                             "gnos_repo": [bam['gnos_repo']],
                             "gnos_id": bam['bam_gnos_ao_id'],
