@@ -1533,6 +1533,31 @@ def reorganize_unaligned_bam_info(alignment_status):
     update_lane_count_flags(alignment_status)
     return alignment_status
 
+def create_aggregated_bam_info_dict(bam):
+    aggregated_bam_info_dict = {
+        "aliquot_id": bam['aliquot_id'],
+        "submitter_specimen_id": bam['submitter_specimen_id'],
+        "submitter_sample_id": bam['submitter_sample_id'],
+        "dcc_specimen_type": bam['dcc_specimen_type'],
+        "aligned": True,
+        "lane_count": set(),
+        "do_lane_counts_in_every_bam_entry_match": False,
+        "do_lane_count_and_bam_count_match": False,
+        "aligned_bam": {
+            "gnos_id": bam['bam_gnos_ao_id'],
+            "bam_file_name": bam['bam_file_name'],
+            "bam_file_size": bam['bam_file_size'],
+            "bam_file_md5sum": bam['md5sum'],
+            "gnos_last_modified": [bam['last_modified']],
+            "gnos_repo": [bam['gnos_repo']],
+            "is_santa_cruz_entry": bam['is_santa_cruz_entry']
+         },
+         "bam_with_unmappable_reads": {},
+         "unaligned_bams": {}
+    }
+    
+    return aggregated_bam_info_dict
+
 
 def bam_aggregation(bam_files):
     aggregated_bam_info_new = {}
@@ -1546,27 +1571,7 @@ def bam_aggregation(bam_files):
             continue
 
         if not aggregated_bam_info.get(bam['aliquot_id']): # new aliquot
-            aggregated_bam_info[bam['aliquot_id']] = {
-                "aliquot_id": bam['aliquot_id'],
-                "submitter_specimen_id": bam['submitter_specimen_id'],
-                "submitter_sample_id": bam['submitter_sample_id'],
-                "dcc_specimen_type": bam['dcc_specimen_type'],
-                "aligned": True,
-                "lane_count": set(),
-                "do_lane_counts_in_every_bam_entry_match": False,
-                "do_lane_count_and_bam_count_match": False,
-                "aligned_bam": {
-                    "gnos_id": bam['bam_gnos_ao_id'],
-                    "bam_file_name": bam['bam_file_name'],
-                    "bam_file_size": bam['bam_file_size'],
-                    "bam_file_md5sum": bam['md5sum'],
-                    "gnos_last_modified": [bam['last_modified']],
-                    "gnos_repo": [bam['gnos_repo']],
-                    "is_santa_cruz_entry": bam['is_santa_cruz_entry']
-                 },
-                 "bam_with_unmappable_reads": {},
-                 "unaligned_bams": {}
-            }
+            aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
         else:
             alignment_status = aggregated_bam_info.get(bam['aliquot_id'])
             if alignment_status.get('aligned_bam').get('gnos_id') == bam['bam_gnos_ao_id']:
@@ -1581,13 +1586,19 @@ def bam_aggregation(bam_files):
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
             else:
-                logger.warning( 'Same aliquot: {} from donor: {} has different aligned GNOS BAM entries, in use: {}, additional: {}'
-                                    .format(
-                                        bam['aliquot_id'],
-                                        bam['donor_unique_id'],
-                                        alignment_status.get('aligned_bam').get('gnos_id'),
-                                        bam['gnos_metadata_url'])
-                              )
+                if bam['is_santa_cruz_entry']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                else:
+                    logger.warning( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, in use: {}, additional: {}'
+                                        .format(
+                                            bam['aliquot_id'],
+                                            bam['donor_unique_id'],
+                                            alignment_status.get('aligned_bam').get('gnos_id'),
+                                            bam['gnos_metadata_url'])
+                                  )
 
     sort_repos_by_time(aggregated_bam_info)
 
@@ -1611,7 +1622,7 @@ def bam_aggregation(bam_files):
             elif alignment_status.get('bam_with_unmappable_reads').get('gnos_id') == bam['bam_gnos_ao_id']:
                 alignment_status.get('bam_with_unmappable_reads').get('gnos_repo').add(bam['gnos_repo'])
             else:
-                logger.warning( 'same aliquot: {} has different unmappable reads GNOS BAM entries, in use: {}, additional: {}'
+                logger.warning( 'same aliquot: {} has different unmappable reads GNOS BWA BAM entries, in use: {}, additional: {}'
                                     .format(
                                         bam['aliquot_id'],
                                         alignment_status.get('bam_with_unmappable_reads').get('gnos_id'),
@@ -1677,22 +1688,8 @@ def bam_aggregation(bam_files):
             continue
         if not aggregated_bam_info.get(bam['aliquot_id']):  # new aliquot with RNA-Seq BAM
             aggregated_bam_info[bam['aliquot_id']] = {}
-            aliquot_tmp = {
-                    "aliquot_id": bam['aliquot_id'],
-                    "submitter_specimen_id": bam['submitter_specimen_id'],
-                    "submitter_sample_id": bam['submitter_sample_id'],
-                    "dcc_specimen_type": bam['dcc_specimen_type'],
-                    "aligned": True, 
-                    "is_santa_cruz_entry": bam['is_santa_cruz_entry'],               
-                    "gnos_info": {
-                        "gnos_repo": [bam['gnos_repo']],
-                        "gnos_id": bam['bam_gnos_ao_id'],
-                        "bam_file_name": bam['bam_file_name'],
-                        "bam_file_md5sum": bam['md5sum'],
-                        "bam_file_size": bam['bam_file_size'],
-                        "gnos_last_modified": [bam['last_modified']]
-                    }
-                }
+            aliquot_tmp = create_aggregated_rna_bam_info(bam)
+
             if 'tophat' in bam.get('alignment').get('workflow_name').lower(): 
                 aggregated_bam_info.get(bam['aliquot_id'])['tophat'] = aliquot_tmp
 
@@ -1708,22 +1705,7 @@ def bam_aggregation(bam_files):
             alignment_status = aggregated_bam_info.get(bam['aliquot_id'])
             if 'tophat' in bam.get('alignment').get('workflow_name').lower():
                 if not alignment_status.get('tophat'): # no tophat workflow for the aliquot
-                    aliquot_tmp = {
-                        "aliquot_id": bam['aliquot_id'],
-                        "submitter_specimen_id": bam['submitter_specimen_id'],
-                        "submitter_sample_id": bam['submitter_sample_id'],
-                        "dcc_specimen_type": bam['dcc_specimen_type'],
-                        "aligned": True, 
-                        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],               
-                        "gnos_info": {
-                            "gnos_repo": [bam['gnos_repo']],
-                            "gnos_id": bam['bam_gnos_ao_id'],
-                            "bam_file_name": bam['bam_file_name'],
-                            "bam_file_md5sum": bam['md5sum'],
-                            "bam_file_size": bam['bam_file_size'],
-                            "gnos_last_modified": [bam['last_modified']]
-                            }
-                        }
+                    aliquot_tmp = create_aggregated_rna_bam_info(bam)
                     alignment_status['tophat'] = aliquot_tmp
 
                 elif alignment_status.get('tophat').get('gnos_info').get('gnos_id') == bam['bam_gnos_ao_id']:
@@ -1739,7 +1721,14 @@ def bam_aggregation(bam_files):
                         alignment_status.get('tophat').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('tophat').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
                 else:
-                    logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS BAM entries, in use: {}, additional: {}'
+                    if bam['is_santa_cruz_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                    else:
+                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
                                         .format(
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
@@ -1749,22 +1738,7 @@ def bam_aggregation(bam_files):
                                   )
             elif 'star' in bam.get('alignment').get('workflow_name').lower():
                 if not alignment_status.get('star'): # no star workflow for the aliquot
-                    aliquot_tmp = {
-                        "aliquot_id": bam['aliquot_id'],
-                        "submitter_specimen_id": bam['submitter_specimen_id'],
-                        "submitter_sample_id": bam['submitter_sample_id'],
-                        "dcc_specimen_type": bam['dcc_specimen_type'],
-                        "aligned": True,    
-                        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],            
-                        "gnos_info": {
-                            "gnos_repo": [bam['gnos_repo']],
-                            "gnos_id": bam['bam_gnos_ao_id'],
-                            "bam_file_name": bam['bam_file_name'],
-                            "bam_file_md5sum": bam['md5sum'],
-                            "bam_file_size": bam['bam_file_size'],
-                            "gnos_last_modified": [bam['last_modified']]
-                            }
-                        }
+                    aliquot_tmp = create_aggregated_rna_bam_info(bam)
                     alignment_status['star'] = aliquot_tmp
 
                 elif alignment_status.get('star').get('gnos_info').get('gnos_id') == bam['bam_gnos_ao_id']:
@@ -1780,7 +1754,15 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('star').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
                 else:
-                    logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS BAM entries, in use: {}, additional: {}'
+                    if bam['is_santa_cruz_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+
+                    else:
+                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
                                         .format(
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
@@ -1796,6 +1778,27 @@ def bam_aggregation(bam_files):
     aggregated_bam_info_new['RNA-Seq'] = aggregated_bam_info
 
     return aggregated_bam_info_new
+
+
+def create_aggregated_rna_bam_info(bam):
+    aliquot_tmp = {
+        "aliquot_id": bam['aliquot_id'],
+        "submitter_specimen_id": bam['submitter_specimen_id'],
+        "submitter_sample_id": bam['submitter_sample_id'],
+        "dcc_specimen_type": bam['dcc_specimen_type'],
+        "aligned": True,    
+        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],            
+        "gnos_info": {
+            "gnos_repo": [bam['gnos_repo']],
+            "gnos_id": bam['bam_gnos_ao_id'],
+            "bam_file_name": bam['bam_file_name'],
+            "bam_file_md5sum": bam['md5sum'],
+            "bam_file_size": bam['bam_file_size'],
+            "gnos_last_modified": [bam['last_modified']]
+            }
+        }
+    return aliquot_tmp
+
 
 
 def sort_repos_by_time(aggregated_bam_info):
