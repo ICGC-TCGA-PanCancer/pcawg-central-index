@@ -1040,6 +1040,9 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
         'exists_version_mismatch_in_tumor': False,
         'exists_md5sum_mismatch_between_train2_marked_and_sanger_used': False,
         'exists_version_mismatch_between_train2_marked_and_sanger_used': False,
+        'is_santa_cruz_freeze_bam_missing': False,
+        'is_santa_cruz_freeze_normal_bam_missing': False,
+        'is_santa_cruz_freeze_tumor_bam_missing': False,
         'is_train2_freeze_bam_missing': False,
         'is_train2_freeze_normal_bam_missing': False,
         'is_train2_freeze_tumor_bam_missing': False,
@@ -1081,7 +1084,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                 'bwa_workflow_version': bam_file.get('alignment').get('workflow_version'),
                                 'is_train2_bam': is_train2_bam(donor, train2_freeze_bams, bam_file.get('bam_gnos_ao_id'), 'normal'),
                                 'is_used_in_sanger_variant_call': is_used_in_sanger_variant_call(donor,
-                                        bam_file.get('bam_gnos_ao_id'))
+                                        bam_file.get('bam_gnos_ao_id')),
+                                'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry')
                             }
                         )
                 else:
@@ -1099,7 +1103,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                 'bwa_workflow_version': bam_file.get('alignment').get('workflow_version'),
                                 'is_train2_bam': is_train2_bam(donor, train2_freeze_bams, bam_file.get('bam_gnos_ao_id'), 'normal'),
                                 'is_used_in_sanger_variant_call': is_used_in_sanger_variant_call(donor,
-                                        bam_file.get('bam_gnos_ao_id'))
+                                        bam_file.get('bam_gnos_ao_id')),
+                                'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry')
                             }
                         ]
                     }
@@ -1123,7 +1128,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                             'bwa_workflow_version': bam_file.get('alignment').get('workflow_version'),
                             'is_train2_bam': is_train2_bam(donor, train2_freeze_bams, bam_file.get('bam_gnos_ao_id'), 'tumor'),
                             'is_used_in_sanger_variant_call': is_used_in_sanger_variant_call(donor,
-                                    bam_file.get('bam_gnos_ao_id'))
+                                    bam_file.get('bam_gnos_ao_id')),
+                            'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry')
                         }
                     )
 
@@ -1137,6 +1143,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
             b_gnos_id = None
             b_md5sum = None
             b_version = None
+            has_santa_cruz_n_bam = False
             has_train2_n_bam = False
             has_sanger_n_bam = False
             count_is_train2_not_sanger = 0
@@ -1148,6 +1155,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
             duplicated_bwa_alignment_summary.get('normal')['exists_version_mismatch'] = False
 
             for bam in duplicated_bwa_alignment_summary.get('normal').get('aligned_bam'):
+                is_santa_cruz_n_bam = bam.get('is_santa_cruz_entry')
+                if is_santa_cruz_n_bam: has_santa_cruz_n_bam = True
                 is_train2_n_bam = bam.get('is_train2_bam')
                 if is_train2_n_bam: has_train2_n_bam = True
                 is_sanger_n_bam = bam.get('is_used_in_sanger_variant_call')
@@ -1187,6 +1196,10 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                     duplicated_bwa_alignment_summary.get('normal')['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary.get('normal')['exists_version_mismatch'] = True
 
+            if donor.get('flags').get('is_santa_cruz_donor') and not has_santa_cruz_n_bam:
+                duplicated_bwa_alignment_summary['is_santa_cruz_freeze_bam_missing'] = True
+                duplicated_bwa_alignment_summary['is_santa_cruz_freeze_normal_bam_missing'] = True
+
             if donor.get('flags').get('is_train2_donor') and not has_train2_n_bam:
                 duplicated_bwa_alignment_summary['is_train2_freeze_bam_missing'] = True
                 duplicated_bwa_alignment_summary['is_train2_freeze_normal_bam_missing'] = True
@@ -1210,6 +1223,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                 b_gnos_id = None
                 b_md5sum = None
                 b_version = None
+                has_santa_cruz_t_bam = False
                 has_train2_t_bam = False
                 has_sanger_t_bam = False
                 count_is_train2_not_sanger = 0
@@ -1221,8 +1235,12 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                 aliquot['exists_version_mismatch'] = False
 
                 for bam in aliquot.get('aligned_bam'):
+                    is_santa_cruz_t_bam = bam.get('is_santa_cruz_entry')
+                    if is_santa_cruz_t_bam: has_santa_cruz_t_bam = True
+
                     is_train2_t_bam = bam.get('is_train2_bam')
                     if is_train2_t_bam: has_train2_t_bam = True
+
                     is_sanger_t_bam = bam.get('is_used_in_sanger_variant_call')
                     if is_sanger_t_bam: has_sanger_t_bam = True
 
@@ -1259,6 +1277,10 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
 
                         aliquot['exists_version_mismatch'] = True
                         aliquot['exists_mismatch_bwa_bams'] = True
+
+                if donor.get('flags').get('is_santa_cruz_donor') and not has_santa_cruz_t_bam:
+                    duplicated_bwa_alignment_summary['is_santa_cruz_freeze_bam_missing'] = True
+                    duplicated_bwa_alignment_summary['is_santa_cruz_freeze_tumor_bam_missing'] = True
 
                 if donor.get('flags').get('is_train2_donor') and not has_train2_t_bam:
                     duplicated_bwa_alignment_summary['is_train2_freeze_bam_missing'] = True
