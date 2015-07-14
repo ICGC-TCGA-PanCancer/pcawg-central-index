@@ -73,7 +73,20 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
         current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
 
-        if annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id): # the current donor has sanger variant calling result in jamboree
+        if santa_cruz_freeze_entries.get(donor_unique_id): # the current donor is santa_cruz donor
+            if santa_cruz_freeze_entries.get(donor_unique_id).get(current_vcf_entry.get('gnos_id')): #the sanger vcf is santa_cruz. the vcf will be kept
+                if not vcf_entries.get(donor_unique_id):
+                    vcf_entries[donor_unique_id] = {'sanger_variant_calling': current_vcf_entry}
+                else:
+                    vcf_entries.get(donor_unique_id).update({'sanger_variant_calling': current_vcf_entry})
+                logger.info('Sanger variant calling result for donor: {}. It is santa_cruz_freeze_entry, GNOS entry is {}'
+                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+            else: # this is not the one expected, likely duplications
+                logger.warning('Sanger variant calling result for donor: {}. Ignored as it is not the one in santa_cruz, ignoring entry {}'
+                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+
+
+        elif annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id): # the current donor has sanger variant calling result in jamboree
             if annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'): # this is the one expected
                 if not vcf_entries.get(donor_unique_id):
                     vcf_entries[donor_unique_id] = {'sanger_variant_calling': current_vcf_entry}
@@ -83,7 +96,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                 logger.info('Sanger variant calling result for donor: {}. It is already saved in Jamboree, GNOS entry is {}'
                     .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
             else: # this is not the one expected, likely duplications
-                logger.warning('Sanger variant calling result for donor: {}. Ignored as it not the one saved in Jamboree, ignoring entry {}'
+                logger.warning('Sanger variant calling result for donor: {}. Ignored as it is not the one saved in Jamboree, ignoring entry {}'
                     .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
         elif vcf_entries.get(donor_unique_id) and vcf_entries.get(donor_unique_id).get('sanger_variant_calling'):
