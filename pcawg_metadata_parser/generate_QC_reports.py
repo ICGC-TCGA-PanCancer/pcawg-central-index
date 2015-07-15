@@ -236,6 +236,47 @@ es_queries = [
               },
               "size": 10000
       }
+},
+# query 4: get missing gnos_entry from santa_cruz_freeze 
+{
+     "name": "missing_gnos_entry_from_santa_cruz_freeze",
+     "content":{
+         "fields": ["donor_unique_id"],
+         "filter":{
+             "bool": {
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_santa_cruz_donor":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+             }
+         }
+     }
 }
 
 ]
@@ -249,7 +290,8 @@ report_fields = [
 "tumor_aliquot_id", "tumor_submitter_specimen", "tumor_bam_gnos_id", "is_tumor_bam_used_by_sanger_missing"],
 ["donor_unique_id", "submitter_donor_id", "dcc_project_code", "is_train2_donor", "is_sanger_variant_calling_performed", \
 "aliquot_id", "dcc_specimen_type", "exists_gnos_id_mismatch", "exists_md5sum_mismatch", "exists_version_mismatch", "train2_bams_gnos_id", \
-"gnos_id_to_be_reassigned_as_train2_bam", "gnos_id_to_keep", "gnos_id_to_be_removed"]
+"gnos_id_to_be_reassigned_as_train2_bam", "gnos_id_to_keep", "gnos_id_to_be_removed"],
+["donor_unique_id", "submitter_donor_id", "dcc_project_code", "gnos_id", "entry_type", "repo"]
 ]
 
 def get_donor_json(es, es_index, donor_unique_id):
@@ -285,20 +327,42 @@ def create_report_info(donor_unique_id, es_json, q_index):
     report_info['dcc_project_code'] = es_json['dcc_project_code']
     
     if q_index == 0:
-      add_report_info_0(report_info, report_info_list, es_json)
+        add_report_info_0(report_info, report_info_list, es_json)
 
     if q_index == 1:
-      add_report_info_1(report_info, report_info_list, es_json)
+        add_report_info_1(report_info, report_info_list, es_json)
 
     if q_index == 2:
-      add_report_info_2(report_info, report_info_list, es_json)
+        add_report_info_2(report_info, report_info_list, es_json)
 
     if q_index == 3:
-      report_info['is_train2_donor'] = es_json.get('flags').get('is_train2_donor')
-      report_info['is_sanger_variant_calling_performed'] = es_json.get('flags').get('is_sanger_variant_calling_performed') 
-      add_report_info_3(report_info, report_info_list, es_json)
+        report_info['is_train2_donor'] = es_json.get('flags').get('is_train2_donor')
+        report_info['is_sanger_variant_calling_performed'] = es_json.get('flags').get('is_sanger_variant_calling_performed') 
+        add_report_info_3(report_info, report_info_list, es_json)
+
+    if q_index == 4:
+        add_report_info_4(report_info, report_info_list, es_json)
 
     return report_info_list
+
+def add_report_info_4(report_info, report_info_list, es_json):
+    if es_json.get('bam_files'):
+        for bam in es_json.get('bam_files'):
+            if not bam.get('is_santa_cruz_entry'): 
+                continue
+            report_info['gnos_id'] =  bam.get('bam_gnos_ao_id')
+            report_info['repo'] = bam.get('gnos_repo')
+            report_info_list.append(copy.deepcopy(report_info))
+
+    if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('sanger_variant_calling'):
+        vcf = es_json.get('variant_calling_results').get('sanger_variant_calling')
+        if vcf.get('is_santa_cruz_entry'):
+            report_info['gnos_id'] =  vcf.get('gnos_id')
+            report_info['repo'] = vcf.get('gnos_repo')[0]
+            report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list 
+
 
 def add_report_info_0(report_info, report_info_list, es_json):
     report_info['gnos_id'] = es_json.get('variant_calling_results').get('sanger_variant_calling').get('gnos_id')
@@ -453,23 +517,27 @@ def main(argv=None):
         report_tsv_fh.write('\t'.join(report_fields[q]) + '\n')
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
-        # get json doc for each donor
-        for donor_unique_id in donors_list:                 
+        
+        report_info_list_full = []
+        for donor_unique_id in donors_list:
+            # get json doc for each donor                 
             es_json = get_donor_json(es, es_index, donor_unique_id)
             
-            report_info_list = create_report_info(donor_unique_id, es_json, q)
+            report_info_list_donor = create_report_info(donor_unique_id, es_json, q)
+
+            report_info_list_full.extend(report_info_list_donor)
             
-            for r in report_info_list: 
-                # make the list of output from dict
-                line = []
-                for p in r.keys():
-                    if isinstance(r.get(p), list):
-                        line.append('|'.join(r.get(p)))
-                    elif isinstance(r.get(p), set):
-                        line.append('|'.join(list(r.get(p))))
-                    else:
-                        line.append(str(r.get(p)))
-                report_tsv_fh.write('\t'.join(line) + '\n') 
+        for r in report_info_list_full: 
+            # make the list of output from dict
+            line = []
+            for p in r.keys():
+                if isinstance(r.get(p), list):
+                    line.append('|'.join(r.get(p)))
+                elif isinstance(r.get(p), set):
+                    line.append('|'.join(list(r.get(p))))
+                else:
+                    line.append(str(r.get(p)))
+            report_tsv_fh.write('\t'.join(line) + '\n') 
         
         report_tsv_fh.close()            
 
