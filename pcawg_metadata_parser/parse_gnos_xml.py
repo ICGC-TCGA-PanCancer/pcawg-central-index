@@ -741,7 +741,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
 
-    santa_cruz_freeze_entries = read_santa_cruz_entries('santa_cruz_pilot.v2.2015_0504.tsv')
+    santa_cruz_freeze_entries = read_santa_cruz_entries('santa_cruz_pilot.v2.2015_0504.tsv', 'santa_cruz_freeze_entry.tsv')
 
     with open('test.json', 'w') as t:
         t.write(json.dumps(santa_cruz_freeze_entries, default=set_default))
@@ -830,7 +830,7 @@ def read_train2_bams(filename):
     return train2_bams
 
 
-def read_santa_cruz_entries(filename):
+def read_santa_cruz_entries(filename, santa_cruz_freeze_entry_tsv):
     santa_cruz_entries = {}
 
     with open(filename, 'r') as f:
@@ -936,7 +936,36 @@ def read_santa_cruz_entries(filename):
                         'filename': TopHat2_filename,
                         'entry_type': 'tumor_RNA_Seq_TopHat2_bam'
                          }
+
+    santa_cruz_freeze_entry_list = []
+
+    for k, v in santa_cruz_entries.iteritems():
+       santa_cruz_freeze_entry = OrderedDict()
+       santa_cruz_freeze_entry['donor_unique_id'] = k
+       for kk, vv in v.iteritems():
+            santa_cruz_freeze_entry['gnos_id'] = kk
+            santa_cruz_freeze_entry['entry_type'] = vv.get('entry_type')
+            repo_list = str.split(vv.get('repo'), '|')
+            for r in repo_list:
+                santa_cruz_freeze_entry['repo'] = r
+                santa_cruz_freeze_entry_list.append(copy.deepcopy(santa_cruz_freeze_entry))
+
+    with open(santa_cruz_freeze_entry_tsv, 'w') as s:
+        write('\t'.join(['donor_unique_id', 'gnos_id', 'entry_type', 'repo']]) + '\n')
+        for r in santa_cruz_freeze_entry_list: 
+            # make the list of output from dict
+            line = []
+            for p in r.keys():
+                if isinstance(r.get(p), list):
+                    line.append('|'.join(r.get(p)))
+                elif isinstance(r.get(p), set):
+                    line.append('|'.join(list(r.get(p))))
+                else:
+                    line.append(str(r.get(p)))
+            s.write('\t'.join(line) + '\n')
+    
     return santa_cruz_entries
+
 
 def read_annotations(annotations, type, file_name):
     with open(file_name, 'r') as r:
