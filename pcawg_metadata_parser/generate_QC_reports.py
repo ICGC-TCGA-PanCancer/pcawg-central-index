@@ -275,7 +275,8 @@ es_queries = [
                       }
                  ]
              }
-         }
+         },
+         "size": 10000
      }
 }
 
@@ -506,6 +507,9 @@ def main(argv=None):
     es_host = 'localhost:9200'
 
     es = Elasticsearch([es_host])
+
+    # read bench mark santa_cruz list, hardcode the location of santa_cruz_freeze_json
+    santa_cruz_freeze = json.load('santa_cruz_freeze.json')    
   
     # output result
     report_name = re.sub(r'^generate_', '', os.path.basename(__file__))
@@ -517,7 +521,7 @@ def main(argv=None):
         report_tsv_fh.write('\t'.join(report_fields[q]) + '\n')
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
-        
+
         report_info_list_full = []
         for donor_unique_id in donors_list:
             # get json doc for each donor                 
@@ -526,6 +530,11 @@ def main(argv=None):
             report_info_list_donor = create_report_info(donor_unique_id, es_json, q)
 
             report_info_list_full.extend(report_info_list_donor)
+
+        # do diff for santa_cruz missing only
+        if q == 4:
+            pass
+
             
         for r in report_info_list_full: 
             # make the list of output from dict
