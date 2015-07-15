@@ -961,7 +961,7 @@ def read_santa_cruz_entries(filename, santa_cruz_freeze_entry_tsv):
                 else:
                     line.append(str(r.get(p)))
             s.write('\t'.join(line) + '\n')
-    
+
     return santa_cruz_entries
 
 
