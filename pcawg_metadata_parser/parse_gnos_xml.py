@@ -945,13 +945,11 @@ def read_santa_cruz_entries(filename, santa_cruz_freeze_entry_tsv):
        for kk, vv in v.iteritems():
             santa_cruz_freeze_entry['gnos_id'] = kk
             santa_cruz_freeze_entry['entry_type'] = vv.get('entry_type')
-            repo_list = str.split(vv.get('repo'), '|')
-            for r in repo_list:
-                santa_cruz_freeze_entry['repo'] = r
-                santa_cruz_freeze_entry_list.append(copy.deepcopy(santa_cruz_freeze_entry))
+            
+            santa_cruz_freeze_entry_list.append(copy.deepcopy(santa_cruz_freeze_entry))
 
     with open(santa_cruz_freeze_entry_tsv, 'w') as s:
-        write('\t'.join(['donor_unique_id', 'gnos_id', 'entry_type', 'repo']]) + '\n')
+        s.write('\t'.join(['donor_unique_id', 'gnos_id', 'entry_type']) + '\n')
         for r in santa_cruz_freeze_entry_list: 
             # make the list of output from dict
             line = []
