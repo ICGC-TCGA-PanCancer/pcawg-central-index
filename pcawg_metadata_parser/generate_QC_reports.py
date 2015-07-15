@@ -17,6 +17,7 @@ import datetime
 import dateutil.parser
 from itertools import izip
 from distutils.version import LooseVersion
+import csv
 
 es_queries = [
 # query 0: PCAWGDATA-45_Sanger GNOS entries with study field ends with _test
@@ -292,7 +293,7 @@ report_fields = [
 ["donor_unique_id", "submitter_donor_id", "dcc_project_code", "is_train2_donor", "is_sanger_variant_calling_performed", \
 "aliquot_id", "dcc_specimen_type", "exists_gnos_id_mismatch", "exists_md5sum_mismatch", "exists_version_mismatch", "train2_bams_gnos_id", \
 "gnos_id_to_be_reassigned_as_train2_bam", "gnos_id_to_keep", "gnos_id_to_be_removed"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "gnos_id", "entry_type", "repo"]
+["donor_unique_id",  "gnos_id", "entry_type"]
 ]
 
 def get_donor_json(es, es_index, donor_unique_id):
@@ -352,14 +353,12 @@ def add_report_info_4(report_info, report_info_list, es_json):
             if not bam.get('is_santa_cruz_entry'): 
                 continue
             report_info['gnos_id'] =  bam.get('bam_gnos_ao_id')
-            report_info['repo'] = bam.get('gnos_repo')
             report_info_list.append(copy.deepcopy(report_info))
 
     if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('sanger_variant_calling'):
         vcf = es_json.get('variant_calling_results').get('sanger_variant_calling')
         if vcf.get('is_santa_cruz_entry'):
             report_info['gnos_id'] =  vcf.get('gnos_id')
-            report_info['repo'] = vcf.get('gnos_repo')[0]
             report_info_list.append(copy.deepcopy(report_info))
 
     return report_info_list 
@@ -507,9 +506,6 @@ def main(argv=None):
     es_host = 'localhost:9200'
 
     es = Elasticsearch([es_host])
-
-    # read bench mark santa_cruz list, hardcode the location of santa_cruz_freeze_json
-    santa_cruz_freeze = json.load('santa_cruz_freeze.json')    
   
     # output result
     report_name = re.sub(r'^generate_', '', os.path.basename(__file__))
@@ -533,7 +529,15 @@ def main(argv=None):
 
         # do diff for santa_cruz missing only
         if q == 4:
-            pass
+            # generate the set of gnos_id
+            gnos_id_set = set([l.get('gnos_id') for l in report_info_list_full])
+            report_info_list_full = []
+            # read bench mark santa_cruz list, hardcode the location of santa_cruz_freeze_json
+            with open('santa_cruz_freeze_entry.tsv', 'r') as s:
+                reader = csv.reader(s, delimiter='\t')
+                for row in reader:
+                    if not row.get('gnos_id') in gnos_id_set:
+                        report_info_list_full.append(row)
 
             
         for r in report_info_list_full: 
