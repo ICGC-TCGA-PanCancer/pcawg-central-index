@@ -743,9 +743,6 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
 
     santa_cruz_freeze_entries = read_santa_cruz_entries('santa_cruz_pilot.v2.2015_0504.tsv', 'santa_cruz_freeze_entry.tsv')
 
-    with open('test.json', 'w') as t:
-        t.write(json.dumps(santa_cruz_freeze_entries, default=set_default))
-
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = set()
     if exclude_gnos_id_lists:
