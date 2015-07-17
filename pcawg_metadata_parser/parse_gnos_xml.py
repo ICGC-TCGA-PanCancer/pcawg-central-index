@@ -490,6 +490,11 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa
         "bam_file_name": file_info.get('file_name'),
         "bam_file_size": file_info.get('file_size'),
         "md5sum": file_info.get('md5sum'),
+
+        "bai_file_name": file_info.get('bai_file_name'),
+        "bai_file_size": file_info.get('bai_file_size'),
+        "bai_file_md5sum": file_info.get('bai_file_md5sum'),
+
     }
 
     # much more TODO for bam file info and alignment details
@@ -525,8 +530,7 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa
         bam_file['bam_type'] = 'Unknown'
         bam_file['alignment'] = None
 
-    if bam_file.get('bam_type') == 'Specimen level aligned BAM' or bam_file.get('bam_type') == 'RNA-Seq aligned BAM':
-        bam_file['is_santa_cruz_entry'] = is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, bam_file.get('bam_gnos_ao_id'))
+    bam_file['is_santa_cruz_entry'] = is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, bam_file.get('bam_gnos_ao_id'))
 
     return bam_file
 
@@ -578,6 +582,10 @@ def parse_bam_file_info(file_fragment):
             file_info['file_name'] = f.get('filename')
             file_info['file_size'] = int(f.get('filesize'))
             file_info['md5sum'] = f.get('checksum').get('#text')
+        elif f.get('filename').endswith('.bai'): # assume there is only one BAI file
+            file_info['bai_file_name'] = f.get('filename')
+            file_info['bai_file_size'] = int(f.get('filesize'))
+            file_info['bai_file_md5sum'] = f.get('checksum').get('#text')
 
     return file_info
 
@@ -741,7 +749,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
 
-    santa_cruz_freeze_entries = read_santa_cruz_entries('santa_cruz_pilot.v2.2015_0504.tsv', 'santa_cruz_freeze_entry.tsv')
+    santa_cruz_freeze_entries = read_santa_cruz_entries('../pcawg-operations/data_releases/santa_cruz/santa_cruz_pilot.v2.2015_0504.tsv', 'santa_cruz_freeze_entry.tsv')
 
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = set()
@@ -1583,6 +1591,9 @@ def create_aggregated_bam_info_dict(bam):
             "bam_file_name": bam['bam_file_name'],
             "bam_file_size": bam['bam_file_size'],
             "bam_file_md5sum": bam['md5sum'],
+            "bai_file_name": bam['bai_file_name'],
+            "bai_file_size": bam['bai_file_size'],
+            "bai_file_md5sum": bam['bai_file_md5sum'],
             "gnos_last_modified": [bam['last_modified']],
             "gnos_repo": [bam['gnos_repo']],
             "is_santa_cruz_entry": bam['is_santa_cruz_entry']
@@ -1829,6 +1840,9 @@ def create_aggregated_rna_bam_info(bam):
             "bam_file_name": bam['bam_file_name'],
             "bam_file_md5sum": bam['md5sum'],
             "bam_file_size": bam['bam_file_size'],
+            "bai_file_name": bam['bai_file_name'],
+            "bai_file_md5sum": bam['bai_file_md5sum'],
+            "bai_file_size": bam['bai_file_size'],
             "gnos_last_modified": [bam['last_modified']]
             }
         }
