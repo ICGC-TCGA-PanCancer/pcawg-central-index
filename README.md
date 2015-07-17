@@ -1,4 +1,3 @@
-pancancer-sandbox
-=================
+PCAWG Central Index
+==================
 
-A place for exploration code for pancan project
