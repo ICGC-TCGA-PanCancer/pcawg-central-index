@@ -124,9 +124,12 @@ def generate_md5_size(metadata_xml_file):
                 line = '<ResultSet>' + '\n'
             static_file_content.append(line)
     data = ''.join(static_file_content)
+    with open('tmp.xml', 'w') as f:
+        f.write(data)
 
     xml_md5 = hashlib.md5(data).hexdigest()
-    xml_size =  sys.getsizeof(data)
+    xml_size = os.path.getsize('tmp.xml')
+
     return [xml_md5, xml_size]
 
 def generate_object_id(filename, gnos_id):
@@ -187,36 +190,41 @@ def add_metadata_xml_info(obj):
 
 def create_bwa_alignment(aliquot, es_json):
     aliquot_info = {
-            'data_type': 'bwa_alignment',
-            'project_code': es_json['dcc_project_code'],
-            'submitter_donor_id': es_json['submitter_donor_id'],
-            'is_santa_cruz': aliquot.get('aligned_bam').get('is_santa_cruz_entry'),
-            'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
-            'submitter_sample_id': aliquot.get('submitter_sample_id'),
-            'specimen_type': aliquot.get('dcc_specimen_type'),
-            'aliquot_id': aliquot.get('aliquot_id'),
-            'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), aliquot.get('aligned_bam').get('gnos_repo')),
-            'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
-            'files': [
-                {
-                    'file_name': aliquot.get('aligned_bam').get('bam_file_name'),
-                    'file_md5sum': aliquot.get('aligned_bam').get('bam_file_md5sum'),
-                    'file_size': aliquot.get('aligned_bam').get('bam_file_size'),
-                    'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                       
-                },
-                {
-                    'file_name': aliquot.get('aligned_bam').get('bai_file_name'),
-                    'file_md5sum': aliquot.get('aligned_bam').get('bai_file_md5sum'),
-                    'file_size': aliquot.get('aligned_bam').get('bai_file_size'),
-                    'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                        
-                }
-            ]
+        'data_type': 'bwa_alignment',
+        'project_code': es_json['dcc_project_code'],
+        'submitter_donor_id': es_json['submitter_donor_id'],
+        'is_santa_cruz': aliquot.get('aligned_bam').get('is_santa_cruz_entry'),
+        'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
+        'submitter_sample_id': aliquot.get('submitter_sample_id'),
+        'specimen_type': aliquot.get('dcc_specimen_type'),
+        'aliquot_id': aliquot.get('aliquot_id'),
+        'gnos_repo': aliquot.get('aligned_bam').get('gnos_repo'),
+        'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
+        'files': [
+            {
+                'file_name': aliquot.get('aligned_bam').get('bam_file_name'),
+                'file_md5sum': aliquot.get('aligned_bam').get('bam_file_md5sum'),
+                'file_size': aliquot.get('aligned_bam').get('bam_file_size'),
+                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                       
+            }
+        ]
+    }
+
+    # add the bai file info if exist
+    if aliquot.get('aligned_bam').get('bai_file_name'):
+        bai_file = {
+            'file_name': aliquot.get('aligned_bam').get('bai_file_name'),
+            'file_md5sum': aliquot.get('aligned_bam').get('bai_file_md5sum'),
+            'file_size': aliquot.get('aligned_bam').get('bai_file_size'),
+            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                        
         }
+        aliquot_info.get('files').append(bai_file)
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'))
-
     aliquot_info.get('files').append(metadata_xml_file_info)   
+
+    aliquot_info.update({'gnos_repo': get_formal_repo_name(aliquot.get('aligned_bam').get('gnos_repo')[-1])})
 
     return aliquot_info
 
@@ -249,7 +257,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
         'submitter_sample_id': None,
         'specimen_type': None,
         'aliquot_id': None,
-        'gnos_repo': wgs_tumor_sanger_vcf_info.get('gnos_repo')[-1],
+        'gnos_repo': wgs_tumor_sanger_vcf_info.get('gnos_repo'),
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
         'files': wgs_tumor_sanger_vcf_info.get('files')
     }  
@@ -262,6 +270,8 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
     metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_sanger_vcf_info)
 
     sanger_variant_calling.get('files').append(metadata_xml_file_info)            
+
+    sanger_variant_calling.update({'gnos_repo': get_formal_repo_name(wgs_tumor_sanger_vcf_info.get('gnos_repo')[-1])})
         
     reorganized_donor.get('sanger_variant_calling').update(sanger_variant_calling) 
 
@@ -325,8 +335,15 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         ]
     }
 
-    # add bai file info
-
+    # add the bai file info if exist
+    if aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'):
+        bai_file = {
+            'file_name': aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'),
+            'file_md5sum': aliquot.get(workflow_type).get('gnos_info').get('bai_file_md5sum'),
+            'file_size': aliquot.get(workflow_type).get('gnos_info').get('bai_file_size'),
+            'object_id': generate_object_id(aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'), aliquot.get(workflow_type).get('gnos_info').get('gnos_id'))                        
+        }
+        aliquot_info.get('files').append(bai_file)
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'))
@@ -488,8 +505,6 @@ def generate_json_for_tsv_file(reorganized_donor):
 
 def organize_s3_transfer(jobs_dir, reorganized_donor, gnos_ids_to_be_included, gnos_ids_to_be_excluded):
 
-    if not os.path.exists(jobs_dir): os.makedirs(jobs_dir)
-
     if reorganized_donor.get('wgs').get('normal_specimen'):
         transfer_json = reorganized_donor.get('wgs').get('normal_specimen')
         write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
@@ -527,7 +542,7 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gno
                 generate = True
 
         if generate == True:
-            prefix_for_priority = 'a0000'
+            prefix_for_priority = 'a0001'
             project_code = transfer_json.get('project_code')   
             data_type = transfer_json.get('data_type')
             json_name_list = [prefix_for_priority, project_code, gnos_id, data_type, 'json']
@@ -604,6 +619,8 @@ def main(argv=None):
         donor_fh.write(json.dumps(reorganized_donor, default=set_default, indent=4, sort_keys=True) + '\n')
 
     donor_fh.close()
+
+    os.remove('tmp.xml')
 
     return 0
 
