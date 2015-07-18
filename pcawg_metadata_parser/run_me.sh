@@ -86,6 +86,7 @@ echo running alignment summary report for $M
 ./generate_all_donors.py -m $M
 ./generate_pcawg_sample_sheet.py -m $M
 ./generate_pcawg_specimen_alignment_summary.py -m $M
+./generate_QC_reports.py -m $M
 
 echo gzip all jsonl files under $M
 gzip $M/*.jsonl
