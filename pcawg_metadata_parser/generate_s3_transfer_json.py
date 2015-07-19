@@ -34,74 +34,99 @@ ch = logging.StreamHandler()
 
 es_queries = [
   # query 0: donors_sanger_vcf_without_missing_bams 
-    {
-     "fields": "donor_unique_id", 
+  {
+    "fields": "donor_unique_id", 
  
     "filter": {
-                    "bool": {
-                      "must": [
-                        {
-                          "type": {
-                            "value": "donor"
-                          }
-                        },
-                        {
-                          "terms":{
-                            "flags.is_santa_cruz_donor":[
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms":{
-                            "flags.is_sanger_variant_calling_performed":[
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
-                              "F"
-                            ]
-                          }
-                        },
-                        {
-                          "terms":{
-                            "flags.is_normal_specimen_aligned":[
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms":{
-                            "flags.are_all_tumor_specimens_aligned":[
-                              "T"
-                            ]
-                          }
-                        }                    
-                      ],
-                      "must_not": [
-                        {
-                          "terms": {
-                            "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
-                        }
-                      ]
-                    }
-                },
+        "bool": {
+          "must": [
+            {
+              "type": {
+                "value": "donor"
+              }
+            },
+            {
+              "terms":{
+                "flags.is_santa_cruz_donor":[
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms":{
+                "flags.is_sanger_variant_calling_performed":[
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
+                "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
+                  "F"
+                ]
+              }
+            },
+            {
+              "terms":{
+                "flags.is_normal_specimen_aligned":[
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms":{
+                "flags.are_all_tumor_specimens_aligned":[
+                  "T"
+                ]
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "regexp": {
+                "dcc_project_code": ".*-US"
+              }
+            },
+            {
+              "terms": {
+                "flags.is_manual_qc_failed": [
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
+                "flags.is_donor_blacklisted": [
+                  "T"
+                ]
+              }
+            }
+          ]
+        }
+    },
       "size": 10000
-    }
+  }
 ]
+
+
+def get_source_repo_index_pos (available_repos):
+    source_repo_rank = (
+        "https://gtrepo-bsc.annailabs.com/",
+        "https://gtrepo-dkfz.annailabs.com/",
+        "https://gtrepo-osdc-icgc.annailabs.com/",
+        "https://gtrepo-ebi.annailabs.com/",
+        "https://gtrepo-riken.annailabs.com/",
+        "https://gtrepo-etri.annailabs.com/",
+    )
+    for r in source_repo_rank:
+        try:
+            if available_repos.index(r) >= 0: return available_repos.index(r)
+        except:
+            pass
+
+    logger.warning('Source repo not allowed to be transferred to S3')
+    return None
+
 
 def get_formal_repo_name(repo):
     repo_url_to_repo = {
@@ -214,10 +239,10 @@ def add_wgs_normal_specimen(reorganized_donor, es_json):
     return reorganized_donor
 
 def add_metadata_xml_info(obj):
-    repo = get_formal_repo_name(obj.get('gnos_repo')[-1])
+    repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo')) ])
     gnos_id = obj.get('gnos_id')
     ao_state = 'live'
-    ao_updated = obj.get('gnos_last_modified')[-1].encode('utf8')
+    ao_updated = obj.get('gnos_last_modified')[ get_source_repo_index_pos(obj.get('gnos_repo')) ].encode('utf8')
     ao_updated = str.split(ao_updated, '+')[0] + 'Z'
     metadata_xml_file = 'gnos_metadata/__all_metadata_xml/' + repo + '/' + gnos_id + '__' + ao_state + '__' + ao_updated + '.xml'
     metadata_xml_file_info = {
@@ -239,7 +264,8 @@ def create_bwa_alignment(aliquot, es_json):
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
-        'gnos_repo': aliquot.get('aligned_bam').get('gnos_repo'),
+        'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
+                       get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo')) ] ],
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
         'files': [
             {
@@ -266,8 +292,6 @@ def create_bwa_alignment(aliquot, es_json):
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'))
     aliquot_info.get('files').append(metadata_xml_file_info)   
-
-    aliquot_info.update({'gnos_repo': get_formal_repo_name(aliquot.get('aligned_bam').get('gnos_repo')[-1])})
 
     return aliquot_info
 
@@ -300,7 +324,8 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
         'submitter_sample_id': None,
         'specimen_type': None,
         'aliquot_id': None,
-        'gnos_repo': wgs_tumor_sanger_vcf_info.get('gnos_repo'),
+        'gnos_repo': [ wgs_tumor_sanger_vcf_info.get('gnos_repo')[ \
+            get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo')) ] ],
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
         'files': wgs_tumor_sanger_vcf_info.get('files')
     }  
@@ -315,8 +340,6 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
 
     sanger_variant_calling.get('files').append(metadata_xml_file_info)            
 
-    sanger_variant_calling.update({'gnos_repo': get_formal_repo_name(wgs_tumor_sanger_vcf_info.get('gnos_repo')[-1])})
-        
     reorganized_donor.get('sanger_variant_calling').update(sanger_variant_calling) 
 
     return reorganized_donor
@@ -367,7 +390,8 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
         'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
         'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
-        'gnos_repo': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
+        'gnos_repo': [ aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[ \
+            get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'))] ],
         'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
         'files': [
             {
@@ -394,8 +418,6 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'))
     alignment_info.get('files').append(metadata_xml_file_info)
-
-    alignment_info.update({'gnos_repo': get_formal_repo_name(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[-1])})   
 
     return alignment_info
 
