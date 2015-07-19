@@ -20,7 +20,17 @@ from itertools import izip
 from distutils.version import LooseVersion
 import hashlib
 import xml.dom.minidom
+import shutil
+import requests
 
+id_service_token = os.environ.get('ICGC_TOKEN')
+
+json_prefix_code = 'a'
+json_prefix_start = 1
+json_prefix_inc = 10
+
+logger = logging.getLogger('s3 transfer json generator')
+ch = logging.StreamHandler()
 
 es_queries = [
   # query 0: donors_sanger_vcf_without_missing_bams 
@@ -133,7 +143,38 @@ def generate_md5_size(metadata_xml_file):
     return [xml_md5, xml_size]
 
 def generate_object_id(filename, gnos_id):
-    return '11111'
+    global id_service_token
+    url = 'https://meta.icgc.org/entities'
+    # try get request first
+    r = requests.get(url + '?gnosId=' + gnos_id + '&fileName=' + filename,
+                       headers={'Content-Type': 'application/json'})
+    if not r or not r.ok:
+        logger.warning('GET request unable to access metadata service: {}'.format(url))
+        return 'FAKE-ID'
+    elif r.json().get('totalElements') == 1:
+        logger.info('GET request got the id')
+        return r.json().get('content')[0].get('id')
+    elif r.json().get('totalElements') > 1:
+        logger.warning('GET request to metadata service return multiple matches for gnos_id: {} and filename: {}'
+                          .format(gnos_id, filename))
+        return 'FAKE-ID'
+    elif id_service_token:  # no match then try post to create
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + id_service_token
+        }
+        body = {
+            "gnosId": gnos_id,
+            "fileName": filename
+        }
+        r = requests.post(url, data=json.dumps(body), headers=headers)
+        if not r or not r.ok:
+            logger.warning('POST request failed')
+            return 'FAKE-ID'
+        return r.json().get('id')
+    else:
+        logger.info('No luck, generate FAKE ID')
+        return 'FAKE-ID'
 
 
 def create_reorganized_donor(donor_unique_id, es_json):
@@ -219,6 +260,8 @@ def create_bwa_alignment(aliquot, es_json):
             'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                        
         }
         aliquot_info.get('files').append(bai_file)
+    else:
+        logger.warning('BWA alignment GNOS entry {} has no .bai file'.format(aliquot_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'))
@@ -264,6 +307,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
     
     # add the object_id for each file object
     for f in sanger_variant_calling.get('files'):
+        f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
         f.update({'object_id': generate_object_id(f.get('file_name'), sanger_variant_calling.get('gnos_id'))})
 
     # add the metadata_xml_file_info
@@ -343,7 +387,9 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
             'file_size': aliquot.get(workflow_type).get('gnos_info').get('bai_file_size'),
             'object_id': generate_object_id(aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'), aliquot.get(workflow_type).get('gnos_info').get('gnos_id'))                        
         }
-        aliquot_info.get('files').append(bai_file)
+        alignment_info.get('files').append(bai_file)
+    else:
+        logger.warning('RNA-Sequ alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'))
@@ -399,110 +445,6 @@ def set_default(obj):
         return list(obj)
     raise TypeError
 
-def generate_json_for_tsv_file(reorganized_donor):
-    pilot_tsv_json = OrderedDict()
-    pilot_tsv_json['dcc_project_code'] = reorganized_donor.get('dcc_project_code')
-    pilot_tsv_json['submitter_donor_id'] = reorganized_donor.get('submitter_donor_id')
-    pilot_tsv_json['data_train'] = reorganized_donor.get('data_train')
-    pilot_tsv_json['train2_pilot'] = reorganized_donor.get('train2_pilot')
-    # wgs normal specimen 
-    pilot_tsv_json['normal_wgs_submitter_specimen_id'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('submitter_specimen_id')
-    pilot_tsv_json['normal_wgs_submitter_sample_id'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('submitter_sample_id')
-    pilot_tsv_json['normal_wgs_aliquot_id'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('aliquot_id')
-    pilot_tsv_json['normal_wgs_alignment_gnos_repo'] = [reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('gnos_repo')]
-    pilot_tsv_json['normal_wgs_alignment_gnos_id'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('gnos_id')
-    pilot_tsv_json['normal_wgs_alignment_bam_file_name'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('files')[0].get('bam_file_name')
-    # wgs tumor specimen
-    wgs_tumor_speciments = reorganized_donor.get('wgs').get('tumor_specimens')
-    pilot_tsv_json['tumor_wgs_specimen_count'] = reorganized_donor.get('tumor_wgs_specimen_count')
-    pilot_tsv_json['tumor_wgs_submitter_specimen_id'] = [] 
-    pilot_tsv_json['tumor_wgs_submitter_sample_id'] = []
-    pilot_tsv_json['tumor_wgs_aliquot_id'] = []
-    pilot_tsv_json['tumor_wgs_alignment_gnos_repo'] = []
-    pilot_tsv_json['tumor_wgs_alignment_gnos_id'] = []
-    pilot_tsv_json['tumor_wgs_alignment_bam_file_name'] = []
-    # wgs tumor sanger vcf
-    pilot_tsv_json['sanger_variant_calling_repo'] = []
-    pilot_tsv_json['sanger_variant_calling_gnos_id'] = wgs_tumor_speciments[0].get('sanger_variant_calling').get('gnos_id')
-    pilot_tsv_json['sanger_variant_calling_file_name_prefix'] = []
-    for specimen in wgs_tumor_speciments:
-        pilot_tsv_json['tumor_wgs_submitter_specimen_id'].append(specimen.get('bwa_alignment').get('submitter_specimen_id'))
-        pilot_tsv_json['tumor_wgs_submitter_sample_id'].append(specimen.get('bwa_alignment').get('submitter_sample_id'))
-        pilot_tsv_json['tumor_wgs_aliquot_id'].append(specimen.get('bwa_alignment').get('aliquot_id'))
-        pilot_tsv_json['tumor_wgs_alignment_gnos_repo'].append(specimen.get('bwa_alignment').get('gnos_repo'))
-        pilot_tsv_json['tumor_wgs_alignment_gnos_id'].append(specimen.get('bwa_alignment').get('gnos_id'))
-        pilot_tsv_json['tumor_wgs_alignment_bam_file_name'].append(specimen.get('bwa_alignment').get('files')[0].get('bam_file_name'))
-        # wgs tumor sanger vcf
-        pilot_tsv_json['sanger_variant_calling_repo'].append(specimen.get('sanger_variant_calling').get('gnos_repo'))
-        pilot_tsv_json['sanger_variant_calling_file_name_prefix'].append(specimen.get('sanger_variant_calling').get('aliquot_id'))
-    
-    # rna_seq normal specimen
-    pilot_tsv_json['normal_rna_seq_submitter_specimen_id'] = None
-    pilot_tsv_json['normal_rna_seq_submitter_sample_id'] = None
-    pilot_tsv_json['normal_rna_seq_aliquot_id'] = None
-    pilot_tsv_json['normal_rna_seq_STAR_alignment_gnos_repo'] = None
-    pilot_tsv_json['normal_rna_seq_STAR_alignment_gnos_id'] = None
-    pilot_tsv_json['normal_rna_seq_STAR_alignment_bam_file_name'] = None
-    pilot_tsv_json['normal_rna_seq_TOPHAT2_alignment_gnos_repo'] = None
-    pilot_tsv_json['normal_rna_seq_TOPHAT2_alignment_gnos_id'] = None
-    pilot_tsv_json['normal_rna_seq_TOPHAT2_alignment_bam_file_name'] = None
-
-    rna_seq_normal = reorganized_donor.get('rna_seq').get('normal_specimen')
-    if rna_seq_normal and rna_seq_normal.get('tophat'):
-        pilot_tsv_json['normal_rna_seq_submitter_specimen_id'] = rna_seq_normal.get('tophat').get('submitter_specimen_id')
-        pilot_tsv_json['normal_rna_seq_submitter_sample_id'] = rna_seq_normal.get('tophat').get('submitter_sample_id')
-        pilot_tsv_json['normal_rna_seq_aliquot_id'] = rna_seq_normal.get('tophat').get('aliquot_id')
-        pilot_tsv_json['normal_rna_seq_TOPHAT2_alignment_gnos_repo'] = [rna_seq_normal.get('tophat').get('gnos_repo')]
-        pilot_tsv_json['normal_rna_seq_TOPHAT2_alignment_gnos_id'] = rna_seq_normal.get('tophat').get('gnos_id')
-        pilot_tsv_json['normal_rna_seq_TOPHAT2_alignment_bam_file_name'] = rna_seq_normal.get('tophat').get('files')[0].get('bam_file_name')
-    if rna_seq_normal and rna_seq_normal.get('star'):
-        pilot_tsv_json['normal_rna_seq_submitter_specimen_id'] = rna_seq_normal.get('star').get('submitter_specimen_id')
-        pilot_tsv_json['normal_rna_seq_submitter_sample_id'] = rna_seq_normal.get('star').get('submitter_sample_id')
-        pilot_tsv_json['normal_rna_seq_aliquot_id'] = rna_seq_normal.get('star').get('aliquot_id')
-        pilot_tsv_json['normal_rna_seq_STAR_alignment_gnos_repo'] = rna_seq_normal.get('star').get('gnos_repo')
-        pilot_tsv_json['normal_rna_seq_STAR_alignment_gnos_id'] = rna_seq_normal.get('star').get('gnos_id')
-        pilot_tsv_json['normal_rna_seq_STAR_alignment_bam_file_name'] = rna_seq_normal.get('star').get('files')[0].get('bam_file_name')
-       
-    # rna_seq tumor specimens
-    pilot_tsv_json['tumor_rna_seq_submitter_specimen_id'] = []
-    pilot_tsv_json['tumor_rna_seq_submitter_sample_id'] = []
-    pilot_tsv_json['tumor_rna_seq_aliquot_id'] = []
-    pilot_tsv_json['tumor_rna_seq_STAR_alignment_gnos_repo'] = []
-    pilot_tsv_json['tumor_rna_seq_STAR_alignment_gnos_id'] = []
-    pilot_tsv_json['tumor_rna_seq_STAR_alignment_bam_file_name'] = []
-    pilot_tsv_json['tumor_rna_seq_TOPHAT2_alignment_gnos_repo'] = []
-    pilot_tsv_json['tumor_rna_seq_TOPHAT2_alignment_gnos_id'] = []
-    pilot_tsv_json['tumor_rna_seq_TOPHAT2_alignment_bam_file_name'] = []
-
-    rna_seq_tumor = reorganized_donor.get('rna_seq').get('tumor_specimens')
-    rna_seq_tumor_specimen_id = []
-    rna_seq_tumor_sample_id = []
-    rna_seq_tumor_aliquot_id = []
-    if rna_seq_tumor:
-        for rna_seq_tumor_specimen in rna_seq_tumor:
-            if rna_seq_tumor_specimen.get('tophat'):
-                rna_seq_tumor_specimen_id_tmp = rna_seq_tumor_specimen.get('tophat').get('submitter_specimen_id')
-                rna_seq_tumor_sample_id_tmp = rna_seq_tumor_specimen.get('tophat').get('submitter_sample_id')
-                rna_seq_tumor_aliquot_id_tmp = rna_seq_tumor_specimen.get('tophat').get('aliquot_id')
-                pilot_tsv_json['tumor_rna_seq_TOPHAT2_alignment_gnos_repo'].append(rna_seq_tumor_specimen.get('tophat').get('gnos_repo'))
-                pilot_tsv_json['tumor_rna_seq_TOPHAT2_alignment_gnos_id'].append(rna_seq_tumor_specimen.get('tophat').get('gnos_id'))
-                pilot_tsv_json['tumor_rna_seq_TOPHAT2_alignment_bam_file_name'].append(rna_seq_tumor_specimen.get('tophat').get('files')[0].get('bam_file_name'))
-            if rna_seq_tumor_specimen.get('star'):
-                rna_seq_tumor_specimen_id_tmp = rna_seq_tumor_specimen.get('star').get('submitter_specimen_id')
-                rna_seq_tumor_sample_id_tmp = rna_seq_tumor_specimen.get('star').get('submitter_sample_id')
-                rna_seq_tumor_aliquot_id_tmp = rna_seq_tumor_specimen.get('star').get('aliquot_id')
-                pilot_tsv_json['tumor_rna_seq_STAR_alignment_gnos_repo'].append(rna_seq_tumor_specimen.get('star').get('gnos_repo'))
-                pilot_tsv_json['tumor_rna_seq_STAR_alignment_gnos_id'].append(rna_seq_tumor_specimen.get('star').get('gnos_id'))
-                pilot_tsv_json['tumor_rna_seq_STAR_alignment_bam_file_name'].append(rna_seq_tumor_specimen.get('star').get('files')[0].get('bam_file_name'))
-            rna_seq_tumor_specimen_id.append(rna_seq_tumor_specimen_id_tmp)
-            rna_seq_tumor_sample_id.append(rna_seq_tumor_sample_id_tmp)
-            rna_seq_tumor_aliquot_id.append(rna_seq_tumor_aliquot_id_tmp)
-        pilot_tsv_json['tumor_rna_seq_submitter_specimen_id'] = rna_seq_tumor_specimen_id
-        pilot_tsv_json['tumor_rna_seq_submitter_sample_id'] = rna_seq_tumor_sample_id
-        pilot_tsv_json['tumor_rna_seq_aliquot_id'] = rna_seq_tumor_aliquot_id
-    
-    return pilot_tsv_json
-
 def organize_s3_transfer(jobs_dir, reorganized_donor, gnos_ids_to_be_included, gnos_ids_to_be_excluded):
 
     if reorganized_donor.get('wgs').get('normal_specimen'):
@@ -531,24 +473,24 @@ def organize_s3_transfer(jobs_dir, reorganized_donor, gnos_ids_to_be_included, g
 
 
 def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded):
+    global json_prefix_code, json_prefix_start, json_prefix_inc
+
+    #if (json_prefix_start > 41): sys.exit()  # for debugging only to terminate earlier
+
     if transfer_json.get('is_santa_cruz'):
         gnos_id = transfer_json.get('gnos_id')
-        generate = False
-        if not gnos_ids_to_be_included:
-            if not gnos_id in gnos_ids_to_be_excluded:
-                generate = True
-        else:
-            if gnos_id in gnos_ids_to_be_included: 
-                generate = True
+        # this is not optimistic, such filter could be done earlier in the process, but let's be it for now
+        if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
+        if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
 
-        if generate == True:
-            prefix_for_priority = 'a0001'
-            project_code = transfer_json.get('project_code')   
-            data_type = transfer_json.get('data_type')
-            json_name_list = [prefix_for_priority, project_code, gnos_id, data_type, 'json']
-            json_name = '.'.join(json_name_list)
-            with open(jobs_dir + '/' + json_name, 'w') as w:
-                w.write(json.dumps(transfer_json, indent=4, sort_keys=True))      
+        prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
+        project_code = transfer_json.get('project_code')
+        data_type = transfer_json.get('data_type')
+        json_name_list = [prefix_for_priority, project_code, gnos_id, data_type, 'json']
+        json_name = '.'.join(json_name_list)
+        with open(jobs_dir + '/' + json_name, 'w') as w:
+            w.write(json.dumps(transfer_json, indent=4, sort_keys=True))
+            json_prefix_start = json_prefix_start + json_prefix_inc
 
 
 def generate_gnos_id_list(gnos_id_lists):
@@ -572,6 +514,12 @@ def main(argv=None):
              help="Specify which GNOS IDs to process, process all gnos_ids if none specified", required=False)
     parser.add_argument("-x", "--exclude_gnos_id_lists", dest="exclude_gnos_id_lists", 
              help="File(s) containing GNOS IDs to be excluded, use filename pattern to specify the file(s)", required=False)
+    parser.add_argument("-c", "--json_prefix_code", dest="prefix_code",
+             help="Json file prefix single letter code", required=False)
+    parser.add_argument("-s", "--json_prefix_start", dest="prefix_start",
+             help="Directory containing metadata manifest files", required=False)
+    parser.add_argument("-n", "--json_prefix_inc", dest="prefix_inc",
+             help="Directory containing metadata manifest files", required=False)
 
     args = parser.parse_args()
     metadata_dir = args.metadata_dir  # this dir contains gnos manifest files, will also host all reports
@@ -584,6 +532,10 @@ def main(argv=None):
     # only process the gnos entries when this option is chosen
     gnos_ids_to_be_included = generate_gnos_id_list(include_gnos_id_lists)    
 
+    global json_prefix_code, json_prefix_start, json_prefix_inc
+    if args.prefix_code: json_prefix_code = args.prefix_code
+    if args.prefix_start: json_prefix_start = int(args.prefix_start)
+    if args.prefix_inc: json_prefix_inc = int(args.prefix_inc)
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
@@ -602,8 +554,24 @@ def main(argv=None):
     report_dir = re.sub(r'\.py$', '', report_dir)
     jobs_dir = metadata_dir + '/reports/' + report_dir
 
-    if not os.path.exists(jobs_dir):
-        os.makedirs(jobs_dir)
+    if os.path.exists(jobs_dir): shutil.rmtree(jobs_dir, ignore_errors=True)  # empty the folder if exists
+    os.makedirs(jobs_dir)
+
+    logger.setLevel(logging.INFO)
+    ch.setLevel(logging.WARN)
+
+    log_file = re.sub(r'\.py$', '.log', os.path.basename(__file__))
+    # delete old log first if exists
+    if os.path.isfile(log_file): os.remove(log_file)
+
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
 
     donor_fh = open(jobs_dir+'/s3_transfer_json.jsonl', 'w')
     
@@ -616,7 +584,7 @@ def main(argv=None):
     
         organize_s3_transfer(jobs_dir, reorganized_donor, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
 
-        donor_fh.write(json.dumps(reorganized_donor, default=set_default, indent=4, sort_keys=True) + '\n')
+        donor_fh.write(json.dumps(reorganized_donor, default=set_default, sort_keys=True) + '\n')
 
     donor_fh.close()
 
