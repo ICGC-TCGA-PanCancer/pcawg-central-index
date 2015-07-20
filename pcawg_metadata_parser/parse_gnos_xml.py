@@ -717,6 +717,19 @@ def add_effective_xml_md5sum(gnos_analysis, xml_str):
     xml_str = re.sub(r'<last_modified>.+?</last_modified>', '<last_modified></last_modified>', xml_str)
     xml_str = re.sub(r'<upload_date>.+?</upload_date>', '<upload_date></upload_date>', xml_str)
     xml_str = re.sub(r'<published_date>.+?</published_date>', '<published_date></published_date>', xml_str)
+    xml_str = re.sub(r'<analyte_code>.+?</analyte_code>', '<analyte_code></analyte_code>', xml_str)
+    xml_str = re.sub(r'<reason>.+?</reason>', '<reason></reason>', xml_str)
+    xml_str = re.sub(r'<study>.+?</study>', '<study></study>', xml_str)
+    xml_str = re.sub(r'<sample_accession>.+?</sample_accession>', '<sample_accession></sample_accession>', xml_str)
+    xml_str = re.sub(r'<dcc_project_code>.+?</dcc_project_code>', '<dcc_project_code></dcc_project_code>', xml_str)
+    xml_str = re.sub(r'<participant_id>.+?</participant_id>', '<participant_id></participant_id>', xml_str)
+    xml_str = re.sub(r'<specimen_id>.+?</specimen_id>', '<specimen_id></specimen_id>', xml_str)
+    xml_str = re.sub(r'<sample_id>.+?</sample_id>', '<sample_id></sample_id>', xml_str)
+    xml_str = re.sub(r'<use_cntl>.+?</use_cntl>', '<use_cntl></use_cntl>', xml_str)
+    xml_str = re.sub(r'<library_strategy>.+?</library_strategy>', '<library_strategy></library_strategy>', xml_str)
+    xml_str = re.sub(r'<platform>.+?</platform>', '<platform></platform>', xml_str)
+    xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
+
     xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
     xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
     xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
@@ -726,6 +739,8 @@ def add_effective_xml_md5sum(gnos_analysis, xml_str):
 
     # we need to take care of xml properties in different order but effectively/semantically the same
     effective_eq_xml = json.dumps(xmltodict.parse(xml_str).get('ResultSet').get('Result'), indent=4, sort_keys=True)
+    # print effective_eq_xml
+    # sys.exit()
 
     gnos_analysis.update({'_effective_xml_md5sum': hashlib.md5(effective_eq_xml).hexdigest()})
 

@@ -416,7 +416,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         }
         alignment_info.get('files').append(bai_file)
     else:
-        logger.warning('RNA-Sequ alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'))
@@ -511,7 +511,7 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gno
         prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
         data_type = transfer_json.get('data_type')
-        json_name_list = [prefix_for_priority, project_code, gnos_id, data_type, 'json']
+        json_name_list = [gnos_id, project_code, data_type, 'json']
         json_name = '.'.join(json_name_list)
         with open(jobs_dir + '/' + json_name, 'w') as w:
             w.write(json.dumps(transfer_json, indent=4, sort_keys=True))
