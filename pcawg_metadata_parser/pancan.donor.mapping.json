@@ -819,6 +819,15 @@
              "exists_gnos_id_mismatch_in_tumor": {
                "type" : "boolean"
              },
+             "exists_gnos_xml_mismatch": {
+               "type" : "boolean"
+             },
+             "exists_gnos_xml_mismatch_in_normal": {
+               "type" : "boolean"
+             },
+             "exists_gnos_xml_mismatch_in_tumor": {
+               "type" : "boolean"
+             },
              "exists_md5sum_mismatch" : {
                "type" : "boolean"
              },

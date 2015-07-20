@@ -89,6 +89,13 @@ es_queries = [
             },
             {
               "terms": {
+                "duplicated_bwa_alignment_summary.exists_gnos_xml_mismatch": [
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
                 "flags.is_manual_qc_failed": [
                   "T"
                 ]
@@ -152,20 +159,16 @@ def get_formal_repo_name(repo):
 
 
 def generate_md5_size(metadata_xml_file):
-    static_file_content = []
-    with open(metadata_xml_file) as f:
-        for line in f:
-            if line.startswith('<ResultSet'):
-                line = '<ResultSet>' + '\n'
-            static_file_content.append(line)
-    data = ''.join(static_file_content)
-    with open('tmp.xml', 'w') as f:
-        f.write(data)
+    with open (metadata_xml_file, 'r') as x: data = x.read()
+    data = re.sub(r'<ResultSet .+?>', '<ResultSet>', data)
+
+    with open('tmp.xml', 'w') as f: f.write(data)
 
     xml_md5 = hashlib.md5(data).hexdigest()
     xml_size = os.path.getsize('tmp.xml')
 
     return [xml_md5, xml_size]
+
 
 def generate_object_id(filename, gnos_id):
     global id_service_token
