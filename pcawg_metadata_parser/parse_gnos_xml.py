@@ -717,7 +717,17 @@ def add_effective_xml_md5sum(gnos_analysis, xml_str):
     xml_str = re.sub(r'<last_modified>.+?</last_modified>', '<last_modified></last_modified>', xml_str)
     xml_str = re.sub(r'<upload_date>.+?</upload_date>', '<upload_date></upload_date>', xml_str)
     xml_str = re.sub(r'<published_date>.+?</published_date>', '<published_date></published_date>', xml_str)
-    gnos_analysis.update({'_effective_xml_md5sum': hashlib.md5(xml_str).hexdigest()})
+    xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
+    xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
+    xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
+    xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
+    xml_str = re.sub(r'<analysis_submission_uri>.+?</analysis_submission_uri>', '<analysis_submission_uri></analysis_submission_uri>', xml_str)
+    xml_str = re.sub(r'<analysis_data_uri>.+?</analysis_data_uri>', '<analysis_data_uri></analysis_data_uri>', xml_str)
+
+    # we need to take care of xml properties in different order but effectively/semantically the same
+    effective_eq_xml = json.dumps(xmltodict.parse(xml_str).get('ResultSet').get('Result'), indent=4, sort_keys=True)
+
+    gnos_analysis.update({'_effective_xml_md5sum': hashlib.md5(effective_eq_xml).hexdigest()})
 
     return gnos_analysis
 
