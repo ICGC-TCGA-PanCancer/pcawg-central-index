@@ -89,6 +89,13 @@ es_queries = [
             },
             {
               "terms": {
+                "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
                 "duplicated_bwa_alignment_summary.exists_gnos_xml_mismatch": [
                   "T"
                 ]
@@ -267,6 +274,7 @@ def create_bwa_alignment(aliquot, es_json):
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
+        'available_repos': aliquot.get('aligned_bam').get('gnos_repo'),
         'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
                        get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo')) ] ],
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
@@ -327,6 +335,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
         'submitter_sample_id': None,
         'specimen_type': None,
         'aliquot_id': None,
+        'available_repos': wgs_tumor_sanger_vcf_info.get('gnos_repo'),
         'gnos_repo': [ wgs_tumor_sanger_vcf_info.get('gnos_repo')[ \
             get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo')) ] ],
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
@@ -393,6 +402,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
         'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
         'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
+        'available_repos': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
         'gnos_repo': [ aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[ \
             get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'))] ],
         'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
