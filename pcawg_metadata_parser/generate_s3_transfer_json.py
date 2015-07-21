@@ -53,6 +53,15 @@ es_queries = [
               }
             },
             {
+              "terms": {
+                "dcc_project_code": [
+                  "BOCA-UK", "BRCA-UK", "BTCA-SG", "CMDI-UK", "LAML-KR", "LINC-JP", "LIRI-JP"
+                  "LUSC-KR", "MELA-AU", "ORCA-IN", "OV-AU", "PACA-CA",
+                  "PACA-IT", "PEME-CA", "PRAD-CA", "SKCA-BR", "THCA-SA"
+                ]
+              }
+            },
+            {
               "terms":{
                 "flags.is_sanger_variant_calling_performed":[
                   "T"
