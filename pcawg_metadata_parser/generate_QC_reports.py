@@ -533,7 +533,7 @@ def main(argv=None):
             gnos_id_set = set([l.get('gnos_id') for l in report_info_list_full])
             report_info_list_full = []
             # read bench mark santa_cruz list, hardcode the location of santa_cruz_freeze_json
-            with open('santa_cruz_freeze_entry.tsv', 'r') as s:
+            with open('../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv', 'r') as s:
                 reader = csv.DictReader(s, delimiter='\t')
                 for row in reader:
                     if not row.get('gnos_id') in gnos_id_set:
