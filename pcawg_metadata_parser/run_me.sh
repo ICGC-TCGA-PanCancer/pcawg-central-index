@@ -44,7 +44,7 @@ echo
 echo parsing metadata xml, build ES index
 
 echo parsing all gnos
-./parse_gnos_xml.py -c settings.yml -x gnos_ids_to_be_removed.tsv
+./parse_gnos_xml.py -c settings.yml -x 'dup_*_to_be_removed_gnos_id.tsv'
 
 # update ES alias to point to the latest index
 echo 'delete old alias'
