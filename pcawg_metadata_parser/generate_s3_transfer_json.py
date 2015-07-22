@@ -286,7 +286,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
             return {}
 
     aliquot_info = {
-        'data_type': 'bwa_alignment',
+        'data_type': 'WGS-BWA-Normal' if 'normal' in aliquot.get('dcc_specimen_type').lower() else 'WGS-BWA-Tumor',
         'project_code': es_json['dcc_project_code'],
         'submitter_donor_id': es_json['submitter_donor_id'],
         'is_santa_cruz': aliquot.get('aligned_bam').get('is_santa_cruz_entry'),
@@ -346,7 +346,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_includ
     if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
 
     sanger_variant_calling = {
-        'data_type': 'sanger_vcf',
+        'data_type': 'WGS-Sanger_vcf-Donor',
         'project_code': es_json['dcc_project_code'],
         'submitter_donor_id': es_json['submitter_donor_id'],  
         'is_santa_cruz': wgs_tumor_sanger_vcf_info.get('is_santa_cruz_entry'),             
@@ -421,7 +421,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_i
 
 def create_rna_seq_alignment(aliquot, es_json, workflow_type):
     alignment_info = {
-        'data_type': 'RNA_Seq_'+workflow_type,
+        'data_type': 'RNA_Seq-'+workflow_type.capitalize()+'-Normal' if 'normal' in aliquot.get(workflow_type).get('dcc_specimen_type').lower() else 'RNA_Seq-'+workflow_type.capitalize()+'-Tumor',
         'project_code': es_json['dcc_project_code'],
         'submitter_donor_id': es_json['submitter_donor_id'],
         'is_santa_cruz': aliquot.get(workflow_type).get('is_santa_cruz_entry'),
@@ -544,8 +544,11 @@ def write_s3_transfer_json(jobs_dir, transfer_json):
 
         prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
+        donor_id = transfer_json.get('submitter_donor_id')
+        specimen_id = transfer_json.get('submitter_specimen_id') if transfer_json.get('submitter_specimen_id') else transfer_json.get('submitter_donor_id')
         data_type = transfer_json.get('data_type')
-        json_name_list = [gnos_id, project_code, data_type, 'json']
+
+        json_name_list = [gnos_id, project_code, donor_id, specimen_id, data_type, 'json']
         json_name = '.'.join(json_name_list)
         with open(jobs_dir + '/' + json_name, 'w') as w:
             w.write(json.dumps(transfer_json, indent=4, sort_keys=True))
