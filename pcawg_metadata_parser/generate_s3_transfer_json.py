@@ -154,21 +154,21 @@ def get_source_repo_index_pos (available_repos):
 def get_formal_repo_name(repo):
     repo_url_to_repo = {
       "https://gtrepo-bsc.annailabs.com/": "bsc",
-      "bsc": "bsc",
+      "bsc": "https://gtrepo-bsc.annailabs.com/",
       "https://gtrepo-ebi.annailabs.com/": "ebi",
-      "ebi": "ebi",
+      "ebi": "https://gtrepo-ebi.annailabs.com/",
       "https://cghub.ucsc.edu/": "cghub",
-      "cghub": "cghub",
+      "cghub": "https://cghub.ucsc.edu/",
       "https://gtrepo-dkfz.annailabs.com/": "dkfz",
-      "dkfz": "dkfz",
+      "dkfz": "https://gtrepo-dkfz.annailabs.com/",
       "https://gtrepo-riken.annailabs.com/": "riken",
-      "riken": "riken",
+      "riken": "https://gtrepo-riken.annailabs.com/",
       "https://gtrepo-osdc-icgc.annailabs.com/": "osdc-icgc",
-      "osdc-icgc": "osdc-icgc",
+      "osdc-icgc": "https://gtrepo-osdc-icgc.annailabs.com/",
       "https://gtrepo-osdc-tcga.annailabs.com/": "osdc-tcga",
-      "osdc-tcga": "osdc-tcga",
+      "osdc-tcga": "https://gtrepo-osdc-tcga.annailabs.com/",
       "https://gtrepo-etri.annailabs.com/": "etri",
-      "etri": "etri"
+      "etri": "https://gtrepo-etri.annailabs.com/"
     }
 
     return repo_url_to_repo.get(repo)
@@ -221,7 +221,7 @@ def generate_object_id(filename, gnos_id):
         return 'FAKE-ID'
 
 
-def create_reorganized_donor(donor_unique_id, es_json):
+def create_reorganized_donor(donor_unique_id, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo):
     reorganized_donor = {
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': es_json['submitter_donor_id'],
@@ -238,24 +238,27 @@ def create_reorganized_donor(donor_unique_id, es_json):
         }
     }
 
-    add_wgs_normal_specimen(reorganized_donor, es_json)
+    add_wgs_normal_specimen(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo)
 
-    add_wgs_tumor_specimens(reorganized_donor, es_json)
+    add_wgs_tumor_specimens(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo)
 
-    add_sanger_variant_calling(reorganized_donor, es_json)
+    add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo)
 
-    add_rna_seq_info(reorganized_donor, es_json)
+    add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo)
 
     return reorganized_donor
 
 
 
-def add_wgs_normal_specimen(reorganized_donor, es_json):
+def add_wgs_normal_specimen(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo):
     aliquot = es_json.get('normal_alignment_status')
-    aliquot_info = create_bwa_alignment(aliquot, es_json)
+    gnos_id = aliquot.get('aligned_bam').get('gnos_id')
+    if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
+    if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
+
+    aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
     reorganized_donor.get('wgs').get('normal_specimen').update(aliquot_info)
 
-    return reorganized_donor
 
 def add_metadata_xml_info(obj):
     repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo')) ])
@@ -273,7 +276,15 @@ def add_metadata_xml_info(obj):
 
     return metadata_xml_file_info
 
-def create_bwa_alignment(aliquot, es_json):
+def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
+    gnos_repo = []
+    if chosen_gnos_repo:
+        if get_formal_repo_name(chosen_gnos_repo) and \
+                get_formal_repo_name(chosen_gnos_repo) in aliquot.get('aligned_bam').get('gnos_repo'):
+            gnos_repo = [ get_formal_repo_name(chosen_gnos_repo) ]
+        else:
+            return {}
+
     aliquot_info = {
         'data_type': 'bwa_alignment',
         'project_code': es_json['dcc_project_code'],
@@ -284,8 +295,7 @@ def create_bwa_alignment(aliquot, es_json):
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'available_repos': aliquot.get('aligned_bam').get('gnos_repo'),
-        'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
-                       get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo')) ] ],
+        'gnos_repo': gnos_repo,
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
         'files': [
             {
@@ -316,24 +326,24 @@ def create_bwa_alignment(aliquot, es_json):
     return aliquot_info
 
 
-def add_wgs_tumor_specimens(reorganized_donor, es_json):
+def add_wgs_tumor_specimens(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo):
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
 
-    tumor_wgs_specimen_count = 0
-
     for aliquot in wgs_tumor_alignment_info:
-        tumor_wgs_specimen_count += 1
-        aliquot_info = create_bwa_alignment(aliquot, es_json)
+        gnos_id = aliquot.get('aligned_bam').get('gnos_id')
+        if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
+        if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
+
+        aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
         reorganized_donor.get('wgs').get('tumor_specimens').append(aliquot_info) 
 
-    reorganized_donor['tumor_wgs_specimen_count'] = tumor_wgs_specimen_count
 
-    return reorganized_donor
-
-
-def add_sanger_variant_calling(reorganized_donor, es_json):
+def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo):
     wgs_tumor_sanger_vcf_info = es_json.get('variant_calling_results').get('sanger_variant_calling')
-    sanger_vcf_files = wgs_tumor_sanger_vcf_info.get('files')
+
+    gnos_id = wgs_tumor_sanger_vcf_info.get('gnos_id')
+    if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
+    if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
 
     sanger_variant_calling = {
         'data_type': 'sanger_vcf',
@@ -349,7 +359,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
             get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo')) ] ],
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
         'files': wgs_tumor_sanger_vcf_info.get('files')
-    }  
+    }
     
     # add the object_id for each file object
     for f in sanger_variant_calling.get('files'):
@@ -376,7 +386,7 @@ def filter_liri_jp(project, gnos_repo):
         sys.exit(1)
 
 
-def add_rna_seq_info(reorganized_donor, es_json):
+def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo):
     # to build pcawg santa cruz pilot dataset, this is a temporary walkaround to exclude the 130 RNA-Seq bad
     # entries from MALY-DE and CLLE-ES projects
     #if reorganized_donor.get('dcc_project_code') in ('MALY-DE', 'CLLE-ES'): return
@@ -387,6 +397,10 @@ def add_rna_seq_info(reorganized_donor, es_json):
 		    continue
         if 'normal' in specimen_type:
             aliquot = rna_seq_info.get(specimen_type)
+            gnos_id = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
+            if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
+            if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
+
             alignment_info = {}
             for workflow_type in aliquot.keys():
                 alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type)
@@ -396,6 +410,10 @@ def add_rna_seq_info(reorganized_donor, es_json):
             for aliquot in rna_seq_info.get(specimen_type):
                 alignment_info = {}
                 for workflow_type in aliquot.keys():
+                    gnos_id = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
+                    if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
+                    if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
+
                     alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type)
 
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(alignment_info) 
@@ -489,43 +507,40 @@ def set_default(obj):
         return list(obj)
     raise TypeError
 
-def organize_s3_transfer(jobs_dir, reorganized_donor, gnos_ids_to_be_included, gnos_ids_to_be_excluded):
+def organize_s3_transfer(jobs_dir, reorganized_donor):
 
     if reorganized_donor.get('wgs').get('normal_specimen'):
         transfer_json = reorganized_donor.get('wgs').get('normal_specimen')
-        write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
+        write_s3_transfer_json(jobs_dir, transfer_json)
 
     if reorganized_donor.get('wgs').get('tumor_specimens'):
         for transfer_json in reorganized_donor.get('wgs').get('tumor_specimens'):
-            write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
+            write_s3_transfer_json(jobs_dir, transfer_json)
 
     if reorganized_donor.get('sanger_variant_calling'):
         transfer_json = reorganized_donor.get('sanger_variant_calling')
-        write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
+        write_s3_transfer_json(jobs_dir, transfer_json)
 
     if reorganized_donor.get('rna_seq').get('normal_specimen'):
         aliquot = reorganized_donor.get('rna_seq').get('normal_specimen')
         for workflow_type in aliquot.keys():
             transfer_json = aliquot.get(workflow_type)
-            write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
+            write_s3_transfer_json(jobs_dir, transfer_json)
 
     if reorganized_donor.get('rna_seq').get('tumor_specimens'):
         for aliquot in reorganized_donor.get('rna_seq').get('tumor_specimens'):
             for workflow_type in aliquot.keys():
                 transfer_json = aliquot.get(workflow_type)
-                write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
+                write_s3_transfer_json(jobs_dir, transfer_json)
 
 
-def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded):
+def write_s3_transfer_json(jobs_dir, transfer_json):
     global json_prefix_code, json_prefix_start, json_prefix_inc
 
     #if (json_prefix_start > 41): sys.exit()  # for debugging only to terminate earlier
 
     if transfer_json.get('is_santa_cruz'):
         gnos_id = transfer_json.get('gnos_id')
-        # this is not optimistic, such filter could be done earlier in the process, but let's be it for now
-        if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
-        if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
 
         prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
@@ -554,6 +569,8 @@ def main(argv=None):
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-m", "--metadata_dir", dest="metadata_dir",
              help="Directory containing metadata manifest files", required=True)
+    parser.add_argument("-r", "--specify source repo", dest="chosen_gnos_repo",
+             help="Specify source gnos repo", required=False)
     parser.add_argument("-i", "--include_gnos_id_lists", dest="include_gnos_id_lists",
              help="Specify which GNOS IDs to process, process all gnos_ids if none specified", required=False)
     parser.add_argument("-x", "--exclude_gnos_id_lists", dest="exclude_gnos_id_lists", 
@@ -569,6 +586,7 @@ def main(argv=None):
     metadata_dir = args.metadata_dir  # this dir contains gnos manifest files, will also host all reports
     include_gnos_id_lists = args.include_gnos_id_lists
     exclude_gnos_id_lists = args.exclude_gnos_id_lists
+    chosen_gnos_repo = args.chosen_gnos_repo
 
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = generate_gnos_id_list(exclude_gnos_id_lists)
@@ -624,9 +642,10 @@ def main(argv=None):
         
     	es_json = get_donor_json(es, es_index, donor_unique_id)
         
-        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json)
+        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json,\
+                gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo)
     
-        organize_s3_transfer(jobs_dir, reorganized_donor, gnos_ids_to_be_included, gnos_ids_to_be_excluded)
+        organize_s3_transfer(jobs_dir, reorganized_donor)
 
         donor_fh.write(json.dumps(reorganized_donor, default=set_default, sort_keys=True) + '\n')
 
