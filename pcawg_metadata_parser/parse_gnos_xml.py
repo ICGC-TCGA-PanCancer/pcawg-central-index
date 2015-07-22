@@ -20,6 +20,7 @@ import dateutil.parser
 from itertools import izip
 from distutils.version import LooseVersion
 import csv
+import hashlib
 
 
 logger = logging.getLogger('gnos parser')
@@ -410,6 +411,7 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz
         "gnos_last_modified": [dateutil.parser.parse(gnos_analysis.get('last_modified'))],
         "files": files,
         "study": gnos_analysis.get('study'),
+        "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, gnos_analysis.get('analysis_id')),
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
@@ -477,6 +479,8 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa
         "aliquot_id": gnos_analysis.get('aliquot_id'),
         "use_cntl": analysis_attrib.get('use_cntl'),
         "total_lanes": analysis_attrib.get('total_lanes'),
+
+        "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
 
         "library_strategy": gnos_analysis.get('library_strategy'),
         "gnos_repo": gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/',
@@ -702,9 +706,45 @@ def get_analysis_attrib(gnos_analysis):
 
 
 def get_gnos_analysis(f):
-    with open (f, 'r') as x:
-        xml_str = x.read()
-    return xmltodict.parse(xml_str).get('ResultSet').get('Result')
+    with open (f, 'r') as x: xml_str = x.read()
+    gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
+    add_effective_xml_md5sum(gnos_analysis, xml_str)
+    return gnos_analysis
+
+
+def add_effective_xml_md5sum(gnos_analysis, xml_str):
+    xml_str = re.sub(r'<ResultSet .+?>', '<ResultSet>', xml_str)
+    xml_str = re.sub(r'<last_modified>.+?</last_modified>', '<last_modified></last_modified>', xml_str)
+    xml_str = re.sub(r'<upload_date>.+?</upload_date>', '<upload_date></upload_date>', xml_str)
+    xml_str = re.sub(r'<published_date>.+?</published_date>', '<published_date></published_date>', xml_str)
+    xml_str = re.sub(r'<analyte_code>.+?</analyte_code>', '<analyte_code></analyte_code>', xml_str)
+    xml_str = re.sub(r'<reason>.+?</reason>', '<reason></reason>', xml_str)
+    xml_str = re.sub(r'<study>.+?</study>', '<study></study>', xml_str)
+    xml_str = re.sub(r'<sample_accession>.+?</sample_accession>', '<sample_accession></sample_accession>', xml_str)
+    #xml_str = re.sub(r'<dcc_project_code>.+?</dcc_project_code>', '<dcc_project_code></dcc_project_code>', xml_str)
+    #xml_str = re.sub(r'<participant_id>.+?</participant_id>', '<participant_id></participant_id>', xml_str)
+    xml_str = re.sub(r'<specimen_id>.+?</specimen_id>', '<specimen_id></specimen_id>', xml_str)
+    xml_str = re.sub(r'<sample_id>.+?</sample_id>', '<sample_id></sample_id>', xml_str)
+    xml_str = re.sub(r'<use_cntl>.+?</use_cntl>', '<use_cntl></use_cntl>', xml_str)
+    xml_str = re.sub(r'<library_strategy>.+?</library_strategy>', '<library_strategy></library_strategy>', xml_str)
+    xml_str = re.sub(r'<platform>.+?</platform>', '<platform></platform>', xml_str)
+    xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
+
+    xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
+    xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
+    xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
+    xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
+    xml_str = re.sub(r'<analysis_submission_uri>.+?</analysis_submission_uri>', '<analysis_submission_uri></analysis_submission_uri>', xml_str)
+    xml_str = re.sub(r'<analysis_data_uri>.+?</analysis_data_uri>', '<analysis_data_uri></analysis_data_uri>', xml_str)
+
+    # we need to take care of xml properties in different order but effectively/semantically the same
+    effective_eq_xml = json.dumps(xmltodict.parse(xml_str).get('ResultSet').get('Result'), indent=4, sort_keys=True)
+    # print effective_eq_xml
+    # sys.exit()
+
+    gnos_analysis.update({'_effective_xml_md5sum': hashlib.md5(effective_eq_xml).hexdigest()})
+
+    return gnos_analysis
 
 
 def get_xml_files( metadata_dir, conf, repo ):
@@ -1071,6 +1111,9 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, san
 
 def check_bwa_duplicates(donor, train2_freeze_bams):
     duplicated_bwa_alignment_summary = {
+        'exists_gnos_xml_mismatch': False,
+        'exists_gnos_xml_mismatch_in_normal': False,
+        'exists_gnos_xml_mismatch_in_tumor': False,
         'exists_mismatch_bwa_bams': False,
         'exists_mismatch_bwa_bams_in_normal': False,
         'exists_mismatch_bwa_bams_in_tumor': False,
@@ -1123,6 +1166,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                 'gnos_id': bam_file.get('bam_gnos_ao_id'),
                                 'gnos_repo': bam_file.get('gnos_repo'),
                                 'md5sum': bam_file.get('md5sum'),
+                                'effective_xml_md5sum': bam_file.get('effective_xml_md5sum'),
                                 'upload_date': bam_file.get('upload_date'),
                                 'published_date': bam_file.get('published_date'),
                                 'last_modified': bam_file.get('last_modified'),
@@ -1142,6 +1186,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                 'gnos_id': bam_file.get('bam_gnos_ao_id'),
                                 'gnos_repo': bam_file.get('gnos_repo'),
                                 'md5sum': bam_file.get('md5sum'),
+                                'effective_xml_md5sum': bam_file.get('effective_xml_md5sum'),
                                 'upload_date': bam_file.get('upload_date'),
                                 'published_date': bam_file.get('published_date'),
                                 'last_modified': bam_file.get('last_modified'),
@@ -1167,6 +1212,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                             'gnos_id': bam_file.get('bam_gnos_ao_id'),
                             'gnos_repo': bam_file.get('gnos_repo'),
                             'md5sum': bam_file.get('md5sum'),
+                            'effective_xml_md5sum': bam_file.get('effective_xml_md5sum'),
                             'upload_date': bam_file.get('upload_date'),
                             'published_date': bam_file.get('published_date'),
                             'last_modified': bam_file.get('last_modified'),
@@ -1187,6 +1233,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
         if duplicated_bwa_alignment_summary.get('normal'):
             b_gnos_id = None
             b_md5sum = None
+            xml_md5sum = None
             b_version = None
             has_santa_cruz_n_bam = False
             has_train2_n_bam = False
@@ -1196,6 +1243,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
             count_is_train2_is_sanger = 0
             duplicated_bwa_alignment_summary.get('normal')['exists_mismatch_bwa_bams'] = False
             duplicated_bwa_alignment_summary.get('normal')['exists_gnos_id_mismatch'] = False
+            duplicated_bwa_alignment_summary.get('normal')['exists_gnos_xml_mismatch'] = False
             duplicated_bwa_alignment_summary.get('normal')['exists_md5sum_mismatch'] = False
             duplicated_bwa_alignment_summary.get('normal')['exists_version_mismatch'] = False
 
@@ -1217,7 +1265,6 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                     duplicated_bwa_alignment_summary['exists_gnos_id_mismatch_in_normal'] = True
                     duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams_in_normal'] = True
-
                     duplicated_bwa_alignment_summary.get('normal')['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary.get('normal')['exists_gnos_id_mismatch'] = True
 
@@ -1227,9 +1274,14 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                     duplicated_bwa_alignment_summary['exists_md5sum_mismatch_in_normal'] = True
                     duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams_in_normal'] = True
-
                     duplicated_bwa_alignment_summary.get('normal')['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary.get('normal')['exists_md5sum_mismatch'] = True
+
+                if not xml_md5sum: xml_md5sum = bam.get('effective_xml_md5sum')
+                if xml_md5sum and not xml_md5sum == bam.get('effective_xml_md5sum'):
+                    duplicated_bwa_alignment_summary['exists_gnos_xml_mismatch'] = True
+                    duplicated_bwa_alignment_summary['exists_gnos_xml_mismatch_in_normal'] = True
+                    duplicated_bwa_alignment_summary.get('normal')['exists_gnos_xml_mismatch'] = True
 
                 if not b_version: b_version = bam.get('bwa_workflow_version')
                 if b_version and not b_version == bam.get('bwa_workflow_version'):
@@ -1237,7 +1289,6 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                     duplicated_bwa_alignment_summary['exists_version_mismatch_in_normal'] = True
                     duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams_in_normal'] = True
-
                     duplicated_bwa_alignment_summary.get('normal')['exists_mismatch_bwa_bams'] = True
                     duplicated_bwa_alignment_summary.get('normal')['exists_version_mismatch'] = True
 
@@ -1267,6 +1318,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
             for aliquot in duplicated_bwa_alignment_summary.get('tumor'):
                 b_gnos_id = None
                 b_md5sum = None
+                xml_md5sum = None
                 b_version = None
                 has_santa_cruz_t_bam = False
                 has_train2_t_bam = False
@@ -1276,6 +1328,7 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                 count_is_train2_is_sanger = 0
                 aliquot['exists_mismatch_bwa_bams'] = False
                 aliquot['exists_gnos_id_mismatch'] = False
+                aliquot['exists_gnos_xml_mismatch'] = False
                 aliquot['exists_md5sum_mismatch'] = False
                 aliquot['exists_version_mismatch'] = False
 
@@ -1299,7 +1352,6 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                         duplicated_bwa_alignment_summary['exists_gnos_id_mismatch_in_tumor'] = True
                         duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams'] = True
                         duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams_in_tumor'] = True
-
                         aliquot['exists_mismatch_bwa_bams'] = True
                         aliquot['exists_gnos_id_mismatch'] = True
 
@@ -1309,9 +1361,14 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                         duplicated_bwa_alignment_summary['exists_md5sum_mismatch_in_tumor'] = True
                         duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams'] = True
                         duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams_in_tumor'] = True
-
                         aliquot['exists_mismatch_bwa_bams'] = True
                         aliquot['exists_md5sum_mismatch'] = True
+
+                    if not xml_md5sum: xml_md5sum = bam.get('effective_xml_md5sum')
+                    if xml_md5sum and not xml_md5sum == bam.get('effective_xml_md5sum'):
+                        duplicated_bwa_alignment_summary['exists_gnos_xml_mismatch'] = True
+                        duplicated_bwa_alignment_summary['exists_gnos_xml_mismatch_in_tumor'] = True
+                        aliquot['exists_gnos_xml_mismatch'] = True
 
                     if not b_version: b_version = bam.get('bwa_workflow_version')
                     if b_version and not b_version == bam.get('bwa_workflow_version'):
@@ -1319,7 +1376,6 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                         duplicated_bwa_alignment_summary['exists_version_mismatch_in_tumor'] = True
                         duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams'] = True
                         duplicated_bwa_alignment_summary['exists_mismatch_bwa_bams_in_tumor'] = True
-
                         aliquot['exists_version_mismatch'] = True
                         aliquot['exists_mismatch_bwa_bams'] = True
 
@@ -1594,6 +1650,7 @@ def create_aggregated_bam_info_dict(bam):
             "bai_file_name": bam['bai_file_name'],
             "bai_file_size": bam['bai_file_size'],
             "bai_file_md5sum": bam['bai_file_md5sum'],
+            "effective_xml_md5sum": bam['effective_xml_md5sum'],
             "gnos_last_modified": [bam['last_modified']],
             "gnos_repo": [bam['gnos_repo']],
             "is_santa_cruz_entry": bam['is_santa_cruz_entry']

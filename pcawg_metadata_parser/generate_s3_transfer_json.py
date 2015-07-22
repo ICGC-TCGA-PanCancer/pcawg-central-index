@@ -53,6 +53,15 @@ es_queries = [
               }
             },
             {
+              "terms": {
+                "dcc_project_code": [
+                  "BOCA-UK", "BRCA-UK", "BTCA-SG", "CMDI-UK", "LAML-KR", "LINC-JP", "LIRI-JP"
+                  "LUSC-KR", "MELA-AU", "ORCA-IN", "OV-AU", "PACA-CA",
+                  "PACA-IT", "PEME-CA", "PRAD-CA", "SKCA-BR", "THCA-SA"
+                ]
+              }
+            },
+            {
               "terms":{
                 "flags.is_sanger_variant_calling_performed":[
                   "T"
@@ -85,6 +94,20 @@ es_queries = [
             {
               "regexp": {
                 "dcc_project_code": ".*-US"
+              }
+            },
+            {
+              "terms": {
+                "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
+                "duplicated_bwa_alignment_summary.exists_gnos_xml_mismatch": [
+                  "T"
+                ]
               }
             },
             {
@@ -152,20 +175,16 @@ def get_formal_repo_name(repo):
 
 
 def generate_md5_size(metadata_xml_file):
-    static_file_content = []
-    with open(metadata_xml_file) as f:
-        for line in f:
-            if line.startswith('<ResultSet'):
-                line = '<ResultSet>' + '\n'
-            static_file_content.append(line)
-    data = ''.join(static_file_content)
-    with open('tmp.xml', 'w') as f:
-        f.write(data)
+    with open (metadata_xml_file, 'r') as x: data = x.read()
+    data = re.sub(r'<ResultSet .+?>', '<ResultSet>', data)
+
+    with open('tmp.xml', 'w') as f: f.write(data)
 
     xml_md5 = hashlib.md5(data).hexdigest()
     xml_size = os.path.getsize('tmp.xml')
 
     return [xml_md5, xml_size]
+
 
 def generate_object_id(filename, gnos_id):
     global id_service_token
@@ -264,6 +283,7 @@ def create_bwa_alignment(aliquot, es_json):
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
+        'available_repos': aliquot.get('aligned_bam').get('gnos_repo'),
         'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
                        get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo')) ] ],
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
@@ -324,6 +344,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json):
         'submitter_sample_id': None,
         'specimen_type': None,
         'aliquot_id': None,
+        'available_repos': wgs_tumor_sanger_vcf_info.get('gnos_repo'),
         'gnos_repo': [ wgs_tumor_sanger_vcf_info.get('gnos_repo')[ \
             get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo')) ] ],
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
@@ -390,6 +411,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
         'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
         'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
+        'available_repos': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
         'gnos_repo': [ aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[ \
             get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'))] ],
         'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
@@ -413,7 +435,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         }
         alignment_info.get('files').append(bai_file)
     else:
-        logger.warning('RNA-Sequ alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'))
@@ -508,7 +530,7 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_included, gno
         prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
         data_type = transfer_json.get('data_type')
-        json_name_list = [prefix_for_priority, project_code, gnos_id, data_type, 'json']
+        json_name_list = [gnos_id, project_code, data_type, 'json']
         json_name = '.'.join(json_name_list)
         with open(jobs_dir + '/' + json_name, 'w') as w:
             w.write(json.dumps(transfer_json, indent=4, sort_keys=True))
