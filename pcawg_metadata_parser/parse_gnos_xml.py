@@ -414,6 +414,7 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
+        "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
 
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
@@ -485,6 +486,7 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
+        "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
 
         "library_strategy": gnos_analysis.get('library_strategy'),
         "gnos_repo": gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/',
@@ -784,6 +786,8 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
     #read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs/*/*.json')
     read_annotations(annotations, 's3_transfer_scheduled', 'gnos_metadata/2015-07-22_09-35-29_EDT/reports/s3_transfer_json/*/*.json')
+    #read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs/completed-jobs/*.json')
+    read_annotations(annotations, 's3_transfer_completed', 'gnos_metadata/2015-07-22_09-35-29_EDT/reports/s3_transfer_json/completed-jobs/*.json')
 
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
@@ -874,12 +878,12 @@ def read_train2_bams(filename):
 
 def read_annotations(annotations, type, file_name):
 
-    if type == 's3_transfer_scheduled':
+    if type in ['s3_transfer_scheduled', 's3_transfer_completed']:
         annotations[type] = set()
         files = glob.glob(file_name)
         for f in files:
             fname = str.split(f, '/')[-1]
-            gnos_id, project_code, donor_id, specimen_id, data_type = str.split(fname.rstrip('.json'), '.')
+            gnos_id = str.split(fname, '.')[0]
             annotations[type].add(gnos_id)
     else:
         with open(file_name, 'r') as r:
@@ -1537,7 +1541,8 @@ def create_aggregated_bam_info_dict(bam):
             "gnos_last_modified": [bam['last_modified']],
             "gnos_repo": [bam['gnos_repo']],
             "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
-            "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled']
+            "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
+            "is_s3_transfer_completed": bam['is_s3_transfer_completed']
          },
          "bam_with_unmappable_reads": {},
          "unaligned_bams": {}
@@ -1792,7 +1797,8 @@ def create_aggregated_rna_bam_info(bam):
         "dcc_specimen_type": bam['dcc_specimen_type'],
         "aligned": True,    
         "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
-        "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],            
+        "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
+        "is_s3_transfer_completed": bam['is_s3_transfer_completed'],           
         "gnos_info": {
             "gnos_repo": [bam['gnos_repo']],
             "gnos_id": bam['bam_gnos_ao_id'],
