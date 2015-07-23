@@ -545,7 +545,7 @@ def write_s3_transfer_json(jobs_dir, transfer_json):
         prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
         donor_id = transfer_json.get('submitter_donor_id')
-        specimen_id = transfer_json.get('submitter_specimen_id') if transfer_json.get('submitter_specimen_id') else transfer_json.get('submitter_donor_id')
+        specimen_id = transfer_json.get('submitter_specimen_id') if transfer_json.get('submitter_specimen_id') else '-'
         data_type = transfer_json.get('data_type')
 
         json_name_list = [gnos_id, project_code, donor_id, specimen_id, data_type, 'json']
