@@ -18,6 +18,7 @@ import dateutil.parser
 from itertools import izip
 from distutils.version import LooseVersion
 import csv
+import shutil
 
 es_queries = [
 # query 0: PCAWGDATA-45_Sanger GNOS entries with study field ends with _test
@@ -473,8 +474,9 @@ def add_report_info_3_aliquot(aliquot, report_info, report_info_list):
 
 def init_report_dir(metadata_dir, report_name, repo):
     report_dir = metadata_dir + '/reports/' + report_name if not repo else metadata_dir + '/reports/' + report_name + '/' + repo
-    if not os.path.exists(report_dir):
-        os.makedirs(report_dir)
+    if os.path.exists(report_dir): shutil.rmtree(report_dir, ignore_errors=True)  # empty the folder if exists
+    os.makedirs(report_dir)
+
     return report_dir
 
 
@@ -537,7 +539,11 @@ def main(argv=None):
                 reader = csv.DictReader(s, delimiter='\t')
                 for row in reader:
                     if not row.get('gnos_id') in gnos_id_set:
-                        report_info_list_full.append(row)
+                        row_order = OrderedDict()
+                        row_order['donor_unique_id'] = row.get('#donor_unique_id')
+                        row_order['gnos_id'] = row.get('gnos_id')
+                        row_order['entry_type'] = row.get('entry_type')
+                        report_info_list_full.append(row_order)
 
             
         for r in report_info_list_full: 
