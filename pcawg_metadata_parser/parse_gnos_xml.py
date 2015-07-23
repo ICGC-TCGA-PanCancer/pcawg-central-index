@@ -413,6 +413,8 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "study": gnos_analysis.get('study'),
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
+        "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
+
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
             "variant_workflow_name": analysis_attrib.get('variant_workflow_name'),
@@ -482,6 +484,7 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
 
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
+        "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
 
         "library_strategy": gnos_analysis.get('library_strategy'),
         "gnos_repo": gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/',
@@ -779,6 +782,8 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'manual_qc_failed', 'pc_annotation-manual_qc_failed.tsv')  # hard-code file name for now
     read_annotations(annotations, 'sanger_vcf_in_jamboree', 'pc_annotation-sanger_vcf_in_jamboree.tsv')  # hard-code file name for now
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
+    #read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs/*/*.json')
+    read_annotations(annotations, 's3_transfer_scheduled', 'gnos_metadata/2015-07-22_09-35-29_EDT/reports/s3_transfer_json/*/*.json')
 
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
@@ -868,46 +873,55 @@ def read_train2_bams(filename):
 
 
 def read_annotations(annotations, type, file_name):
-    with open(file_name, 'r') as r:
-        if annotations.get(type): # reset annotation if exists
-            del annotations[type]
 
-        if type == 'gnos_assignment':
-            annotations['gnos_assignment'] = {}
-            assignment = yaml.safe_load(r)
-            for repo, project_donors in assignment.iteritems():
-                for p_d in project_donors:
-                    annotations['gnos_assignment'][p_d] = repo  # key is project or donor unique id, value is repo
+    if type == 's3_transfer_scheduled':
+        annotations[type] = set()
+        files = glob.glob(file_name)
+        for f in files:
+            fname = str.split(f, '/')[-1]
+            gnos_id, project_code, donor_id, specimen_id, data_type = str.split(fname.rstrip('.json'), '.')
+            annotations[type].add(gnos_id)
+    else:
+        with open(file_name, 'r') as r:
+            if annotations.get(type): # reset annotation if exists
+                del annotations[type]
 
-        elif type == 'sanger_vcf_in_jamboree':
-            annotations['sanger_vcf_in_jamboree'] = {}
-            for line in r:
-                if line.startswith('#'): continue
-                if len(line.rstrip()) == 0: continue
-                donor_id, ao_id = str.split(line.rstrip(), '\t')
-                annotations[type][donor_id] = ao_id
-                
-        elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
-            annotations[type] = set()
-            for line in r:
-                if line.startswith('#'): continue
-                if len(line.rstrip()) == 0: continue
-                annotations[type].add(line.rstrip())
+            if type == 'gnos_assignment':
+                annotations['gnos_assignment'] = {}
+                assignment = yaml.safe_load(r)
+                for repo, project_donors in assignment.iteritems():
+                    for p_d in project_donors:
+                        annotations['gnos_assignment'][p_d] = repo  # key is project or donor unique id, value is repo
 
-        elif type == 'santa_cruz':
-            annotations['santa_cruz'] = {
-                'donor': set(),
-                'gnos_id': set()
-            }
-            for line in r:
-                if line.startswith('#'): continue
-                if len(line.rstrip()) == 0: continue
-                donor_unique_id, gnos_id, entry_type = str.split(line.rstrip(), '\t') 
-                annotations['santa_cruz']['donor'].add(donor_unique_id)
-                annotations['santa_cruz']['gnos_id'].add(gnos_id)                 
+            elif type == 'sanger_vcf_in_jamboree':
+                annotations['sanger_vcf_in_jamboree'] = {}
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    donor_id, ao_id = str.split(line.rstrip(), '\t')
+                    annotations[type][donor_id] = ao_id
+                    
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+                annotations[type] = set()
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    annotations[type].add(line.rstrip())
 
-        else:
-            logger.warning('unknown annotation type: {}'.format(type))
+            elif type == 'santa_cruz':
+                annotations['santa_cruz'] = {
+                    'donor': set(),
+                    'gnos_id': set()
+                }
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    donor_unique_id, gnos_id, entry_type = str.split(line.rstrip(), '\t') 
+                    annotations['santa_cruz']['donor'].add(donor_unique_id)
+                    annotations['santa_cruz']['gnos_id'].add(gnos_id)                 
+
+            else:
+                logger.warning('unknown annotation type: {}'.format(type))
 
 
 def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
@@ -1522,7 +1536,8 @@ def create_aggregated_bam_info_dict(bam):
             "effective_xml_md5sum": bam['effective_xml_md5sum'],
             "gnos_last_modified": [bam['last_modified']],
             "gnos_repo": [bam['gnos_repo']],
-            "is_santa_cruz_entry": bam['is_santa_cruz_entry']
+            "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
+            "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled']
          },
          "bam_with_unmappable_reads": {},
          "unaligned_bams": {}
@@ -1558,7 +1573,12 @@ def bam_aggregation(bam_files):
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
             else:
-                if bam['is_santa_cruz_entry']:
+                if bam['is_s3_transfer_scheduled']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one scheduled for S3 transfer: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                elif bam['is_santa_cruz_entry']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in santa_cruz: {}, additional: {}'
                         .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
@@ -1693,14 +1713,20 @@ def bam_aggregation(bam_files):
                         alignment_status.get('tophat').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('tophat').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
                 else:
-                    if bam['is_santa_cruz_entry']:
+                    if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
-                        logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one scheduled for S3 transfer: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                    elif bam['is_santa_cruz_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
                             .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
 
                     else:
-                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
+                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different tophat aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
                                         .format(
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
@@ -1726,15 +1752,21 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('star').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
                 else:
-                    if bam['is_santa_cruz_entry']:
+                    if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
-                        logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one scheduled for transfer: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                    elif bam['is_santa_cruz_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
                             .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
 
 
                     else:
-                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
+                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different star aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
                                         .format(
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
@@ -1759,7 +1791,8 @@ def create_aggregated_rna_bam_info(bam):
         "submitter_sample_id": bam['submitter_sample_id'],
         "dcc_specimen_type": bam['dcc_specimen_type'],
         "aligned": True,    
-        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],            
+        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
+        "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],            
         "gnos_info": {
             "gnos_repo": [bam['gnos_repo']],
             "gnos_id": bam['bam_gnos_ao_id'],
