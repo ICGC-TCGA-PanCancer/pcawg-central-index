@@ -513,7 +513,7 @@ def main(argv=None):
     report_dir = init_report_dir(metadata_dir, report_name, repo)
 
     for q in q_index:
-        report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.tsv', 'w')  
+        report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
         report_tsv_fh.write('\t'.join(report_fields[q]) + '\n')
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
