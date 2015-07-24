@@ -784,11 +784,9 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'manual_qc_failed', 'pc_annotation-manual_qc_failed.tsv')  # hard-code file name for now
     read_annotations(annotations, 'sanger_vcf_in_jamboree', 'pc_annotation-sanger_vcf_in_jamboree.tsv')  # hard-code file name for now
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
-    #read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs/*/*.json')
-    read_annotations(annotations, 's3_transfer_scheduled', 'gnos_metadata/2015-07-22_09-35-29_EDT/reports/s3_transfer_json/*/*.json')
-    #read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs/completed-jobs/*.json')
-    read_annotations(annotations, 's3_transfer_completed', 'gnos_metadata/2015-07-22_09-35-29_EDT/reports/s3_transfer_json/completed-jobs/*.json')
-
+    read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs/*/*.json')
+    read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs/completed-jobs/*.json')
+    
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
 
