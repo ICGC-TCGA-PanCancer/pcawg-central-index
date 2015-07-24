@@ -46,13 +46,6 @@ es_queries = [
               }
             },
             {
-              "terms":{
-                "flags.is_santa_cruz_donor":[
-                  "T"
-                ]
-              }
-            },
-            {
               "terms": {
                 "dcc_project_code": [
                   "BOCA-UK", "BRCA-UK", "BTCA-SG", "CMDI-UK", "LAML-KR", "LINC-JP", "LIRI-JP"
@@ -132,15 +125,17 @@ es_queries = [
 ]
 
 
-def get_source_repo_index_pos (available_repos):
-    source_repo_rank = (
+def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
+    source_repo_rank = [
         "https://gtrepo-bsc.annailabs.com/",
         "https://gtrepo-dkfz.annailabs.com/",
         "https://gtrepo-osdc-icgc.annailabs.com/",
         "https://gtrepo-ebi.annailabs.com/",
         "https://gtrepo-riken.annailabs.com/",
-        "https://gtrepo-etri.annailabs.com/",
-    )
+        "https://gtrepo-etri.annailabs.com/"
+    ]
+    if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
+        source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
     for r in source_repo_rank:
         try:
             if available_repos.index(r) >= 0: return available_repos.index(r)
@@ -194,14 +189,14 @@ def generate_object_id(filename, gnos_id):
                        headers={'Content-Type': 'application/json'})
     if not r or not r.ok:
         logger.warning('GET request unable to access metadata service: {}'.format(url))
-        return 'FAKE-ID'
+        return ''
     elif r.json().get('totalElements') == 1:
         logger.info('GET request got the id')
         return r.json().get('content')[0].get('id')
     elif r.json().get('totalElements') > 1:
         logger.warning('GET request to metadata service return multiple matches for gnos_id: {} and filename: {}'
                           .format(gnos_id, filename))
-        return 'FAKE-ID'
+        return ''
     elif id_service_token:  # no match then try post to create
         headers = {
             'Content-Type': 'application/json',
@@ -214,11 +209,11 @@ def generate_object_id(filename, gnos_id):
         r = requests.post(url, data=json.dumps(body), headers=headers)
         if not r or not r.ok:
             logger.warning('POST request failed')
-            return 'FAKE-ID'
+            return ''
         return r.json().get('id')
     else:
         logger.info('No luck, generate FAKE ID')
-        return 'FAKE-ID'
+        return ''
 
 
 def create_reorganized_donor(donor_unique_id, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo):
@@ -260,11 +255,11 @@ def add_wgs_normal_specimen(reorganized_donor, es_json, gnos_ids_to_be_included,
     reorganized_donor.get('wgs').get('normal_specimen').update(aliquot_info)
 
 
-def add_metadata_xml_info(obj):
-    repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo')) ])
+def add_metadata_xml_info(obj, chosen_gnos_repo=None):
+    repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ])
     gnos_id = obj.get('gnos_id')
     ao_state = 'live'
-    ao_updated = obj.get('gnos_last_modified')[ get_source_repo_index_pos(obj.get('gnos_repo')) ].encode('utf8')
+    ao_updated = obj.get('gnos_last_modified')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ].encode('utf8')
     ao_updated = str.split(ao_updated, '+')[0] + 'Z'
     metadata_xml_file = 'gnos_metadata/__all_metadata_xml/' + repo + '/' + gnos_id + '__' + ao_state + '__' + ao_updated + '.xml'
     metadata_xml_file_info = {
@@ -277,16 +272,9 @@ def add_metadata_xml_info(obj):
     return metadata_xml_file_info
 
 def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
-    gnos_repo = []
-    if chosen_gnos_repo:
-        if get_formal_repo_name(chosen_gnos_repo) and \
-                get_formal_repo_name(chosen_gnos_repo) in aliquot.get('aligned_bam').get('gnos_repo'):
-            gnos_repo = [ get_formal_repo_name(chosen_gnos_repo) ]
-        else:
-            return {}
 
     aliquot_info = {
-        'data_type': 'bwa_alignment',
+        'data_type': 'WGS-BWA-Normal' if 'normal' in aliquot.get('dcc_specimen_type').lower() else 'WGS-BWA-Tumor',
         'project_code': es_json['dcc_project_code'],
         'submitter_donor_id': es_json['submitter_donor_id'],
         'is_santa_cruz': aliquot.get('aligned_bam').get('is_santa_cruz_entry'),
@@ -295,7 +283,8 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'available_repos': aliquot.get('aligned_bam').get('gnos_repo'),
-        'gnos_repo': gnos_repo,
+        'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
+            get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo'), chosen_gnos_repo) ] ],
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
         'files': [
             {
@@ -320,7 +309,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
         logger.warning('BWA alignment GNOS entry {} has no .bai file'.format(aliquot_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'))
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), chosen_gnos_repo)
     aliquot_info.get('files').append(metadata_xml_file_info)   
 
     return aliquot_info
@@ -346,7 +335,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_includ
     if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
 
     sanger_variant_calling = {
-        'data_type': 'sanger_vcf',
+        'data_type': 'Sanger-VCF',
         'project_code': es_json['dcc_project_code'],
         'submitter_donor_id': es_json['submitter_donor_id'],  
         'is_santa_cruz': wgs_tumor_sanger_vcf_info.get('is_santa_cruz_entry'),             
@@ -356,7 +345,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_includ
         'aliquot_id': None,
         'available_repos': wgs_tumor_sanger_vcf_info.get('gnos_repo'),
         'gnos_repo': [ wgs_tumor_sanger_vcf_info.get('gnos_repo')[ \
-            get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo')) ] ],
+            get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo'), chosen_gnos_repo) ] ],
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
         'files': wgs_tumor_sanger_vcf_info.get('files')
     }
@@ -367,7 +356,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_includ
         f.update({'object_id': generate_object_id(f.get('file_name'), sanger_variant_calling.get('gnos_id'))})
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_sanger_vcf_info)
+    metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_sanger_vcf_info, chosen_gnos_repo)
 
     sanger_variant_calling.get('files').append(metadata_xml_file_info)            
 
@@ -414,14 +403,14 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_i
                     if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
                     if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
 
-                    alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type)
+                    alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo)
 
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(alignment_info) 
 
 
 def create_rna_seq_alignment(aliquot, es_json, workflow_type):
     alignment_info = {
-        'data_type': 'RNA_Seq_'+workflow_type,
+        'data_type': 'RNA_Seq-'+workflow_type.capitalize()+'-Normal' if 'normal' in aliquot.get(workflow_type).get('dcc_specimen_type').lower() else 'RNA_Seq-'+workflow_type.capitalize()+'-Tumor',
         'project_code': es_json['dcc_project_code'],
         'submitter_donor_id': es_json['submitter_donor_id'],
         'is_santa_cruz': aliquot.get(workflow_type).get('is_santa_cruz_entry'),
@@ -431,7 +420,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
         'available_repos': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
         'gnos_repo': [ aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[ \
-            get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'))] ],
+            get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'), chosen_gnos_repo)] ],
         'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
         'files': [
             {
@@ -456,7 +445,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'))
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'), chosen_gnos_repo)
     alignment_info.get('files').append(metadata_xml_file_info)
 
     return alignment_info
@@ -539,13 +528,16 @@ def write_s3_transfer_json(jobs_dir, transfer_json):
 
     #if (json_prefix_start > 41): sys.exit()  # for debugging only to terminate earlier
 
-    if transfer_json.get('is_santa_cruz'):
+    if transfer_json:
         gnos_id = transfer_json.get('gnos_id')
 
         prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
+        donor_id = transfer_json.get('submitter_donor_id')
+        specimen_id = '-' if transfer_json.get('data_type') == 'Sanger-VCF' else transfer_json.get('submitter_specimen_id')
         data_type = transfer_json.get('data_type')
-        json_name_list = [gnos_id, project_code, data_type, 'json']
+
+        json_name_list = [gnos_id, project_code, donor_id, specimen_id, data_type, 'json']
         json_name = '.'.join(json_name_list)
         with open(jobs_dir + '/' + json_name, 'w') as w:
             w.write(json.dumps(transfer_json, indent=4, sort_keys=True))
