@@ -540,9 +540,8 @@ def main(argv=None):
                 for row in reader:
                     if not row.get('gnos_id') in gnos_id_set:
                         row_order = OrderedDict()
-                        row_order['donor_unique_id'] = row.get('#donor_unique_id')
-                        row_order['gnos_id'] = row.get('gnos_id')
-                        row_order['entry_type'] = row.get('entry_type')
+                        for fn in reader.fieldnames:
+                            row_order[fn] = row.get(fn)
                         report_info_list_full.append(row_order)
 
             
