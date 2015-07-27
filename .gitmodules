@@ -1,3 +1,6 @@
 [submodule "pcawg-operations"]
 	path = pcawg-operations
 	url = git@github.com:ICGC-TCGA-PanCancer/pcawg-operations.git
+[submodule "s3-transfer-operations"]
+	path = s3-transfer-operations
+	url = git@github.com:ICGC-TCGA-PanCancer/s3-transfer-operations.git
