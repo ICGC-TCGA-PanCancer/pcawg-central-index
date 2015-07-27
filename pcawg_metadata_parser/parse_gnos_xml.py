@@ -45,7 +45,7 @@ def init_es(es_host, es_index):
     return es
 
 
-def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations, santa_cruz_freeze_entries):
+def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations):
   analysis_attrib = get_analysis_attrib(gnos_analysis)
 
   if analysis_attrib and analysis_attrib.get('variant_workflow_name'):  # variant call gnos entry
@@ -72,10 +72,10 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.info('process Sanger variant call for donor: {}, in entry {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
+        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
 
-        if santa_cruz_freeze_entries.get(donor_unique_id): # the current donor is santa_cruz donor
-            if santa_cruz_freeze_entries.get(donor_unique_id).get(current_vcf_entry.get('gnos_id')): #the sanger vcf is santa_cruz. the vcf will be kept
+        if donor_unique_id in annotations.get('santa_cruz').get('donor'): # the current donor is santa_cruz donor
+            if current_vcf_entry.get('gnos_id') in annotations.get('santa_cruz').get('gnos_id'): #the sanger vcf is santa_cruz. the vcf will be kept
                 if not vcf_entries.get(donor_unique_id):
                     vcf_entries[donor_unique_id] = {'sanger_variant_calling': current_vcf_entry}
                 else:
@@ -147,7 +147,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.info('process EMBL variant call for donor: {}, in entry {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
+        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
 
         keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, 'EMBL')
 
@@ -158,7 +158,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.info('process DKFZ variant call for donor: {}, in entry {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
+        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
 
         keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, 'DKFZ')
 
@@ -252,7 +252,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     if not donors.get(donor_unique_id):
         # create a new donor if not exist
-        donors[ donor_unique_id ] = create_donor(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
+        donors[ donor_unique_id ] = create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
 
     else: # the donor this bam entry belongs to already exists
         # perform some comparison between existing donor and the info in the current bam entry
@@ -264,7 +264,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         # more such check may be added, no time for this now
 
     # now parse out gnos analysis object info to build bam_file doc
-    bam_file = create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries)
+    bam_file = create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
      
 
     # only do the following when it is WGS
@@ -398,7 +398,7 @@ def keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_v
                     .format(variant_workflow.upper(), donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
 
-def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries):
+def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     files = []
     for f in gnos_analysis.get('files').get('file'):
         files.append({'file_name': f.get('filename'), 'file_size': f.get('filesize'), 'file_md5sum': f.get('checksum').get('#text')})
@@ -412,7 +412,10 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz
         "files": files,
         "study": gnos_analysis.get('study'),
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
-        "is_santa_cruz_entry": is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, gnos_analysis.get('analysis_id')),
+        "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
+        "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
+        "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
+
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
             "variant_workflow_name": analysis_attrib.get('variant_workflow_name'),
@@ -470,7 +473,7 @@ def is_in_donor_blacklist(donor_unique_id):
         return False
 
 
-def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries):
+def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     file_info = parse_bam_file_info(gnos_analysis.get('files').get('file'))
     bam_file = {
         "dcc_specimen_type": analysis_attrib.get('dcc_specimen_type'),
@@ -481,6 +484,9 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa
         "total_lanes": analysis_attrib.get('total_lanes'),
 
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
+        "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
+        "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
+        "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
 
         "library_strategy": gnos_analysis.get('library_strategy'),
         "gnos_repo": gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/',
@@ -534,16 +540,8 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, santa
         bam_file['bam_type'] = 'Unknown'
         bam_file['alignment'] = None
 
-    bam_file['is_santa_cruz_entry'] = is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, bam_file.get('bam_gnos_ao_id'))
-
+    
     return bam_file
-
-
-def is_santa_cruz_entry(donor_unique_id, santa_cruz_freeze_entries, gnos_id):
-    if santa_cruz_freeze_entries.get(donor_unique_id) and santa_cruz_freeze_entries.get(donor_unique_id).get(gnos_id):
-        return True
-    else:
-        return False
 
 
 def get_rna_seq_alignment_detail(analysis_attrib, gnos_analysis):
@@ -614,7 +612,7 @@ def is_corrupted_train_2_alignment(analysis_attrib, gnos_analysis):
         return False
 
 
-def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_freeze_entries):
+def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     donor = {
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': analysis_attrib['submitter_donor_id'],
@@ -626,7 +624,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, santa_cruz_fre
             'is_cell_line': is_cell_line(analysis_attrib, gnos_analysis),
             'is_train2_donor': False,
             'is_train2_pilot': False,
-            'is_santa_cruz_donor': False if not santa_cruz_freeze_entries.get(donor_unique_id) else True,
+            'is_santa_cruz_donor': True if donor_unique_id in annotations.get('santa_cruz').get('donor') else False,
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -785,11 +783,12 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'donor_blacklist', 'pc_annotation-donor_blacklist.tsv')  # hard-code file name for now
     read_annotations(annotations, 'manual_qc_failed', 'pc_annotation-manual_qc_failed.tsv')  # hard-code file name for now
     read_annotations(annotations, 'sanger_vcf_in_jamboree', 'pc_annotation-sanger_vcf_in_jamboree.tsv')  # hard-code file name for now
-
+    read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
+    read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs/*/*.json')
+    read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs/completed-jobs/*.json')
+    
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
-
-    santa_cruz_freeze_entries = read_santa_cruz_entries('../pcawg-operations/data_releases/santa_cruz/santa_cruz_pilot.v2.2015_0504.tsv', 'santa_cruz_freeze_entry.tsv')
 
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = set()
@@ -813,14 +812,14 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
                     .format(f, gnos_analysis.get('analysis_id')) )
                 continue
 
-            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations, santa_cruz_freeze_entries)
+            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations)
         else:
             logger.warning( 'skipping invalid xml file: {}'.format(f) )
 
     for donor_id in donors.keys():
         donor = donors[donor_id]
 
-        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, santa_cruz_freeze_entries)
+        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams)
 
         # push to Elasticsearch
         es.index(index=es_index, doc_type='donor', id=donor['donor_unique_id'], \
@@ -875,173 +874,59 @@ def read_train2_bams(filename):
     return train2_bams
 
 
-def read_santa_cruz_entries(filename, santa_cruz_freeze_entry_tsv):
-    santa_cruz_entries = {}
-
-    with open(filename, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            santa_cruz_entries[row.get('Project code')+"::"+row.get('Submitter donor ID')] = {}
-
-            if row.get('Normal WGS alignment GNOS analysis ID'):
-                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Normal WGS alignment GNOS analysis ID')] = \
-                    {
-                    'submitter_specimen_id': row.get('Normal WGS submitter specimen ID'),
-                    'submitter_sample_id': row.get('Normal WGS submitter sample ID'),
-                    'aliquot_id': row.get('Normal WGS aliquot ID'),
-                    'repo': row.get('Normal WGS alignment GNOS repo(s)'),
-                    'filename': row.get('Normal WGS alignment BAM file name'),
-                    'entry_type': 'normal_wgs_bwa_bam'
-                     }
-
-            if row.get('Tumour WGS alignment GNOS analysis ID(s)'):
-                specimens = str.split(row.get('Tumour WGS submitter specimen ID(s)'), ',')
-                samples = str.split(row.get('Tumour WGS submitter sample ID(s)'), ',')
-                aliquots = str.split(row.get('Tumour WGS aliquot ID(s)'), ',')
-                repos = str.split(row.get('Tumour WGS alignment GNOS repo(s)'), ',')
-                gnos_ids = str.split(row.get('Tumour WGS alignment GNOS analysis ID(s)'), ',')
-                filenames = str.split(row.get('Tumour WGS alignment BAM file name(s)'), ',')
-                for tumor_specimen, tumor_sample, tumor_aliquot, tumor_repo, tumor_gnos_id, tumor_filename in zip(specimens, \
-                                                               samples, aliquots, repos, gnos_ids, filenames):                
-                    santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[tumor_gnos_id] = \
-                        {
-                        'submitter_specimen_id': tumor_specimen,
-                        'submitter_sample_id': tumor_sample,
-                        'aliquot_id': tumor_aliquot,
-                        'repo': tumor_repo,
-                        'filename': tumor_filename,
-                        'entry_type': 'tumor_wgs_bwa_bam',
-                        'specimen_count': row.get('Tumour WGS Specimen Count')
-                         }
-
-            if row.get('Sanger variant call GNOS analysis ID(s)'):
-                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Sanger variant call GNOS analysis ID(s)')] = \
-                    {
-                    'repo': row.get('Sanger variant call GNOS repo(s)'),
-                    'filename_prefix': row.get('Sanger variant call GNOS file name prefix'),
-                    'entry_type': 'sanger_vcf'
-                    }
-
-            if row.get('Normal RNA-Seq STAR alignment GNOS analysis ID'):
-                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Normal RNA-Seq STAR alignment GNOS analysis ID')] = \
-                    {
-                    'submitter_specimen_id': row.get('Normal RNA-Seq submitter specimen ID'),
-                    'submitter_sample_id': row.get('Normal RNA-Seq submitter sample ID'),
-                    'aliquot_id': row.get('Normal RNA-Seq aliquot ID'),
-                    'repo': row.get('Normal RNA-Seq STAR alignment GNOS repo(s)'),
-                    'filename': row.get('Normal RNA-Seq STAR alignment BAM file name'),
-                    'entry_type': 'normal_RNA_Seq_STAR_bam'
-                    }
-
-            if row.get('Normal RNA-Seq TopHat2 alignment GNOS analysis ID'):
-                santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[row.get('Normal RNA-Seq TopHat2 alignment GNOS analysis ID')] = \
-                    {
-                    'submitter_specimen_id': row.get('Normal RNA-Seq submitter specimen ID'),
-                    'submitter_sample_id': row.get('Normal RNA-Seq submitter sample ID'),
-                    'aliquot_id': row.get('Normal RNA-Seq aliquot ID'),
-                    'repo': row.get('Normal RNA-Seq TopHat2 alignment GNOS repo(s)'),
-                    'filename': row.get('Normal RNA-Seq TopHat2 alignment BAM file name'),
-                    'entry_type': 'normal_RNA_Seq_TopHat2_bam'
-                    }
-
-            if row.get('Tumour RNA-Seq STAR alignment GNOS analysis ID'):
-                STAR_specimens = str.split(row.get('Tumour RNA-Seq submitter specimen ID'), ',')
-                STAR_samples = str.split(row.get('Tumour RNA-Seq submitter sample ID'), ',')
-                STAR_aliquots = str.split(row.get('Tumour RNA-Seq aliquot ID'), ',')
-                STAR_repos = str.split(row.get('Tumour RNA-Seq STAR alignment GNOS repo(s)'), ',')
-                STAR_gnos_ids = str.split(row.get('Tumour RNA-Seq STAR alignment GNOS analysis ID'), ',')
-                STAR_filenames = str.split(row.get('Tumour RNA-Seq STAR alignment BAM file name'), ',')
-                for STAR_specimen, STAR_sample, STAR_aliquot, STAR_repo, STAR_gnos_id, STAR_filename in zip(STAR_specimens, \
-                                                               STAR_samples, STAR_aliquots, STAR_repos, STAR_gnos_ids, STAR_filenames):                
-                    santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[STAR_gnos_id] = \
-                        {
-                        'submitter_specimen_id': STAR_specimen,
-                        'submitter_sample_id': STAR_sample,
-                        'aliquot_id': STAR_aliquot,
-                        'repo': STAR_repo,
-                        'filename': STAR_filename,
-                        'entry_type': 'tumor_RNA_Seq_STAR_bam'
-                         }
-
-            if row.get('Tumour RNA-Seq TopHat2 alignment GNOS analysis ID'):
-                TopHat2_specimens = str.split(row.get('Tumour RNA-Seq submitter specimen ID'), ',')
-                TopHat2_samples = str.split(row.get('Tumour RNA-Seq submitter sample ID'), ',')
-                TopHat2_aliquots = str.split(row.get('Tumour RNA-Seq aliquot ID'), ',')
-                TopHat2_repos = str.split(row.get('Tumour RNA-Seq TopHat2 alignment GNOS repo(s)'), ',')
-                TopHat2_gnos_ids = str.split(row.get('Tumour RNA-Seq TopHat2 alignment GNOS analysis ID'), ',')
-                TopHat2_filenames = str.split(row.get('Tumour RNA-Seq TopHat2 alignment BAM file name'), ',')
-                for TopHat2_specimen, TopHat2_sample, TopHat2_aliquot, TopHat2_repo, TopHat2_gnos_id, TopHat2_filename in zip(TopHat2_specimens, \
-                                                               TopHat2_samples, TopHat2_aliquots, TopHat2_repos, TopHat2_gnos_ids, TopHat2_filenames):                
-                    santa_cruz_entries.get(row.get('Project code')+"::"+row.get('Submitter donor ID'))[TopHat2_gnos_id] = \
-                        {
-                        'submitter_specimen_id': TopHat2_specimen,
-                        'submitter_sample_id': TopHat2_sample,
-                        'aliquot_id': TopHat2_aliquot,
-                        'repo': TopHat2_repo,
-                        'filename': TopHat2_filename,
-                        'entry_type': 'tumor_RNA_Seq_TopHat2_bam'
-                         }
-
-    santa_cruz_freeze_entry_list = []
-
-    for k, v in santa_cruz_entries.iteritems():
-       santa_cruz_freeze_entry = OrderedDict()
-       santa_cruz_freeze_entry['donor_unique_id'] = k
-       for kk, vv in v.iteritems():
-            santa_cruz_freeze_entry['gnos_id'] = kk
-            santa_cruz_freeze_entry['entry_type'] = vv.get('entry_type')
-            
-            santa_cruz_freeze_entry_list.append(copy.deepcopy(santa_cruz_freeze_entry))
-
-    with open(santa_cruz_freeze_entry_tsv, 'w') as s:
-        s.write('\t'.join(['donor_unique_id', 'gnos_id', 'entry_type']) + '\n')
-        for r in santa_cruz_freeze_entry_list: 
-            # make the list of output from dict
-            line = []
-            for p in r.keys():
-                if isinstance(r.get(p), list):
-                    line.append('|'.join(r.get(p)))
-                elif isinstance(r.get(p), set):
-                    line.append('|'.join(list(r.get(p))))
-                else:
-                    line.append(str(r.get(p)))
-            s.write('\t'.join(line) + '\n')
-
-    return santa_cruz_entries
-
-
 def read_annotations(annotations, type, file_name):
-    with open(file_name, 'r') as r:
-        if annotations.get(type): # reset annotation if exists
-            del annotations[type]
 
-        if type == 'gnos_assignment':
-            annotations['gnos_assignment'] = {}
-            assignment = yaml.safe_load(r)
-            for repo, project_donors in assignment.iteritems():
-                for p_d in project_donors:
-                    annotations['gnos_assignment'][p_d] = repo  # key is project or donor unique id, value is repo
+    if type in ['s3_transfer_scheduled', 's3_transfer_completed']:
+        annotations[type] = set()
+        files = glob.glob(file_name)
+        for f in files:
+            fname = str.split(f, '/')[-1]
+            gnos_id = str.split(fname, '.')[0]
+            annotations[type].add(gnos_id)
+    else:
+        with open(file_name, 'r') as r:
+            if annotations.get(type): # reset annotation if exists
+                del annotations[type]
 
-        elif type == 'sanger_vcf_in_jamboree':
-            annotations['sanger_vcf_in_jamboree'] = {}
-            for line in r:
-                if line.startswith('#'): continue
-                if len(line.rstrip()) == 0: continue
-                donor_id, ao_id = str.split(line.rstrip(), '\t')
-                annotations[type][donor_id] = ao_id
-                
-        elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
-            annotations[type] = set()
-            for line in r:
-                if line.startswith('#'): continue
-                if len(line.rstrip()) == 0: continue
-                annotations[type].add(line.rstrip())
+            if type == 'gnos_assignment':
+                annotations['gnos_assignment'] = {}
+                assignment = yaml.safe_load(r)
+                for repo, project_donors in assignment.iteritems():
+                    for p_d in project_donors:
+                        annotations['gnos_assignment'][p_d] = repo  # key is project or donor unique id, value is repo
 
-        else:
-            logger.warning('unknown annotation type: {}'.format(type))
+            elif type == 'sanger_vcf_in_jamboree':
+                annotations['sanger_vcf_in_jamboree'] = {}
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    donor_id, ao_id = str.split(line.rstrip(), '\t')
+                    annotations[type][donor_id] = ao_id
+                    
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+                annotations[type] = set()
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    annotations[type].add(line.rstrip())
+
+            elif type == 'santa_cruz':
+                annotations['santa_cruz'] = {
+                    'donor': set(),
+                    'gnos_id': set()
+                }
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    donor_unique_id, gnos_id, entry_type = str.split(line.rstrip(), '\t') 
+                    annotations['santa_cruz']['donor'].add(donor_unique_id)
+                    annotations['santa_cruz']['gnos_id'].add(gnos_id)                 
+
+            else:
+                logger.warning('unknown annotation type: {}'.format(type))
 
 
-def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, santa_cruz_freeze_entries):
+def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
     logger.info( 'processing donor: {} ...'.format(donor.get('donor_unique_id')) )
 
     # check whether all tumor specimen(s) aligned
@@ -1653,7 +1538,9 @@ def create_aggregated_bam_info_dict(bam):
             "effective_xml_md5sum": bam['effective_xml_md5sum'],
             "gnos_last_modified": [bam['last_modified']],
             "gnos_repo": [bam['gnos_repo']],
-            "is_santa_cruz_entry": bam['is_santa_cruz_entry']
+            "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
+            "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
+            "is_s3_transfer_completed": bam['is_s3_transfer_completed']
          },
          "bam_with_unmappable_reads": {},
          "unaligned_bams": {}
@@ -1689,7 +1576,12 @@ def bam_aggregation(bam_files):
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
             else:
-                if bam['is_santa_cruz_entry']:
+                if bam['is_s3_transfer_scheduled']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one scheduled for S3 transfer: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                elif bam['is_santa_cruz_entry']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in santa_cruz: {}, additional: {}'
                         .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
@@ -1824,14 +1716,20 @@ def bam_aggregation(bam_files):
                         alignment_status.get('tophat').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('tophat').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
                 else:
-                    if bam['is_santa_cruz_entry']:
+                    if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
-                        logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one scheduled for S3 transfer: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                    elif bam['is_santa_cruz_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
                             .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
 
                     else:
-                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
+                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different tophat aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
                                         .format(
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
@@ -1857,15 +1755,21 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('star').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
                 else:
-                    if bam['is_santa_cruz_entry']:
+                    if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
-                        logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one scheduled for transfer: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+
+                    elif bam['is_santa_cruz_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
                             .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
 
 
                     else:
-                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
+                        logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different star aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
                                         .format(
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
@@ -1890,7 +1794,9 @@ def create_aggregated_rna_bam_info(bam):
         "submitter_sample_id": bam['submitter_sample_id'],
         "dcc_specimen_type": bam['dcc_specimen_type'],
         "aligned": True,    
-        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],            
+        "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
+        "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
+        "is_s3_transfer_completed": bam['is_s3_transfer_completed'],           
         "gnos_info": {
             "gnos_repo": [bam['gnos_repo']],
             "gnos_id": bam['bam_gnos_ao_id'],
