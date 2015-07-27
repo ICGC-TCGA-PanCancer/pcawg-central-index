@@ -273,8 +273,22 @@ def add_metadata_xml_info(obj, chosen_gnos_repo=None):
 
     return metadata_xml_file_info
 
-def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
 
+def get_available_repos(obj):
+    repos = obj.get('gnos_repo')
+    ret_repos = []
+    for r in repos:
+        metadata_xml_info = add_metadata_xml_info(obj, get_formal_repo_name(r))
+        ret_repos.append({
+              r:{
+                  'file_md5sum': metadata_xml_info.get('file_md5sum'),
+                  'file_size': metadata_xml_info.get('file_size')
+                }
+            })
+    return ret_repos
+
+
+def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
     aliquot_info = {
         'data_type': 'WGS-BWA-Normal' if 'normal' in aliquot.get('dcc_specimen_type').lower() else 'WGS-BWA-Tumor',
         'project_code': es_json['dcc_project_code'],
@@ -284,7 +298,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
-        'available_repos': aliquot.get('aligned_bam').get('gnos_repo'),
+        'available_repos': get_available_repos(aliquot.get('aligned_bam')),
         'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
             get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo'), chosen_gnos_repo) ] ],
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
@@ -347,7 +361,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_includ
         'submitter_sample_id': None,
         'specimen_type': None,
         'aliquot_id': None,
-        'available_repos': wgs_tumor_sanger_vcf_info.get('gnos_repo'),
+        'available_repos': get_available_repos(wgs_tumor_sanger_vcf_info),
         'gnos_repo': [ wgs_tumor_sanger_vcf_info.get('gnos_repo')[ \
             get_source_repo_index_pos(wgs_tumor_sanger_vcf_info.get('gnos_repo'), chosen_gnos_repo) ] ],
         'gnos_id': wgs_tumor_sanger_vcf_info.get('gnos_id'),
@@ -426,7 +440,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type):
         'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
         'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
         'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
-        'available_repos': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
+        'available_repos': get_available_repos(aliquot.get(workflow_type).get('gnos_info')),
         'gnos_repo': [ aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[ \
             get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'), chosen_gnos_repo)] ],
         'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
