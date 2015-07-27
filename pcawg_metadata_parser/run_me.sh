@@ -24,6 +24,11 @@ cd ../pcawg-operations/
 git pull
 cd $DIR
 
+echo update s3-transfer-operations git submodule
+cd ../s3-transfer-operations/
+git pull
+cd $DIR
+
 # this is just for running individual reports, does not affect downloader download from all gnos repos
 #gnos_repos=(ebi bsc dkfz)
 
