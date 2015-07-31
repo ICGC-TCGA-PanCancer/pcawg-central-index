@@ -199,6 +199,11 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
+    if not analysis_attrib.get('submitter_specimen_id') or not analysis_attrib.get('submitter_sample_id'):
+        logger.warning('ignore entry does not have submitter_specimen_id or submitter_sample_id, GNOS entry: {}'
+                         .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+        return
+
     # added on Apr. 24, 2015 after discovering that one RNA-Seq uploaded to GNOS with TCGA barcode which was treated as a new donor
     if analysis_attrib.get('dcc_project_code').endswith('-US') and \
             analysis_attrib.get('submitter_donor_id').startswith('TCGA-'):
