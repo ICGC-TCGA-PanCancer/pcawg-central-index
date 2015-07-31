@@ -618,6 +618,10 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_sanger_variant_calling_performed': False,
             'is_dkfz_variant_calling_performed': False,
             'is_embl_variant_calling_performed': False,
+            'is_dkfz_embl_variant_calling_performed': False,
+            'is_broad_variant_calling_performed': False,
+            'is_muse_variant_calling_performed': False,
+            'is_broad_tar_variant_calling_performed': False, 
             'variant_calling_performed': [],
             'vcf_in_jamboree': [],
             'is_normal_star_rna_seq_alignment_performed': False,
@@ -1304,9 +1308,7 @@ def add_vcf_entry(donor, vcf_entry):
     donor.get('variant_calling_results').update(vcf_entry)
 
     for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
-      if not donor.get('variant_calling_results').get(workflow + '_variant_calling'):
-        donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = False
-      else:
+      if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
         donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
         donor.get('flags').get('variant_calling_performed').append(workflow)
         if not donor.get('flags').get('all_tumor_specimen_aliquot_counts') + 1 == \
@@ -1349,6 +1351,23 @@ def add_vcf_entry(donor, vcf_entry):
         if vcf_input_t_bam != tumor_alignment_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_tumor_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+    
+    #add a flag to indicate whether broad has mismatch file subsets
+    donor.get('flags')['exists_mismatch_broad_file_subsets'] = False
+    broad_file_subsets = set()
+    for workflow in ['broad', 'muse', 'broad_tar']:
+        if not donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+            continue
+        vcf = donor.get('variant_calling_results').get(workflow + '_variant_calling')
+        
+        if not vcf.get('workflow_details') or not vcf.get('workflow_details').get('related_file_subset_uuids') or not vcf.get('gnos_id'):
+            logger.warning('{} variant calling information for donor: {} is not completely populated'.format(workflow.upper(), donor.get('donor_unique_id')))
+        else:
+            current_broad_file_subsets = set(vcf.get('workflow_details').get('related_file_subset_uuids')) | set([vcf.get('gnos_id')])
+        
+            if not broad_file_subsets: broad_file_subsets = current_broad_file_subsets
+            if broad_file_subsets and not current_broad_file_subsets == broad_file_subsets: 
+                donor.get('flag')['exists_mismatch_broad_file_subsets'] = True
 
 
 def add_original_gnos_repo(donor, annotation):
