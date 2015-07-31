@@ -620,8 +620,6 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_embl_variant_calling_performed': False,
             'is_dkfz_embl_variant_calling_performed': False,
             'is_broad_variant_calling_performed': False,
-            'is_muse_variant_calling_performed': False,
-            'is_broad_tar_variant_calling_performed': False, 
             'variant_calling_performed': [],
             'vcf_in_jamboree': [],
             'is_normal_star_rna_seq_alignment_performed': False,
@@ -1305,12 +1303,13 @@ def add_vcf_entry(donor, vcf_entry):
 
     if not donor.get('variant_calling_results'): donor['variant_calling_results'] = {}
 
+    donor['vcf_files'] = vcf_entry.get('vcf_entry_files')
+    del vcf_entry['vcf_entry_files']
     donor.get('variant_calling_results').update(vcf_entry)
 
+    # update the flags inside each vcf
     for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
       if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
-        donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
-        donor.get('flags').get('variant_calling_performed').append(workflow)
         if not donor.get('flags').get('all_tumor_specimen_aliquot_counts') + 1 == \
                 len(donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_output_info')):
             logger.warning(workflow + ' variant calling workflow may have missed tumour specimen for donor: {}'
@@ -1352,11 +1351,20 @@ def add_vcf_entry(donor, vcf_entry):
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_tumor_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
     
-    #add a flag to indicate whether broad has mismatch file subsets
-    donor.get('flags')['exists_mismatch_broad_file_subsets'] = False
+    # update the flags for sanger, dkfz_embl
+    for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz']:
+        if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+            donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
+            donor.get('flags').get('variant_calling_performed').append(workflow)
+
+    #one combined flag for broad to indicate whether broad is performed well
+    #donor.get('flags')['exists_mismatch_broad_file_subsets'] = False
+    is_broad_file_subset_mismatch = False
+    is_broad_file_subset_missing = False
     broad_file_subsets = set()
     for workflow in ['broad', 'muse', 'broad_tar']:
         if not donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+            is_broad_file_subset_missing = True
             continue
         vcf = donor.get('variant_calling_results').get(workflow + '_variant_calling')
         
@@ -1367,7 +1375,11 @@ def add_vcf_entry(donor, vcf_entry):
         
             if not broad_file_subsets: broad_file_subsets = current_broad_file_subsets
             if broad_file_subsets and not current_broad_file_subsets == broad_file_subsets: 
-                donor.get('flag')['exists_mismatch_broad_file_subsets'] = True
+                is_broad_file_subset_mismatch = True
+    
+    if not is_broad_file_subset_missing and not is_broad_file_subset_mismatch:
+        donor.get('flags')['is_broad_variant_calling_performed'] = True
+        donor.get('flags').get('variant_calling_performed').append('broad')
 
 
 def add_original_gnos_repo(donor, annotation):
