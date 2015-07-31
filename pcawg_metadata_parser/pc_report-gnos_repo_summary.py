@@ -8,6 +8,8 @@ from collections import OrderedDict
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 from elasticsearch import Elasticsearch
+import shutil
+
 
 es_host = 'localhost:9200'
 es_type = "donor"
@@ -856,7 +858,389 @@ es_queries = [
       "size": 0
     },
   ],
-
+  # query 5: live_aligned_broad_not_called_donors
+  [
+    # es_query for donor counts
+    {
+      "aggs": {
+        "gnos_f": {
+          "aggs": {
+            "gnos_assignment": {
+              "terms": {
+                "field": "original_gnos_assignment",
+                "size": 100
+              },
+              "aggs": {
+                "exist_in_gnos_repo": {
+                  "terms": {
+                    "field": "gnos_repos_with_complete_alignment_set",
+                    "size": 100
+                  },
+                  "aggs": {
+                    "donors": {
+                      "terms": {
+                        "field": "donor_unique_id",
+                        "size": 50000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "filter": {
+            "fquery": {
+              "query": {
+                "filtered": {
+                  "query": {
+                    "bool": {
+                      "should": [
+                        {
+                          "query_string": {
+                            "query": "*"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "filter": {
+                    "bool": {
+                      "must": [
+                        {
+                          "type": {
+                            "value": "donor"
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_normal_specimen_aligned": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.are_all_tumor_specimens_aligned": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "bool": {
+                            "should":[
+                              {
+                                "terms": {
+                                  "flags.is_broad_calling_performed": [
+                                    "F"
+                                  ]
+                                }
+                              },
+                              {
+                                "terms": {
+                                  "flags.is_broad_tar_variant_calling_performed": [
+                                    "F"
+                                  ]
+                                }
+                              },
+                              {
+                                "terms": {
+                                  "flags.is_muse_variant_calling_performed": [
+                                    "F"
+                                  ]
+                                }
+                              },
+                              {
+                                "terms": {
+                                  "flags.exists_mismatch_broad_file_subsets": [
+                                    "T"
+                                  ]
+                                }
+                              }                        
+                            ]
+                          }
+                        }
+                      ],
+                      "must_not": [
+                        {
+                          "terms": {
+                            "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "size": 0
+    },
+    # es_query for specimen counts
+    {
+      "aggs": {
+        "gnos_f": {
+          "aggs": {
+            "gnos_assignment": {
+              "terms": {
+                "field": "original_gnos_assignment",
+                "size": 100
+              },
+              "aggs": {
+                "normal_exists_in_gnos_repo": {
+                  "terms": {
+                    "field": "normal_alignment_status.aligned_bam.gnos_repo",
+                    "size": 100
+                  }
+                },
+                "tumor_specimens": {
+                  "nested": {
+                    "path": "tumor_alignment_status",
+                  },
+                  "aggs":{
+                    "tumor_exists_in_gnos_repo":{
+                      "terms": {
+                        "field": "tumor_alignment_status.aligned_bam.gnos_repo",
+                        "size": 100
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "filter": {
+            "fquery": {
+              "query": {
+                "filtered": {
+                  "query": {
+                    "bool": {
+                      "should": [
+                        {
+                          "query_string": {
+                            "query": "*"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "filter": {
+                    "bool": {
+                      "must": [
+                        {
+                          "type": {
+                            "value": "donor"
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_normal_specimen_aligned": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.are_all_tumor_specimens_aligned": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "bool": {
+                            "should":[
+                              {
+                                "terms": {
+                                  "flags.is_broad_variant_calling_performed": [
+                                    "F"
+                                  ]
+                                }
+                              },
+                              {
+                                "terms": {
+                                  "flags.is_broad_tar_variant_calling_performed": [
+                                    "F"
+                                  ]
+                                }
+                              },
+                              {
+                                "terms": {
+                                  "flags.is_muse_variant_calling_performed": [
+                                    "F"
+                                  ]
+                                }
+                              },
+                              {
+                                "terms": {
+                                  "flags.exists_mismatch_broad_file_subsets": [
+                                    "T"
+                                  ]
+                                }
+                              }                        
+                            ]
+                          }
+                        }
+                      ],
+                      "must_not": [
+                        {
+                          "terms": {
+                            "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "size": 0
+    },
+  ],
+  # query 6: live_broad_called_donors
+  [
+    # es_query for donor counts
+    {
+      "aggs": {
+        "gnos_f": {
+          "aggs": {
+            "gnos_assignment": {
+              "terms": {
+                "field": "original_gnos_assignment",
+                "size": 100
+              },
+              "aggs": {
+                "exist_in_gnos_repo": {
+                  "terms": {
+                    "field": "variant_calling_results.dkfz_variant_calling.gnos_repo",
+                    "size": 100
+                  },
+                  "aggs": {
+                    "donors": {
+                      "terms": {
+                        "field": "donor_unique_id",
+                        "size": 50000
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "filter": {
+            "fquery": {
+              "query": {
+                "filtered": {
+                  "query": {
+                    "bool": {
+                      "should": [
+                        {
+                          "query_string": {
+                            "query": "*"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "filter": {
+                    "bool": {
+                      "must": [
+                        {
+                          "type": {
+                            "value": "donor"
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_normal_specimen_aligned": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.are_all_tumor_specimens_aligned": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_broad_variant_calling_performed": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_broad_tar_variant_calling_performed": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_muse_variant_calling_performed": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.exists_mismatch_broad_file_subsets": [
+                              "F"
+                            ]
+                          }
+                        }                        
+                      ],
+                      "must_not": [
+                        {
+                          "terms": {
+                            "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "size": 0
+    },
+  ],
   # query 3: train2_donors
   # query 4: train2_pilot_donors
 
@@ -866,8 +1250,9 @@ es_queries = [
 
 def init_report_dir(metadata_dir, report_name, repo):
     report_dir = metadata_dir + '/reports/' + report_name if not repo else metadata_dir + '/reports/' + report_name + '/' + repo
-    if not os.path.exists(report_dir):
-        os.makedirs(report_dir)
+    if os.path.exists(report_dir): shutil.rmtree(report_dir, ignore_errors=True)  # empty the folder if exists
+    os.makedirs(report_dir)
+
     return report_dir
 
 
@@ -880,7 +1265,9 @@ def generate_report(es_index, es_queries, metadata_dir, report_name, timestamp, 
         "live_aligned_sanger_variant_not_called_donors",
         "live_sanger_variant_called_donors",
         "live_aligned_embl-dkfz_variant_not_called_donors",
-        "live_embl-dkfz_variant_called_donors"
+        "live_embl-dkfz_variant_called_donors",
+        "live_aligned_broad_variant_not_called_donors",
+        "live_broad_variant_called_donors"
         #"train2_donors",
         #"train2_pilot_donors"
     ]
