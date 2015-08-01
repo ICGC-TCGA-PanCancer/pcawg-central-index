@@ -620,6 +620,12 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_embl_variant_calling_performed': False,
             'is_dkfz_embl_variant_calling_performed': False,
             'is_broad_variant_calling_performed': False,
+            'broad':{
+                'broad_file_subset_exist': False,
+                'broad_tar_file_subset_exist': False,
+                'muse_file_subset_exist': False,
+                'exist_file_subsets_mismatch': False
+            },
             'variant_calling_performed': [],
             'vcf_in_jamboree': [],
             'is_normal_star_rna_seq_alignment_performed': False,
@@ -1303,7 +1309,7 @@ def add_vcf_entry(donor, vcf_entry):
 
     if not donor.get('variant_calling_results'): donor['variant_calling_results'] = {}
 
-    donor['vcf_files'] = vcf_entry.get('vcf_entry_files')
+    donor['vcf_files'] = copy.deepcopy(vcf_entry.get('vcf_entry_files'))
     del vcf_entry['vcf_entry_files']
     donor.get('variant_calling_results').update(vcf_entry)
 
@@ -1359,25 +1365,25 @@ def add_vcf_entry(donor, vcf_entry):
 
     #one combined flag for broad to indicate whether broad is performed well
     #donor.get('flags')['exists_mismatch_broad_file_subsets'] = False
-    is_broad_file_subset_mismatch = False
     is_broad_file_subset_missing = False
     broad_file_subsets = set()
     for workflow in ['broad', 'muse', 'broad_tar']:
-        if not donor.get('variant_calling_results').get(workflow + '_variant_calling'):
-            is_broad_file_subset_missing = True
-            continue
-        vcf = donor.get('variant_calling_results').get(workflow + '_variant_calling')
+        if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+            donor.get('flags').get('broad')[workflow+'_file_subset_exist'] = True
+            vcf = donor.get('variant_calling_results').get(workflow + '_variant_calling')
         
-        if not vcf.get('workflow_details') or not vcf.get('workflow_details').get('related_file_subset_uuids') or not vcf.get('gnos_id'):
-            logger.warning('{} variant calling information for donor: {} is not completely populated'.format(workflow.upper(), donor.get('donor_unique_id')))
+            if not vcf.get('workflow_details') or not vcf.get('workflow_details').get('related_file_subset_uuids') or not vcf.get('gnos_id'):
+                logger.warning('{} variant calling information for donor: {} is not completely populated'.format(workflow.upper(), donor.get('donor_unique_id')))
+            else:
+                current_broad_file_subsets = set(vcf.get('workflow_details').get('related_file_subset_uuids')) | set([vcf.get('gnos_id')])
+            
+                if not broad_file_subsets: broad_file_subsets = current_broad_file_subsets
+                if broad_file_subsets and not current_broad_file_subsets == broad_file_subsets: 
+                    donor.get('flags').get('broad')['exist_file_subsets_mismatch'] = True
         else:
-            current_broad_file_subsets = set(vcf.get('workflow_details').get('related_file_subset_uuids')) | set([vcf.get('gnos_id')])
-        
-            if not broad_file_subsets: broad_file_subsets = current_broad_file_subsets
-            if broad_file_subsets and not current_broad_file_subsets == broad_file_subsets: 
-                is_broad_file_subset_mismatch = True
-    
-    if not is_broad_file_subset_missing and not is_broad_file_subset_mismatch:
+            is_broad_file_subset_missing = True
+
+    if not is_broad_file_subset_missing and not donor.get('flags').get('broad')['exist_file_subsets_mismatch']:
         donor.get('flags')['is_broad_variant_calling_performed'] = True
         donor.get('flags').get('variant_calling_performed').append('broad')
 
