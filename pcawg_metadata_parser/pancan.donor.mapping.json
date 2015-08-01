@@ -783,14 +783,21 @@
                "is_broad_variant_calling_performed":{
                   "type":"boolean"
                },
-               "is_muse_variant_calling_performed":{
-                  "type":"boolean"
-               },
-               "is_broad_tar_variant_calling_performed":{
-                  "type":"boolean"
-               },
-               "exists_mismatch_broad_file_subsets":{
-                  "type":"boolean"
+               "broad":{
+                  "properties":{
+                     "broad_file_subset_exist":{
+                        "type": "boolean"
+                     },
+                     "broad_tar_file_subset_exist":{
+                        "type": "boolean"
+                     },
+                     "muse_file_subset_exist":{
+                        "type": "boolean"
+                     },
+                     "exist_file_subsets_mismatch":{
+                        "type": "boolean"
+                     }
+                  }
                },
                "is_sanger_vcf_in_jamboree":{
                   "type":"boolean"
