@@ -1,0 +1,9 @@
+# YAML for settings
+
+test_dir: ../test/
+
+download_dir: ../test/downloads/
+
+upload_dir: ../test/uploads/
+
+manifest_file: ../test/manifest_file.tsv

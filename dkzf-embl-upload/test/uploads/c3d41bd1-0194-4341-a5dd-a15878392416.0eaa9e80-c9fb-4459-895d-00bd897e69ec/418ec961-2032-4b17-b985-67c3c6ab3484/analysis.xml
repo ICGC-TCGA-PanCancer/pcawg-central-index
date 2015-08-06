@@ -1,0 +1,1321 @@
+<?xml version="1.0" ?>
+<ANALYSIS_SET>
+	<key name="@xmlns:xsi">http://www.w3.org/2001/XMLSchema-instance</key>
+	<key name="@xsi:noNamespaceSchemaLocation">http://www.ncbi.nlm.nih.gov/viewvc/v1/trunk/sra/doc/SRA_1-5/SRA.analysis.xsd?view=co</key>
+	<ANALYSIS>
+		<key name="@center_name">BSC</key>
+		<key name="@analysis_center">bsc</key>
+		<key name="@analysis_date">2015-06-08T12:13:59</key>
+		<TITLE>TCGA/ICGC PanCancer Donor-Level Variant Calling for Participant 290</TITLE>
+		<STUDY_REF>
+			<key name="@refcenter">OICR</key>
+			<key name="@refname">icgc_pancancer_vcf</key>
+		</STUDY_REF>
+		<DESCRIPTION>New merged dkfz/embl xml</DESCRIPTION>
+		<ANALYSIS_TYPE>
+			<REFERENCE_ALIGNMENT>
+				<ASSEMBLY>
+					<STANDARD>
+						<key name="@short_name">GRCh37</key>
+					</STANDARD>
+				</ASSEMBLY>
+				<RUN_LABELS>
+					<RUN>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-RT-G</key>
+							<key name="@read_group_label">BSC:D0KGMACXX_1</key>
+							<key name="@refname">BSC:D0KGMACXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-74-L</key>
+							<key name="@read_group_label">BSC:62E15AAXX_6</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-RT-E</key>
+							<key name="@read_group_label">BSC:62E15AAXX_2</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-RT-E</key>
+							<key name="@read_group_label">BSC:62E15AAXX_1</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-76-K+L</key>
+							<key name="@read_group_label">BSC:62E15AAXX_7</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-RT-G</key>
+							<key name="@read_group_label">BSC:62E15AAXX_4</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-76-K+L</key>
+							<key name="@read_group_label">BSC:62E15AAXX_8</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-RT-G</key>
+							<key name="@read_group_label">BSC:62E15AAXX_3</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:101A-74-K</key>
+							<key name="@read_group_label">BSC:62E15AAXX_5</key>
+							<key name="@refname">BSC:62E15AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-76-K+L</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_8</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-G</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_3</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-74-K</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_5</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-76-K+L</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_7</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-74-L</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_6</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-G</key>
+							<key name="@read_group_label">BSC:D0KGMACXX_2</key>
+							<key name="@refname">BSC:D0KGMACXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-E</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_2</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-E</key>
+							<key name="@read_group_label">BSC:62MF3AAXX_5</key>
+							<key name="@refname">BSC:62MF3AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-E</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_1</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-E</key>
+							<key name="@read_group_label">BSC:62MF3AAXX_7</key>
+							<key name="@refname">BSC:62MF3AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-G</key>
+							<key name="@read_group_label">BSC:62DWYAAXX_4</key>
+							<key name="@refname">BSC:62DWYAAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-E</key>
+							<key name="@read_group_label">BSC:62MF3AAXX_6</key>
+							<key name="@refname">BSC:62MF3AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+						<item>
+							<key name="@data_block_name">WGS:BSC:102A-RT-E</key>
+							<key name="@read_group_label">BSC:62MF3AAXX_8</key>
+							<key name="@refname">BSC:62MF3AAXX</key>
+							<key name="@refcenter">BSC</key>
+						</item>
+					</RUN>
+				</RUN_LABELS>
+				<SEQ_LABELS>
+					<SEQUENCE>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000001.10</key>
+							<key name="@seq_label">1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000002.11</key>
+							<key name="@seq_label">2</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000003.11</key>
+							<key name="@seq_label">3</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000004.11</key>
+							<key name="@seq_label">4</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000005.9</key>
+							<key name="@seq_label">5</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000006.11</key>
+							<key name="@seq_label">6</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000007.13</key>
+							<key name="@seq_label">7</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000008.10</key>
+							<key name="@seq_label">8</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000009.11</key>
+							<key name="@seq_label">9</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000010.10</key>
+							<key name="@seq_label">10</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000011.9</key>
+							<key name="@seq_label">11</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000012.11</key>
+							<key name="@seq_label">12</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000013.10</key>
+							<key name="@seq_label">13</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000014.8</key>
+							<key name="@seq_label">14</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000015.9</key>
+							<key name="@seq_label">15</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000016.9</key>
+							<key name="@seq_label">16</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000017.10</key>
+							<key name="@seq_label">17</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000018.9</key>
+							<key name="@seq_label">18</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000019.9</key>
+							<key name="@seq_label">19</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000020.10</key>
+							<key name="@seq_label">20</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000021.8</key>
+							<key name="@seq_label">21</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000022.10</key>
+							<key name="@seq_label">22</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000023.10</key>
+							<key name="@seq_label">X</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_000024.9</key>
+							<key name="@seq_label">Y</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_012920</key>
+							<key name="@seq_label">MT</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000207.1</key>
+							<key name="@seq_label">GL000207.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000226.1</key>
+							<key name="@seq_label">GL000226.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000229.1</key>
+							<key name="@seq_label">GL000229.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000231.1</key>
+							<key name="@seq_label">GL000231.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000210.1</key>
+							<key name="@seq_label">GL000210.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000239.1</key>
+							<key name="@seq_label">GL000239.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000235.1</key>
+							<key name="@seq_label">GL000235.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000201.1</key>
+							<key name="@seq_label">GL000201.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000247.1</key>
+							<key name="@seq_label">GL000247.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000245.1</key>
+							<key name="@seq_label">GL000245.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000197.1</key>
+							<key name="@seq_label">GL000197.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000203.1</key>
+							<key name="@seq_label">GL000203.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000246.1</key>
+							<key name="@seq_label">GL000246.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000249.1</key>
+							<key name="@seq_label">GL000249.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000196.1</key>
+							<key name="@seq_label">GL000196.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000248.1</key>
+							<key name="@seq_label">GL000248.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000244.1</key>
+							<key name="@seq_label">GL000244.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000238.1</key>
+							<key name="@seq_label">GL000238.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000202.1</key>
+							<key name="@seq_label">GL000202.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000234.1</key>
+							<key name="@seq_label">GL000234.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000232.1</key>
+							<key name="@seq_label">GL000232.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000206.1</key>
+							<key name="@seq_label">GL000206.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000240.1</key>
+							<key name="@seq_label">GL000240.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000236.1</key>
+							<key name="@seq_label">GL000236.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000241.1</key>
+							<key name="@seq_label">GL000241.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000243.1</key>
+							<key name="@seq_label">GL000243.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000242.1</key>
+							<key name="@seq_label">GL000242.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000230.1</key>
+							<key name="@seq_label">GL000230.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000237.1</key>
+							<key name="@seq_label">GL000237.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000233.1</key>
+							<key name="@seq_label">GL000233.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000204.1</key>
+							<key name="@seq_label">GL000204.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000198.1</key>
+							<key name="@seq_label">GL000198.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000208.1</key>
+							<key name="@seq_label">GL000208.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000191.1</key>
+							<key name="@seq_label">GL000191.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000227.1</key>
+							<key name="@seq_label">GL000227.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000228.1</key>
+							<key name="@seq_label">GL000228.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000214.1</key>
+							<key name="@seq_label">GL000214.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000221.1</key>
+							<key name="@seq_label">GL000221.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000209.1</key>
+							<key name="@seq_label">GL000209.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000218.1</key>
+							<key name="@seq_label">GL000218.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000220.1</key>
+							<key name="@seq_label">GL000220.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000213.1</key>
+							<key name="@seq_label">GL000213.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000211.1</key>
+							<key name="@seq_label">GL000211.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000199.1</key>
+							<key name="@seq_label">GL000199.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000217.1</key>
+							<key name="@seq_label">GL000217.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000216.1</key>
+							<key name="@seq_label">GL000216.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000215.1</key>
+							<key name="@seq_label">GL000215.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000205.1</key>
+							<key name="@seq_label">GL000205.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000219.1</key>
+							<key name="@seq_label">GL000219.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000224.1</key>
+							<key name="@seq_label">GL000224.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000223.1</key>
+							<key name="@seq_label">GL000223.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000195.1</key>
+							<key name="@seq_label">GL000195.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000212.1</key>
+							<key name="@seq_label">GL000212.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000222.1</key>
+							<key name="@seq_label">GL000222.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000200.1</key>
+							<key name="@seq_label">GL000200.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000193.1</key>
+							<key name="@seq_label">GL000193.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000194.1</key>
+							<key name="@seq_label">GL000194.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000225.1</key>
+							<key name="@seq_label">GL000225.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">GL000192.1</key>
+							<key name="@seq_label">GL000192.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">NC_007605</key>
+							<key name="@seq_label">NC_007605</key>
+						</item>
+						<item>
+							<key name="@data_block_name">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+							<key name="@accession">hs37d5</key>
+							<key name="@seq_label">hs37d5</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000001.10</key>
+							<key name="@seq_label">1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000002.11</key>
+							<key name="@seq_label">2</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000003.11</key>
+							<key name="@seq_label">3</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000004.11</key>
+							<key name="@seq_label">4</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000005.9</key>
+							<key name="@seq_label">5</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000006.11</key>
+							<key name="@seq_label">6</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000007.13</key>
+							<key name="@seq_label">7</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000008.10</key>
+							<key name="@seq_label">8</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000009.11</key>
+							<key name="@seq_label">9</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000010.10</key>
+							<key name="@seq_label">10</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000011.9</key>
+							<key name="@seq_label">11</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000012.11</key>
+							<key name="@seq_label">12</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000013.10</key>
+							<key name="@seq_label">13</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000014.8</key>
+							<key name="@seq_label">14</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000015.9</key>
+							<key name="@seq_label">15</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000016.9</key>
+							<key name="@seq_label">16</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000017.10</key>
+							<key name="@seq_label">17</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000018.9</key>
+							<key name="@seq_label">18</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000019.9</key>
+							<key name="@seq_label">19</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000020.10</key>
+							<key name="@seq_label">20</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000021.8</key>
+							<key name="@seq_label">21</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000022.10</key>
+							<key name="@seq_label">22</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000023.10</key>
+							<key name="@seq_label">X</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_000024.9</key>
+							<key name="@seq_label">Y</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_012920</key>
+							<key name="@seq_label">MT</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000207.1</key>
+							<key name="@seq_label">GL000207.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000226.1</key>
+							<key name="@seq_label">GL000226.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000229.1</key>
+							<key name="@seq_label">GL000229.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000231.1</key>
+							<key name="@seq_label">GL000231.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000210.1</key>
+							<key name="@seq_label">GL000210.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000239.1</key>
+							<key name="@seq_label">GL000239.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000235.1</key>
+							<key name="@seq_label">GL000235.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000201.1</key>
+							<key name="@seq_label">GL000201.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000247.1</key>
+							<key name="@seq_label">GL000247.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000245.1</key>
+							<key name="@seq_label">GL000245.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000197.1</key>
+							<key name="@seq_label">GL000197.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000203.1</key>
+							<key name="@seq_label">GL000203.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000246.1</key>
+							<key name="@seq_label">GL000246.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000249.1</key>
+							<key name="@seq_label">GL000249.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000196.1</key>
+							<key name="@seq_label">GL000196.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000248.1</key>
+							<key name="@seq_label">GL000248.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000244.1</key>
+							<key name="@seq_label">GL000244.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000238.1</key>
+							<key name="@seq_label">GL000238.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000202.1</key>
+							<key name="@seq_label">GL000202.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000234.1</key>
+							<key name="@seq_label">GL000234.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000232.1</key>
+							<key name="@seq_label">GL000232.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000206.1</key>
+							<key name="@seq_label">GL000206.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000240.1</key>
+							<key name="@seq_label">GL000240.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000236.1</key>
+							<key name="@seq_label">GL000236.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000241.1</key>
+							<key name="@seq_label">GL000241.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000243.1</key>
+							<key name="@seq_label">GL000243.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000242.1</key>
+							<key name="@seq_label">GL000242.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000230.1</key>
+							<key name="@seq_label">GL000230.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000237.1</key>
+							<key name="@seq_label">GL000237.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000233.1</key>
+							<key name="@seq_label">GL000233.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000204.1</key>
+							<key name="@seq_label">GL000204.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000198.1</key>
+							<key name="@seq_label">GL000198.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000208.1</key>
+							<key name="@seq_label">GL000208.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000191.1</key>
+							<key name="@seq_label">GL000191.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000227.1</key>
+							<key name="@seq_label">GL000227.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000228.1</key>
+							<key name="@seq_label">GL000228.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000214.1</key>
+							<key name="@seq_label">GL000214.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000221.1</key>
+							<key name="@seq_label">GL000221.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000209.1</key>
+							<key name="@seq_label">GL000209.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000218.1</key>
+							<key name="@seq_label">GL000218.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000220.1</key>
+							<key name="@seq_label">GL000220.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000213.1</key>
+							<key name="@seq_label">GL000213.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000211.1</key>
+							<key name="@seq_label">GL000211.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000199.1</key>
+							<key name="@seq_label">GL000199.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000217.1</key>
+							<key name="@seq_label">GL000217.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000216.1</key>
+							<key name="@seq_label">GL000216.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000215.1</key>
+							<key name="@seq_label">GL000215.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000205.1</key>
+							<key name="@seq_label">GL000205.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000219.1</key>
+							<key name="@seq_label">GL000219.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000224.1</key>
+							<key name="@seq_label">GL000224.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000223.1</key>
+							<key name="@seq_label">GL000223.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000195.1</key>
+							<key name="@seq_label">GL000195.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000212.1</key>
+							<key name="@seq_label">GL000212.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000222.1</key>
+							<key name="@seq_label">GL000222.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000200.1</key>
+							<key name="@seq_label">GL000200.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000193.1</key>
+							<key name="@seq_label">GL000193.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000194.1</key>
+							<key name="@seq_label">GL000194.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000225.1</key>
+							<key name="@seq_label">GL000225.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">GL000192.1</key>
+							<key name="@seq_label">GL000192.1</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">NC_007605</key>
+							<key name="@seq_label">NC_007605</key>
+						</item>
+						<item>
+							<key name="@data_block_name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+							<key name="@accession">hs37d5</key>
+							<key name="@seq_label">hs37d5</key>
+						</item>
+					</SEQUENCE>
+				</SEQ_LABELS>
+				<PROCESSING>
+					<PIPELINE>
+						<item>
+							<PIPE_SECTION>
+								<key name="@section_name">SeqWare_1.1.0</key>
+								<STEP_INDEX>1</STEP_INDEX>
+								<PREV_STEP_INDEX>NIL</PREV_STEP_INDEX>
+								<PROGRAM>EMBLPancancerStr</PROGRAM>
+								<VERSION>1.0.3</VERSION>
+								<NOTES/>
+							</PIPE_SECTION>
+						</item>
+						<item>
+							<PIPE_SECTION>
+								<key name="@section_name">SeqWare_1.1.0</key>
+								<STEP_INDEX>2</STEP_INDEX>
+								<PREV_STEP_INDEX>NIL</PREV_STEP_INDEX>
+								<PROGRAM>DKFZPancancerCnIndelSnv</PROGRAM>
+								<VERSION>1.0.3</VERSION>
+								<NOTES/>
+							</PIPE_SECTION>
+						</item>
+					</PIPELINE>
+					<DIRECTIVES>
+						<alignment_includes_unaligned_reads>true</alignment_includes_unaligned_reads>
+						<alignment_marks_duplicate_reads>true</alignment_marks_duplicate_reads>
+						<alignment_includes_failed_reads>false</alignment_includes_failed_reads>
+					</DIRECTIVES>
+				</PROCESSING>
+			</REFERENCE_ALIGNMENT>
+		</ANALYSIS_TYPE>
+		<TARGETS>
+			<TARGET>
+				<item>
+					<key name="@sra_object_type">SAMPLE</key>
+					<key name="@refcenter">OICR</key>
+					<key name="@refname">d5423a93-0a72-43cf-a7ae-9011f47553c7</key>
+				</item>
+				<item>
+					<key name="@sra_object_type">SAMPLE</key>
+					<key name="@refcenter">OICR</key>
+					<key name="@refname">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+				</item>
+			</TARGET>
+		</TARGETS>
+		<DATA_BLOCK>
+			<key name="@name">01d04ba7-cefe-4424-9c59-fa7b0a5cd9df</key>
+			<FILES>
+				<FILE>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">f67946c501390018d94362a991db7de6</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">fb40fb647e1d7bd3c194c85f2cc4f498</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">eb870f1314f266b290001115d8314a51</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">1815fbbe3838b61f91e75dd95d14c5d3</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">697e5cfeb14ac6bea270ac4dd7de35ff</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">074c943b6b34806db534b90a9b56534d</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.readname.txt.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">a2e0f016ff2681668f81809071603e88</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.bedpe.txt.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">e8076d87b1aa356856056f9c08595df4</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.readname.txt.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">8a34fa91431f4e618c8c85e724026319</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.bedpe.txt.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">9fa95b6f31fd20c7cb17eb8ed780bccd</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.cov.plots.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">edec22da5a7c85ff20c32f541b946bfd</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.cov.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">ca435097f7a4dd5e0415427f8affc623</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.germline.indel.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">0502e0a4614f7e83c4fbe8ae7ea7a0b9</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">10647ad2d87b7041e698a0da86e6fa24</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">f302f6e27e8549a8f767e2e50e03530d</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">10647ad2d87b7041e698a0da86e6fa24</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.germline.snv_mnv.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">93cb8037b0366e0f30c9e29ba0f929d2</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.germline.snv_mnv.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">569f7536147a125f2bcebe5c30a3dfcd</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">1208f34b7622404d1ad3cbbe781cda23</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">4e456d4551035e4d8a2ebfb62f02755c</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.vcf.gz</key>
+						<key name="@filetype">vcf</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">42345b59573b8b6b2bc2b318ea9be545</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.vcf.gz.tbi</key>
+						<key name="@filetype">idx</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">f9ac1c145c50122c2d92a147f81722a3</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">caf071832d08133c7f55dd4aab41c782</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">d9af69d1a54a009a5da3cbf787ac4708</key>
+					</item>
+					<item>
+						<key name="@filename">d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.tar.gz</key>
+						<key name="@filetype">tar</key>
+						<key name="@checksum_method">MD5</key>
+						<key name="@checksum">ba4eafedc2bdedbd39ea1bfa22024196</key>
+					</item>
+				</FILE>
+			</FILES>
+		</DATA_BLOCK>
+		<ANALYSIS_ATTRIBUTES>
+			<ANALYSIS_ATTRIBUTE>
+				<item>
+					<TAG>dcc_project_code</TAG>
+					<VALUE>CLLE-ES</VALUE>
+				</item>
+				<item>
+					<TAG>variant_workflow_source_url_dkfz</TAG>
+					<VALUE>https://github.com/ICGC-TCGA-PanCancer/dkfz_dockered_workflows</VALUE>
+				</item>
+				<item>
+					<TAG>variant_timing_metrics_dkfz</TAG>
+					<VALUE>{&quot;timing_metrics&quot;:{&quot;timing_metrics&quot;:[{&quot;workflow&quot;:{&quot;embl_timing_seconds&quot;:306574,&quot;dkfz_reference_seconds&quot;:0,&quot;reference_timing_seconds&quot;:0,&quot;dkfz_timing_seconds&quot;:30968,&quot;download_timing_seconds&quot;:1}}]}}</VALUE>
+				</item>
+				<item>
+					<TAG>submitter_donor_id</TAG>
+					<VALUE>290</VALUE>
+				</item>
+				<item>
+					<TAG>alignment_workflow_source_url</TAG>
+					<VALUE>https://github.com/SeqWare/public-workflows/tree/2.6.0/workflow-bwa-pancancer</VALUE>
+				</item>
+				<item>
+					<TAG>variant_pipeline_output_info</TAG>
+					<VALUE>[{&quot;files&quot;: {&quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.cov.plots.tar.gz&quot;: {&quot;file_type&quot;: &quot;sv&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;sv&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-indelCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-indelCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.vcf.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-copyNumberEstimation&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.vcf.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-snvCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.bedpe.txt.tar.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.tar.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-indelCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.vcf.gz&quot;: {&quot;file_type&quot;: &quot;sv&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-copyNumberEstimation&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.readname.txt.tar.gz&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.germline.snv_mnv.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-snvCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.vcf.gz&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.vcf.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-snvCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.germline.snv_mnv.vcf.gz&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-snvCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.tar.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-snvCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.vcf.gz.tbi&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.readname.txt.tar.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.bedpe.txt.tar.gz&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.tar.gz&quot;: {&quot;file_type&quot;: &quot;somatic&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-copyNumberEstimation&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.germline.indel.vcf.gz&quot;: {&quot;file_type&quot;: &quot;germline&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;dkfz-indelCalling&quot;, &quot;workflow_version&quot;: &quot;1.0.132.1&quot;}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.cov.tar.gz&quot;: {&quot;file_type&quot;: &quot;sv&quot;, &quot;date&quot;: &quot;20150604&quot;, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;, &quot;workflow_name&quot;: &quot;embl-delly&quot;, &quot;workflow_version&quot;: &quot;1.0.0.preFilter&quot;}}, &quot;attributes&quot;: {&quot;dcc_project_code&quot;: &quot;CLLE-ES&quot;, &quot;submitter_specimen_id&quot;: &quot;290-1950-01TD&quot;, &quot;analysis_id&quot;: &quot;e6d23a3a-7c51-4df3-8b24-1878f94d278d&quot;, &quot;dcc_specimen_type&quot;: &quot;Primary tumour - blood derived (peripheral blood)&quot;, &quot;center_name&quot;: &quot;BSC&quot;, &quot;submitter_donor_id&quot;: &quot;290&quot;, &quot;analysis_url&quot;: &quot;https://gtrepo-bsc.annailabs.com/cghub/metadata/analysisFull/e6d23a3a-7c51-4df3-8b24-1878f94d278d&quot;, &quot;study_ref&quot;: &quot;icgc_pancancer&quot;, &quot;submitter_sample_id&quot;: &quot;290-1950-01TD&quot;, &quot;use_cntl&quot;: &quot;01d04ba7-cefe-4424-9c59-fa7b0a5cd9df&quot;}, &quot;specimen&quot;: &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;}, {&quot;attributes&quot;: {&quot;dcc_project_code&quot;: &quot;CLLE-ES&quot;, &quot;submitter_specimen_id&quot;: &quot;290-0654-03ND&quot;, &quot;analysis_id&quot;: &quot;5ddcf3e3-6198-466b-a9a4-e3b0329d348e&quot;, &quot;dcc_specimen_type&quot;: &quot;Normal - blood derived&quot;, &quot;center_name&quot;: &quot;BSC&quot;, &quot;submitter_donor_id&quot;: &quot;290&quot;, &quot;analysis_url&quot;: &quot;https://gtrepo-bsc.annailabs.com/cghub/metadata/analysisFull/5ddcf3e3-6198-466b-a9a4-e3b0329d348e&quot;, &quot;study_ref&quot;: &quot;icgc_pancancer&quot;, &quot;submitter_sample_id&quot;: &quot;290-0654-03ND&quot;, &quot;use_cntl&quot;: &quot;N/A&quot;}, &quot;specimen&quot;: &quot;01d04ba7-cefe-4424-9c59-fa7b0a5cd9df&quot;}]</VALUE>
+				</item>
+				<item>
+					<TAG>vm_instance_cores</TAG>
+					<VALUE>16</VALUE>
+				</item>
+				<item>
+					<TAG>variant_qc_metrics_embl</TAG>
+					<VALUE>{&quot;qc_metrics&quot;:{&quot;qc_metrics&quot;: {&quot;workflow&quot;: {&quot;pairs&quot;: {&quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;: {&quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.translocations&quot;: {&quot;93900dbc7d447f6b1492ba9606e319e7&quot;: {&quot;readgroup&quot;: {&quot;BSC:62E15AAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;458&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;97665&quot;, &quot;InsertSizeCutoff&quot;: &quot;521&quot;, &quot;MAD&quot;: &quot;7&quot;}}}, &quot;323196c295ce45bdd3b8e89867df917a&quot;: {&quot;readgroup&quot;: {&quot;BSC:62DWYAAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;466&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;95679&quot;, &quot;InsertSizeCutoff&quot;: &quot;538&quot;, &quot;MAD&quot;: &quot;8&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_tumor_1kb&quot;: {&quot;93900dbc7d447f6b1492ba9606e319e7&quot;: {&quot;readgroup&quot;: {&quot;BSC:D0KGMACXX_1&quot;: {&quot;Median&quot;: &quot;489&quot;, &quot;MAD&quot;: &quot;9&quot;, &quot;Orientation&quot;: &quot;2&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.inversions&quot;: {&quot;93900dbc7d447f6b1492ba9606e319e7&quot;: {&quot;readgroup&quot;: {&quot;BSC:62E15AAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;458&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;62831&quot;, &quot;InsertSizeCutoff&quot;: &quot;521&quot;, &quot;MAD&quot;: &quot;7&quot;}}}, &quot;323196c295ce45bdd3b8e89867df917a&quot;: {&quot;readgroup&quot;: {&quot;BSC:62DWYAAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;466&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;61602&quot;, &quot;InsertSizeCutoff&quot;: &quot;538&quot;, &quot;MAD&quot;: &quot;8&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.duplications&quot;: {&quot;93900dbc7d447f6b1492ba9606e319e7&quot;: {&quot;readgroup&quot;: {&quot;BSC:62E15AAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;458&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;47219&quot;, &quot;InsertSizeCutoff&quot;: &quot;521&quot;, &quot;MAD&quot;: &quot;7&quot;}}}, &quot;323196c295ce45bdd3b8e89867df917a&quot;: {&quot;readgroup&quot;: {&quot;BSC:62DWYAAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;466&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;45578&quot;, &quot;InsertSizeCutoff&quot;: &quot;538&quot;, &quot;MAD&quot;: &quot;8&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.deletions&quot;: {&quot;323196c295ce45bdd3b8e89867df917a&quot;: {&quot;readgroup&quot;: {&quot;BSC:62DWYAAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;466&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;60491&quot;, &quot;InsertSizeCutoff&quot;: &quot;538&quot;, &quot;MAD&quot;: &quot;8&quot;}}}, &quot;93900dbc7d447f6b1492ba9606e319e7&quot;: {&quot;readgroup&quot;: {&quot;BSC:62E15AAXX_1&quot;: {&quot;Orientation&quot;: &quot;2&quot;, &quot;DuplicateDiscordantPairs&quot;: &quot;0&quot;, &quot;Median&quot;: &quot;458&quot;, &quot;UniqueDiscordantPairs&quot;: &quot;94736&quot;, &quot;InsertSizeCutoff&quot;: &quot;521&quot;, &quot;MAD&quot;: &quot;7&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_germ_10kb&quot;: {&quot;323196c295ce45bdd3b8e89867df917a&quot;: {&quot;readgroup&quot;: {&quot;BSC:D0KGMACXX_2&quot;: {&quot;Median&quot;: &quot;495&quot;, &quot;MAD&quot;: &quot;11&quot;, &quot;Orientation&quot;: &quot;2&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_germ_1kb&quot;: {&quot;323196c295ce45bdd3b8e89867df917a&quot;: {&quot;readgroup&quot;: {&quot;BSC:D0KGMACXX_2&quot;: {&quot;Median&quot;: &quot;495&quot;, &quot;MAD&quot;: &quot;11&quot;, &quot;Orientation&quot;: &quot;2&quot;}}}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_tumor_10kb&quot;: {&quot;93900dbc7d447f6b1492ba9606e319e7&quot;: {&quot;readgroup&quot;: {&quot;BSC:D0KGMACXX_1&quot;: {&quot;Median&quot;: &quot;489&quot;, &quot;MAD&quot;: &quot;9&quot;, &quot;Orientation&quot;: &quot;2&quot;}}}}}}}}}}</VALUE>
+				</item>
+				<item>
+					<TAG>variant_workflow_bundle_url_dkfz</TAG>
+					<VALUE>https://github.com/ICGC-TCGA-PanCancer/dkfz_dockered_workflows</VALUE>
+				</item>
+				<item>
+					<TAG>variant_workflow_name</TAG>
+					<VALUE>DKFZ_EMBL_Merged</VALUE>
+				</item>
+				<item>
+					<TAG>vm_location_code</TAG>
+					<VALUE>22</VALUE>
+				</item>
+				<item>
+					<TAG>alignment_workflow_bundle_url</TAG>
+					<VALUE>https://s3.amazonaws.com/oicr.workflow.bundles/released-bundles/Workflow_Bundle_BWA_2.6.0_SeqWare_1.0.15.zip</VALUE>
+				</item>
+				<item>
+					<TAG>variant_workflow_source_url_embl</TAG>
+					<VALUE>https://github.com/ICGC-TCGA-PanCancer/pcawg_delly_workflow</VALUE>
+				</item>
+				<item>
+					<TAG>vm_instance_type</TAG>
+					<VALUE>hpc</VALUE>
+				</item>
+				<item>
+					<TAG>alignment_workflow_name</TAG>
+					<VALUE>Workflow_Bundle_BWA</VALUE>
+				</item>
+				<item>
+					<TAG>PM</TAG>
+					<VALUE>Illumina HiSeq</VALUE>
+				</item>
+				<item>
+					<TAG>variant_timing_metrics_embl</TAG>
+					<VALUE>{&quot;timing_metrics&quot;:{&quot;timing_metrics&quot;: {&quot;workflow&quot;: {&quot;pairs&quot;: {&quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;: {&quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.delly&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 219350.81}, {&quot;User_s&quot;: 117452.93}, {&quot;System_s&quot;: 5056.13}, {&quot;Max_kb&quot;: 13866160.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_tumor_1kb&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 9040.24}, {&quot;User_s&quot;: 2255.71}, {&quot;System_s&quot;: 56.56}, {&quot;Max_kb&quot;: 17639552.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.jumpy&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 89931.24}, {&quot;User_s&quot;: 29763.49}, {&quot;System_s&quot;: 2023.63}, {&quot;Max_kb&quot;: 8928624.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.duppy&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 194926.19}, {&quot;User_s&quot;: 112850.09}, {&quot;System_s&quot;: 3654.03}, {&quot;Max_kb&quot;: 14757904.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7.invy&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 274820.3}, {&quot;User_s&quot;: 198534.69}, {&quot;System_s&quot;: 5962.66}, {&quot;Max_kb&quot;: 17170400.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_germ_10kb&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 11600.42}, {&quot;User_s&quot;: 3093.34}, {&quot;System_s&quot;: 76.2}, {&quot;Max_kb&quot;: 18901408.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_germ_1kb&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 11550.4}, {&quot;User_s&quot;: 3101.43}, {&quot;System_s&quot;: 77.74}, {&quot;Max_kb&quot;: 21900928.0}]}}, &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7_tumor_10kb&quot;: {&quot;detailed&quot;: {&quot;group&quot;: [{&quot;Wall_s&quot;: 9062.41}, {&quot;User_s&quot;: 2237.11}, {&quot;System_s&quot;: 57.01}, {&quot;Max_kb&quot;: 14640064.0}]}}}}}}}}</VALUE>
+				</item>
+				<item>
+					<TAG>variant_workflow_bundle_url_embl</TAG>
+					<VALUE>https://registry.hub.docker.com/u/pancancer/pcawg-delly-workflow/builds_history/153343/</VALUE>
+				</item>
+				<item>
+					<TAG>variant_pipeline_input_info</TAG>
+					<VALUE>{&quot;workflow_inputs&quot;:[{&quot;specimen&quot;:&quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;,&quot;attributes&quot;:{&quot;dcc_project_code&quot;:&quot;CLLE-ES&quot;,&quot;submitter_donor_id&quot;:&quot;290&quot;,&quot;submitter_sample_id&quot;:&quot;290-1950-01TD&quot;,&quot;use_cntl&quot;:&quot;01d04ba7-cefe-4424-9c59-fa7b0a5cd9df&quot;,&quot;dcc_specimen_type&quot;:&quot;Primary tumour - blood derived (peripheral blood)&quot;,&quot;submitter_specimen_id&quot;:&quot;290-1950-01TD&quot;,&quot;analysis_url&quot;:&quot;https://gtrepo-bsc.annailabs.com/cghub/metadata/analysisFull/e6d23a3a-7c51-4df3-8b24-1878f94d278d&quot;,&quot;center_name&quot;:&quot;BSC&quot;,&quot;analysis_id&quot;:&quot;e6d23a3a-7c51-4df3-8b24-1878f94d278d&quot;,&quot;study_ref&quot;:&quot;icgc_pancancer&quot;}},{&quot;specimen&quot;:&quot;01d04ba7-cefe-4424-9c59-fa7b0a5cd9df&quot;,&quot;attributes&quot;:{&quot;dcc_project_code&quot;:&quot;CLLE-ES&quot;,&quot;submitter_donor_id&quot;:&quot;290&quot;,&quot;submitter_sample_id&quot;:&quot;290-0654-03ND&quot;,&quot;use_cntl&quot;:&quot;N/A&quot;,&quot;dcc_specimen_type&quot;:&quot;Normal - blood derived&quot;,&quot;submitter_specimen_id&quot;:&quot;290-0654-03ND&quot;,&quot;analysis_url&quot;:&quot;https://gtrepo-bsc.annailabs.com/cghub/metadata/analysisFull/5ddcf3e3-6198-466b-a9a4-e3b0329d348e&quot;,&quot;center_name&quot;:&quot;BSC&quot;,&quot;analysis_id&quot;:&quot;5ddcf3e3-6198-466b-a9a4-e3b0329d348e&quot;,&quot;study_ref&quot;:&quot;icgc_pancancer&quot;}}]}</VALUE>
+				</item>
+				<item>
+					<TAG>variant_qc_metrics_dkfz</TAG>
+					<VALUE>{&quot;qc_metrics&quot;:{   &quot;qc_metrics&quot;:{     &quot;d5423a93-0a72-43cf-a7ae-9011f47553c7&quot;:{       &quot;cnv&quot;:{         &quot;goodnessOfFit&quot;:&quot;0.931276297335203&quot;,         &quot;gender&quot;:&quot;female&quot;,         &quot;Ploidy&quot;:&quot;1.96&quot;,         &quot;solution_possible&quot;:&quot;1&quot;,         &quot;normalContamination&quot;:&quot;0&quot;       },       &quot;snv_mnv&quot;:{         &quot;likely_germline&quot;:&quot;3242094&quot;,         &quot;caller&quot;:&quot;mpileup_DKFZ&quot;,         &quot;somatic_unfiltered&quot;:&quot;3021&quot;,         &quot;passed_somatic&quot;:&quot;2950&quot;,         &quot;all_somatic&quot;:&quot;29440&quot;       },       &quot;gc-bias&quot;:{         &quot;mean_tumor_curvature&quot;:&quot;2.82044053391508e-07&quot;,         &quot;mean_tumor_slope&quot;:&quot;0.0425376691459656&quot;,         &quot;mean_delta_slope&quot;:&quot;4.9453416359984e-11&quot;,         &quot;main_cluster_FWHM_t&quot;:&quot;0.191280155766623&quot;,         &quot;main_cluster_width_t&quot;:&quot;1.35616438356164&quot;,         &quot;mean_normal_curvature&quot;:&quot;-2.27251696963665e-23&quot;,         &quot;mean_abs_normal_curvature&quot;:&quot;8.87468229247591e-07&quot;,         &quot;main_cluster_FWHM_ratio&quot;:&quot;0.257116879058023&quot;,         &quot;mean_abs_tumor_slope&quot;:&quot;0.0425376691459656&quot;,         &quot;mean_abs_normal_slope&quot;:&quot;0.0257349400570006&quot;,         &quot;main_cluster_width_n&quot;:&quot;0.947162426614481&quot;,         &quot;main_cluster_FWHM_n&quot;:&quot;0.15025684375663&quot;,         &quot;mean_abs_delta_slope&quot;:&quot;5.91606007057945e-11&quot;,         &quot;mean_delta_curvature&quot;:&quot;2.82044053391508e-16&quot;,         &quot;minimal_coverage_gcfit_normal&quot;:&quot;2.37441273424003e-06&quot;,         &quot;mean_abs_delta_curvature&quot;:&quot;1.90650853799238e-15&quot;,         &quot;minimal_coverage_gcfit_tumor&quot;:&quot;2.95992135330403e-06&quot;,         &quot;mean_normal_slope&quot;:&quot;-0.00691574721401834&quot;,         &quot;mean_abs_tumor_curvature&quot;:&quot;1.1260173804071e-06&quot;       },       &quot;indel&quot;:{         &quot;likely_germline&quot;:&quot;408623&quot;,         &quot;caller&quot;:&quot;Platypus_DKFZ&quot;,         &quot;passed_somatic&quot;:&quot;480&quot;,         &quot;all_somatic&quot;:&quot;35045&quot;       }     }   } }}</VALUE>
+				</item>
+				<item>
+					<TAG>vm_instance_mem_gb</TAG>
+					<VALUE>132.273</VALUE>
+				</item>
+				<item>
+					<TAG>alignment_workflow_version</TAG>
+					<VALUE>2.6.0</VALUE>
+				</item>
+				<item>
+					<TAG>variant_workflow_version</TAG>
+					<VALUE>1.0.3</VALUE>
+				</item>
+			</ANALYSIS_ATTRIBUTE>
+		</ANALYSIS_ATTRIBUTES>
+	</ANALYSIS>
+</ANALYSIS_SET>
