@@ -926,36 +926,9 @@ es_queries = [
                           }
                         },
                         {
-                          "bool": {
-                            "should":[
-                              {
-                                "terms": {
-                                  "flags.is_broad_calling_performed": [
-                                    "F"
-                                  ]
-                                }
-                              },
-                              {
-                                "terms": {
-                                  "flags.is_broad_tar_variant_calling_performed": [
-                                    "F"
-                                  ]
-                                }
-                              },
-                              {
-                                "terms": {
-                                  "flags.is_muse_variant_calling_performed": [
-                                    "F"
-                                  ]
-                                }
-                              },
-                              {
-                                "terms": {
-                                  "flags.exists_mismatch_broad_file_subsets": [
-                                    "T"
-                                  ]
-                                }
-                              }                        
+                          "terms": {
+                            "flags.is_broad_variant_calling_performed": [
+                              "F"
                             ]
                           }
                         }
@@ -1057,39 +1030,12 @@ es_queries = [
                           }
                         },
                         {
-                          "bool": {
-                            "should":[
-                              {
-                                "terms": {
-                                  "flags.is_broad_variant_calling_performed": [
-                                    "F"
-                                  ]
-                                }
-                              },
-                              {
-                                "terms": {
-                                  "flags.is_broad_tar_variant_calling_performed": [
-                                    "F"
-                                  ]
-                                }
-                              },
-                              {
-                                "terms": {
-                                  "flags.is_muse_variant_calling_performed": [
-                                    "F"
-                                  ]
-                                }
-                              },
-                              {
-                                "terms": {
-                                  "flags.exists_mismatch_broad_file_subsets": [
-                                    "T"
-                                  ]
-                                }
-                              }                        
+                          "terms": {
+                            "flags.is_broad_variant_calling_performed": [
+                              "F"
                             ]
                           }
-                        }
+                        } 
                       ],
                       "must_not": [
                         {
@@ -1133,7 +1079,7 @@ es_queries = [
               "aggs": {
                 "exist_in_gnos_repo": {
                   "terms": {
-                    "field": "variant_calling_results.dkfz_variant_calling.gnos_repo",
+                    "field": "variant_calling_results.broad_variant_calling.gnos_repo",
                     "size": 100
                   },
                   "aggs": {
@@ -1189,27 +1135,6 @@ es_queries = [
                           "terms": {
                             "flags.is_broad_variant_calling_performed": [
                               "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_broad_tar_variant_calling_performed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_muse_variant_calling_performed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.exists_mismatch_broad_file_subsets": [
-                              "F"
                             ]
                           }
                         }                        
