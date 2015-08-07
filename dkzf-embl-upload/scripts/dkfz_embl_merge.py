@@ -108,25 +108,6 @@ def process(conf, dkfz_embl_results_info):
                         m.write(new_line + '\n')
 
 
-def create_file_symlinks(file_list, src_dir, dst_dir, embl_gnos_id, dkfz_gnos_id):
-    for f in file_list:
-        fname = str(f.get('@filename'))
-        if 'dkfz' in fname:
-            f_fixed_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/fixed_files/' + f.get('@filename')
-            f_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/' + f.get('@filename')
-        else:
-            f_fixed_src = src_dir + '/embl/' + embl_gnos_id + '/fixed_files/' + f.get('@filename')
-            f_src = src_dir + '/embl/' + embl_gnos_id + '/' + f.get('@filename')           
-        f_dst = dst_dir + '/' + f.get('@filename')
-        if os.path.isfile(f_fixed_src):
-            os.symlink(f_fixed_src, f_dst)
-        elif os.path.isfile(f_src):
-            os.symlink(f_src, f_dst)
-        else: # should not happen
-            logger.warning('file: {} is missing in the downloads folder'.format(f.get('@filename')))
-            return 0
-
-
 def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, embl_gnos_id, dkfz_gnos_id):
     embl_analysis_xml = get_analysis_xml(embl_xml_file)
     dkfz_analysis_xml = get_analysis_xml(dkfz_xml_file)
@@ -151,6 +132,7 @@ def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, e
     dkfz_data_block_files = dkfz_analysis.get('DATA_BLOCK').get('FILES').get('FILE')
     dkfz_data_block_files = update_fixed_data_block_files(dkfz_data_block_files, 'dkfz', upload_dir, download_dir, dkfz_gnos_id)
 
+
     if not embl_data_block_files or not dkfz_data_block_files: return
     merged_analysis.get('DATA_BLOCK').get('FILES')['FILE'] = embl_data_block_files + dkfz_data_block_files
 
@@ -168,36 +150,64 @@ def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, e
 
 def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, download_dir, gnos_id):
     lookup_dir = download_dir + workflow_type + '/' + gnos_id
+    fname_all = []
+    data_block_files_new = []
     for f in data_block_files:
         fname = str(f.get('@filename'))
-        fname_list = str.split(fname, '.')
-        fname_list[2] = '*'
-        fname_search = '.'.join(fname_list)
-        print lookup_dir + '/fixed_files/' + '^' + fname_search + '$' 
-        f_fixed = glob.glob(lookup_dir + '/fixed_files/' + '^' + fname_search + '$' )
-        print f_fixed
-        sys.exit(0)
-        if not f_fixed:
-            f_old = glob.glob(lookup_dir + '/' + fname_search )
-            if len(f_old) == 1:
-                f_checksum = generate_md5(f_old[0]) 
-                if not f_checksum == f.get('@checksum'):
-                    logger.warning('file: {} in the downloads folder has different checksum with the original one for analysis object: {}'.format(fname, gnos_id))
+        if not fname in fname_all:
+            fname_all.append(fname)
+            fname_list = str.split(fname, '.')
+            fname_list[2] = '[0-9]*[0-9]'
+            fname_search = '.'.join(fname_list) 
+            f_fixed = glob.glob(lookup_dir + '/fixed_files/' + fname_search)
+            if not f_fixed:
+                f_old = glob.glob(lookup_dir + '/' + fname_search )
+                if len(f_old) == 1:
+                    f_checksum = generate_md5(f_old[0]) 
+                    if not f_checksum == f.get('@checksum'):
+                        logger.warning('file: {} in the downloads folder has different checksum with the original one for analysis object: {}'.format(fname, gnos_id))
+                        return
+                elif not f_old:
+                    logger.warning('file: {} is missing in the downloads folder for analysis object: {}'.format(fname, gnos_id))
                     return
-            elif not f_old:
-                logger.warning('file: {} is missing in the downloads folder for analysis object: {}'.format(fname, gnos_id))
-                return
+                else:
+                    logger.warning('file: {} has duplicates in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+                    return
+            elif len(f_fixed) == 1:
+                f['@filename'] = f_fixed[0].split('/')[-1]
+                f['@checksum'] = generate_md5(f_fixed[0])
+                
             else:
-                logger.warning('file: {} has duplicates in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+                logger.warning('file: {} has duplicates fixed files in the downloads folder for analysis object: {}'.format(fname, gnos_id))
                 return
-        elif len(f_fixed) == 1:
-            f['@filename'] = f_fixed[0].split('/')[-1]
-            f['@checksum'] = generate_md5(f_fixed[0])     
+            data_block_files_new.append(copy.deepcopy(f))
+
+        else: # duplicates, not keep in the data_block_files_new
+            logger.warning('file: {} is duplicated and removed from the data_block_files for analysis object: {}'.format(fname, gnos_id))            
+        
+    return data_block_files_new
+
+
+def create_file_symlinks(file_list, src_dir, dst_dir, embl_gnos_id, dkfz_gnos_id):
+    for f in file_list:
+        fname = str(f.get('@filename'))
+        if 'dkfz' in fname:
+            f_fixed_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/fixed_files/' + f.get('@filename')
+            f_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/' + f.get('@filename')
         else:
-            logger.warning('file: {} has duplicates fixed files in the downloads folder for analysis object: {}'.format(fname, gnos_id))
-            return
-    
-    return data_block_files
+            f_fixed_src = src_dir + '/embl/' + embl_gnos_id + '/fixed_files/' + f.get('@filename')
+            f_src = src_dir + '/embl/' + embl_gnos_id + '/' + f.get('@filename')           
+        f_dst = dst_dir + '/' + f.get('@filename')
+        #print f_dst
+        if not os.path.isdir(os.path.dirname(f_dst)):
+            os.makedirs(os.path.dirname(f_dst))
+        if os.path.isfile(f_fixed_src):
+            os.symlink(f_fixed_src, f_dst)
+        elif os.path.isfile(f_src):
+            os.symlink(f_src, f_dst)
+        else: # should not happen
+            logger.warning('file: {} is missing in the downloads folder'.format(f.get('@filename')))
+            return 0
 
 
 def generate_md5(file):
