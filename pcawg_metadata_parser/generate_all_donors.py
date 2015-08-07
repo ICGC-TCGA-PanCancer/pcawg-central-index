@@ -79,7 +79,7 @@ def add_wgs_tumor_specimens(reorganized_donor, es_json):
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status') \
         if es_json.get('tumor_alignment_status') else []
     wgs_tumor_sanger_vcf_info = es_json.get('variant_calling_results').get('sanger_variant_calling') \
-        if es_json.get('variant_calling_results') else {}
+        if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('sanger_variant_calling') else {}
     sanger_vcf_files = wgs_tumor_sanger_vcf_info.get('files')
 
     tumor_wgs_specimen_count = 0
