@@ -137,8 +137,8 @@ sub add_aliquot {
   push @{$aliquot_data}, sprintf('%.5f', $mapped_r1 / $all_r1);
   push @{$aliquot_data}, sprintf('%.5f', $mapped_r2 / $all_r2);
 
-  $donor_issues->{$norm_or_tum.' end map dist'} = $HC{$norm_or_tum}{end_map_disc} if(1-($aliquot_data->[-1] / $aliquot_data->[-2]) > $READ_MAP_DIST_MAX);
-
+  #$donor_issues->{$norm_or_tum.' end map dist'} = $HC{$norm_or_tum}{end_map_disc} if(1-($aliquot_data->[-1] / $aliquot_data->[-2]) > $READ_MAP_DIST_MAX);
+  $donor_issues->{$norm_or_tum.' end map dist'} = $HC{$norm_or_tum}{end_map_disc} if((abs (1-($aliquot_data->[-1] / $aliquot_data->[-2]))) > $READ_MAP_DIST_MAX);
 
 
   push @{$aliquot_data}, sprintf('%.2f', ($summary{'#_divergent_bases_r1'} / $summary{'#_mapped_bases_r1'})*100);
