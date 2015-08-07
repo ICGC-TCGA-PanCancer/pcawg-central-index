@@ -24,7 +24,7 @@ def generate_report(metadata_dir, report_name):
     ]
 
     report_dir = init_report_dir(metadata_dir, report_name)
-    [dates, metadata_dirs] = get_metadata_dirs(metadata_dir, '2015-07-28')
+    [dates, metadata_dirs] = get_metadata_dirs(metadata_dir, '2015-08-07')
 
     data = [["Date", "To be called", "Called"]]
     counts = []
@@ -171,7 +171,7 @@ def compute_site_report(metadata_dir, report_dir, today_donors):
     with open(report_dir + '/summary_site_counts.json', 'w') as o: o.write(json.dumps(site_summary))
 
     # get all previous days counts
-    [dates, metadata_dirs] = get_metadata_dirs(metadata_dir, '2015-05-07')
+    [dates, metadata_dirs] = get_metadata_dirs(metadata_dir, '2015-08-07')
 
     site_summary_report = []
     for i, md in reversed(list(enumerate(metadata_dirs))):
