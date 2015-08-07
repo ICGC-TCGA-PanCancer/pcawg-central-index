@@ -61,8 +61,8 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
-    logger.info('Create variant calling file for donor: {}, from entry {}'
-            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+    #logger.info('Create variant calling file for donor: {}, from entry {}'
+    #        .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
     vcf_file = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
 
@@ -172,8 +172,8 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                                     gnos_analysis.get('study') ) )
         # more such check may be added, no time for this now
 
-    logger.info('Create bam file for donor: {}, from entry {}'
-            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+    #logger.info('Create bam file for donor: {}, from entry {}'
+    #        .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
     # now parse out gnos analysis object info to build bam_file doc
     bam_file = create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
