@@ -329,19 +329,6 @@ es_queries = [
 
 ]
 
-report_fields = [
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "sanger_vcf_gnos_id", "study", "sanger_vcf_gnos_repo","sanger_vcf_metadata_url"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "aliquot_id", "submitter_specimen_id", "submitter_sample_id", \
-"dcc_specimen_type", "aligned", "number_of_bams", "total_lanes"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "sanger_vcf_gnos_id", \
-"normal_aliquot_id", "normal_submitter_specimen", "normal_bam_gnos_id", "is_normal_bam_used_by_sanger_missing", \
-"tumor_aliquot_id", "tumor_submitter_specimen", "tumor_bam_gnos_id", "is_tumor_bam_used_by_sanger_missing"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "is_train2_donor", "is_sanger_variant_calling_performed", \
-"aliquot_id", "dcc_specimen_type", "exists_gnos_id_mismatch", "exists_md5sum_mismatch", "exists_version_mismatch", "train2_bams_gnos_id", \
-"gnos_id_to_be_reassigned_as_train2_bam", "gnos_id_to_keep", "gnos_id_to_be_removed"],
-["donor_unique_id",  "gnos_id", "entry_type"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "aliquot_id", "dcc_specimen_type", "exists_gnos_id_mismatch", "gnos_repo", "gnos_id", "effective_xml_md5sum"]
-]
 
 def get_donor_json(es, es_index, donor_unique_id):
     es_query_donor = {
@@ -577,7 +564,7 @@ def main(argv=None):
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
 
-    q_index = range(len(report_fields)) if not q_index else [int(q_index)] 
+    q_index = range(len(es_queries)) if not q_index else [int(q_index)] 
 
     timestamp = str.split(metadata_dir, '/')[-1]
     es_index = 'p_' + ('' if not repo else repo+'_') + re.sub(r'\D', '', timestamp).replace('20','',1)
@@ -593,7 +580,7 @@ def main(argv=None):
 
     for q in q_index:
         report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
-        report_tsv_fh.write('\t'.join(report_fields[q]) + '\n')
+
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
 
@@ -621,8 +608,11 @@ def main(argv=None):
                             row_order[fn] = row.get(fn)
                         report_info_list_full.append(row_order)
 
-            
-        for r in report_info_list_full: 
+        header = True  
+        for r in report_info_list_full:
+            if header:
+                report_tsv_fh.write('\t'.join(r.keys()) + '\n')
+                header = False 
             # make the list of output from dict
             line = []
             for p in r.keys():
