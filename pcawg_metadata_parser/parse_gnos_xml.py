@@ -61,112 +61,16 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
-    if analysis_attrib.get('variant_workflow_name') == 'SangerPancancerCgpCnIndelSnvStr' \
-        and (
-                (analysis_attrib.get('variant_workflow_version').startswith('1.0.')
-                or analysis_attrib.get('variant_workflow_version').startswith('1.1.'))
-                and not analysis_attrib.get('variant_workflow_version') in ['1.0.0', '1.0.1']
-            ):
-        donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
+    #logger.info('Create variant calling file for donor: {}, from entry {}'
+    #        .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
 
-        logger.info('process Sanger variant call for donor: {}, in entry {}'
-            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+    vcf_file = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
 
-        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
-
-        if donor_unique_id in annotations.get('santa_cruz').get('donor'): # the current donor is santa_cruz donor
-            if current_vcf_entry.get('gnos_id') in annotations.get('santa_cruz').get('gnos_id'): #the sanger vcf is santa_cruz. the vcf will be kept
-                if not vcf_entries.get(donor_unique_id):
-                    vcf_entries[donor_unique_id] = {'sanger_variant_calling': current_vcf_entry}
-                else:
-                    vcf_entries.get(donor_unique_id).update({'sanger_variant_calling': current_vcf_entry})
-                logger.info('Sanger variant calling result for donor: {}. It is santa_cruz_freeze_entry, GNOS entry is {}'
-                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-            else: # this is not the one expected, likely duplications
-                logger.warning('Sanger variant calling result for donor: {}. Ignored as it is not the one in santa_cruz, ignoring entry {}'
-                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-
-
-        elif annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id): # the current donor has sanger variant calling result in jamboree
-            if annotations.get('sanger_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'): # this is the one expected
-                if not vcf_entries.get(donor_unique_id):
-                    vcf_entries[donor_unique_id] = {'sanger_variant_calling': current_vcf_entry}
-                else:
-                    vcf_entries.get(donor_unique_id).update({'sanger_variant_calling': current_vcf_entry})
-
-                logger.info('Sanger variant calling result for donor: {}. It is already saved in Jamboree, GNOS entry is {}'
-                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-            else: # this is not the one expected, likely duplications
-                logger.warning('Sanger variant calling result for donor: {}. Ignored as it is not the one saved in Jamboree, ignoring entry {}'
-                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-
-        elif vcf_entries.get(donor_unique_id) and vcf_entries.get(donor_unique_id).get('sanger_variant_calling'):
-            # let's see whether they have the same GNOS ID first, if yes, it's a copy at different GNOS repo
-            # if not the same GNOS ID, we will see which one is newer, will keep the newer one
-            # this can be complicated as the GNOS entries coming as a ramdon order, it's not possible to decide 
-            # which ones to keep when there are multiple GNOS IDs and one or all of them have replicates in different GNOS repo
-            # worry about this later.
-            # If there is no synchronization or redundant calling/uploading it would be much easier.
-            # The other way of handling this is to keep all VCF call entries and sort them out at
-            # the end when all entries are at hand
-
-            workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
-            workflow_version_previous = vcf_entries.get(donor_unique_id).get('sanger_variant_calling').get('workflow_details').get('variant_workflow_version')
-            gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
-            gnos_updated_previous = vcf_entries.get(donor_unique_id).get('sanger_variant_calling').get('gnos_last_modified')[0]
-
-            if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
-                logger.info('Newer Sanger variant calling result with version: {} for donor: {}, in entry: {} replacing older GNOS entry {} in {}'
-                    .format(workflow_version_current, donor_unique_id, \
-                        gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull'), \
-                        vcf_entries.get(donor_unique_id).get('sanger_variant_calling').get('gnos_id'), \
-                        vcf_entries.get(donor_unique_id).get('sanger_variant_calling').get('gnos_repo')[0]))
-                vcf_entries.get(donor_unique_id)['sanger_variant_calling'] = current_vcf_entry
-            elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
-                 and gnos_updated_current > gnos_updated_previous: # current is newer
-                logger.info('Newer Sanger variant calling result with last modified date: {} for donor: {}, in entry: {} replacing older GNOS entry {} in {}'
-                    .format(gnos_updated_current, donor_unique_id, \
-                        gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull'), \
-                        vcf_entries.get(donor_unique_id).get('sanger_variant_calling').get('gnos_id'), \
-                        vcf_entries.get(donor_unique_id).get('sanger_variant_calling').get('gnos_repo')[0]))
-                vcf_entries.get(donor_unique_id)['sanger_variant_calling'] = current_vcf_entry
-            else: # no need to replace
-                logger.warning('Sanger variant calling result already exist and is latest for donor: {}, ignoring entry {}'
-                    .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-
-        else:
-            if not vcf_entries.get(donor_unique_id):
-                vcf_entries[donor_unique_id] = {'sanger_variant_calling': current_vcf_entry}
-            else:
-                vcf_entries.get(donor_unique_id).update({'sanger_variant_calling': current_vcf_entry})
-
-    elif analysis_attrib.get('variant_workflow_name').startswith('EMBLPancancer') \
-        and  LooseVersion(analysis_attrib.get('variant_workflow_version')) >= LooseVersion('1.0.0'):
-        donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
-
-        logger.info('process EMBL variant call for donor: {}, in entry {}'
-            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-
-        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
-
-        keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, 'EMBL')
-
-    elif analysis_attrib.get('variant_workflow_name') == 'DKFZPancancerCnIndelSnv' \
-        and  LooseVersion(analysis_attrib.get('variant_workflow_version')) >= LooseVersion('1.0.0'):
-        donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
-
-        logger.info('process DKFZ variant call for donor: {}, in entry {}'
-            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
-
-        current_vcf_entry = create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
-
-        keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, 'DKFZ')
-
-    else:  # this is test for VCF upload
-        logger.warning('ignore entry that is variant calling but likely is test entry, GNOS entry: {}'
-                         .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-        return
-
+    if not vcf_entries.get(donor_unique_id):
+        vcf_entries[donor_unique_id] = {}
+        vcf_entries[donor_unique_id]['vcf_entry_files'] = []
+    
+    vcf_entries.get(donor_unique_id)['vcf_entry_files'].append(copy.deepcopy(vcf_file))
 
   else:  # BAM entry
     if gnos_analysis.get('dcc_project_code') and gnos_analysis.get('dcc_project_code').upper() == 'TEST':
@@ -268,6 +172,9 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                                     gnos_analysis.get('study') ) )
         # more such check may be added, no time for this now
 
+    #logger.info('Create bam file for donor: {}, from entry {}'
+    #        .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+
     # now parse out gnos analysis object info to build bam_file doc
     bam_file = create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations)
      
@@ -365,47 +272,89 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     bam_output_fh.write(json.dumps(bam_file, default=set_default) + '\n')
 
 
+def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
 
-def keep_latest_vcf_entry(donor_unique_id, gnos_analysis, vcf_entries, current_vcf_entry, variant_workflow):
-        workflow_label = variant_workflow.lower() + '_variant_calling'
+    if not vcf_entries or not vcf_entries.get(donor_unique_id) or not vcf_entries.get(donor_unique_id).get('vcf_entry_files'):
+        return
+    
+    for current_vcf_entry in vcf_entries.get(donor_unique_id).get('vcf_entry_files'):
+        variant_workflow = current_vcf_entry.get('vcf_workflow_type')
+        workflow_label = variant_workflow + '_variant_calling'
 
-        if not vcf_entries.get(donor_unique_id):
-            vcf_entries[donor_unique_id] = {workflow_label: current_vcf_entry}
-            return
-
-        elif not vcf_entries.get(donor_unique_id).get(workflow_label):
+        if not vcf_entries.get(donor_unique_id).get(workflow_label):  # new vcf for workflow_type
             vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-            return
-
         else:
-            workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
-            workflow_version_previous = vcf_entries.get(donor_unique_id).get(workflow_label).get('workflow_details').get('variant_workflow_version')
-            gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
-            gnos_updated_previous = vcf_entries.get(donor_unique_id).get(workflow_label).get('gnos_last_modified')[0]
+            workflow_previous = vcf_entries.get(donor_unique_id).get(workflow_label)
+            if workflow_previous.get('gnos_id') == current_vcf_entry.get('gnos_id'):
+                if current_vcf_entry['gnos_repo'][0] in workflow_previous.get('gnos_repo'):
+                    logger.warning( 'Same donor: {} has multiple variant calling with same GNOS ID: {} in the same repo: {}. This should never be possible.'
+                                    .format(donor_unique_id, workflow_previous.get('gnos_id'), current_vcf_entry['gnos_repo'][0])) 
+                
+                else:
+                    workflow_previous.get('gnos_repo').append(current_vcf_entry['gnos_repo'][0])
+                    workflow_previous.get('gnos_last_modified').append(current_vcf_entry['gnos_last_modified'][0])
+                    logger.info( 'Donor: {} has synchronized variant calling with GNOS ID: {} in the repos: {}'
+                                    .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
+            
+            else:
+                if current_vcf_entry['is_s3_transfer_scheduled']:
+                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                    logger.info(workflow_label+' results for donor: {}. Keep the one scheduled for S3 transfer: {}, additional {}'
+                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
 
-            if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
-                logger.info('Newer {} variant calling result with version: {} for donor: {}, in entry: {} replacing older GNOS entry {} in {}'
-                    .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
-                        gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull'), \
-                        vcf_entries.get(donor_unique_id).get(workflow_label).get('gnos_id'), \
-                        vcf_entries.get(donor_unique_id).get(workflow_label).get('gnos_repo')[0]))
-                vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-            elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
-                 and gnos_updated_current > gnos_updated_previous: # current is newer
-                logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, in entry: {} replacing older GNOS entry {} in {}'
-                    .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
-                        gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull'), \
-                        vcf_entries.get(donor_unique_id).get(workflow_label).get('gnos_id'), \
-                        vcf_entries.get(donor_unique_id).get(workflow_label).get('gnos_repo')[0]))
-                vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-            else: # no need to replace
-                logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {}'
-                    .format(variant_workflow.upper(), donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+                elif current_vcf_entry['is_santa_cruz_entry']:
+                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                    logger.info(workflow_label+' results for donor: {}. Keep the santa_cruz_freeze_entry: {}, additional {}'
+                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+
+                elif annotations.get(variant_workflow) and current_vcf_entry.get('gnos_id') in annotations.get(variant_workflow):
+                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                    logger.info(workflow_label+' results for donor: {}. Keep the one in whitelist: {}, additional {}'
+                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+
+                elif annotations.get(variant_workflow+'_vcf_in_jamboree') and \
+                       annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) and \
+                         annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'):
+                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                    logger.info(workflow_label+' results for donor: {}. Keep the one already saved in Jamboree: {}, additional {}'
+                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                         
+
+                else:
+                    workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
+                    workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
+                    gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
+                    gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
+
+                    if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
+                        logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                            .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
+                                current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                        vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                    elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
+                         and gnos_updated_current > gnos_updated_previous: # current is newer
+                        logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                            .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
+                                current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                        vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                    else: # no need to replace
+                        logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
+                            .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
 
 
 def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     files = []
-    for f in gnos_analysis.get('files').get('file'):
+    
+    if isinstance(gnos_analysis.get('files').get('file'), dict):
+        file_list = [gnos_analysis.get('files').get('file')]  
+    elif isinstance(gnos_analysis.get('files').get('file'), list):
+        file_list = gnos_analysis.get('files').get('file') 
+    else:
+        logger.warning('Variant calling result donor: {}, likely incorrectly populated the files section, in GNOS entry {}'
+            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull')))
+
+    for f in file_list:
         files.append({'file_name': f.get('filename'), 'file_size': f.get('filesize'), 'file_md5sum': f.get('checksum').get('#text')})
 
     vcf_entry = {
@@ -445,6 +394,42 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     #if isinstance(timing, dict): vcf_entry.get('workflow_details')['variant_timing_metrics'] = timing
 
     #print json.dumps(vcf_entry)  # debugging only
+    workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
+    workflow_version = vcf_entry.get('workflow_details').get('variant_workflow_version')
+
+    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+
+    elif workflow_name.startswith('EMBLPancancer') and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
+        vcf_entry['vcf_workflow_type'] = 'embl'
+
+    elif workflow_name == 'DKFZPancancerCnIndelSnv' and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
+        vcf_entry['vcf_workflow_type'] = 'dkfz'            
+
+    elif workflow_name.startswith('DKFZ_EMBL_Combined'):
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+
+    elif workflow_name == 'BROAD_MUSE_PIPELINE':
+        vcf_entry.get('workflow_details')['workflow_file_subset'] = analysis_attrib.get('workflow_file_subset')
+        vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
+        if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
+            vcf_entry['vcf_workflow_type'] = 'muse'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad_tar':
+            vcf_entry['vcf_workflow_type'] = 'broad_tar'   
+        else:
+            vcf_entry['vcf_workflow_type'] = 'Unknown_broad'
+            logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
+                     .format(vcf_entry.get('workflow_details')['workflow_file_subset'], donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+            
+    else:
+        vcf_entry['vcf_workflow_type'] = 'Unknown'
+        logger.warning('the entry is variant calling but likely is test entry, donor: {} GNOS entry: {}'
+            .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+
+
     return vcf_entry
 
 
@@ -638,6 +623,14 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_sanger_variant_calling_performed': False,
             'is_dkfz_variant_calling_performed': False,
             'is_embl_variant_calling_performed': False,
+            'is_dkfz_embl_variant_calling_performed': False,
+            'is_broad_variant_calling_performed': False,
+            'broad':{
+                'broad_file_subset_exist': False,
+                'broad_tar_file_subset_exist': False,
+                'muse_file_subset_exist': False,
+                'exist_file_subsets_mismatch': False
+            },
             'variant_calling_performed': [],
             'vcf_in_jamboree': [],
             'is_normal_star_rna_seq_alignment_performed': False,
@@ -994,6 +987,9 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
         donor.get('flags')['is_sanger_vcf_in_jamboree'] = True
         donor.get('flags').get('vcf_in_jamboree').append('sanger')
 
+    # choose vcf to vcf_entries by iterating all cached vcfs
+    choose_vcf_entry(vcf_entries, donor.get('donor_unique_id'), annotations)
+
     add_vcf_entry(donor, vcf_entries.get(donor.get('donor_unique_id')))
 
     check_bwa_duplicates(donor, train2_freeze_bams)
@@ -1318,12 +1314,13 @@ def add_vcf_entry(donor, vcf_entry):
 
     if not donor.get('variant_calling_results'): donor['variant_calling_results'] = {}
 
+    donor['vcf_files'] = copy.deepcopy(vcf_entry.get('vcf_entry_files'))
+    del vcf_entry['vcf_entry_files']
     donor.get('variant_calling_results').update(vcf_entry)
 
-    for workflow in ['sanger', 'embl', 'dkfz']:
+    # update the flags inside each vcf
+    for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
       if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
-        donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
-        donor.get('flags').get('variant_calling_performed').append(workflow)
         if not donor.get('flags').get('all_tumor_specimen_aliquot_counts') + 1 == \
                 len(donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_output_info')):
             logger.warning(workflow + ' variant calling workflow may have missed tumour specimen for donor: {}'
@@ -1364,6 +1361,36 @@ def add_vcf_entry(donor, vcf_entry):
         if vcf_input_t_bam != tumor_alignment_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_tumor_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+    
+    # update the flags for sanger, dkfz_embl
+    for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz']:
+        if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+            donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
+            donor.get('flags').get('variant_calling_performed').append(workflow)
+
+    #one combined flag for broad to indicate whether broad is performed well
+    #donor.get('flags')['exists_mismatch_broad_file_subsets'] = False
+    is_broad_file_subset_missing = False
+    broad_file_subsets = set()
+    for workflow in ['broad', 'muse', 'broad_tar']:
+        if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+            donor.get('flags').get('broad')[workflow+'_file_subset_exist'] = True
+            vcf = donor.get('variant_calling_results').get(workflow + '_variant_calling')
+        
+            if not vcf.get('workflow_details') or not vcf.get('workflow_details').get('related_file_subset_uuids') or not vcf.get('gnos_id'):
+                logger.warning('{} variant calling information for donor: {} is not completely populated'.format(workflow.upper(), donor.get('donor_unique_id')))
+            else:
+                current_broad_file_subsets = set(vcf.get('workflow_details').get('related_file_subset_uuids')) | set([vcf.get('gnos_id')])
+            
+                if not broad_file_subsets: broad_file_subsets = current_broad_file_subsets
+                if broad_file_subsets and not current_broad_file_subsets == broad_file_subsets: 
+                    donor.get('flags').get('broad')['exist_file_subsets_mismatch'] = True
+        else:
+            is_broad_file_subset_missing = True
+
+    if not is_broad_file_subset_missing and not donor.get('flags').get('broad')['exist_file_subsets_mismatch']:
+        donor.get('flags')['is_broad_variant_calling_performed'] = True
+        donor.get('flags').get('variant_calling_performed').append('broad')
 
 
 def add_original_gnos_repo(donor, annotation):
@@ -1584,12 +1611,12 @@ def bam_aggregation(bam_files):
                 if bam['is_s3_transfer_scheduled']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one scheduled for S3 transfer: {}, additional: {}'
-                        .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
 
                 elif bam['is_santa_cruz_entry']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in santa_cruz: {}, additional: {}'
-                        .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
 
                 else:
                     logger.warning( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, in use: {}, additional: {}'
@@ -1725,13 +1752,13 @@ def bam_aggregation(bam_files):
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one scheduled for S3 transfer: {}, additional: {}'
-                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
 
                     elif bam['is_santa_cruz_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
-                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
 
                     else:
                         logger.warning( 'Same aliquot: {} from donor: {} using same workflow: {} has different tophat aligned GNOS RNA_Seq BAM entries, in use: {}, additional: {}'
@@ -1764,13 +1791,13 @@ def bam_aggregation(bam_files):
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one scheduled for transfer: {}, additional: {}'
-                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
 
                     elif bam['is_santa_cruz_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in santa_cruz: {}, additional: {}'
-                            .format(bam['aliquot_id'], bam['donor_unique_id'], alignment_status.get('aligned_bam').get('gnos_id'), bam['gnos_metadata_url']))
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
 
 
                     else:
