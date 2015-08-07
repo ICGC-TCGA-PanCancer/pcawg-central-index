@@ -17,9 +17,9 @@ from argparse import RawDescriptionHelpFormatter
 import time
 import uuid
 import copy
-import json
-from xml.dom.minidom import parseString
-
+import simplejson as json
+import glob
+import hashlib
 
 logger = logging.getLogger('dkfz/embl merge and upload')
 # create console handler with a higher log level
@@ -33,7 +33,7 @@ def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir):
         logger.warning('data for analysis object: {} have not been download yet'.format(gnos_id))
         return
     if workflow_type == 'dkfz':
-        fixed_dir = metadata_xml_dir + '/fixed'
+        fixed_dir = metadata_xml_dir + '/fixed_files'
         if not os.path.exists(fixed_dir) or not os.listdir(fixed_dir):
             logger.warning('data for analysis object: {} have not been fixed yet'.format(gnos_id))
             return
@@ -92,16 +92,42 @@ def process(conf, dkfz_embl_results_info):
                 embl_xml_file = download_metadata_xml(embl_gnos_id, embl_gnos_repo, 'embl', download_dir)
                 dkfz_xml_file = download_metadata_xml(dkfz_gnos_id, dkfz_gnos_repo, 'dkfz', download_dir)
                 if embl_xml_file and os.path.isfile(embl_xml_file) and dkfz_xml_file and os.path.isfile(dkfz_xml_file):
-                    merged_xml = merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir)
-                    new_gnos_id = generate_uuid()
-                    upload_xml_file = upload_dir + embl_gnos_id + '.' + dkfz_gnos_id + '/' + new_gnos_id + '/analysis.xml'
-                    write_to_xml(upload_xml_file, merged_xml)
-                    new_line = '\t'.join([donor_unique_id, submitter_donor_id, dcc_project_code, embl_gnos_id, embl_gnos_repo, dkfz_gnos_id, dkfz_gnos_repo, new_gnos_id])
-                    m.write(new_line + '\n')
-                else: continue
+                    merged_analysis_xml = merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, embl_gnos_id, dkfz_gnos_id)
+                    if merged_analysis_xml:
+                        new_gnos_id = generate_uuid()
+                        upload_xml_file = upload_dir + embl_gnos_id + '.' + dkfz_gnos_id + '/' + new_gnos_id + '/analysis.xml'
+                        # Create the symlinks for all the files
+                        fixed_files = merged_analysis_xml.get('ANALYSIS_SET').get('ANALYSIS').get('DATA_BLOCK').get('FILES').get('FILE')
+                        dst_dir = upload_dir + embl_gnos_id + '.' + dkfz_gnos_id + '/' + new_gnos_id
+                        create_file_symlinks(fixed_files, download_dir, dst_dir, embl_gnos_id, dkfz_gnos_id)
+                        # Write the merged_analysis_xml
+                        merged_xml = xmltodict.unparse(merged_analysis_xml, pretty=True)
+                        write_to_xml(upload_xml_file, merged_xml)
+                        # Write to the manifest_file with new_gnos_id and show the donors which have complete the dkfz/embl merge
+                        new_line = '\t'.join([donor_unique_id, submitter_donor_id, dcc_project_code, embl_gnos_id, embl_gnos_repo, dkfz_gnos_id, dkfz_gnos_repo, new_gnos_id])
+                        m.write(new_line + '\n')
 
 
-def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir):
+def create_file_symlinks(file_list, src_dir, dst_dir, embl_gnos_id, dkfz_gnos_id):
+    for f in file_list:
+        fname = str(f.get('@filename'))
+        if 'dkfz' in fname:
+            f_fixed_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/fixed_files/' + f.get('@filename')
+            f_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/' + f.get('@filename')
+        else:
+            f_fixed_src = src_dir + '/embl/' + embl_gnos_id + '/fixed_files/' + f.get('@filename')
+            f_src = src_dir + '/embl/' + embl_gnos_id + '/' + f.get('@filename')           
+        f_dst = dst_dir + '/' + f.get('@filename')
+        if os.path.isfile(f_fixed_src):
+            os.symlink(f_fixed_src, f_dst)
+        elif os.path.isfile(f_src):
+            os.symlink(f_src, f_dst)
+        else: # should not happen
+            logger.warning('file: {} is missing in the downloads folder'.format(f.get('@filename')))
+            return 0
+
+
+def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, embl_gnos_id, dkfz_gnos_id):
     embl_analysis_xml = get_analysis_xml(embl_xml_file)
     dkfz_analysis_xml = get_analysis_xml(dkfz_xml_file)
     merged_analysis_xml = copy.deepcopy(embl_analysis_xml)
@@ -119,7 +145,14 @@ def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir):
             dkfz_analysis.get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')]
     
     # Data_block
-    merged_analysis.get('DATA_BLOCK').get('FILES').get('FILE').extend(dkfz_analysis.get('DATA_BLOCK').get('FILES').get('FILE'))
+    embl_data_block_files = embl_analysis.get('DATA_BLOCK').get('FILES').get('FILE')
+    embl_data_block_files = update_fixed_data_block_files(embl_data_block_files, 'embl', upload_dir, download_dir, embl_gnos_id)
+
+    dkfz_data_block_files = dkfz_analysis.get('DATA_BLOCK').get('FILES').get('FILE')
+    dkfz_data_block_files = update_fixed_data_block_files(dkfz_data_block_files, 'dkfz', upload_dir, download_dir, dkfz_gnos_id)
+
+    if not embl_data_block_files or not dkfz_data_block_files: return
+    merged_analysis.get('DATA_BLOCK').get('FILES')['FILE'] = embl_data_block_files + dkfz_data_block_files
 
     # Analysis_attributes
     embl_analysis_attrib = get_analysis_attrib(embl_analysis)
@@ -130,11 +163,49 @@ def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir):
     analysis_attrib = generate_analysis_attrib_from_set(merged_attrib_set, embl_attrib_set, dkfz_attrib_set)
     merged_analysis.get('ANALYSIS_ATTRIBUTES')['ANALYSIS_ATTRIBUTE'] = generate_analysis_attrib_list_from_dict(analysis_attrib)
 
-    # Write the merged_analysis_xml
-    merged_xml = dicttoxml.dicttoxml(merged_analysis_xml, root=False, attr_type=False)
-    merged_xml_pretty = parseString(merged_xml).toprettyxml()
+    return merged_analysis_xml
 
-    return merged_xml_pretty
+
+def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, download_dir, gnos_id):
+    lookup_dir = download_dir + workflow_type + '/' + gnos_id
+    for f in data_block_files:
+        fname = str(f.get('@filename'))
+        fname_list = str.split(fname, '.')
+        fname_list[2] = '*'
+        fname_search = '.'.join(fname_list)
+        print lookup_dir + '/fixed_files/' + '^' + fname_search + '$' 
+        f_fixed = glob.glob(lookup_dir + '/fixed_files/' + '^' + fname_search + '$' )
+        print f_fixed
+        sys.exit(0)
+        if not f_fixed:
+            f_old = glob.glob(lookup_dir + '/' + fname_search )
+            if len(f_old) == 1:
+                f_checksum = generate_md5(f_old[0]) 
+                if not f_checksum == f.get('@checksum'):
+                    logger.warning('file: {} in the downloads folder has different checksum with the original one for analysis object: {}'.format(fname, gnos_id))
+                    return
+            elif not f_old:
+                logger.warning('file: {} is missing in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+                return
+            else:
+                logger.warning('file: {} has duplicates in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+                return
+        elif len(f_fixed) == 1:
+            f['@filename'] = f_fixed[0].split('/')[-1]
+            f['@checksum'] = generate_md5(f_fixed[0])     
+        else:
+            logger.warning('file: {} has duplicates fixed files in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+            return
+    
+    return data_block_files
+
+
+def generate_md5(file):
+    with open (file, 'r') as x: data = x.read()
+    md5 = hashlib.md5(data).hexdigest()
+
+    return md5
+
 
 
 def write_to_xml(fname, xml):      
