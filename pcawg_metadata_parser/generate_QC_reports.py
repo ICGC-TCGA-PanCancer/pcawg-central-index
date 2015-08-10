@@ -280,22 +280,55 @@ es_queries = [
          },
          "size": 10000
      }
-}
+},
+
+# query 5: get specimens with mismatch effective xml md5sum
+{
+      "name": "specimens_with_mismatch_effective_xml_md5sum",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "duplicated_bwa_alignment_summary.exists_gnos_xml_mismatch":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 
 ]
 
-report_fields = [
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "sanger_vcf_gnos_id", "study", "sanger_vcf_gnos_repo","sanger_vcf_metadata_url"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "aliquot_id", "submitter_specimen_id", "submitter_sample_id", \
-"dcc_specimen_type", "aligned", "number_of_bams", "total_lanes"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "sanger_vcf_gnos_id", \
-"normal_aliquot_id", "normal_submitter_specimen", "normal_bam_gnos_id", "is_normal_bam_used_by_sanger_missing", \
-"tumor_aliquot_id", "tumor_submitter_specimen", "tumor_bam_gnos_id", "is_tumor_bam_used_by_sanger_missing"],
-["donor_unique_id", "submitter_donor_id", "dcc_project_code", "is_train2_donor", "is_sanger_variant_calling_performed", \
-"aliquot_id", "dcc_specimen_type", "exists_gnos_id_mismatch", "exists_md5sum_mismatch", "exists_version_mismatch", "train2_bams_gnos_id", \
-"gnos_id_to_be_reassigned_as_train2_bam", "gnos_id_to_keep", "gnos_id_to_be_removed"],
-["donor_unique_id",  "gnos_id", "entry_type"]
-]
 
 def get_donor_json(es, es_index, donor_unique_id):
     es_query_donor = {
@@ -346,7 +379,38 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 4:
         add_report_info_4(report_info, report_info_list, es_json)
 
+    if q_index == 5:
+        add_report_info_5(report_info, report_info_list, es_json)
+
     return report_info_list
+
+def add_report_info_5(report_info, report_info_list, es_json):
+    duplicate_bwa_bams = es_json.get('duplicated_bwa_alignment_summary')
+    if duplicate_bwa_bams.get('exists_md5sum_mismatch_in_normal'):
+        aliquot = duplicate_bwa_bams.get('normal')
+        add_report_info_5_aliquot(aliquot, report_info, report_info_list)   
+    
+    if duplicate_bwa_bams.get('exists_gnos_xml_mismatch_in_tumor'):
+        for aliquot in duplicate_bwa_bams.get('tumor'):
+            add_report_info_5_aliquot(aliquot, report_info, report_info_list)
+
+
+def add_report_info_5_aliquot(aliquot, report_info, report_info_list):
+    if aliquot.get('exists_gnos_xml_mismatch'):
+        report_info['aliquot_id'] = aliquot.get('aliquot_id')
+        report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
+        report_info['exists_gnos_id_mismatch'] = aliquot.get('exists_gnos_id_mismatch')
+        report_info['gnos_repo'] = []
+        report_info['gnos_id'] = []
+        report_info['effective_xml_md5sum'] = []
+        for bam in aliquot.get('aligned_bam'):
+            report_info['gnos_repo'].append(bam.get('gnos_repo'))
+            report_info['gnos_id'].append(bam.get('gnos_id'))
+            report_info['effective_xml_md5sum'].append(bam.get('effective_xml_md5sum'))
+        report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
+
 
 def add_report_info_4(report_info, report_info_list, es_json):
     if es_json.get('bam_files'):
@@ -500,7 +564,7 @@ def main(argv=None):
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
 
-    q_index = range(len(report_fields)) if not q_index else [int(q_index)] 
+    q_index = range(len(es_queries)) if not q_index else [int(q_index)] 
 
     timestamp = str.split(metadata_dir, '/')[-1]
     es_index = 'p_' + ('' if not repo else repo+'_') + re.sub(r'\D', '', timestamp).replace('20','',1)
@@ -516,7 +580,7 @@ def main(argv=None):
 
     for q in q_index:
         report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
-        report_tsv_fh.write('\t'.join(report_fields[q]) + '\n')
+
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
 
@@ -544,8 +608,11 @@ def main(argv=None):
                             row_order[fn] = row.get(fn)
                         report_info_list_full.append(row_order)
 
-            
-        for r in report_info_list_full: 
+        header = True  
+        for r in report_info_list_full:
+            if header:
+                report_tsv_fh.write('\t'.join(r.keys()) + '\n')
+                header = False 
             # make the list of output from dict
             line = []
             for p in r.keys():
