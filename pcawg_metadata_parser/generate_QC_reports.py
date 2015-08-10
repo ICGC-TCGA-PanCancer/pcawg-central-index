@@ -320,12 +320,136 @@ es_queries = [
                             ]
                           }
                       }
+                  ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+# query 6: get donors with broad_incomplete_uploads 
+{
+      "name": "broad_incomplete_uploads",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_broad_variant_calling_performed":[
+                             "F"
+                          ]
+                       }
+                    },
+                    {
+                      "bool": {
+                        "should":[
+                          {
+                            "terms": {
+                              "flags.broad.broad_file_subset_exist": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.broad.muse_file_subset_exist": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.broad.broad_tar_file_subset_exist": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.broad.exist_file_subsets_mismatch": [
+                                "T"
+                              ]
+                            }
+                          }                        
+                        ]
+                      }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
                  ]
                 }
               },
               "size": 10000
       }
 },
+
+# query 7: get donors with broad_successful_uploads 
+{
+      "name": "broad_successful_uploads",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_broad_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+}
 
 ]
 
@@ -382,7 +506,25 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 5:
         add_report_info_5(report_info, report_info_list, es_json)
 
+    if q_index in [6, 7]:
+        add_report_info_6_7(report_info, report_info_list, es_json)
+
     return report_info_list
+
+
+def add_report_info_6_7(report_info, report_info_list, es_json):
+    if es_json.get('variant_calling_results'):
+        vcf = es_json.get('variant_calling_results')
+        for workflow_type in ['broad', 'broad_tar', 'muse']:
+            report_info[workflow_type+'_gnos_repo'] = vcf.get(workflow_type+'_variant_calling').get('gnos_repo')[0] if vcf.get(workflow_type+'_variant_calling') else None
+            report_info[workflow_type+'_gnos_id'] = vcf.get(workflow_type+'_variant_calling').get('gnos_id') if vcf.get(workflow_type+'_variant_calling') else None
+        report_info['is_cross_referencing_mismatch'] = es_json.get('flags').get('broad').get('exist_file_subsets_mismatch')
+
+        report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
+
+
 
 def add_report_info_5(report_info, report_info_list, es_json):
     duplicate_bwa_bams = es_json.get('duplicated_bwa_alignment_summary')
@@ -620,6 +762,8 @@ def main(argv=None):
                     line.append('|'.join(r.get(p)))
                 elif isinstance(r.get(p), set):
                     line.append('|'.join(list(r.get(p))))
+                elif r.get(p) is None:
+                    line.append('')
                 else:
                     line.append(str(r.get(p)))
             report_tsv_fh.write('\t'.join(line) + '\n') 
