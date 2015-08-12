@@ -449,7 +449,71 @@ es_queries = [
               },
               "size": 10000
       }
-}
+},
+
+# query 8: get donors exist_specimen_type_mismatch
+{
+    "name": "aliquots_with_mismatch_specimen_type",
+    "content":{
+        "fields":["donor_unique_id"],  
+        "filter":{
+          "bool":{
+             "must":[
+                {
+                   "type":{
+                      "value":"donor"
+                   }
+                }                    
+              ],
+              "should": [
+                            {
+                               "terms":{
+                                  "normal_alignment_status.exist_specimen_type_mismatch":[
+                                     "T"
+                                  ]
+                               }
+                            },
+                            {
+                              "nested": {
+                                "path": "tumor_alignment_status",
+                                "filter":{
+                                  "bool": {
+                                    "should": [
+                                      {
+                                         "terms":{
+                                            "tumor_alignment_status.exist_specimen_type_mismatch":[
+                                               "T"
+                                            ]
+                                         }
+                                      }                         
+                                    ]
+                                  }
+                                }
+                              }
+                            }                                   
+                          ],
+              "must_not": [
+                        {
+                          "terms": {
+                            "flags.is_manual_qc_failed": [
+                                    "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                        }
+                      ]
+                  }
+          },
+          "size": 10000
+    }
+},
+
 
 ]
 
@@ -508,6 +572,39 @@ def create_report_info(donor_unique_id, es_json, q_index):
 
     if q_index in [6, 7]:
         add_report_info_6_7(report_info, report_info_list, es_json)
+
+    if q_index == 8:
+        add_report_info_8(report_info, report_info_list, es_json)
+
+    return report_info_list
+
+def add_report_info_8_aliquot(aliquot, report_info, report_info_list):
+    report_info['aliquot_id'] = aliquot.get('aliquot_id')
+    report_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
+    report_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
+    report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')   
+    report_info['aligned'] = True if aliquot.get('aligned') else False
+    report_info['exist_aligned_bam_specimen_type_mismatch'] = aliquot.get('exist_aligned_bam_specimen_type_mismatch')
+    report_info['exist_unaligned_bam_specimen_type_mismatch'] = aliquot.get('exist_unaligned_bam_specimen_type_mismatch')
+    report_info['aligned_bam_gnos_repo'] = None
+    report_info['aligned_bam_gnos_id'] = None
+
+    if aliquot.get('exist_specimen_type_mismatch'):
+        if aliquot.get('exist_aligned_bam_specimen_type_mismatch'):            
+            report_info['aligned_bam_gnos_repo'] = aliquot.get('aligned_bam').get('gnos_repo')
+            report_info['aligned_bam_gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
+        report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
+
+
+def add_report_info_8(report_info, report_info_list, es_json):
+    if es_json.get('normal_alignment_status'):
+        add_report_info_8_aliquot(es_json.get('normal_alignment_status'), report_info, report_info_list)
+
+    if es_json.get('tumor_alignment_status'):
+        for aliquot in es_json.get('tumor_alignment_status'):
+            add_report_info_8_aliquot(aliquot, report_info, report_info_list)
 
     return report_info_list
 
