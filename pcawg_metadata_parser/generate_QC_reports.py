@@ -19,6 +19,7 @@ from itertools import izip
 from distutils.version import LooseVersion
 import csv
 import shutil
+from operator import itemgetter
 
 es_queries = [
 # query 0: PCAWGDATA-45_Sanger GNOS entries with study field ends with _test
@@ -844,8 +845,10 @@ def main(argv=None):
                     if not row.get('gnos_id') in gnos_id_set:
                         row_order = OrderedDict()
                         for fn in reader.fieldnames:
-                            row_order[fn] = row.get(fn)
+                            row_order[fn.strip('#')] = row.get(fn)
                         report_info_list_full.append(row_order)
+
+        report_info_list_full.sort(key=itemgetter('donor_unique_id'))
 
         header = True  
         for r in report_info_list_full:
