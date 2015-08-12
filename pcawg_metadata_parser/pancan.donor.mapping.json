@@ -1095,7 +1095,16 @@
                },
                "do_lane_counts_in_every_bam_entry_match":{
                   "type":"boolean"
-               },                                              
+               }, 
+               "exist_specimen_type_mismatch":{
+                  "type":"boolean"
+               }, 
+               "exist_aligned_bam_specimen_type_mismatch":{
+                  "type":"boolean"
+               },
+               "exist_unaligned_bam_specimen_type_mismatch":{
+                  "type":"boolean"
+               },                                            
                "submitter_sample_id":{
                   "type":"string",
                   "index":"not_analyzed"
@@ -1531,6 +1540,15 @@
                   "type":"boolean"
                },
                "do_lane_counts_in_every_bam_entry_match":{
+                  "type":"boolean"
+               },
+               "exist_specimen_type_mismatch":{
+                  "type":"boolean"
+               }, 
+               "exist_aligned_bam_specimen_type_mismatch":{
+                  "type":"boolean"
+               },
+               "exist_unaligned_bam_specimen_type_mismatch":{
                   "type":"boolean"
                },                
                "submitter_sample_id":{
