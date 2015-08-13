@@ -5,13 +5,10 @@ import sys
 import csv
 import os
 import re
-import shutil
 import xmltodict
 import requests
 import logging
 from collections import OrderedDict
-from argparse import ArgumentParser
-from argparse import RawDescriptionHelpFormatter
 import time
 import uuid
 import copy
@@ -51,87 +48,6 @@ def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir):
 def generate_uuid():
     uuid_str = str(uuid.uuid4())
     return uuid_str
-
-
-def process(conf, dkfz_embl_results_info):
-    # download_dir
-    download_dir = conf.get('download_dir')
-
-    # upload_dir
-    upload_dir = conf.get('upload_dir')
-
-    # manifest_file
-    manifest_file = conf.get('manifest_file')
-
-    # read the manifest info
-    manifest = {}
-    read_manifest(manifest, manifest_file)
-
-    with open(manifest_file, 'aw') as m:
-        with open(dkfz_embl_results_info, 'r') as f:
-            for line in f:
-                if line.startswith('donor_unique_id'): continue
-                if len(line.strip()) == 0: continue
-                donor_unique_id, submitter_donor_id, dcc_project_code, embl_gnos_id, embl_gnos_repo, \
-                    dkfz_gnos_id, dkfz_gnos_repo = str.split(line.rstrip(),'\t')
-                if manifest.get('donor_unique_id') and donor_unique_id in manifest.get('donor_unique_id'): continue
-                embl_xml_file = download_metadata_xml(embl_gnos_id, embl_gnos_repo, 'embl', download_dir)
-                dkfz_xml_file = download_metadata_xml(dkfz_gnos_id, dkfz_gnos_repo, 'dkfz', download_dir)
-                if embl_xml_file and os.path.isfile(embl_xml_file) and dkfz_xml_file and os.path.isfile(dkfz_xml_file):
-                    merged_analysis_xml = merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, embl_gnos_id, dkfz_gnos_id)
-                    if merged_analysis_xml:
-                        new_gnos_id = generate_uuid()
-                        upload_xml_file = upload_dir + embl_gnos_id + '.' + dkfz_gnos_id + '/' + new_gnos_id + '/analysis.xml'
-                        # Create the symlinks for all the files
-                        fixed_files = merged_analysis_xml.get('ANALYSIS_SET').get('ANALYSIS').get('DATA_BLOCK').get('FILES').get('FILE')
-                        dst_dir = upload_dir + embl_gnos_id + '.' + dkfz_gnos_id + '/' + new_gnos_id
-                        create_file_symlinks(fixed_files, download_dir, dst_dir, embl_gnos_id, dkfz_gnos_id)
-                        # Write the merged_analysis_xml
-                        merged_xml = xmltodict.unparse(merged_analysis_xml, pretty=True)
-                        write_to_xml(upload_xml_file, merged_xml)
-                        # Write to the manifest_file with new_gnos_id and show the donors which have complete the dkfz/embl merge
-                        new_line = '\t'.join([donor_unique_id, submitter_donor_id, dcc_project_code, embl_gnos_id, embl_gnos_repo, dkfz_gnos_id, dkfz_gnos_repo, new_gnos_id])
-                        m.write(new_line + '\n')
-
-
-def merge_metadata_xml(embl_xml_file, dkfz_xml_file, upload_dir, download_dir, embl_gnos_id, dkfz_gnos_id):
-    embl_analysis_xml = get_analysis_xml(embl_xml_file)
-    dkfz_analysis_xml = get_analysis_xml(dkfz_xml_file)
-    merged_analysis_xml = copy.deepcopy(embl_analysis_xml)
-
-    embl_analysis = embl_analysis_xml.get('ANALYSIS_SET').get('ANALYSIS')
-    dkfz_analysis = dkfz_analysis_xml.get('ANALYSIS_SET').get('ANALYSIS')
-    merged_analysis = merged_analysis_xml.get('ANALYSIS_SET').get('ANALYSIS')
-
-    # Description
-    merged_analysis['DESCRIPTION'] = 'New merged dkfz/embl xml'
-    # Pipe_line
-    dkfz_analysis.get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION')['STEP_INDEX'] = 2
-    merged_analysis.get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING')['PIPELINE'] = \
-        [embl_analysis.get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE'), \
-            dkfz_analysis.get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')]
-    
-    # Data_block
-    embl_data_block_files = embl_analysis.get('DATA_BLOCK').get('FILES').get('FILE')
-    embl_data_block_files = update_fixed_data_block_files(embl_data_block_files, 'embl', upload_dir, download_dir, embl_gnos_id)
-
-    dkfz_data_block_files = dkfz_analysis.get('DATA_BLOCK').get('FILES').get('FILE')
-    dkfz_data_block_files = update_fixed_data_block_files(dkfz_data_block_files, 'dkfz', upload_dir, download_dir, dkfz_gnos_id)
-
-
-    if not embl_data_block_files or not dkfz_data_block_files: return
-    merged_analysis.get('DATA_BLOCK').get('FILES')['FILE'] = embl_data_block_files + dkfz_data_block_files
-
-    # Analysis_attributes
-    embl_analysis_attrib = get_analysis_attrib(embl_analysis)
-    dkfz_analysis_attrib = get_analysis_attrib(dkfz_analysis)
-    embl_attrib_set = set(embl_analysis_attrib.items())
-    dkfz_attrib_set = set(dkfz_analysis_attrib.items())
-    merged_attrib_set = embl_attrib_set | dkfz_attrib_set
-    analysis_attrib = generate_analysis_attrib_from_set(merged_attrib_set, embl_attrib_set, dkfz_attrib_set)
-    merged_analysis.get('ANALYSIS_ATTRIBUTES')['ANALYSIS_ATTRIBUTE'] = generate_analysis_attrib_list_from_dict(analysis_attrib)
-
-    return merged_analysis_xml
 
 
 def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, download_dir, gnos_id):
@@ -174,97 +90,10 @@ def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, d
     return data_block_files_new
 
 
-def create_file_symlinks(file_list, src_dir, dst_dir, embl_gnos_id, dkfz_gnos_id):
-    for f in file_list:
-        fname = str(f.get('@filename'))
-        if 'dkfz' in fname:
-            f_fixed_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/fixed_files/' + f.get('@filename')
-            f_src = src_dir + '/dkfz/' + dkfz_gnos_id + '/' + f.get('@filename')
-        else:
-            f_fixed_src = src_dir + '/embl/' + embl_gnos_id + '/fixed_files/' + f.get('@filename')
-            f_src = src_dir + '/embl/' + embl_gnos_id + '/' + f.get('@filename')           
-        f_dst = dst_dir + '/' + f.get('@filename')
-        #print f_dst
-        if not os.path.isdir(os.path.dirname(f_dst)):
-            os.makedirs(os.path.dirname(f_dst))
-        if os.path.isfile(f_fixed_src):
-            os.symlink(f_fixed_src, f_dst)
-        elif os.path.isfile(f_src):
-            os.symlink(f_src, f_dst)
-        else: # should not happen
-            logger.warning('file: {} is missing in the downloads folder'.format(f.get('@filename')))
-            return 0
-
-
 def generate_md5(file):
     with open (file, 'r') as x: data = x.read()
     md5 = hashlib.md5(data).hexdigest()
-
     return md5
-
-
-
-def write_to_xml(fname, xml):      
-    if not os.path.exists(os.path.dirname(fname)):
-        os.makedirs(os.path.dirname(fname))
-    with open(fname, "w") as f:
-        f.write(xml)
-
-
-def generate_analysis_attrib_list_from_dict(analysis_attrib):
-    analysis_attrib_list = []
-    for k,v in analysis_attrib.iteritems():
-        element = OrderedDict()
-        element['TAG'] = k
-        element['VALUE'] = v
-        analysis_attrib_list.append(element)
-    return analysis_attrib_list
-
-
-def generate_analysis_attrib_from_set(merged_attrib_set, embl_attrib_set, dkfz_attrib_set):
-    analysis_attrib = {}
-    for a in merged_attrib_set:
-        if not analysis_attrib.get(a[0]):
-            analysis_attrib[a[0]] = a[1]  
-
-        elif a[0] == 'variant_pipeline_output_info':
-            current_output = json.loads(a[1]).get('workflow_outputs') if a[1] is not None else []
-            current_files = {}
-            for c_out in current_output:
-                if not c_out.get('files'): continue
-                current_files = c_out.get('files')
-
-            merged_output = json.loads(analysis_attrib.get(a[0])).get('workflow_outputs') if analysis_attrib.get(a[0]) else []
-            for m_out in merged_output:
-                if not m_out.get('files'): continue
-                merged_files = m_out.get('files')
-            merged_files.update(current_files)
-            analysis_attrib[a[0]] = json.dumps(merged_output)
-
-        elif a[0] == 'variant_workflow_name':
-            analysis_attrib[a[0]] = 'DKFZ_EMBL_Merged'
-
-        else:
-            if a in embl_attrib_set:
-                analysis_attrib[a[0]+'_embl'] = a[1]
-                analysis_attrib[a[0]+'_dkfz'] = analysis_attrib.get(a[0])
-            elif a in dkfz_attrib_set:
-                analysis_attrib[a[0]+'_embl'] = analysis_attrib.get(a[0]) 
-                analysis_attrib[a[0]+'_dkfz'] = a[1]       
-            else:
-                logger.warning('unknown analysis attribute: {}'.format(a))
-            del analysis_attrib[a[0]]    
-    return analysis_attrib           
-
- 
-def get_analysis_attrib(analysis):
-    analysis_attrib = {}
-    for a in analysis['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
-        if not analysis_attrib.get(a['TAG']):
-            analysis_attrib[a['TAG']] = a['VALUE']
-        else:
-            logger.warning('duplicated analysis attribute key: {}'.format(a['TAG']))
-    return analysis_attrib
 
 
 def get_gnos_analysis_object(f):
