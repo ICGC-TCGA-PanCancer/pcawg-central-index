@@ -137,9 +137,9 @@ es_queries = [
                   "size": 10000
         }
 },
-# query 2: sanger vcf missing input
+# query 2: variant calling missing input
 {
-      "name": "sanger_vcf_missing_input",
+      "name": "variant_callings_missing_input",
       "content":{
           "fields":[
                 "donor_unique_id"
@@ -154,14 +154,7 @@ es_queries = [
                           },
                           {
                             "terms":{
-                              "flags.is_sanger_variant_calling_performed":[
-                                "T"
-                              ]
-                            }
-                          },
-                          {
-                            "terms": {
-                              "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
+                              "flags.is_bam_used_by_variant_calling_missing":[
                                 "T"
                               ]
                             }
@@ -743,6 +736,7 @@ def add_report_info_0(report_info, report_info_list, es_json):
         report_info['gnos_metadata_url'] = gnos_repo + 'cghub/metadata/analysisFull/' + report_info['gnos_id']
         report_info_list.append(copy.deepcopy(report_info))
 
+
 def add_report_info_1(report_info, report_info_list, es_json):
     if es_json.get('normal_alignment_status'):
         add_report_info_1_aliquot(es_json.get('normal_alignment_status'), report_info, report_info_list)
@@ -768,26 +762,40 @@ def add_report_info_1_aliquot(aliquot, report_info, report_info_list):
     return report_info_list
 
 def add_report_info_2(report_info, report_info_list, es_json):
-    sanger_vcf = es_json.get('variant_calling_results').get('sanger_variant_calling')
-    report_info['sanger_vcf_gnos_id'] = sanger_vcf.get('gnos_id')
-    report_info['normal_aliquot_id'] = None
-    report_info['normal_submitter_specimen'] = None
-    report_info['normal_bam_gnos_id'] = None
-    report_info['is_normal_bam_used_by_sanger_missing'] = sanger_vcf.get('is_normal_bam_used_by_sanger_missing')
-    report_info['tumor_aliquot_id'] = []
-    report_info['tumor_submitter_specimen'] = []
-    report_info['tumor_bam_gnos_id'] = []
-    report_info['is_tumor_bam_used_by_sanger_missing'] = sanger_vcf.get('is_tumor_bam_used_by_sanger_missing')    
-    for vcf_input in sanger_vcf.get('workflow_details').get('variant_pipeline_input_info'):
-        if 'normal' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-            report_info['normal_aliquot_id'] = vcf_input.get('specimen')
-            report_info['normal_submitter_specimen'] = vcf_input.get('attributes').get('submitter_specimen_id')
-            report_info['normal_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
-        elif 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-            report_info['tumor_aliquot_id'].append(vcf_input.get('specimen'))
-            report_info['tumor_submitter_specimen'].append(vcf_input.get('attributes').get('submitter_specimen_id'))
-            report_info['tumor_bam_gnos_id'].append(vcf_input.get('attributes').get('analysis_id'))
-    report_info_list.append(copy.deepcopy(report_info))
+    if es_json.get('variant_calling_results'):
+        vcf = es_json.get('variant_calling_results')
+        report_info['normal_aliquot_id'] = es_json.get('normal_alignment_status').get('aliquot_id')
+        report_info['normal_bam_gnos_id'] = es_json.get('normal_alignment_status').get('aligned_bam').get('gnos_id')
+        report_info['tumor_aliquot_id'] = es_json.get('all_tumor_specimen_aliquots')
+        report_info['tumor_bam_gnos_id'] = []
+        for bam in es_json.get('tumor_alignment_status'):
+            report_info['tumor_bam_gnos_id'].append(bam.get('aligned_bam').get('gnos_id'))
+        for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+            if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get('is_bam_used_by_' + workflow + '_missing'):
+                report_info['workflow_name'] = workflow+'_variant_calling'
+                report_info['vcf_gnos_repo'] = vcf.get(workflow+'_variant_calling').get('gnos_repo')[0]
+                report_info['vcf_gnos_id'] = vcf.get(workflow+'_variant_calling').get('gnos_id')  
+                report_info['used_normal_aliquot_id'] = None
+                report_info['used_normal_bam_gnos_id'] = None
+                report_info['used_normal_bam_gnos_url'] = None
+                report_info['is_normal_bam_used_by_vcf_missing'] = vcf.get(workflow+'_variant_calling').get('is_normal_bam_used_by_'+workflow+'_missing')
+                report_info['used_tumor_aliquot_id'] = []
+                report_info['used_tumor_bam_gnos_id'] = []
+                report_info['used_tumor_bam_gnos_url'] = []
+                report_info['is_tumor_bam_used_by_vcf_missing'] = vcf.get(workflow+'_variant_calling').get('is_tumor_bam_used_by_'+workflow+'_missing')    
+                for vcf_input in vcf.get(workflow+'_variant_calling').get('workflow_details').get('variant_pipeline_input_info'):
+                    if 'normal' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
+                        report_info['used_normal_aliquot_id'] = vcf_input.get('specimen')
+                        report_info['used_normal_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
+                        report_info['used_normal_bam_gnos_url'] = vcf_input.get('attributes').get('analysis_url')
+                    if 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
+                        report_info['used_tumor_aliquot_id'].append(vcf_input.get('specimen'))
+                        report_info['used_tumor_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
+                        report_info['used_tumor_bam_gnos_url'].append(vcf_input.get('attributes').get('analysis_url'))
+                
+                report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
 
 
 def add_report_info_3(report_info, report_info_list, es_json):
