@@ -636,7 +636,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_normal_star_rna_seq_alignment_performed': False,
             'is_normal_tophat_rna_seq_alignment_performed': False,
             'is_tumor_star_rna_seq_alignment_performed': False,
-            'is_tumor_tophat_rna_seq_alignment_performed': False
+            'is_tumor_tophat_rna_seq_alignment_performed': False,
+            'exists_vcf_file_prefix_mismatch': False
         },
         'normal_specimen': {},
         'aligned_tumor_specimens': [],
@@ -1361,6 +1362,16 @@ def add_vcf_entry(donor, vcf_entry):
         if vcf_input_t_bam != tumor_alignment_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_tumor_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+
+        # add the flags of exists_{workflow}_file_prefix_mismatch
+        donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = False
+        # scan all the files under **_variant_calling
+        file_prefix = set()
+        for f in donor.get('variant_calling_results').get(workflow + '_variant_calling').get('files'):
+            file_prefix.add(f.get('file_name').split('.')[0])
+        if not file_prefix == donor.get('all_tumor_specimen_aliquots'):
+            donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = True
+            donor.get('flags')['exists_vcf_file_prefix_mismatch'] = True
     
     # update the flags for sanger, dkfz_embl
     for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz']:
