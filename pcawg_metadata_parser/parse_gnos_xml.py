@@ -405,9 +405,15 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         vcf_entry['vcf_workflow_type'] = 'embl'
 
     elif workflow_name == 'DKFZPancancerCnIndelSnv' and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz'            
+        vcf_entry['vcf_workflow_type'] = 'dkfz'      
 
-    elif workflow_name.startswith('DKFZ_EMBL_Combined'):
+    elif workflow_name == 'EMBLDKFZPancancerStrCnIndelSNV' and LooseVersion(workflow_version) >= LooseVersion('1.0.5'):
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'      
+
+    elif workflow_name == 'DKFZ_EMBL_Combined_HPC':
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+
+    elif workflow_name == 'DKFZ_EMBL_Merged':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
 
     elif workflow_name == 'BROAD_MUSE_PIPELINE':
