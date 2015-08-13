@@ -821,6 +821,9 @@
                },
                "exists_vcf_file_prefix_mismatch":{
                   "type":"boolean"
+               },
+               "is_bam_used_by_variant_calling_missing":{
+                  "type":"boolean"
                }
             }
          },
