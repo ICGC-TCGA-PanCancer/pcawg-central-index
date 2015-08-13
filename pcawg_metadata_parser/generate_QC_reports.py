@@ -515,6 +515,50 @@ es_queries = [
     }
 },
 
+# query 9: get donors exist vcf file prefix mismatch
+{
+      "name": "donors_exist_vcf_file_prefix_mismatch",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.exists_vcf_file_prefix_mismatch":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 
 ]
 
@@ -577,7 +621,29 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 8:
         add_report_info_8(report_info, report_info_list, es_json)
 
+    if q_index == 9:
+        add_report_info_9(report_info, report_info_list, es_json)
+
     return report_info_list
+
+
+def add_report_info_9(report_info, report_info_list, es_json):
+    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+    if es_json.get('variant_calling_results'):
+        vcf = es_json.get('variant_calling_results')
+        for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+            if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get('exists_' + workflow + '_file_prefix_mismatch'):
+                report_info['workflow_name'] = workflow+'_variant_calling'
+                report_info['gnos_repo'] = vcf.get(workflow+'_variant_calling').get('gnos_repo')[0]
+                report_info['gnos_id'] = vcf.get(workflow+'_variant_calling').get('gnos_id')
+                file_prefix = set()
+                for f in vcf.get(workflow+'_variant_calling').get('files'):
+                    file_prefix.add(f.get('file_name').split('.')[0])
+                report_info['file_prefix'] = file_prefix
+                report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
+
 
 def add_report_info_8_aliquot(aliquot, report_info, report_info_list):
     report_info['aliquot_id'] = aliquot.get('aliquot_id')
