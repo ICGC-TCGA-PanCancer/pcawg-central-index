@@ -818,6 +818,9 @@
                "vcf_in_jamboree":{
                   "type":"string",
                   "index":"not_analyzed"
+               },
+               "exists_vcf_file_prefix_mismatch":{
+                  "type":"boolean"
                }
             }
          },
