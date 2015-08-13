@@ -637,7 +637,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_normal_tophat_rna_seq_alignment_performed': False,
             'is_tumor_star_rna_seq_alignment_performed': False,
             'is_tumor_tophat_rna_seq_alignment_performed': False,
-            'exists_vcf_file_prefix_mismatch': False
+            'exists_vcf_file_prefix_mismatch': False,
+            'is_bam_used_by_variant_calling_missing': False
         },
         'normal_specimen': {},
         'aligned_tumor_specimens': [],
@@ -1358,10 +1359,12 @@ def add_vcf_entry(donor, vcf_entry):
         if not has_n_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_normal_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+            donor.get('flags')['is_bam_used_by_variant_calling_missing'] = True
 
         if vcf_input_t_bam != tumor_alignment_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_tumor_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+            donor.get('flags')['is_bam_used_by_variant_calling_missing'] = True
 
         # add the flags of exists_{workflow}_file_prefix_mismatch
         donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = False
