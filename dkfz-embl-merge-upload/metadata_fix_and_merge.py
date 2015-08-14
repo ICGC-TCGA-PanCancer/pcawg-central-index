@@ -192,9 +192,9 @@ def create_merged_gnos_submission(upload_dir, gnos_analysis_objects):
 
         elif attr.get('TAG') in ('dcc_project_code',
                                'submitter_donor_id',
+                               'PM',
                                'alignment_workflow_name',
                                'alignment_workflow_source_url',
-                               'PM',
                                'alignment_workflow_version',
                                'alignment_workflow_bundle_url',
                                'variant_pipeline_input_info',
@@ -410,14 +410,18 @@ def get_dkfz_files(gnos_analysis_object, fixed_file_dir):
 
 
 def main():
-    if len(sys.argv) == 1: sys.exit('Must specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.')
+    if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
     work_dir = sys.argv[1]
     if not os.path.isdir(work_dir):
         sys.exit('Specified working directory does not exist.')
     work_dir = os.path.abspath(work_dir)
 
-    #donor_list_file = 'to_be_fixed_donor_list.txt'
-    donor_list_file = 'test_donor_list.txt'
+    if work_dir == os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test'):
+        print('\nUsing \'test\' folder as working directory ...')
+        test = True
+        donor_list_file = 'test_donor_list.txt'
+    else:
+        donor_list_file = 'to_be_fixed_donor_list.txt'
 
     if not os.path.exists(donor_list_file): sys.exit('Helper file missing!')
     donors_to_be_fixed = get_fix_donor_list (donor_list_file)
@@ -425,7 +429,7 @@ def main():
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
     logger.setLevel(logging.INFO)
-    ch.setLevel(logging.WARN)
+    ch.setLevel(logging.ERROR)
 
     log_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), current_time + '.process.log')
 
@@ -438,6 +442,7 @@ def main():
     logger.addHandler(ch)
 
     # validate working direcotry first
+    print('\nValidating working directory...')
     validate_work_dir(work_dir, donors_to_be_fixed)
 
     # dectect whether uploads dir exists, stop if exists
@@ -446,15 +451,22 @@ def main():
         try:
             os.rmdir(upload_dir)
         except OSError as ex:
-            sys.exit('None empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.'.format(upload_dir))
+            sys.exit('None empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.\n'.format(upload_dir))
 
     os.mkdir(upload_dir)
 
     # now download metadata xml
-    download_metadata_files(work_dir, donors_to_be_fixed)
+    if not test:
+        logger.info('Downloading GNOS metadata XML...')
+        download_metadata_files(work_dir, donors_to_be_fixed)
 
     # now process metadata xml fix and merge
+    print('Preparing new GNOS submissions...')
     metadata_fix_and_merge(work_dir, donors_to_be_fixed)
+
+    print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
+    print('Processing log file: {}'.format(log_file))
+    print('Done!\n')
 
 
 if __name__ == "__main__":
