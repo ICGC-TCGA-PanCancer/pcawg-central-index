@@ -1,0 +1,37 @@
+downloads
+├── dkfz
+│   └── 0eaa9e80-c9fb-4459-895d-00bd897e69ec
+│       ├── 0eaa9e80-c9fb-4459-895d-00bd897e69ec.xml
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.tar.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.vcf.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150604.somatic.cnv.vcf.gz.tbi
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.germline.indel.vcf.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.tar.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-indelCalling_1-0-132-1.20150604.somatic.indel.vcf.gz.tbi
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.germline.snv_mnv.vcf.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.germline.snv_mnv.vcf.gz.tbi
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.tar.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.vcf.gz
+│       ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-snvCalling_1-0-132-1.20150604.somatic.snv_mnv.vcf.gz.tbi
+│       └── fixed_files
+│           ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150814.somatic.cnv.tar.gz
+│           ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150814.somatic.cnv.vcf.gz
+│           └── d5423a93-0a72-43cf-a7ae-9011f47553c7.dkfz-copyNumberEstimation_1-0-132-1.20150814.somatic.cnv.vcf.gz.tbi
+└── embl
+    └── c3d41bd1-0194-4341-a5dd-a15878392416
+        ├── c3d41bd1-0194-4341-a5dd-a15878392416.xml
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.bedpe.txt.tar.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.readname.txt.tar.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.vcf.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.germline.sv.vcf.gz.tbi
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.bedpe.txt.tar.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.readname.txt.tar.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.vcf.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.somatic.sv.vcf.gz.tbi
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.cov.plots.tar.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.cov.tar.gz
+        ├── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.vcf.gz
+        └── d5423a93-0a72-43cf-a7ae-9011f47553c7.embl-delly_1-0-0-preFilter.20150604.sv.vcf.gz.tbi
+
+5 directories, 29 files

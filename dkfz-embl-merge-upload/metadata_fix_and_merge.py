@@ -37,10 +37,8 @@ def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir):
         sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
     else:
         metadata_xml_str = response.text
-        gnos_ao = xmltodict.parse(metadata_xml_str).get('ResultSet').get('Result')
-        ao_uuid = gnos_ao.get('analysis_id')
 
-        metadata_xml_file = metadata_xml_dir + '/' + ao_uuid  + '.xml'
+        metadata_xml_file = metadata_xml_dir + '/' + gnos_id  + '.xml'
         with open(metadata_xml_file, 'w') as f:  # write to metadata xml file now
             f.write(metadata_xml_str.encode('utf8'))
 
@@ -451,7 +449,7 @@ def main():
     os.mkdir(upload_dir)
 
     # now download metadata xml
-    #download_metadata_files(work_dir, donors_to_be_fixed)
+    download_metadata_files(work_dir, donors_to_be_fixed)
 
     # now process metadata xml fix and merge
     metadata_fix_and_merge(work_dir, donors_to_be_fixed)
