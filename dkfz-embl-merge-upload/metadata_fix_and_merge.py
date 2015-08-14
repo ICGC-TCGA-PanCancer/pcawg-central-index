@@ -451,7 +451,7 @@ def main():
         try:
             os.rmdir(upload_dir)
         except OSError as ex:
-            sys.exit('None empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.\n'.format(upload_dir))
+            sys.exit('\nStop: none empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.\n'.format(upload_dir))
 
     os.mkdir(upload_dir)
 
