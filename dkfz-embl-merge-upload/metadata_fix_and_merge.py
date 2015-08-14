@@ -172,9 +172,9 @@ def create_merged_gnos_submission(upload_dir, gnos_analysis_objects):
 
     # merge PIPE_SECTION
     dkfz_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION')['STEP_INDEX'] = 2
-    merged_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING')['PIPELINE'] = \
-        [embl_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE'), \
-            dkfz_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')]
+    merged_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')['PIPE_SECTION'] = \
+        [embl_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')['PIPE_SECTION'], \
+            dkfz_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')['PIPE_SECTION']]
 
     # merge FILES
     merged_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('DATA_BLOCK').get('FILES')['FILE'] = \
@@ -244,7 +244,7 @@ def create_merged_gnos_submission(upload_dir, gnos_analysis_objects):
                 attr['VALUE'] = ''
 
         else:
-            attr['VALUE'] = 'NEW'
+            pass  # all others, leave it unchanged
 
     new_analysis_xml_str = xmltodict.unparse(merged_analysis_object, pretty=True)
     # print new_analysis_xml  # debug only
@@ -276,7 +276,8 @@ def merge_metrics_jsons(metrics, embl_jsons_str, dkfz_jsons_str):
     merged_metrics = {
         metrics:{
             "embl": embl_attributes.get(metrics),
-            "dkfz": dkfz_attributes.get(metrics)
+            "dkfz": dkfz_attributes.get(metrics),
+            "_note_": "information kept here may not be accurate for DKFZ as its results have been patched"
         }
     }
     return json.dumps(merged_metrics)
@@ -296,7 +297,8 @@ def merge_pipeline_output_info_jsons(embl_jsons_str, dkfz_jsons_str):
     merged_output_info = {
         'workflow_outputs':{
             "embl": embl_attributes,
-            "dkfz": dkfz_attributes
+            "dkfz": dkfz_attributes,
+            "_note_": "information kept here may not be accurate for DKFZ as its results have been patched"
         }
     }
     return json.dumps(merged_output_info)
