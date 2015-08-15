@@ -115,11 +115,15 @@ def validate_work_dir(work_dir, donors_to_be_fixed):
         for caller in ('dkfz', 'embl'):
             gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, donor.get(caller + '_gnos_id'))
             if not os.path.isdir(gnos_entry_dir):
-                logger.error('Expected GNOS entry does not exist: {}'.format(gnos_entry_dir))
+                logger.error('Expected GNOS entry does not exist: {}. Please ensure all GNOS entries are downloaded.'.format(gnos_entry_dir))
                 sys.exit('Validating working directory failed, please check log for details.')
-            if caller == 'dkfz' and not os.path.isdir(os.path.join(gnos_entry_dir, 'fixed_files')):
-                logger.error('Expected folder for DKFZ fixed files does not exist: {}'.format(os.path.join(gnos_entry_dir, 'fixed_files')))
-                sys.exit('Validating working directory failed, please check log for details.')
+            if caller == 'dkfz':
+                if not os.path.isdir(os.path.join(gnos_entry_dir, 'fixed_files')):
+                    logger.error('Expected folder for DKFZ fixed files does not exist: {}'.format(os.path.join(gnos_entry_dir, 'fixed_files')))
+                    sys.exit('Validating working directory failed, please check log for details.')
+                elif not set(glob.glob(gnos_entry_dir+'/fixed_files/*.gz') + glob.glob(gnos_entry_dir+'/fixed_files/*.gz.tbi')):  # no fixed file
+                    logger.error('No DKFZ fixed files detected in: {}'.format(os.path.join(gnos_entry_dir, 'fixed_files')))
+                    sys.exit('Validating working directory failed, please check log for details.')
 
 
 def download_metadata_files(work_dir, donors_to_be_fixed):
