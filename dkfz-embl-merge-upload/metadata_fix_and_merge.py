@@ -88,10 +88,12 @@ def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, d
     return data_block_files_new
 
 
-def generate_md5(file):
-    with open (file, 'r') as x: data = x.read()
-    md5 = hashlib.md5(data).hexdigest()
-    return md5
+def generate_md5(fname):
+    hash = hashlib.md5()
+    with open(fname) as f:
+        for chunk in iter(lambda: f.read(4096), ""):
+            hash.update(chunk)
+    return hash.hexdigest()
 
 
 def get_gnos_analysis_object(f):
