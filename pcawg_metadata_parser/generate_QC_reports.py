@@ -19,6 +19,7 @@ from itertools import izip
 from distutils.version import LooseVersion
 import csv
 import shutil
+from operator import itemgetter
 
 es_queries = [
 # query 0: PCAWGDATA-45_Sanger GNOS entries with study field ends with _test
@@ -136,9 +137,9 @@ es_queries = [
                   "size": 10000
         }
 },
-# query 2: sanger vcf missing input
+# query 2: variant calling missing input
 {
-      "name": "sanger_vcf_missing_input",
+      "name": "variant_callings_missing_input",
       "content":{
           "fields":[
                 "donor_unique_id"
@@ -153,14 +154,7 @@ es_queries = [
                           },
                           {
                             "terms":{
-                              "flags.is_sanger_variant_calling_performed":[
-                                "T"
-                              ]
-                            }
-                          },
-                          {
-                            "terms": {
-                              "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
+                              "flags.is_bam_used_by_variant_calling_missing":[
                                 "T"
                               ]
                             }
@@ -449,7 +443,115 @@ es_queries = [
               },
               "size": 10000
       }
-}
+},
+
+# query 8: get donors exist_specimen_type_mismatch
+{
+    "name": "aliquots_with_mismatch_specimen_type",
+    "content":{
+        "fields":["donor_unique_id"],  
+        "filter":{
+          "bool":{
+             "must":[
+                {
+                   "type":{
+                      "value":"donor"
+                   }
+                }                    
+              ],
+              "should": [
+                            {
+                               "terms":{
+                                  "normal_alignment_status.exist_specimen_type_mismatch":[
+                                     "T"
+                                  ]
+                               }
+                            },
+                            {
+                              "nested": {
+                                "path": "tumor_alignment_status",
+                                "filter":{
+                                  "bool": {
+                                    "should": [
+                                      {
+                                         "terms":{
+                                            "tumor_alignment_status.exist_specimen_type_mismatch":[
+                                               "T"
+                                            ]
+                                         }
+                                      }                         
+                                    ]
+                                  }
+                                }
+                              }
+                            }                                   
+                          ],
+              "must_not": [
+                        {
+                          "terms": {
+                            "flags.is_manual_qc_failed": [
+                                    "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                        }
+                      ]
+                  }
+          },
+          "size": 10000
+    }
+},
+
+# query 9: get donors exist vcf file prefix mismatch
+{
+      "name": "donors_exist_vcf_file_prefix_mismatch",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.exists_vcf_file_prefix_mismatch":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 
 ]
 
@@ -508,6 +610,61 @@ def create_report_info(donor_unique_id, es_json, q_index):
 
     if q_index in [6, 7]:
         add_report_info_6_7(report_info, report_info_list, es_json)
+
+    if q_index == 8:
+        add_report_info_8(report_info, report_info_list, es_json)
+
+    if q_index == 9:
+        add_report_info_9(report_info, report_info_list, es_json)
+
+    return report_info_list
+
+
+def add_report_info_9(report_info, report_info_list, es_json):
+    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+    if es_json.get('variant_calling_results'):
+        vcf = es_json.get('variant_calling_results')
+        for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+            if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get('exists_' + workflow + '_file_prefix_mismatch'):
+                report_info['workflow_name'] = workflow+'_variant_calling'
+                report_info['gnos_repo'] = vcf.get(workflow+'_variant_calling').get('gnos_repo')[0]
+                report_info['gnos_id'] = vcf.get(workflow+'_variant_calling').get('gnos_id')
+                file_prefix = set()
+                for f in vcf.get(workflow+'_variant_calling').get('files'):
+                    file_prefix.add(f.get('file_name').split('.')[0])
+                report_info['file_prefix'] = file_prefix
+                report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
+
+
+def add_report_info_8_aliquot(aliquot, report_info, report_info_list):
+    report_info['aliquot_id'] = aliquot.get('aliquot_id')
+    report_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
+    report_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
+    report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')   
+    report_info['aligned'] = True if aliquot.get('aligned') else False
+    report_info['exist_aligned_bam_specimen_type_mismatch'] = aliquot.get('exist_aligned_bam_specimen_type_mismatch')
+    report_info['exist_unaligned_bam_specimen_type_mismatch'] = aliquot.get('exist_unaligned_bam_specimen_type_mismatch')
+    report_info['aligned_bam_gnos_repo'] = None
+    report_info['aligned_bam_gnos_id'] = None
+
+    if aliquot.get('exist_specimen_type_mismatch'):
+        if aliquot.get('exist_aligned_bam_specimen_type_mismatch'):            
+            report_info['aligned_bam_gnos_repo'] = aliquot.get('aligned_bam').get('gnos_repo')
+            report_info['aligned_bam_gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
+        report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
+
+
+def add_report_info_8(report_info, report_info_list, es_json):
+    if es_json.get('normal_alignment_status'):
+        add_report_info_8_aliquot(es_json.get('normal_alignment_status'), report_info, report_info_list)
+
+    if es_json.get('tumor_alignment_status'):
+        for aliquot in es_json.get('tumor_alignment_status'):
+            add_report_info_8_aliquot(aliquot, report_info, report_info_list)
 
     return report_info_list
 
@@ -579,6 +736,7 @@ def add_report_info_0(report_info, report_info_list, es_json):
         report_info['gnos_metadata_url'] = gnos_repo + 'cghub/metadata/analysisFull/' + report_info['gnos_id']
         report_info_list.append(copy.deepcopy(report_info))
 
+
 def add_report_info_1(report_info, report_info_list, es_json):
     if es_json.get('normal_alignment_status'):
         add_report_info_1_aliquot(es_json.get('normal_alignment_status'), report_info, report_info_list)
@@ -604,26 +762,40 @@ def add_report_info_1_aliquot(aliquot, report_info, report_info_list):
     return report_info_list
 
 def add_report_info_2(report_info, report_info_list, es_json):
-    sanger_vcf = es_json.get('variant_calling_results').get('sanger_variant_calling')
-    report_info['sanger_vcf_gnos_id'] = sanger_vcf.get('gnos_id')
-    report_info['normal_aliquot_id'] = None
-    report_info['normal_submitter_specimen'] = None
-    report_info['normal_bam_gnos_id'] = None
-    report_info['is_normal_bam_used_by_sanger_missing'] = sanger_vcf.get('is_normal_bam_used_by_sanger_missing')
-    report_info['tumor_aliquot_id'] = []
-    report_info['tumor_submitter_specimen'] = []
-    report_info['tumor_bam_gnos_id'] = []
-    report_info['is_tumor_bam_used_by_sanger_missing'] = sanger_vcf.get('is_tumor_bam_used_by_sanger_missing')    
-    for vcf_input in sanger_vcf.get('workflow_details').get('variant_pipeline_input_info'):
-        if 'normal' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-            report_info['normal_aliquot_id'] = vcf_input.get('specimen')
-            report_info['normal_submitter_specimen'] = vcf_input.get('attributes').get('submitter_specimen_id')
-            report_info['normal_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
-        elif 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-            report_info['tumor_aliquot_id'].append(vcf_input.get('specimen'))
-            report_info['tumor_submitter_specimen'].append(vcf_input.get('attributes').get('submitter_specimen_id'))
-            report_info['tumor_bam_gnos_id'].append(vcf_input.get('attributes').get('analysis_id'))
-    report_info_list.append(copy.deepcopy(report_info))
+    if es_json.get('variant_calling_results'):
+        vcf = es_json.get('variant_calling_results')
+        report_info['normal_aliquot_id'] = es_json.get('normal_alignment_status').get('aliquot_id')
+        report_info['normal_bam_gnos_id'] = es_json.get('normal_alignment_status').get('aligned_bam').get('gnos_id')
+        report_info['tumor_aliquot_id'] = es_json.get('all_tumor_specimen_aliquots')
+        report_info['tumor_bam_gnos_id'] = []
+        for bam in es_json.get('tumor_alignment_status'):
+            report_info['tumor_bam_gnos_id'].append(bam.get('aligned_bam').get('gnos_id'))
+        for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+            if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get('is_bam_used_by_' + workflow + '_missing'):
+                report_info['workflow_name'] = workflow+'_variant_calling'
+                report_info['vcf_gnos_repo'] = vcf.get(workflow+'_variant_calling').get('gnos_repo')[0]
+                report_info['vcf_gnos_id'] = vcf.get(workflow+'_variant_calling').get('gnos_id')  
+                report_info['used_normal_aliquot_id'] = None
+                report_info['used_normal_bam_gnos_id'] = None
+                report_info['used_normal_bam_gnos_url'] = None
+                report_info['is_normal_bam_used_by_vcf_missing'] = vcf.get(workflow+'_variant_calling').get('is_normal_bam_used_by_'+workflow+'_missing')
+                report_info['used_tumor_aliquot_id'] = []
+                report_info['used_tumor_bam_gnos_id'] = []
+                report_info['used_tumor_bam_gnos_url'] = []
+                report_info['is_tumor_bam_used_by_vcf_missing'] = vcf.get(workflow+'_variant_calling').get('is_tumor_bam_used_by_'+workflow+'_missing')    
+                for vcf_input in vcf.get(workflow+'_variant_calling').get('workflow_details').get('variant_pipeline_input_info'):
+                    if 'normal' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
+                        report_info['used_normal_aliquot_id'] = vcf_input.get('specimen')
+                        report_info['used_normal_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
+                        report_info['used_normal_bam_gnos_url'] = vcf_input.get('attributes').get('analysis_url')
+                    if 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
+                        report_info['used_tumor_aliquot_id'].append(vcf_input.get('specimen'))
+                        report_info['used_tumor_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
+                        report_info['used_tumor_bam_gnos_url'].append(vcf_input.get('attributes').get('analysis_url'))
+                
+                report_info_list.append(copy.deepcopy(report_info))
+
+    return report_info_list
 
 
 def add_report_info_3(report_info, report_info_list, es_json):
@@ -747,8 +919,10 @@ def main(argv=None):
                     if not row.get('gnos_id') in gnos_id_set:
                         row_order = OrderedDict()
                         for fn in reader.fieldnames:
-                            row_order[fn] = row.get(fn)
+                            row_order[fn.strip('#')] = row.get(fn)
                         report_info_list_full.append(row_order)
+
+        report_info_list_full.sort(key=itemgetter('donor_unique_id'))
 
         header = True  
         for r in report_info_list_full:

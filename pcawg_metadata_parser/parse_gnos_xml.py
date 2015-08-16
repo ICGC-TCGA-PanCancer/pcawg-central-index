@@ -636,7 +636,9 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_normal_star_rna_seq_alignment_performed': False,
             'is_normal_tophat_rna_seq_alignment_performed': False,
             'is_tumor_star_rna_seq_alignment_performed': False,
-            'is_tumor_tophat_rna_seq_alignment_performed': False
+            'is_tumor_tophat_rna_seq_alignment_performed': False,
+            'exists_vcf_file_prefix_mismatch': False,
+            'is_bam_used_by_variant_calling_missing': False
         },
         'normal_specimen': {},
         'aligned_tumor_specimens': [],
@@ -1357,10 +1359,22 @@ def add_vcf_entry(donor, vcf_entry):
         if not has_n_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_normal_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+            donor.get('flags')['is_bam_used_by_variant_calling_missing'] = True
 
         if vcf_input_t_bam != tumor_alignment_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_tumor_bam_used_by_' + workflow + '_missing'] = True
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_bam_used_by_' + workflow + '_missing'] = True
+            donor.get('flags')['is_bam_used_by_variant_calling_missing'] = True
+
+        # add the flags of exists_{workflow}_file_prefix_mismatch
+        donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = False
+        # scan all the files under **_variant_calling
+        file_prefix = set()
+        for f in donor.get('variant_calling_results').get(workflow + '_variant_calling').get('files'):
+            file_prefix.add(f.get('file_name').split('.')[0])
+        if not file_prefix == donor.get('all_tumor_specimen_aliquots'):
+            donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = True
+            donor.get('flags')['exists_vcf_file_prefix_mismatch'] = True
     
     # update the flags for sanger, dkfz_embl
     for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz']:
@@ -1559,6 +1573,9 @@ def create_aggregated_bam_info_dict(bam):
         "lane_count": set(),
         "do_lane_counts_in_every_bam_entry_match": False,
         "do_lane_count_and_bam_count_match": False,
+        "exist_specimen_type_mismatch": False,
+        "exist_aligned_bam_specimen_type_mismatch": False,
+        "exist_unaligned_bam_specimen_type_mismatch": False,
         "aligned_bam": {
             "gnos_id": bam['bam_gnos_ao_id'],
             "bam_file_name": bam['bam_file_name'],
@@ -1581,6 +1598,15 @@ def create_aggregated_bam_info_dict(bam):
     return aggregated_bam_info_dict
 
 
+def compare_specimen_type(specimen_type_A, specimen_type_B):
+    if 'normal' in specimen_type_A.lower() and 'normal' in specimen_type_B.lower() or \
+        'tumour' in specimen_type_A.lower() and 'tumour' in specimen_type_B.lower():
+        return True
+    else:
+        return False
+
+
+
 def bam_aggregation(bam_files):
     aggregated_bam_info_new = {}
     if not aggregated_bam_info_new.get('WGS'):
@@ -1596,6 +1622,11 @@ def bam_aggregation(bam_files):
             aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
         else:
             alignment_status = aggregated_bam_info.get(bam['aliquot_id'])
+            
+            if not compare_specimen_type(alignment_status.get('dcc_specimen_type'), bam['dcc_specimen_type']):
+                alignment_status['exist_aligned_bam_specimen_type_mismatch'] = True
+                alignment_status['exist_specimen_type_mismatch'] = True
+
             if alignment_status.get('aligned_bam').get('gnos_id') == bam['bam_gnos_ao_id']:
                 if bam['gnos_repo'] in alignment_status.get('aligned_bam').get('gnos_repo'):
                     logger.warning( 'Same aliquot: {}, same GNOS ID: {} in the same GNOS repo: {} more than once. This should never be possible.'
@@ -1607,6 +1638,7 @@ def bam_aggregation(bam_files):
                 else:
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                    
             else:
                 if bam['is_s3_transfer_scheduled']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
@@ -1669,7 +1701,10 @@ def bam_aggregation(bam_files):
                 "aligned": False,
                 "lane_count": set([bam['total_lanes']]),
                 "do_lane_counts_in_every_bam_entry_match": False,
-                "do_lane_count_and_bam_count_match": False,                
+                "do_lane_count_and_bam_count_match": False,  
+                "exist_specimen_type_mismatch": False,
+                "exist_aligned_bam_specimen_type_mismatch": False,
+                "exist_unaligned_bam_specimen_type_mismatch": False,              
                 "aligned_bam": {},
                 "bam_with_unmappable_reads": {},
                 "unaligned_bams": {
@@ -1683,6 +1718,11 @@ def bam_aggregation(bam_files):
         else: # aliquot already exists
             alignment_status = aggregated_bam_info.get(bam['aliquot_id'])
             alignment_status.get('lane_count').add(bam['total_lanes'])
+
+            if not compare_specimen_type(alignment_status.get('dcc_specimen_type'), bam['dcc_specimen_type']):
+                alignment_status['exist_unaligned_bam_specimen_type_mismatch'] = True
+                alignment_status['exist_specimen_type_mismatch'] = True
+
 
             if alignment_status.get('unaligned_bams').get(bam['bam_gnos_ao_id']): # this unaligned bam was encountered before
                 if alignment_status.get('unaligned_bams').get(bam['bam_gnos_ao_id']).get('md5sum') == bam['md5sum']: # this unaligned bam has the same md5sum with encountered one

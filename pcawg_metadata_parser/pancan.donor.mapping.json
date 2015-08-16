@@ -818,6 +818,12 @@
                "vcf_in_jamboree":{
                   "type":"string",
                   "index":"not_analyzed"
+               },
+               "exists_vcf_file_prefix_mismatch":{
+                  "type":"boolean"
+               },
+               "is_bam_used_by_variant_calling_missing":{
+                  "type":"boolean"
                }
             }
          },
@@ -1095,7 +1101,16 @@
                },
                "do_lane_counts_in_every_bam_entry_match":{
                   "type":"boolean"
-               },                                              
+               }, 
+               "exist_specimen_type_mismatch":{
+                  "type":"boolean"
+               }, 
+               "exist_aligned_bam_specimen_type_mismatch":{
+                  "type":"boolean"
+               },
+               "exist_unaligned_bam_specimen_type_mismatch":{
+                  "type":"boolean"
+               },                                            
                "submitter_sample_id":{
                   "type":"string",
                   "index":"not_analyzed"
@@ -1531,6 +1546,15 @@
                   "type":"boolean"
                },
                "do_lane_counts_in_every_bam_entry_match":{
+                  "type":"boolean"
+               },
+               "exist_specimen_type_mismatch":{
+                  "type":"boolean"
+               }, 
+               "exist_aligned_bam_specimen_type_mismatch":{
+                  "type":"boolean"
+               },
+               "exist_unaligned_bam_specimen_type_mismatch":{
                   "type":"boolean"
                },                
                "submitter_sample_id":{
