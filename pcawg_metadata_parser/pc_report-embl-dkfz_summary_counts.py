@@ -92,7 +92,7 @@ def compute_site_report_new(metadata_dir, report_dir, today_donors):
         # report WARN if the sum of Called and To_be_called not equal Total in site_summary
         if not site_summary[c]['Called'] + site_summary[c]['To_be_called'] == site_summary[c]['Total']:
             print "WARN: donors: " + ", ".join(compute_sites.get(c).difference(today_donors[0]).difference(today_donors[1])) + \
-            " found in whitelist are not ready to do embl-dkfz variant calling!!!" 
+            " found in " + c + " whitelist are not ready to do embl-dkfz variant calling!!!" 
 
     site_summary['Unassigned'] = {
         'Called': len(today_donors[1].difference(site_assigned_donors)),

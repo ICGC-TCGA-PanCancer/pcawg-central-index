@@ -139,16 +139,6 @@ def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
     return gnos_entity_info_list
 
 
-def filter_liri_jp(project, gnos_repo):
-    if not project == 'LIRI-JP':
-        return gnos_repo
-    elif "https://gtrepo-riken.annailabs.com/" in gnos_repo:
-        return ["https://gtrepo-riken.annailabs.com/"]
-    else:
-        print "This should never happen: alignment for LIRI-JP is not available at Riken repo"
-        sys.exit(1)
-
-
 def add_rna_seq_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
     rna_seq_info = es_json.get('rna_seq').get('alignment')
     for specimen_type in rna_seq_info.keys():
