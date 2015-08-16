@@ -95,16 +95,6 @@ def add_wgs_specimens(specimen_info_list, specimen_info, es_json):
     return specimen_info_list
 
 
-def filter_liri_jp(project, gnos_repo):
-    if not project == 'LIRI-JP':
-        return gnos_repo
-    elif "https://gtrepo-riken.annailabs.com/" in gnos_repo:
-        return ["https://gtrepo-riken.annailabs.com/"]
-    else:
-        print "This should never happen: alignment for LIRI-JP is not available at Riken repo"
-        sys.exit(1)
-
-
 def add_rna_seq_specimens(specimen_info_list, specimen_info, es_json):
     # to build pcawg santa cruz pilot dataset, this is a temporary walkaround to exclude the 130 RNA-Seq bad
     # entries from MALY-DE and CLLE-ES projects

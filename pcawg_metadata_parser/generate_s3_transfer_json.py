@@ -385,6 +385,7 @@ def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_includ
     return reorganized_donor
 
 
+# this is not used currently, but will be needed for generating JIRI-JP donors
 def filter_liri_jp(project, gnos_repo):
     if not project == 'LIRI-JP':
         return gnos_repo
@@ -392,7 +393,8 @@ def filter_liri_jp(project, gnos_repo):
         return ["https://gtrepo-riken.annailabs.com/"]
     else:
         print "This should never happen: alignment for LIRI-JP is not available at Riken repo"
-        sys.exit(1)
+        #sys.exit(1)
+        return [ gnos_repo[0] ]  # return the first one, not an entirely proper solution but gets us going
 
 
 def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir):
