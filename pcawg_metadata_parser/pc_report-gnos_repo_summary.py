@@ -764,7 +764,7 @@ es_queries = [
               "aggs": {
                 "exist_in_gnos_repo": {
                   "terms": {
-                    "field": "variant_calling_results.dkfz_variant_calling.gnos_repo",
+                    "field": "variant_calling_results.dkfz_embl_variant_calling.gnos_repo",
                     "size": 100
                   },
                   "aggs": {

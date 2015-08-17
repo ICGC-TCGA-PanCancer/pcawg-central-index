@@ -342,6 +342,8 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                         logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
                             .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
 
+    
+
 
 def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     files = []
@@ -405,9 +407,15 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         vcf_entry['vcf_workflow_type'] = 'embl'
 
     elif workflow_name == 'DKFZPancancerCnIndelSnv' and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz'            
+        vcf_entry['vcf_workflow_type'] = 'dkfz'      
 
-    elif workflow_name.startswith('DKFZ_EMBL_Combined'):
+    elif workflow_name == 'EMBLDKFZPancancerStrCnIndelSNV' and LooseVersion(workflow_version) >= LooseVersion('1.0.5'):
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'      
+
+    elif workflow_name == 'DKFZ_EMBL_Combined_HPC':
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+
+    elif workflow_name == 'DKFZ_EMBL_Merged':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
 
     elif workflow_name == 'BROAD_MUSE_PIPELINE':
@@ -992,9 +1000,44 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
     # choose vcf to vcf_entries by iterating all cached vcfs
     choose_vcf_entry(vcf_entries, donor.get('donor_unique_id'), annotations)
 
+    # re-organize dkfz/embl variant call results, this function does two things:
+    # 1. when the combined dkfz/embl call exists, remove the separate ones
+    # 2. create combined dkfz/embl variant call entry stub when the real combined
+    #    one does not exist yet, but the two separate call results do exist
+    reorganize_dkfz_embl_calls(vcf_entries.get(donor.get('donor_unique_id')))
+
     add_vcf_entry(donor, vcf_entries.get(donor.get('donor_unique_id')))
 
     check_bwa_duplicates(donor, train2_freeze_bams)
+
+
+def reorganize_dkfz_embl_calls(vcf_entries):
+    if not vcf_entries: return
+
+    variant_call_types = set()
+    for key in vcf_entries:
+        if not key.endswith('_variant_calling'): continue
+        variant_call_types.add(key)
+
+    if 'dkfz_embl_variant_calling' in variant_call_types:
+        if vcf_entries.get('embl_variant_calling'):
+            logger.warning('Combined dkfz/embl call exists, removing embl call entry with gnos_id: {}'\
+                .format(vcf_entries.get('embl_variant_calling').get('gnos_id')))
+            vcf_entries.pop('embl_variant_calling')
+
+        if vcf_entries.get('dkfz_variant_calling'):
+            logger.warning('Combined dkfz/embl call exists, removing dkfz call entry with gnos_id: {}'\
+                .format(vcf_entries.get('dkfz_variant_calling').get('gnos_id')))
+            vcf_entries.pop('dkfz_variant_calling')
+
+    elif 'embl_variant_calling' in variant_call_types and 'dkfz_variant_calling' in variant_call_types:
+        # now create the combined dkfz_embl_variant_calling stub
+        vcf_entries.update({
+                'dkfz_embl_variant_calling': {
+                    'gnos_repo': vcf_entries.get('embl_variant_calling').get('gnos_repo'),  # this is needed for reporting purpose, get it from embl
+                    'is_stub': True
+                }
+            })
 
 
 def check_bwa_duplicates(donor, train2_freeze_bams):
@@ -1323,6 +1366,15 @@ def add_vcf_entry(donor, vcf_entry):
     # update the flags inside each vcf
     for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
       if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
+
+        # if this is a stub for dkfz_embl call, skip the rest
+        if workflow == 'dkfz_embl' and donor.get('variant_calling_results').get(workflow + '_variant_calling').get('is_stub'): continue
+
+        # we are not yet able to handle 'DKFZ_EMBL_Merged' workflow yet, skip the rest as well
+        if workflow == 'dkfz_embl' and \
+            donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_workflow_name') == 'DKFZ_EMBL_Merged':
+            continue
+
         if not donor.get('flags').get('all_tumor_specimen_aliquot_counts') + 1 == \
                 len(donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_output_info')):
             logger.warning(workflow + ' variant calling workflow may have missed tumour specimen for donor: {}'
@@ -1342,7 +1394,11 @@ def add_vcf_entry(donor, vcf_entry):
         # scan all the vcf input  under "variant_pipeline_input_info"
         for vcf_input in donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_input_info'):
            if 'normal' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-               if vcf_input.get('attributes').get('analysis_id') == donor.get('normal_alignment_status').get('aligned_bam').get('gnos_id'): #check normal alignment
+               # added more checks to avoid key not exist error
+               if donor.get('normal_alignment_status') and \
+                   donor.get('normal_alignment_status').get('aligned_bam') and \
+                   donor.get('normal_alignment_status').get('aligned_bam').get('gnos_id') and \
+                   vcf_input.get('attributes').get('analysis_id') == donor.get('normal_alignment_status').get('aligned_bam').get('gnos_id'): #check normal alignment
                    has_n_bam = True
            elif 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower(): # check the tumor
                vcf_input_t_bam.add((vcf_input.get('specimen'), vcf_input.get('attributes').get('analysis_id'))) 
@@ -1353,8 +1409,10 @@ def add_vcf_entry(donor, vcf_entry):
                 )
 
         # scan all the bams in tumor_alignment_status
-        for tumor_alignment in donor.get('tumor_alignment_status'):
-            tumor_alignment_bam.add((tumor_alignment.get('aliquot_id'), tumor_alignment.get('aligned_bam').get('gnos_id')))
+        if donor.get('tumor_alignment_status'):
+            for tumor_alignment in donor.get('tumor_alignment_status'):
+                if tumor_alignment.get('aligned_bam') and tumor_alignment.get('aligned_bam').get('gnos_id'):  # avoid key not exist error
+                    tumor_alignment_bam.add((tumor_alignment.get('aliquot_id'), tumor_alignment.get('aligned_bam').get('gnos_id')))
 
         if not has_n_bam:
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_normal_bam_used_by_' + workflow + '_missing'] = True
