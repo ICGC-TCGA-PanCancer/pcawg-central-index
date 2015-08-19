@@ -48,23 +48,7 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                  "BOCA-UK", "BRCA-UK", "BTCA-SG", "CMDI-UK", "LAML-KR", "LINC-JP", "LIRI-JP"
-                  "LUSC-KR", "MELA-AU", "ORCA-IN", "OV-AU", "PACA-CA",
-                  "PACA-IT", "PEME-CA", "PRAD-CA", "SKCA-BR", "THCA-SA"
-                ]
-              }
-            },
-            {
-              "terms":{
-                "flags.is_sanger_variant_calling_performed":[
-                  "T"
-                ]
-              }
-            },
-            {
-              "terms": {
-                "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
-                  "F"
+                  "PAEN-AU"
                 ]
               }
             },
@@ -87,6 +71,13 @@ es_queries = [
             {
               "regexp": {
                 "dcc_project_code": ".*-US"
+              }
+            },
+            {
+              "terms": {
+                "flags.is_bam_used_by_variant_calling_missing": [
+                  "T"
+                ]
               }
             },
             {
@@ -346,6 +337,9 @@ def add_wgs_tumor_specimens(reorganized_donor, es_json, gnos_ids_to_be_included,
 
 
 def add_sanger_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir):
+    if not es_json.get('variant_calling_results'): return
+    if not es_json.get('variant_calling_results').get('sanger_variant_calling'): return
+
     wgs_tumor_sanger_vcf_info = es_json.get('variant_calling_results').get('sanger_variant_calling')
 
     gnos_id = wgs_tumor_sanger_vcf_info.get('gnos_id')
@@ -543,7 +537,8 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_excluded):
             return
 
         json_name = '.'.join(json_name_list)
-        with open(jobs_dir + '/' + json_name, 'w') as w:
+        json_name_new = json_name.replace(' ', '__')
+        with open(jobs_dir + '/' + json_name_new, 'w') as w:
             w.write(json.dumps(transfer_json, indent=4, sort_keys=True))
             json_prefix_start = json_prefix_start + json_prefix_inc
 
