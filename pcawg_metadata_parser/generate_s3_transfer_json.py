@@ -48,23 +48,7 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                  "BOCA-UK", "BRCA-UK", "BTCA-SG", "CMDI-UK", "LAML-KR", "LINC-JP", "LIRI-JP"
-                  "LUSC-KR", "MELA-AU", "ORCA-IN", "OV-AU", "PACA-CA",
-                  "PACA-IT", "PEME-CA", "PRAD-CA", "SKCA-BR", "THCA-SA"
-                ]
-              }
-            },
-            {
-              "terms":{
-                "flags.is_sanger_variant_calling_performed":[
-                  "T"
-                ]
-              }
-            },
-            {
-              "terms": {
-                "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
-                  "F"
+                  "PAEN-AU"
                 ]
               }
             },
@@ -87,6 +71,13 @@ es_queries = [
             {
               "regexp": {
                 "dcc_project_code": ".*-US"
+              }
+            },
+            {
+              "terms": {
+                "flags.is_bam_used_by_variant_calling_missing": [
+                  "T"
+                ]
               }
             },
             {
