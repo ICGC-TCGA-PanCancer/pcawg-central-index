@@ -48,7 +48,7 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                  "PAEN-AU"
+                  "PRAD-CA"
                 ]
               }
             },
@@ -593,7 +593,10 @@ def main(argv=None):
         gnos_ids_to_be_excluded.add(sub_file_name)
 
     # only process the gnos entries when this option is chosen
-    gnos_ids_to_be_included = generate_gnos_id_list(include_gnos_id_lists)    
+    gnos_ids_to_be_included = generate_gnos_id_list(include_gnos_id_lists) 
+
+    # remove the gnos_ids_to_be_include from gnos_ids_to_be_excluded
+    gnos_ids_to_be_excluded.difference_update(gnos_ids_to_be_included) 
 
     global json_prefix_code, json_prefix_start, json_prefix_inc
     if args.prefix_code: json_prefix_code = args.prefix_code
@@ -650,7 +653,7 @@ def main(argv=None):
 
     donor_fh.close()
 
-    os.remove('tmp.xml')
+    if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
     return 0
 
