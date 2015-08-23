@@ -98,8 +98,9 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
-    if not analysis_attrib.get('dcc_project_code') or not analysis_attrib.get('submitter_donor_id'):
-        logger.warning('ignore entry does not have dcc_project_code or submitter_donor_id, GNOS entry: {}'
+    if not analysis_attrib.get('dcc_project_code') or not analysis_attrib.get('submitter_donor_id') \
+            or '/' in analysis_attrib.get('submitter_donor_id'):
+        logger.warning('ignore entry does not have dcc_project_code or submitter_donor_id, or submitter_donor_id is invalid, GNOS entry: {}'
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
