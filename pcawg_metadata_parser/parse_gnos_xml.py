@@ -919,8 +919,8 @@ def read_annotations(annotations, type, file_name):
                     if len(line.rstrip()) == 0: continue
                     annotations[type].add(line.rstrip())
 
-            elif type == 'santa_cruz':
-                annotations['santa_cruz'] = {
+            elif type in ['santa_cruz', 'sanger_release']:
+                annotations[type] = {
                     'donor': set(),
                     'gnos_id': set()
                 }
@@ -928,8 +928,8 @@ def read_annotations(annotations, type, file_name):
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
                     donor_unique_id, gnos_id, entry_type = str.split(line.rstrip(), '\t') 
-                    annotations['santa_cruz']['donor'].add(donor_unique_id)
-                    annotations['santa_cruz']['gnos_id'].add(gnos_id)                 
+                    annotations[type]['donor'].add(donor_unique_id)
+                    annotations[type]['gnos_id'].add(gnos_id)                 
 
             else:
                 logger.warning('unknown annotation type: {}'.format(type))
