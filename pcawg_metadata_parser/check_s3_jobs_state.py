@@ -62,30 +62,34 @@ def get_formal_repo_name(repo):
 def effective_xml_md5sum(xml_str):
 
     xml_str = re.sub(r'<ResultSet .+?>', '<ResultSet>', xml_str)
-    #xml_str = re.sub(r'<analysis_id>.+?</analysis_id>', '<analysis_id></analysis_id>', xml_str)
     xml_str = re.sub(r'<last_modified>.+?</last_modified>', '<last_modified></last_modified>', xml_str)
     xml_str = re.sub(r'<upload_date>.+?</upload_date>', '<upload_date></upload_date>', xml_str)
     xml_str = re.sub(r'<published_date>.+?</published_date>', '<published_date></published_date>', xml_str)
+    xml_str = re.sub(r'<center_name>.+?</center_name>', '<center_name></center_name>', xml_str)
     xml_str = re.sub(r'<analyte_code>.+?</analyte_code>', '<analyte_code></analyte_code>', xml_str)
     xml_str = re.sub(r'<reason>.+?</reason>', '<reason></reason>', xml_str)
-    #xml_str = re.sub(r'<study>.+?</study>', '<study></study>', xml_str)
+    xml_str = re.sub(r'<study>.+?</study>', '<study></study>', xml_str)
     xml_str = re.sub(r'<sample_accession>.+?</sample_accession>', '<sample_accession></sample_accession>', xml_str)
+
     #xml_str = re.sub(r'<dcc_project_code>.+?</dcc_project_code>', '<dcc_project_code></dcc_project_code>', xml_str)
     #xml_str = re.sub(r'<participant_id>.+?</participant_id>', '<participant_id></participant_id>', xml_str)
-    #xml_str = re.sub(r'<specimen_id>.+?</specimen_id>', '<specimen_id></specimen_id>', xml_str)
-    #xml_str = re.sub(r'<sample_id>.+?</sample_id>', '<sample_id></sample_id>', xml_str)
+    xml_str = re.sub(r'<dcc_specimen_type>.+?</dcc_specimen_type>', '<dcc_specimen_type></dcc_specimen_type>', xml_str)
+
+    xml_str = re.sub(r'<specimen_id>.+?</specimen_id>', '<specimen_id></specimen_id>', xml_str)
+    xml_str = re.sub(r'<sample_id>.+?</sample_id>', '<sample_id></sample_id>', xml_str)
     xml_str = re.sub(r'<use_cntl>.+?</use_cntl>', '<use_cntl></use_cntl>', xml_str)
     xml_str = re.sub(r'<library_strategy>.+?</library_strategy>', '<library_strategy></library_strategy>', xml_str)
     xml_str = re.sub(r'<platform>.+?</platform>', '<platform></platform>', xml_str)
     xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
 
+    xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
     xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
-    xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
     xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
     xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
     xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
     xml_str = re.sub(r'<analysis_submission_uri>.+?</analysis_submission_uri>', '<analysis_submission_uri></analysis_submission_uri>', xml_str)
     xml_str = re.sub(r'<analysis_data_uri>.+?</analysis_data_uri>', '<analysis_data_uri></analysis_data_uri>', xml_str)
+
 
     # we need to take care of xml properties in different order but effectively/semantically the same
     effective_eq_xml = json.dumps(xmltodict.parse(xml_str).get('ResultSet').get('Result'), indent=4, sort_keys=True)
@@ -128,11 +132,12 @@ def main(argv=None):
         for f in files:
             with open(f, 'r') as r:
                 name_list = f.split('.')
-                sub_json_name = '.'.join(name_list[3:])
+                sub_json_name = '.'.join(name_list[1:])
                 job = json.loads(r.read())
                 gnos_repo = job.get('gnos_repo')[0]
                 gnos_id = job.get('gnos_id')
                 latest_xml_str = download_metadata_xml(gnos_repo, gnos_id)
+                if not latest_xml_str: continue
                 latest_effective_xml_md5sum = effective_xml_md5sum(latest_xml_str)
                 latest_xml_md5sum = generate_md5(latest_xml_str)
                 cached_xml_str = find_cached_metadata_xml(gnos_repo, gnos_id)
