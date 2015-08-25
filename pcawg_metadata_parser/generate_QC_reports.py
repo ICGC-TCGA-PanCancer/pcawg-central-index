@@ -790,7 +790,7 @@ def add_report_info_2(report_info, report_info_list, es_json):
                         report_info['used_normal_bam_gnos_url'] = vcf_input.get('attributes').get('analysis_url')
                     if 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
                         report_info['used_tumor_aliquot_id'].append(vcf_input.get('specimen'))
-                        report_info['used_tumor_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
+                        report_info['used_tumor_bam_gnos_id'].append(vcf_input.get('attributes').get('analysis_id'))
                         report_info['used_tumor_bam_gnos_url'].append(vcf_input.get('attributes').get('analysis_url'))
                 
                 report_info_list.append(copy.deepcopy(report_info))
