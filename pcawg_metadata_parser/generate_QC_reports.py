@@ -553,6 +553,49 @@ es_queries = [
       }
 },
 
+# query 10: get missing gnos_entry from Aug21_release_freeze 
+{
+     "name": "missing_gnos_entry_from_Aug21_release_freeze",
+     "content":{
+         "fields": ["donor_unique_id"],
+         "filter":{
+             "bool": {
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_Aug21_release_donor":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+             }
+         },
+         "size": 10000
+     }
+},
+
 ]
 
 
@@ -603,7 +646,12 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_3(report_info, report_info_list, es_json)
 
     if q_index == 4:
-        add_report_info_4(report_info, report_info_list, es_json)
+        flag = 'is_santa_cruz_entry' 
+        add_report_info_4_10(report_info, report_info_list, es_json, flag)
+
+    if q_index == 10:
+        flag = 'is_Aug21_release_entry' 
+        add_report_info_4_10(report_info, report_info_list, es_json, flag)
 
     if q_index == 5:
         add_report_info_5(report_info, report_info_list, es_json)
@@ -711,17 +759,17 @@ def add_report_info_5_aliquot(aliquot, report_info, report_info_list):
     return report_info_list
 
 
-def add_report_info_4(report_info, report_info_list, es_json):
+def add_report_info_4_10(report_info, report_info_list, es_json, flag):
     if es_json.get('bam_files'):
         for bam in es_json.get('bam_files'):
-            if not bam.get('is_santa_cruz_entry'): 
+            if not bam.get(flag): 
                 continue
             report_info['gnos_id'] =  bam.get('bam_gnos_ao_id')
             report_info_list.append(copy.deepcopy(report_info))
 
     if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('sanger_variant_calling'):
         vcf = es_json.get('variant_calling_results').get('sanger_variant_calling')
-        if vcf.get('is_santa_cruz_entry'):
+        if vcf.get(flag):
             report_info['gnos_id'] =  vcf.get('gnos_id')
             report_info_list.append(copy.deepcopy(report_info))
 
@@ -908,12 +956,13 @@ def main(argv=None):
             report_info_list_full.extend(report_info_list_donor)
 
         # do diff for santa_cruz missing only
-        if q == 4:
+        if q in [4, 10]:
+            release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' if q==4 else '../pcawg-operations/data_releases/Aug21_release/Aug21_release_freeze_entry.tsv'
             # generate the set of gnos_id
             gnos_id_set = set([l.get('gnos_id') for l in report_info_list_full])
             report_info_list_full = []
             # read bench mark santa_cruz list, hardcode the location of santa_cruz_freeze_json
-            with open('../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv', 'r') as s:
+            with open(release_tsv, 'r') as s:
                 reader = csv.DictReader(s, delimiter='\t')
                 for row in reader:
                     if not row.get('gnos_id') in gnos_id_set:
