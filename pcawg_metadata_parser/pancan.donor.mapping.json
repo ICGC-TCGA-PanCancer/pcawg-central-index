@@ -744,6 +744,9 @@
                "is_santa_cruz_donor":{
                   "type":"boolean"
                },
+               "is_Aug21_release_donor":{
+                  "type":"boolean"
+               },
                "is_cell_line":{
                   "type":"boolean"
                },
