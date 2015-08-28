@@ -553,9 +553,9 @@ es_queries = [
       }
 },
 
-# query 10: get missing gnos_entry from Aug21_release_freeze 
+# query 10: get missing gnos_entry from aug2015_release 
 {
-     "name": "missing_gnos_entry_from_Aug21_release_freeze",
+     "name": "missing_gnos_entry_from_aug2015_release",
      "content":{
          "fields": ["donor_unique_id"],
          "filter":{
@@ -568,7 +568,7 @@ es_queries = [
                     },          
                     {
                        "terms":{
-                          "flags.is_Aug21_release_donor":[
+                          "flags.is_aug2015_donor":[
                              "T"
                           ]
                        }
@@ -650,7 +650,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_4_10(report_info, report_info_list, es_json, flag)
 
     if q_index == 10:
-        flag = 'is_Aug21_release_entry' 
+        flag = 'is_aug2015_entry' 
         add_report_info_4_10(report_info, report_info_list, es_json, flag)
 
     if q_index == 5:
@@ -957,7 +957,7 @@ def main(argv=None):
 
         # do diff for santa_cruz missing only
         if q in [4, 10]:
-            release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' if q==4 else '../pcawg-operations/data_releases/Aug21_release/Aug21_release_freeze_entry.tsv'
+            release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' if q==4 else '../pcawg-operations/data_releases/aug2015/release_aug2015_simple.tsv'
             # generate the set of gnos_id
             gnos_id_set = set([l.get('gnos_id') for l in report_info_list_full])
             report_info_list_full = []
