@@ -91,8 +91,8 @@ def create_reorganized_donor(donor_unique_id, es_json):
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': es_json['submitter_donor_id'],
         'dcc_project_code': es_json['dcc_project_code'],
-        'data_train': 'train2' if es_json.get('flags').get('is_train2_donor') else 'train3',
-        'train2_pilot': True if es_json.get('flags').get('is_train2_pilot') else False,
+        'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
+        'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
         'wgs': {
             'normal_specimen': {
                 'bwa_alignment': {
@@ -295,8 +295,8 @@ def generate_json_for_tsv_file(reorganized_donor):
     pilot_tsv_json = OrderedDict()
     pilot_tsv_json['dcc_project_code'] = reorganized_donor.get('dcc_project_code')
     pilot_tsv_json['submitter_donor_id'] = reorganized_donor.get('submitter_donor_id')
-    pilot_tsv_json['data_train'] = reorganized_donor.get('data_train')
-    pilot_tsv_json['train2_pilot'] = reorganized_donor.get('train2_pilot')
+    pilot_tsv_json['santa_cruz_pilot'] = reorganized_donor.get('santa_cruz_pilot')
+    pilot_tsv_json['validation_by_deep_seq'] = reorganized_donor.get('validation_by_deep_seq')
     # wgs normal specimen 
     pilot_tsv_json['normal_wgs_submitter_specimen_id'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('submitter_specimen_id')
     pilot_tsv_json['normal_wgs_submitter_sample_id'] = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment').get('submitter_sample_id')
