@@ -583,7 +583,7 @@ def main(argv=None):
     gnos_ids_to_be_excluded = generate_gnos_id_list(exclude_gnos_id_lists)
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs/*/*.json'
+    git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
     files = glob.glob(git_s3_fnames)
     for f in files:
         fname = str.split(f, '/')[-1]
