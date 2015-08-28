@@ -113,7 +113,7 @@ def main(argv=None):
     parser.add_argument("-f", "--jobs_folder", dest="jobs_folder",
              help="Specify jobs folder with JSONs", required=True)
     parser.add_argument("-s", "--jobs_state_file", dest="jobs_state_file",
-             help="Specify output file for jobs_md5sum check state", required=True)
+             help="Specify output file for jobs_md5sum check state", required=False)
     parser.add_argument("-i", "--jobs_info_file", dest="jobs_info_file",
              help="Specify output file for jobs_info", required=False)
 
@@ -125,6 +125,9 @@ def main(argv=None):
 
     # read the info in job folder
     files = glob.glob(jobs_folder.rstrip('/') + '/*.json')
+    
+    if not jobs_state_file: jobs_state_file = os.path.dirname(jobs_folder.rstrip('/')+'/')+'_state.tsv'
+
     jobs_info = set()
 
     if os.path.isfile(jobs_state_file): os.remove(jobs_state_file)
