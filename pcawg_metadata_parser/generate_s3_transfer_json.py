@@ -408,7 +408,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_i
                 if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
                 if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
 
-                alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type)
+                alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo)
                 write_s3_transfer_json(jobs_dir, alignment_info[workflow_type], gnos_ids_to_be_excluded)
 
             reorganized_donor.get('rna_seq')[specimen_type + '_specimen'] = alignment_info
@@ -426,7 +426,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_i
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(alignment_info) 
 
 
-def create_rna_seq_alignment(aliquot, es_json, workflow_type):
+def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
     alignment_info = {
         'data_type': 'RNA_Seq-'+workflow_type.capitalize()+'-Normal' if 'normal' in aliquot.get(workflow_type).get('dcc_specimen_type').lower() else 'RNA_Seq-'+workflow_type.capitalize()+'-Tumor',
         'project_code': es_json['dcc_project_code'],
@@ -583,7 +583,7 @@ def main(argv=None):
     gnos_ids_to_be_excluded = generate_gnos_id_list(exclude_gnos_id_lists)
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs/*/*.json'
+    git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
     files = glob.glob(git_s3_fnames)
     for f in files:
         fname = str.split(f, '/')[-1]

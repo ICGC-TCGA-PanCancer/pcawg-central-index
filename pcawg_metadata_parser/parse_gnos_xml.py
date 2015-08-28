@@ -743,6 +743,7 @@ def add_effective_xml_md5sum(gnos_analysis, xml_str):
 
     xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
     xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
+    xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
     xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
     xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
     xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
