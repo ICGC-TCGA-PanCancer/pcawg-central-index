@@ -807,7 +807,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'manual_qc_failed', 'pc_annotation-manual_qc_failed.tsv')  # hard-code file name for now
     read_annotations(annotations, 'sanger_vcf_in_jamboree', 'pc_annotation-sanger_vcf_in_jamboree.tsv')  # hard-code file name for now
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
-    read_annotations(annotations, 'aug2015', '../pcawg-operations/data_releases/aug2015/release_aug2015_simple.tsv')
+    read_annotations(annotations, 'aug2015', '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     
