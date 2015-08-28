@@ -482,7 +482,7 @@ def main(argv=None):
 
     pilot_tsv_fh = open(metadata_dir + '/reports/release_aug2015.tsv', 'w')
     
-    simple_tsv_fh = open(metadata_dir + '/reports/release_aug2015_simple.tsv', 'w')
+    simple_tsv_fh = open(metadata_dir + '/reports/release_aug2015_entry.tsv', 'w')
 
     # pre-exclude donors when this option is chosen
     donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
