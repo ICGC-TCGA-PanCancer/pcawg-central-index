@@ -957,7 +957,7 @@ def main(argv=None):
 
         # do diff for santa_cruz missing only
         if q in [4, 10]:
-            release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' if q==4 else '../pcawg-operations/data_releases/aug2015/release_aug2015_simple.tsv'
+            release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' if q==4 else '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv'
             # generate the set of gnos_id
             gnos_id_set = set([l.get('gnos_id') for l in report_info_list_full])
             report_info_list_full = []
