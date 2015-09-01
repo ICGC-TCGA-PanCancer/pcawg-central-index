@@ -655,7 +655,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_tumor_star_rna_seq_alignment_performed': False,
             'is_tumor_tophat_rna_seq_alignment_performed': False,
             'exists_vcf_file_prefix_mismatch': False,
-            'is_bam_used_by_variant_calling_missing': False
+            'is_bam_used_by_variant_calling_missing': False,
+            'qc_score': None
         },
         'normal_specimen': {},
         'aligned_tumor_specimens': [],
@@ -677,7 +678,16 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     except:
         logger.warning('analysis object has no sequencing_center information: {}'.format(gnos_analysis.get('analysis_detail_uri')))
 
+    
+    if not annotations.get('qc_donor_prioritization'):
+        logger.warning('Missing qc_donor_prioritization annotation')
+    elif annotations.get('qc_donor_prioritization').get(donor_unique_id) is not None:
+        donor.get('flags')['qc_score'] = annotations.get('qc_donor_prioritization').get(donor_unique_id)
+    else:
+        logger.warning('No qc prioritization score for donor: {}'.format(donor_unique_id))
+
     return donor
+
 
 def is_test(analysis_attrib, gnos_analysis):
     if (gnos_analysis.get('aliquot_id') == '85098796-a2c1-11e3-a743-6c6c38d06053'
@@ -810,7 +820,10 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'aug2015', '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
-    
+    read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
+
+
+
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
 
@@ -908,6 +921,8 @@ def read_annotations(annotations, type, file_name):
             gnos_id = str.split(fname, '.')[0]
             annotations[type].add(gnos_id)
     else:
+        if not os.path.isfile(file_name):
+            return
         with open(file_name, 'r') as r:
             if annotations.get(type): # reset annotation if exists
                 del annotations[type]
@@ -945,6 +960,12 @@ def read_annotations(annotations, type, file_name):
                     donor_unique_id, gnos_id, entry_type = str.split(line.rstrip(), '\t') 
                     annotations[type]['donor'].add(donor_unique_id)
                     annotations[type]['gnos_id'].add(gnos_id)                 
+            
+            elif type == 'qc_donor_prioritization':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    annotations[type][row.get('Unique DonorId')] = int(row.get('Issue Summary'))
 
             else:
                 logger.warning('unknown annotation type: {}'.format(type))
