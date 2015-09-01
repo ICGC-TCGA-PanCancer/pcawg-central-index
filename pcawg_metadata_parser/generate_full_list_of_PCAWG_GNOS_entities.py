@@ -129,12 +129,13 @@ def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
         gnos_entity_info['submitter_sample_id'] = None
         gnos_entity_info['dcc_specimen_type'] = None
         for vcf_type in es_json.get('variant_calling_results').keys():
-            gnos_entity_info['entity_type'] = vcf_type.capitalize()
-            gnos_entity_info['gnos_id'] = es_json.get('variant_calling_results').get(vcf_type).get('gnos_id')    
-            for gnos_repo in es_json.get('variant_calling_results').get(vcf_type).get('gnos_repo'):
-                gnos_entity_info['gnos_repo'] = gnos_repo
-                gnos_entity_info['gnos_metadata_url'] = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_entity_info['gnos_id']
-                gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
+            if not es_json.get('variant_calling_results').get(vcf_type).get('is_stub'):
+                gnos_entity_info['entity_type'] = vcf_type.capitalize()
+                gnos_entity_info['gnos_id'] = es_json.get('variant_calling_results').get(vcf_type).get('gnos_id')    
+                for gnos_repo in es_json.get('variant_calling_results').get(vcf_type).get('gnos_repo'):
+                    gnos_entity_info['gnos_repo'] = gnos_repo
+                    gnos_entity_info['gnos_metadata_url'] = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_entity_info['gnos_id']
+                    gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
 
     return gnos_entity_info_list
 
@@ -236,19 +237,12 @@ def main(argv=None):
     PCAWG_GNOS_entity_fh = open(metadata_dir+'/PCAWG_Full_List_GNOS_entities_'+es_index+'.jsonl', 'w')
 
     PCAWG_GNOS_entity_tsv_fh = open(metadata_dir + '/PCAWG_Full_List_GNOS_entities_' + es_index + '.tsv', 'w')
-    
-    # read the tsv fields file and write to the pilot donor tsv file
-    # tsv_fields = 'PCAWG_Full_List_GNOS_entities_tsv_fields.txt'
-    tsv_fields = ["donor_unique_id", "submitter_donor_id", "dcc_project_code", "library_strategy", "aliquot_id", \
-    "submitter_specimen_id", "submitter_sample_id", "dcc_specimen_type", "entity_type", "gnos_id" , "gnos_repo", \
-    "gnos_metadata_url"
-    ]
-    PCAWG_GNOS_entity_tsv_fh.write('\t'.join(tsv_fields) + '\n')
 
 
 	# get the full list of donors in PCAWG
     donors_list = get_donors_list(es, es_index, es_queries)
     
+    header = True
     # get json doc for each donor and reorganize it 
     for donor_unique_id in donors_list:     
         
@@ -258,6 +252,9 @@ def main(argv=None):
         
         for gnos_entity in gnos_entity_info_list: 
             PCAWG_GNOS_entity_fh.write(json.dumps(gnos_entity, default=set_default) + '\n')
+            if header:
+                PCAWG_GNOS_entity_tsv_fh.write('\t'.join(gnos_entity.keys()) + '\n')
+                header = False 
             # write to the tsv file
             for p in gnos_entity.keys():
                 if isinstance(gnos_entity.get(p), set):
