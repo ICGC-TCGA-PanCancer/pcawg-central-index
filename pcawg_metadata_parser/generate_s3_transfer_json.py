@@ -48,7 +48,7 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                  "PRAD-CA"
+                  "BRCA-UK"
                 ]
               }
             },
@@ -65,6 +65,11 @@ es_queries = [
                   "T"
                 ]
               }
+            },
+            {
+                "range":{
+                    "qc_score":{"gte": 0, "lt": 10000}
+                }
             }
           ],
           "must_not": [
