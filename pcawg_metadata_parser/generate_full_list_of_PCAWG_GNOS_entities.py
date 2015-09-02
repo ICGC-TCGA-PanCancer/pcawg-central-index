@@ -95,7 +95,7 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list
     gnos_entity_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
 
     if aliquot.get('aligned_bam'):
-        gnos_entity_info['entity_type'] = 'Aligned_bam'
+        gnos_entity_info['entity_type'] = 'aligned_bam'
         gnos_entity_info['gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
         for gnos_repo in aliquot.get('aligned_bam').get('gnos_repo'):
             gnos_entity_info['gnos_repo'] = gnos_repo
@@ -103,7 +103,7 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list
             gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
 
     if aliquot.get('bam_with_unmappable_reads'):
-        gnos_entity_info['entity_type'] = 'Bam_with_unmappable_reads'
+        gnos_entity_info['entity_type'] = 'bam_with_unmappable_reads'
         gnos_entity_info['gnos_id'] = aliquot.get('bam_with_unmappable_reads').get('gnos_id')
         for gnos_repo in aliquot.get('bam_with_unmappable_reads').get('gnos_repo'):
             gnos_entity_info['gnos_repo'] = gnos_repo
@@ -111,7 +111,7 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list
             gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))            
 
     if aliquot.get('unaligned_bams'):
-        gnos_entity_info['entity_type'] = 'Unaligned_bams'
+        gnos_entity_info['entity_type'] = 'unaligned_bams'
         for unaligned_bams in aliquot.get('unaligned_bams'):
             gnos_entity_info['gnos_id'] = unaligned_bams.get('gnos_id')
             for gnos_repo in unaligned_bams.get('gnos_repo'):
@@ -130,7 +130,7 @@ def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
         gnos_entity_info['dcc_specimen_type'] = None
         for vcf_type in es_json.get('variant_calling_results').keys():
             if not es_json.get('variant_calling_results').get(vcf_type).get('is_stub'):
-                gnos_entity_info['entity_type'] = vcf_type.capitalize()
+                gnos_entity_info['entity_type'] = vcf_type
                 gnos_entity_info['gnos_id'] = es_json.get('variant_calling_results').get(vcf_type).get('gnos_id')    
                 for gnos_repo in es_json.get('variant_calling_results').get(vcf_type).get('gnos_repo'):
                     gnos_entity_info['gnos_repo'] = gnos_repo
@@ -168,7 +168,7 @@ def add_rna_seq_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_
         gnos_entity_info['dcc_specimen_type'].add(aliquot.get(workflow_type).get('dcc_specimen_type'))
 
     for workflow_type in aliquot.keys():
-        gnos_entity_info['entity_type'] = workflow_type.upper()
+        gnos_entity_info['entity_type'] = workflow_type
         gnos_entity_info['gnos_id'] = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
         for gnos_repo in aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'):
             gnos_entity_info['gnos_repo'] = gnos_repo
