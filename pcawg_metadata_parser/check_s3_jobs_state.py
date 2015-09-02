@@ -84,6 +84,7 @@ def effective_xml_md5sum(xml_str):
 
     xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
     xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
+    xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
     xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
     xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
     xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
@@ -112,7 +113,7 @@ def main(argv=None):
     parser.add_argument("-f", "--jobs_folder", dest="jobs_folder",
              help="Specify jobs folder with JSONs", required=True)
     parser.add_argument("-s", "--jobs_state_file", dest="jobs_state_file",
-             help="Specify output file for jobs_md5sum check state", required=True)
+             help="Specify output file for jobs_md5sum check state", required=False)
     parser.add_argument("-i", "--jobs_info_file", dest="jobs_info_file",
              help="Specify output file for jobs_info", required=False)
 
@@ -124,6 +125,9 @@ def main(argv=None):
 
     # read the info in job folder
     files = glob.glob(jobs_folder.rstrip('/') + '/*.json')
+    
+    if not jobs_state_file: jobs_state_file = os.path.dirname(jobs_folder.rstrip('/')+'/')+'_state.tsv'
+
     jobs_info = set()
 
     if os.path.isfile(jobs_state_file): os.remove(jobs_state_file)
@@ -143,15 +147,31 @@ def main(argv=None):
                 cached_xml_str = find_cached_metadata_xml(gnos_repo, gnos_id)
                 cached_effective_xml_md5sum = effective_xml_md5sum(cached_xml_str)
                 cached_xml_md5sum = generate_md5(cached_xml_str)
+                files = job.get('files')
+                for s in files:
+                    if not gnos_id in s.get('file_name'): continue
+                    json_md5sum = s.get('file_md5sum')
                 do_effective_xml_md5sum_equal = False
-                do_xml_md5sum_equal = False
+                do_cached_md5sum_equal = False
+                do_json_md5sum_equal = False
+                suggest_action = ''
                 if latest_effective_xml_md5sum == cached_effective_xml_md5sum:
                     do_effective_xml_md5sum_equal = True
                 if latest_xml_md5sum == cached_xml_md5sum:
+                    do_cached_md5sum_equal = True
+                if latest_xml_md5sum == json_md5sum:
+                    do_json_md5sum_equal = True
+                if not do_effective_xml_md5sum_equal:
+                    suggest_action = 'warning_content_change'
+                elif not do_cached_md5sum_equal:
+                    suggest_action = 'update_repo_cache'
+                elif not do_json_md5sum_equal:
+                    suggest_action = 'regenerate_json'
                     jobs_info.add(gnos_id)
                     jobs_info.add(sub_json_name)
-                    do_xml_md5sum_equal = True
-                i.write('\t'.join([gnos_id+'.'+sub_json_name, gnos_repo, str(do_effective_xml_md5sum_equal), str(do_xml_md5sum_equal)])+'\n')
+                else:
+                    suggest_action = 'good_json'
+                i.write('\t'.join([gnos_id+'.'+sub_json_name, gnos_repo, str(do_effective_xml_md5sum_equal), str(do_cached_md5sum_equal), str(do_json_md5sum_equal), suggest_action])+'\n')
 
 
     # write the job info to file if specify the file name
