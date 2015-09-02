@@ -101,6 +101,8 @@ gzip $M/*.jsonl
 echo generating aggregated QC prioritization metric
 perl ../metadata_tools/prioritise_by_qc.pl $M/donor_p_????????????.jsonl.gz > $M/qc_donor_prioritization.txt
 
+cp $M/qc_donor_prioritization.txt $DIR/
+
 
 # create symlink
 echo
