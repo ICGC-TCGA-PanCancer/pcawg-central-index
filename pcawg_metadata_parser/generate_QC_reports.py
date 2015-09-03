@@ -733,7 +733,7 @@ def add_report_info_6_7(report_info, report_info_list, es_json):
 
 def add_report_info_5(report_info, report_info_list, es_json):
     duplicate_bwa_bams = es_json.get('duplicated_bwa_alignment_summary')
-    if duplicate_bwa_bams.get('exists_md5sum_mismatch_in_normal'):
+    if duplicate_bwa_bams.get('exists_gnos_xml_mismatch_in_normal'):
         aliquot = duplicate_bwa_bams.get('normal')
         add_report_info_5_aliquot(aliquot, report_info, report_info_list)   
     
