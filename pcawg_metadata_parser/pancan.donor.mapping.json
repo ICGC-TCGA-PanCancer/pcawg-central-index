@@ -735,6 +735,9 @@
                "all_tumor_specimen_aliquot_counts":{
                   "type":"long"
                },
+               "qc_score":{
+                  "type":"long"
+               },
                "are_all_tumor_specimens_aligned":{
                   "type":"boolean"
                },
