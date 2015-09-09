@@ -1058,13 +1058,13 @@ def reorganize_dkfz_embl_calls(vcf_entries):
 
     if 'dkfz_embl_variant_calling' in variant_call_types:
         if vcf_entries.get('embl_variant_calling'):
-            logger.warning('Combined dkfz/embl call exists, removing embl call entry with gnos_id: {}'\
-                .format(vcf_entries.get('embl_variant_calling').get('gnos_id')))
+            logger.warning('Combined dkfz/embl call exists with gnos_id: {}, removing embl call entry with gnos_id: {}'\
+                .format(vcf_entries.get('dkfz_embl_variant_calling').get('gnos_id'), vcf_entries.get('embl_variant_calling').get('gnos_id')))
             vcf_entries.pop('embl_variant_calling')
 
         if vcf_entries.get('dkfz_variant_calling'):
-            logger.warning('Combined dkfz/embl call exists, removing dkfz call entry with gnos_id: {}'\
-                .format(vcf_entries.get('dkfz_variant_calling').get('gnos_id')))
+            logger.warning('Combined dkfz/embl call exists with gnos_id: {}, removing dkfz call entry with gnos_id: {}'\
+                .format(vcf_entries.get('dkfz_embl_variant_calling').get('gnos_id'), vcf_entries.get('dkfz_variant_calling').get('gnos_id')))
             vcf_entries.pop('dkfz_variant_calling')
 
     elif 'embl_variant_calling' in variant_call_types and 'dkfz_variant_calling' in variant_call_types:
@@ -1410,13 +1410,14 @@ def add_vcf_entry(donor, vcf_entry):
         # if this is a stub for dkfz_embl call, skip the rest
         if workflow == 'dkfz_embl' and donor.get('variant_calling_results').get(workflow + '_variant_calling').get('is_stub'): continue
 
-        # we are not yet able to handle 'DKFZ_EMBL_Merged' workflow yet, skip the rest as well
+        # add code to handle 'DKFZ_EMBL_Merged' workflow: use the dkfz output as the merged_workflow output
         if workflow == 'dkfz_embl' and \
             donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_workflow_name') == 'DKFZ_EMBL_Merged':
-            continue
+            vcf_output_list = donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_output_info').get('dkfz').get('workflow_outputs')
+        else:
+            vcf_output_list = donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_output_info')
 
-        if not donor.get('flags').get('all_tumor_specimen_aliquot_counts') + 1 == \
-                len(donor.get('variant_calling_results').get(workflow + '_variant_calling').get('workflow_details').get('variant_pipeline_output_info')):
+        if not donor.get('flags').get('all_tumor_specimen_aliquot_counts') + 1 == len(vcf_output_list):
             logger.warning(workflow + ' variant calling workflow may have missed tumour specimen for donor: {}'
                     .format(donor.get('donor_unique_id')))
             donor.get('variant_calling_results').get(workflow + '_variant_calling')['is_output_and_tumour_specimen_counts_mismatch'] = True
