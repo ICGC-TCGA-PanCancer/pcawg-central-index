@@ -88,7 +88,7 @@ def generate_report(es, es_index, metadata_dir, report_name, timestamp, repo, s3
     # we need to run several queries to get facet counts for different type of donors
     report = OrderedDict()
     count_types = [
-        "estimated_to_be_transferred",
+        "expected_to_be_transferred",
         "both_transferred",
         "normal_transferred_tumor_not",
         "tumor_transferred_normal_not",
@@ -108,8 +108,8 @@ def generate_report(es, es_index, metadata_dir, report_name, timestamp, repo, s3
 
         donors_list = get_project_donor_count(es, es_index, project)
 
-        report[project]['estimated_to_be_transferred']['count'] = len(donors_list)
-        report[project]['estimated_to_be_transferred']['donors'] = donors_list
+        report[project]['expected_to_be_transferred']['count'] = len(donors_list)
+        report[project]['expected_to_be_transferred']['donors'] = donors_list
         report[project]['both_not_transferred']['count'] = len(donors_list)
         report[project]['both_not_transferred']['donors'] = donors_list
 
