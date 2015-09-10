@@ -1880,18 +1880,18 @@ def bam_aggregation(bam_files):
                     aliquot_tmp = create_aggregated_rna_bam_info(bam)
                     alignment_status['tophat'] = aliquot_tmp
 
-                elif alignment_status.get('tophat').get('gnos_info').get('gnos_id') == bam['bam_gnos_ao_id']:
-                    if bam['gnos_repo'] in alignment_status.get('tophat').get('gnos_info').get('gnos_repo'):
+                elif alignment_status.get('tophat').get('aligned_bam').get('gnos_id') == bam['bam_gnos_ao_id']:
+                    if bam['gnos_repo'] in alignment_status.get('tophat').get('aligned_bam').get('gnos_repo'):
                         logger.warning( 'Same aliquot: {}, same workflow: {}, same GNOS ID: {} in the same GNOS repo: {} more than once. This should never be possible.'
                                         .format(
                                             bam['aliquot_id'],
                                             bam.get('alignment').get('workflow_name'),
-                                            alignment_status.get('tophat').get('gnos_info').get('gnos_id'),
+                                            alignment_status.get('tophat').get('aligned_bam').get('gnos_id'),
                                             bam['gnos_repo']) 
                                   )
                     else:
-                        alignment_status.get('tophat').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
-                        alignment_status.get('tophat').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
+                        alignment_status.get('tophat').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
+                        alignment_status.get('tophat').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
                 else:
                     if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
@@ -1918,7 +1918,7 @@ def bam_aggregation(bam_files):
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
                                             bam.get('alignment').get('workflow_name'),
-                                            alignment_status.get('tophat').get('gnos_info').get('gnos_id'),
+                                            alignment_status.get('tophat').get('aligned_bam').get('gnos_id'),
                                             bam['gnos_metadata_url'])
                                   )
             elif 'star' in bam.get('alignment').get('workflow_name').lower():
@@ -1926,18 +1926,18 @@ def bam_aggregation(bam_files):
                     aliquot_tmp = create_aggregated_rna_bam_info(bam)
                     alignment_status['star'] = aliquot_tmp
 
-                elif alignment_status.get('star').get('gnos_info').get('gnos_id') == bam['bam_gnos_ao_id']:
-                    if bam['gnos_repo'] in alignment_status.get('star').get('gnos_info').get('gnos_repo'):
+                elif alignment_status.get('star').get('aligned_bam').get('gnos_id') == bam['bam_gnos_ao_id']:
+                    if bam['gnos_repo'] in alignment_status.get('star').get('aligned_bam').get('gnos_repo'):
                         logger.warning( 'Same aliquot: {}, same workflow: {}, same GNOS ID: {} in the same GNOS repo: {} more than once. This should never be possible.'
                                         .format(
                                             bam['aliquot_id'],
                                             bam.get('alignment').get('workflow_name'),
-                                            alignment_status.get('star').get('gnos_info').get('gnos_id'),
+                                            alignment_status.get('star').get('aligned_bam').get('gnos_id'),
                                             bam['gnos_repo']) 
                                   )
                     else:
-                        alignment_status.get('star').get('gnos_info').get('gnos_repo').append(bam['gnos_repo'])
-                        alignment_status.get('star').get('gnos_info').get('gnos_last_modified').append(bam['last_modified'])
+                        alignment_status.get('star').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
+                        alignment_status.get('star').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
                 else:
                     if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
@@ -1965,7 +1965,7 @@ def bam_aggregation(bam_files):
                                             bam['aliquot_id'],
                                             bam['donor_unique_id'],
                                             bam.get('alignment').get('workflow_name'),
-                                            alignment_status.get('star').get('gnos_info').get('gnos_id'),
+                                            alignment_status.get('star').get('aligned_bam').get('gnos_id'),
                                             bam['gnos_metadata_url'])
                                     )
             else: # other unknown alignment workflows
@@ -1989,7 +1989,7 @@ def create_aggregated_rna_bam_info(bam):
         "is_aug2015_entry": bam['is_aug2015_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
         "is_s3_transfer_completed": bam['is_s3_transfer_completed'],           
-        "gnos_info": {
+        "aligned_bam": {
             "gnos_repo": [bam['gnos_repo']],
             "gnos_id": bam['bam_gnos_ao_id'],
             "bam_file_name": bam['bam_file_name'],
