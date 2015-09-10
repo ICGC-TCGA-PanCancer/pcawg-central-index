@@ -812,32 +812,26 @@ def add_report_info_1_aliquot(aliquot, report_info, report_info_list):
 def add_report_info_2(report_info, report_info_list, es_json):
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
-        report_info['normal_aliquot_id'] = es_json.get('normal_alignment_status').get('aliquot_id')
         report_info['normal_bam_gnos_id'] = es_json.get('normal_alignment_status').get('aligned_bam').get('gnos_id')
-        report_info['tumor_aliquot_id'] = es_json.get('all_tumor_specimen_aliquots')
         report_info['tumor_bam_gnos_id'] = []
         for bam in es_json.get('tumor_alignment_status'):
             report_info['tumor_bam_gnos_id'].append(bam.get('aligned_bam').get('gnos_id'))
         for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
             if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get('is_bam_used_by_' + workflow + '_missing'):
-                report_info['workflow_name'] = workflow+'_variant_calling'
+                report_info['workflow_name'] = vcf.get(workflow+'_variant_calling').get('workflow_details').get('variant_workflow_name')
                 report_info['vcf_gnos_repo'] = vcf.get(workflow+'_variant_calling').get('gnos_repo')[0]
                 report_info['vcf_gnos_id'] = vcf.get(workflow+'_variant_calling').get('gnos_id')  
-                report_info['used_normal_aliquot_id'] = None
                 report_info['used_normal_bam_gnos_id'] = None
                 report_info['used_normal_bam_gnos_url'] = None
                 report_info['is_normal_bam_used_by_vcf_missing'] = vcf.get(workflow+'_variant_calling').get('is_normal_bam_used_by_'+workflow+'_missing')
-                report_info['used_tumor_aliquot_id'] = []
                 report_info['used_tumor_bam_gnos_id'] = []
                 report_info['used_tumor_bam_gnos_url'] = []
                 report_info['is_tumor_bam_used_by_vcf_missing'] = vcf.get(workflow+'_variant_calling').get('is_tumor_bam_used_by_'+workflow+'_missing')    
                 for vcf_input in vcf.get(workflow+'_variant_calling').get('workflow_details').get('variant_pipeline_input_info'):
                     if 'normal' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-                        report_info['used_normal_aliquot_id'] = vcf_input.get('specimen')
                         report_info['used_normal_bam_gnos_id'] = vcf_input.get('attributes').get('analysis_id')
                         report_info['used_normal_bam_gnos_url'] = vcf_input.get('attributes').get('analysis_url')
                     if 'tumour' in vcf_input.get('attributes').get('dcc_specimen_type').lower():
-                        report_info['used_tumor_aliquot_id'].append(vcf_input.get('specimen'))
                         report_info['used_tumor_bam_gnos_id'].append(vcf_input.get('attributes').get('analysis_id'))
                         report_info['used_tumor_bam_gnos_url'].append(vcf_input.get('attributes').get('analysis_url'))
                 
