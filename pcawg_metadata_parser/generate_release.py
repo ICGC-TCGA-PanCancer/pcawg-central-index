@@ -152,7 +152,8 @@ def choose_variant_calling(es_json, vcf):
         variant_calling = es_json.get('variant_calling_results').keys()
     else:
         for v in vcf:
-            if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys():
+            if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
+                not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
                 variant_calling.append(get_formal_vcf_name(v))
             else:
                 logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
@@ -198,7 +199,7 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf):
 
         for vc in variant_calling:
             wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(vc)
-            data_type = 'wgs_'+vc           
+            data_type = 'wgs_'+vc        
             aliquot_info[vc] = create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type)        
         reorganized_donor.get('wgs').get('tumor_specimens').append(copy.deepcopy(aliquot_info)) 
 
@@ -207,7 +208,7 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf):
 
 
 def filter_liri_jp(project, gnos_repo, data_type, aliquot_id):
-    if not project == 'LIRI-JP':
+    if not project == 'LIRI-JP' or 'rna_seq' in data_type:
         return gnos_repo
     elif "https://gtrepo-riken.annailabs.com/" in gnos_repo:
         return ["https://gtrepo-riken.annailabs.com/"]
