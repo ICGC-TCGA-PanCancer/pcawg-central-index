@@ -288,7 +288,7 @@ def generate_tsv_file(reorganized_donor, vcf):
     for d in donor_info:
         pilot_tsv[d] = reorganized_donor.get(d)
     #wgs normal specimen
-    alignment = reorganized_donor.get('wgs').get('normal_specimen').get('bwa_alignment')
+    alignment = reorganized_donor.get('wgs').get('normal_specimen')
     generate_alignment_info(pilot_tsv, alignment, 'normal', 'wgs', 'alignment')
     # wgs tumor specimen
     wgs_tumor_speciments = reorganized_donor.get('wgs').get('tumor_specimens')
@@ -298,7 +298,7 @@ def generate_tsv_file(reorganized_donor, vcf):
     generate_variant_calling_info(pilot_tsv, wgs_tumor_speciments, vcf)
     # rna_seq normal
     for workflow in ['star', 'tophat']:
-        alignment = reorganized_donor.get('rna_seq').get('normal_specimen').get(workflow)
+        alignment = reorganized_donor.get('rna_seq').get('normal_specimen')
         generate_alignment_info(pilot_tsv, alignment, 'normal', 'rna_seq', workflow.lower()+'_alignment')
     # rna_seq tumor
     rna_seq_tumor = reorganized_donor.get('rna_seq').get('tumor_specimens')  
@@ -326,49 +326,40 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
     gnos_field = ['gnos_repo', 'gnos_id']
     for d in aliquot_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+d): continue
-        pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = None if specimen_type == 'normal' else []
-
+        pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = []
     for d in gnos_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d): continue
-        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = None if specimen_type == 'normal' else []   
+        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = []   
     if not pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'):
-        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = None if specimen_type == 'normal' else []
+        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = []
 
-
-    if 'normal' in specimen_type and alignment:
-        for d in aliquot_field:
-            pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = alignment.get(d)
-        for d in gnos_field:
-            pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = [alignment.get(d)]
-        for f in alignment.get('files'):
-            if 'bai' in f.get('file_name'): continue
-            pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = f.get('file_name')
-
+    if 'normal' in specimen_type and 'wgs' in sequence_type:
+        generate_alignment(aliquot_field, gnos_field, alignment.get('bwa_alignment'), pilot_tsv, specimen_type, sequence_type, workflow_type)
+    elif 'normal' in specimen_type and 'rna_seq' in sequence_type:
+        if alignment.get(workflow_type.replace('_alignment', '')):
+            generate_alignment(aliquot_field, gnos_field, alignment.get(workflow_type.replace('_alignment', '')), pilot_tsv, specimen_type, sequence_type, workflow_type)
     elif 'tumor' in specimen_type and 'wgs' in sequence_type:
         for specimen in alignment:
-            for d in aliquot_field:
-                pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(specimen.get('bwa_alignment').get(d))
-            for d in gnos_field:
-                pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(specimen.get('bwa_alignment').get(d))
-            for f in specimen.get('bwa_alignment').get('files'):
-                if 'bai' in f.get('file_name'): continue
-                pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'].append(f.get('file_name'))
-    
+            generate_alignment(aliquot_field, gnos_field, specimen.get('bwa_alignment'), pilot_tsv, specimen_type, sequence_type, workflow_type)
     elif 'tumor' in specimen_type and 'rna_seq' in sequence_type:
         for specimen in alignment:
             if specimen.get(workflow_type.replace('_alignment', '')):
-                for d in aliquot_field:
-                    if not specimen.get(workflow_type.replace('_alignment', '')).get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
-                        pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(specimen.get(workflow_type.replace('_alignment', '')).get(d)) 
-                for d in gnos_field:
-                    pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(specimen.get(workflow_type.replace('_alignment', '')).get(d))
-                for f in specimen.get(workflow_type.replace('_alignment', '')).get('files'):
-                    if 'bai' in f.get('file_name'): continue
-                    pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'].append(f.get('file_name'))                    
-
+                generate_alignment(aliquot_field, gnos_field, specimen.get(workflow_type.replace('_alignment', '')), pilot_tsv, specimen_type, sequence_type, workflow_type)                
     else:
-        logger.info('Normal RNA_Seq has no alignments')
+        logger.info('This should never happen')
 
+    return pilot_tsv
+
+
+def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen_type, sequence_type, workflow_type):
+    for d in aliquot_field:
+        if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
+            pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
+    for d in gnos_field:
+        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(alignment.get(d))
+    for f in alignment.get('files'):
+        if 'bai' in f.get('file_name'): continue
+        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'].append(f.get('file_name'))                    
     return pilot_tsv
 
 
