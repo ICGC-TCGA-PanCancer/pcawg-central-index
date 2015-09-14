@@ -109,6 +109,7 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf):
 
 
 def create_alignment(es_json, aliquot, data_type):
+    if not aliquot.get('aligned_bam'): return
     alignment = {
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
@@ -147,16 +148,16 @@ def get_formal_vcf_name(vcf):
 
 
 def choose_variant_calling(es_json, vcf):
-    variant_calling = []
-    if not vcf:
-        variant_calling = es_json.get('variant_calling_results').keys()
-    else:
-        for v in vcf:
-            if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
-                not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
-                variant_calling.append(get_formal_vcf_name(v))
-            else:
-                logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
+    variant_calling = set()
+    if not es_json.get('variant_calling_results') or not vcf:
+        return variant_calling
+
+    for v in vcf:
+        if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
+            not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
+            variant_calling.add(get_formal_vcf_name(v))
+        else:
+            logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
     return variant_calling
 
 
@@ -183,25 +184,27 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type):
 
 
 def add_wgs_specimens(reorganized_donor, es_json, vcf):
-    wgs_normal_alignment_info = es_json.get('normal_alignment_status')
-    data_type = 'wgs_normal_bwa'
-    reorganized_donor.get('wgs').get('normal_specimen')['bwa_alignment'] = create_alignment(es_json, wgs_normal_alignment_info, data_type)
-
-    variant_calling = choose_variant_calling(es_json, vcf)
-    wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
+    if es_json.get('normal_alignment_status'):
+        wgs_normal_alignment_info = es_json.get('normal_alignment_status')
+        data_type = 'wgs_normal_bwa'
+        reorganized_donor.get('wgs').get('normal_specimen')['bwa_alignment'] = create_alignment(es_json, wgs_normal_alignment_info, data_type)
 
     tumor_wgs_specimen_count = 0
-    for aliquot in wgs_tumor_alignment_info:
-        aliquot_info = OrderedDict()
-        tumor_wgs_specimen_count += 1
-        data_type = 'wgs_tumor_bwa'
-        aliquot_info['bwa_alignment'] = create_alignment(es_json, aliquot, data_type)        
-
-        for vc in variant_calling:
-            wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(vc)
-            data_type = 'wgs_'+vc        
-            aliquot_info[vc] = create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type)        
-        reorganized_donor.get('wgs').get('tumor_specimens').append(copy.deepcopy(aliquot_info)) 
+    if es_json.get('tumor_alignment_status'):
+        variant_calling = choose_variant_calling(es_json, vcf)
+        wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
+    
+        for aliquot in wgs_tumor_alignment_info:
+            aliquot_info = OrderedDict()
+            tumor_wgs_specimen_count += 1
+            data_type = 'wgs_tumor_bwa'
+            aliquot_info['bwa_alignment'] = create_alignment(es_json, aliquot, data_type)        
+            
+            for vc in variant_calling:
+                wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(vc)
+                data_type = 'wgs_'+vc        
+                aliquot_info[vc] = create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type)        
+            reorganized_donor.get('wgs').get('tumor_specimens').append(copy.deepcopy(aliquot_info)) 
 
     reorganized_donor['tumor_wgs_specimen_count'] = tumor_wgs_specimen_count
     return reorganized_donor
@@ -333,7 +336,9 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
     if not pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'):
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = []
 
-    if 'normal' in specimen_type and 'wgs' in sequence_type:
+    if not alignment:
+        logger.info('Donor: {}::{} has no {} {} at {} specimen'.format(pilot_tsv.get('dcc_project_code'), pilot_tsv.get('submitter_donor_id'), sequence_type, workflow_type, specimen_type))
+    elif 'normal' in specimen_type and 'wgs' in sequence_type:
         generate_alignment(aliquot_field, gnos_field, alignment.get('bwa_alignment'), pilot_tsv, specimen_type, sequence_type, workflow_type)
     elif 'normal' in specimen_type and 'rna_seq' in sequence_type:
         if alignment.get(workflow_type.replace('_alignment', '')):
@@ -346,12 +351,13 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
             if specimen.get(workflow_type.replace('_alignment', '')):
                 generate_alignment(aliquot_field, gnos_field, specimen.get(workflow_type.replace('_alignment', '')), pilot_tsv, specimen_type, sequence_type, workflow_type)                
     else:
-        logger.info('This should never happen')
+        logger.warning('This should never happen')
 
     return pilot_tsv
 
 
 def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen_type, sequence_type, workflow_type):
+    if not alignment: return 
     for d in aliquot_field:
         if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
