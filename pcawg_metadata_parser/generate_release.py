@@ -358,7 +358,7 @@ def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen
     for d in gnos_field:
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(alignment.get(d))
     for f in alignment.get('files'):
-        if 'bai' in f.get('file_name'): continue
+        if f.get('file_name').endswith('.bai'): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'].append(f.get('file_name'))                    
     return pilot_tsv
 
