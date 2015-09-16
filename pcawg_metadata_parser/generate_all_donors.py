@@ -165,14 +165,14 @@ def add_rna_seq_info(reorganized_donor, es_json):
                     'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
                     'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
                     'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
-                    'gnos_repo': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
-                    'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
-                    'gnos_last_modified': aliquot.get(workflow_type).get('gnos_info').get('gnos_last_modified')[-1],
+                    'gnos_repo': aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo'),
+                    'gnos_id': aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'),
+                    'gnos_last_modified': aliquot.get(workflow_type).get('aligned_bam').get('gnos_last_modified')[-1],
                     'files': [
                         {
-                            'bam_file_name': aliquot.get(workflow_type).get('gnos_info').get('bam_file_name'),
-                            'bam_file_md5sum': aliquot.get(workflow_type).get('gnos_info').get('bam_file_md5sum'),
-                            'bam_file_size': aliquot.get(workflow_type).get('gnos_info').get('bam_file_size')                           
+                            'bam_file_name': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'),
+                            'bam_file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_md5sum'),
+                            'bam_file_size': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_size')                           
                         }
                     ]
                 }
@@ -186,14 +186,14 @@ def add_rna_seq_info(reorganized_donor, es_json):
 			    	    'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
                         'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
 			    	    'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
-			    	    'gnos_repo': aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'),
-			    	    'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
-                        'gnos_last_modified': aliquot.get(workflow_type).get('gnos_info').get('gnos_last_modified')[-1],
+			    	    'gnos_repo': aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo'),
+			    	    'gnos_id': aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'),
+                        'gnos_last_modified': aliquot.get(workflow_type).get('aligned_bam').get('gnos_last_modified')[-1],
 			    	    'files': [
 			    	        {
-                                'bam_file_name': aliquot.get(workflow_type).get('gnos_info').get('bam_file_name'),
-                                'bam_file_md5sum': aliquot.get(workflow_type).get('gnos_info').get('bam_file_md5sum'),
-                                'bam_file_size': aliquot.get(workflow_type).get('gnos_info').get('bam_file_size')			    	        
+                                'bam_file_name': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'),
+                                'bam_file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_md5sum'),
+                                'bam_file_size': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_size')			    	        
 			                }
 			    	    ]
 			    	}
