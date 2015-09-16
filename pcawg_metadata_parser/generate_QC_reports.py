@@ -293,7 +293,7 @@ es_queries = [
                     },          
                     {
                        "terms":{
-                          "duplicated_bwa_alignment_summary.exists_gnos_xml_mismatch":[
+                          "flags.exists_xml_md5sum_mismatch":[
                              "T"
                           ]
                        }
@@ -732,30 +732,42 @@ def add_report_info_6_7(report_info, report_info_list, es_json):
 
 
 def add_report_info_5(report_info, report_info_list, es_json):
-    duplicate_bwa_bams = es_json.get('duplicated_bwa_alignment_summary')
-    if duplicate_bwa_bams.get('exists_gnos_xml_mismatch_in_normal'):
-        aliquot = duplicate_bwa_bams.get('normal')
-        add_report_info_5_aliquot(aliquot, report_info, report_info_list)   
-    
-    if duplicate_bwa_bams.get('exists_gnos_xml_mismatch_in_tumor'):
-        for aliquot in duplicate_bwa_bams.get('tumor'):
-            add_report_info_5_aliquot(aliquot, report_info, report_info_list)
+    if es_json.get('normal_alignment_status'):
+        aliquot = es_json.get('normal_alignment_status')
+        add_report_info_5_aliquot(aliquot, report_info, report_info_list, 'wgs_bwa_alignment')
+
+    if es_json.get('tumor_alignment_status'):
+        for aliquot in es_json.get('tumor_alignment_status'):
+            add_report_info_5_aliquot(aliquot, report_info, report_info_list, 'wgs_bwa_alignment')
+
+    if es_json.get('variant_calling_results'):
+        for k, v in es_json.get('variant_calling_results').iteritems():
+            add_report_info_5_aliquot(v, report_info, report_info_list, k)
+
+    if es_json.get('rna_seq').get('alignment'):
+        for k, v in es_json.get('rna_seq').get('alignment').iteritems():
+            if not v: continue
+            if k=='normal':
+                for key, value in v.iteritems():
+                    workflow = 'rna_seq_'+key+'_alignment'
+                    add_report_info_5_aliquot(value, report_info, report_info_list, workflow)
+            if k=='tumor':
+                for aliquot in v:
+                    for key, value in aliquot.iteritems():
+                        workflow = 'rna_seq_'+key+'_alignment'
+                        add_report_info_5_aliquot(value, report_info, report_info_list, workflow)                    
+    return report_info_list
 
 
-def add_report_info_5_aliquot(aliquot, report_info, report_info_list):
-    if aliquot.get('exists_gnos_xml_mismatch'):
-        report_info['aliquot_id'] = aliquot.get('aliquot_id')
-        report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
-        report_info['exists_gnos_id_mismatch'] = aliquot.get('exists_gnos_id_mismatch')
-        report_info['gnos_repo'] = []
-        report_info['gnos_id'] = []
-        report_info['effective_xml_md5sum'] = []
-        for bam in aliquot.get('aligned_bam'):
-            report_info['gnos_repo'].append(bam.get('gnos_repo'))
-            report_info['gnos_id'].append(bam.get('gnos_id'))
-            report_info['effective_xml_md5sum'].append(bam.get('effective_xml_md5sum'))
+def add_report_info_5_aliquot(aliquot, report_info, report_info_list, workflow):
+    if aliquot.get('exists_xml_md5sum_mismatch'):
+        report_info['aliquot_id'] = aliquot.get('aliquot_id') if workflow.endswith('alignment') else None
+        report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type') if workflow.endswith('alignment') else None
+        report_info['workflow'] = workflow
+        report_info['gnos_repo'] = aliquot.get('aligned_bam').get('gnos_repo') if workflow.endswith('alignment') else aliquot.get('gnos_repo')
+        report_info['gnos_id'] = aliquot.get('aligned_bam').get('gnos_id') if workflow.endswith('alignment') else aliquot.get('gnos_id')
+        report_info['effective_xml_md5sum'] = aliquot.get('aligned_bam').get('effective_xml_md5sum') if workflow.endswith('alignment') else aliquot.get('effective_xml_md5sum')
         report_info_list.append(copy.deepcopy(report_info))
-
     return report_info_list
 
 
