@@ -295,7 +295,7 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                     workflow_previous.get('gnos_repo').append(current_vcf_entry['gnos_repo'][0])
                     workflow_previous.get('gnos_last_modified').append(current_vcf_entry['gnos_last_modified'][0])
                     workflow_previous.get('effective_xml_md5sum').append(current_vcf_entry['effective_xml_md5sum'][0])
-                    workflow_previous.get('exists_xml_md5sum_mismatch') = False if len(set(workflow_previous.get('effective_xml_md5sum'))) == 1 else True
+                    workflow_previous['exists_xml_md5sum_mismatch'] = False if len(set(workflow_previous.get('effective_xml_md5sum'))) == 1 else True
                     logger.info( 'Donor: {} has synchronized variant calling with GNOS ID: {} in the repos: {}'
                                     .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
             
@@ -1470,6 +1470,11 @@ def add_vcf_entry(donor, vcf_entry):
 
         # add the flags of exists_{workflow}_file_prefix_mismatch
         donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = False
+
+        # update the flags of exists_xml_md5sum_mismatch
+        if donor.get('variant_calling_results').get(workflow + '_variant_calling').get('exists_xml_md5sum_mismatch'):
+            donor.get('flags')['exists_xml_md5sum_mismatch'] = True
+
         # scan all the files under **_variant_calling
         file_prefix = set()
         for f in donor.get('variant_calling_results').get(workflow + '_variant_calling').get('files'):
@@ -1751,7 +1756,7 @@ def bam_aggregation(bam_files):
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
                     alignment_status.get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
-                    alignment_status.get('exists_xml_md5sum_mismatch') = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
+                    alignment_status['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
                     
             else:
                 if bam['is_s3_transfer_scheduled']:
@@ -1908,7 +1913,7 @@ def bam_aggregation(bam_files):
                         alignment_status.get('tophat').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('tophat').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
                         alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
-                        alignment_status.get('tophat').get('exists_xml_md5sum_mismatch') = False if len(set(alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
+                        alignment_status.get('tophat')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
 
                 else:
@@ -1958,7 +1963,7 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('star').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
                         alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
-                        alignment_status.get('star').get('exists_xml_md5sum_mismatch') = False if len(set(alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
+                        alignment_status.get('star')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
                 else:
                     if bam['is_s3_transfer_scheduled']:
