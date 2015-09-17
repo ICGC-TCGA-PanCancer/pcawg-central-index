@@ -227,7 +227,7 @@ def get_rna_seq_aliquot_fields(aliquot, specimen_info, specimen_info_list):
         specimen_info['has_bam_been_transferred'] = False
         #for later possible use
         #specimen_info['has_bam_been_transferred'] = aliquot.get(workflow_type).get('has_' + workflow_type.lower() + '_bam_been_transferred')       
-        specimen_info['bam_gnos_id'] = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
+        specimen_info['bam_gnos_id'] = aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')
         specimen_info['computer_site'] = []
         specimen_info_list.append(copy.deepcopy(specimen_info))
 

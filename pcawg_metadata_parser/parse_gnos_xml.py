@@ -294,6 +294,8 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                 else:
                     workflow_previous.get('gnos_repo').append(current_vcf_entry['gnos_repo'][0])
                     workflow_previous.get('gnos_last_modified').append(current_vcf_entry['gnos_last_modified'][0])
+                    workflow_previous.get('effective_xml_md5sum').append(current_vcf_entry['effective_xml_md5sum'][0])
+                    workflow_previous['exists_xml_md5sum_mismatch'] = False if len(set(workflow_previous.get('effective_xml_md5sum'))) == 1 else True
                     logger.info( 'Donor: {} has synchronized variant calling with GNOS ID: {} in the repos: {}'
                                     .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
             
@@ -373,12 +375,12 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "gnos_last_modified": [dateutil.parser.parse(gnos_analysis.get('last_modified'))],
         "files": files,
         "study": gnos_analysis.get('study'),
-        "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
+        "effective_xml_md5sum": [gnos_analysis.get('_effective_xml_md5sum')],
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
-
+        "exists_xml_md5sum_mismatch": False,
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
             "variant_workflow_name": analysis_attrib.get('variant_workflow_name'),
@@ -656,7 +658,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_tumor_tophat_rna_seq_alignment_performed': False,
             'exists_vcf_file_prefix_mismatch': False,
             'is_bam_used_by_variant_calling_missing': False,
-            'qc_score': None
+            'qc_score': None,
+            'exists_xml_md5sum_mismatch': False
         },
         'normal_specimen': {},
         'aligned_tumor_specimens': [],
@@ -1467,6 +1470,11 @@ def add_vcf_entry(donor, vcf_entry):
 
         # add the flags of exists_{workflow}_file_prefix_mismatch
         donor.get('variant_calling_results').get(workflow + '_variant_calling')['exists_' + workflow + '_file_prefix_mismatch'] = False
+
+        # update the flags of exists_xml_md5sum_mismatch
+        if donor.get('variant_calling_results').get(workflow + '_variant_calling').get('exists_xml_md5sum_mismatch'):
+            donor.get('flags')['exists_xml_md5sum_mismatch'] = True
+
         # scan all the files under **_variant_calling
         file_prefix = set()
         for f in donor.get('variant_calling_results').get(workflow + '_variant_calling').get('files'):
@@ -1592,6 +1600,8 @@ def add_rna_seq_status_to_donor(donor, aggregated_bam_info):
            (alignment_status.get('star') and 'normal' in alignment_status.get('star').get('dcc_specimen_type').lower()): # normal specimen
             if not donor.get('rna_seq').get('alignment').get('normal'): #no normal yet in RNA-Seq alignment of this donor
                 donor.get('rna_seq').get('alignment')['normal'] = alignment_status
+                if alignment_status.get('exists_xml_md5sum_mismatch'):
+                    donor.get('flags')['exists_xml_md5sum_mismatch'] = True
             else:
                 logger.warning('more than one RNA-Seq normal aliquot found in donor: {}'.format(donor.get('donor_unique_id')))
 
@@ -1599,7 +1609,9 @@ def add_rna_seq_status_to_donor(donor, aggregated_bam_info):
            (alignment_status.get('star') and 'tumour' in alignment_status.get('star').get('dcc_specimen_type').lower()): 
             if not donor.get('rna_seq').get('alignment').get('tumour'): #no tumor yet in RNA-Seq alignment of this donor
                 donor.get('rna_seq').get('alignment')['tumor'] = []
-            donor.get('rna_seq').get('alignment')['tumor'].append(alignment_status)   
+            donor.get('rna_seq').get('alignment')['tumor'].append(alignment_status)
+            if alignment_status.get('exists_xml_md5sum_mismatch'):
+                donor.get('flags')['exists_xml_md5sum_mismatch'] = True   
         else:
             logger.warning('invalid aliquot_id: {} in donor: {} '
                     .format(aliquot_id, donor.get('donor_unique_id'))
@@ -1612,6 +1624,8 @@ def add_alignment_status_to_donor(donor, aggregated_bam_info):
         if 'normal' in alignment_status.get('dcc_specimen_type').lower(): # normal specimen
             if not donor.get('normal_alignment_status'): # no normal yet in this donor, this is good
                 donor['normal_alignment_status'] = reorganize_unaligned_bam_info(alignment_status)
+                if alignment_status.get('exists_xml_md5sum_mismatch'):
+                    donor.get('flags')['exists_xml_md5sum_mismatch'] = True
             else: # another normal with different aliquot_id! this is no good
                 logger.warning('donor: {} has more than one normal, in use aliquot_id: {}, additional aliquot_id found: {}'
                         .format(donor.get('donor_unique_id'),
@@ -1623,6 +1637,8 @@ def add_alignment_status_to_donor(donor, aggregated_bam_info):
                 donor['tumor_alignment_status'] = []             
                 _tmp_sample_id = []
             donor['tumor_alignment_status'].append(reorganize_unaligned_bam_info(alignment_status))
+            if alignment_status.get('exists_xml_md5sum_mismatch'):
+                donor.get('flags')['exists_xml_md5sum_mismatch'] = True
 
             if alignment_status.get('submitter_sample_id') not in _tmp_sample_id:               
                 _tmp_sample_id.append(alignment_status.get('submitter_sample_id'))
@@ -1675,6 +1691,7 @@ def create_aggregated_bam_info_dict(bam):
         "exist_specimen_type_mismatch": False,
         "exist_aligned_bam_specimen_type_mismatch": False,
         "exist_unaligned_bam_specimen_type_mismatch": False,
+        "exists_xml_md5sum_mismatch": False,
         "aligned_bam": {
             "gnos_id": bam['bam_gnos_ao_id'],
             "bam_file_name": bam['bam_file_name'],
@@ -1683,7 +1700,7 @@ def create_aggregated_bam_info_dict(bam):
             "bai_file_name": bam['bai_file_name'],
             "bai_file_size": bam['bai_file_size'],
             "bai_file_md5sum": bam['bai_file_md5sum'],
-            "effective_xml_md5sum": bam['effective_xml_md5sum'],
+            "effective_xml_md5sum": [bam['effective_xml_md5sum']],
             "gnos_last_modified": [bam['last_modified']],
             "gnos_repo": [bam['gnos_repo']],
             "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
@@ -1738,6 +1755,8 @@ def bam_aggregation(bam_files):
                 else:
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                    alignment_status.get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
+                    alignment_status['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
                     
             else:
                 if bam['is_s3_transfer_scheduled']:
@@ -1893,6 +1912,10 @@ def bam_aggregation(bam_files):
                     else:
                         alignment_status.get('tophat').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('tophat').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                        alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
+                        alignment_status.get('tophat')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
+
+
                 else:
                     if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
@@ -1939,6 +1962,9 @@ def bam_aggregation(bam_files):
                     else:
                         alignment_status.get('star').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('star').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                        alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
+                        alignment_status.get('star')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
+
                 else:
                     if bam['is_s3_transfer_scheduled']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
@@ -1989,7 +2015,8 @@ def create_aggregated_rna_bam_info(bam):
         "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
         "is_aug2015_entry": bam['is_aug2015_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
-        "is_s3_transfer_completed": bam['is_s3_transfer_completed'],           
+        "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
+        "exists_xml_md5sum_mismatch": False,           
         "aligned_bam": {
             "gnos_repo": [bam['gnos_repo']],
             "gnos_id": bam['bam_gnos_ao_id'],
@@ -1999,7 +2026,8 @@ def create_aggregated_rna_bam_info(bam):
             "bai_file_name": bam['bai_file_name'],
             "bai_file_md5sum": bam['bai_file_md5sum'],
             "bai_file_size": bam['bai_file_size'],
-            "gnos_last_modified": [bam['last_modified']]
+            "gnos_last_modified": [bam['last_modified']],
+            "effective_xml_md5sum": [bam['effective_xml_md5sum']]
             }
         }
     return aliquot_tmp

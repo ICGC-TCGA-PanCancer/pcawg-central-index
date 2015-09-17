@@ -169,8 +169,8 @@ def add_rna_seq_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_
 
     for workflow_type in aliquot.keys():
         gnos_entity_info['entity_type'] = workflow_type
-        gnos_entity_info['gnos_id'] = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
-        for gnos_repo in aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'):
+        gnos_entity_info['gnos_id'] = aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')
+        for gnos_repo in aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo'):
             gnos_entity_info['gnos_repo'] = gnos_repo
             gnos_entity_info['gnos_metadata_url'] = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_entity_info['gnos_id']
             gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))            

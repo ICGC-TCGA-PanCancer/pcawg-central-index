@@ -409,7 +409,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_i
             aliquot = rna_seq_info.get(specimen_type)
             alignment_info = {}
             for workflow_type in aliquot.keys():
-                gnos_id = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
+                gnos_id = aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')
                 if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
                 if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
 
@@ -421,7 +421,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_i
             for aliquot in rna_seq_info.get(specimen_type):
                 alignment_info = {}
                 for workflow_type in aliquot.keys():
-                    gnos_id = aliquot.get(workflow_type).get('gnos_info').get('gnos_id')
+                    gnos_id = aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')
                     if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
                     if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
 
@@ -441,34 +441,34 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
         'submitter_sample_id': aliquot.get(workflow_type).get('submitter_sample_id'),
         'specimen_type': aliquot.get(workflow_type).get('dcc_specimen_type'),
         'aliquot_id': aliquot.get(workflow_type).get('aliquot_id'),
-        'available_repos': get_available_repos(aliquot.get(workflow_type).get('gnos_info')),
-        'gnos_repo': [ aliquot.get(workflow_type).get('gnos_info').get('gnos_repo')[ \
-            get_source_repo_index_pos(aliquot.get(workflow_type).get('gnos_info').get('gnos_repo'), chosen_gnos_repo)] ],
-        'gnos_id': aliquot.get(workflow_type).get('gnos_info').get('gnos_id'),
+        'available_repos': get_available_repos(aliquot.get(workflow_type).get('aligned_bam')),
+        'gnos_repo': [ aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo')[ \
+            get_source_repo_index_pos(aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo'), chosen_gnos_repo)] ],
+        'gnos_id': aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'),
         'files': [
             {
-                'file_name': aliquot.get(workflow_type).get('gnos_info').get('bam_file_name'),
-                'file_md5sum': aliquot.get(workflow_type).get('gnos_info').get('bam_file_md5sum'),
-                'file_size': aliquot.get(workflow_type).get('gnos_info').get('bam_file_size'),
-                'object_id': generate_object_id(aliquot.get(workflow_type).get('gnos_info').get('bam_file_name'), aliquot.get(workflow_type).get('gnos_info').get('gnos_id'))                          
+                'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'),
+                'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_md5sum'),
+                'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_size'),
+                'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                          
             }
         ]
     }
 
     # add the bai file info if exist
-    if aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'):
+    if aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
         bai_file = {
-            'file_name': aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'),
-            'file_md5sum': aliquot.get(workflow_type).get('gnos_info').get('bai_file_md5sum'),
-            'file_size': aliquot.get(workflow_type).get('gnos_info').get('bai_file_size'),
-            'object_id': generate_object_id(aliquot.get(workflow_type).get('gnos_info').get('bai_file_name'), aliquot.get(workflow_type).get('gnos_info').get('gnos_id'))                        
+            'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'),
+            'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_md5sum'),
+            'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_size'),
+            'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                        
         }
         alignment_info.get('files').append(bai_file)
     else:
         logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('gnos_info'), chosen_gnos_repo)
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), chosen_gnos_repo)
     alignment_info.get('files').append(metadata_xml_file_info)
 
     return alignment_info
