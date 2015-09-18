@@ -123,17 +123,17 @@ def generate_report(es, es_index, metadata_dir, report_name, timestamp, repo, s3
                     report[project]['both_transferred']['count'] += 1
                     report[project]['both_transferred']['donors'].add(donor_unique_id)
                     report[project]['both_not_transferred']['count'] -= 1 
-                    report[project]['both_not_transferred']['donors'].remove(donor_unique_id)                    
+                    report[project]['both_not_transferred']['donors'].discard(donor_unique_id)                    
                 else:
                     report[project]['normal_transferred_tumor_not']['count'] += 1
                     report[project]['normal_transferred_tumor_not']['donors'].add(donor_unique_id)
                     report[project]['both_not_transferred']['count'] -= 1 
-                    report[project]['both_not_transferred']['donors'].remove(donor_unique_id)   
+                    report[project]['both_not_transferred']['donors'].discard(donor_unique_id)   
             elif donor_value.get('WGS-BWA-Tumor') and len(donor_value.get('WGS-BWA-Tumor')) == tumor_aliquot_count:
                 report[project]['tumor_transferred_normal_not']['count'] += 1
                 report[project]['tumor_transferred_normal_not']['donors'].add(donor_unique_id)                
                 report[project]['both_not_transferred']['count'] -= 1 
-                report[project]['both_not_transferred']['donors'].remove(donor_unique_id)   
+                report[project]['both_not_transferred']['donors'].discard(donor_unique_id)   
 
     report_dir = init_report_dir(metadata_dir, report_name, repo)
     
