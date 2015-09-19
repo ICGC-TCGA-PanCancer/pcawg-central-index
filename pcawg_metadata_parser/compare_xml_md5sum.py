@@ -196,8 +196,8 @@ def main(argv=None):
         with open(fname, 'r') as f:
             for l in f:
                 if l.startswith('donor_unique_id'): 
-                    header = '\t'.join([l.rstrip('\n'), 'exist_effective_xml_mismatch', 'qc_metrics_md5sum', 'exist_qc_metrics_mismatch','data_file_md5sum', \
-                                                                       'exist_data_file_mismatch', 'index_file_md5sum', 'exist_index_file_mismatch'])
+                    header = '\t'.join([l.rstrip('\n'), 'exist_effective_xml_mismatch', 'qc_metrics_md5sum', 'data_file_md5sum', 'index_file_md5sum', \
+                        'exist_qc_metrics_mismatch', 'exist_data_file_mismatch', 'exist_index_file_mismatch'])
                     m.write(header+'\n')
                     continue
                 field_info = str.split(l.strip(), '\t')
@@ -225,9 +225,8 @@ def main(argv=None):
                 mismatch_data_file = 'False' if len(set(md5sum_data_file))==1 else 'True'
                 mismatch_index_file = 'False' if len(set(md5sum_index_file))==1 else 'True'
                 l_new = '\t'.join([l.rstrip('\n'), mismatch_effective, \
-                  '|'.join(md5sum_qc_metrics), mismatch_qc_metrics, \
-                  '|'.join(md5sum_data_file), mismatch_data_file, \
-                  '|'.join(md5sum_index_file), mismatch_index_file])+'\n'
+                  '|'.join(md5sum_qc_metrics), '|'.join(md5sum_data_file), '|'.join(md5sum_index_file), \
+                  mismatch_qc_metrics, mismatch_data_file, mismatch_index_file])+'\n'
                 m.write(l_new)
 
     #if os.path.isfile(fname): os.remove(fname)
