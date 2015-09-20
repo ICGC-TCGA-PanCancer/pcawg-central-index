@@ -9,6 +9,8 @@ if [ -z $WEB_DIR ] || [ ! -d $WEB_DIR ]; then
   exit 1
 fi
 
+SKIP_DOWNLOAD=$2
+
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 echo Script location: $DIR
@@ -33,9 +35,10 @@ cd $DIR
 #gnos_repos=(ebi bsc dkfz)
 
 echo
-echo synchronizing with GNOS repos
-./gnos_metadata_downloader.py -c settings.yml
-
+if [[ ! "$SKIP_DOWNLOAD" ]]; then
+  echo synchronizing with GNOS repos
+  ./gnos_metadata_downloader.py -c settings.yml
+fi
 
 echo
 echo cleaning up older ES indexes
