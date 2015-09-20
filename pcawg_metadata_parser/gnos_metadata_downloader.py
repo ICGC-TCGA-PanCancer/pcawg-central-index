@@ -145,12 +145,15 @@ def sync_metadata_xml(gnos_repo, output_dir, manifest_file):
     fh.close()
 
 
-def process_gnos_repo(gnos_repo, output_dir, mani_output_dir):
+def process_gnos_repo(gnos_repo, output_dir, mani_output_dir, cache_repos):
     logger.info('processing GNOS repo: {}'.format(gnos_repo.get('repo_code')))
 
-    manifest_file = download_manifest(gnos_repo, mani_output_dir, False)  # only set last param to True for testing
-    if not manifest_file:
+    manifest = ''
+    if cache_repos and gnos_repo.get('repo_code') in cache_repos:
         manifest_file = use_previous_manifest(gnos_repo, output_dir, mani_output_dir)
+    else:
+        manifest_file = download_manifest(gnos_repo, mani_output_dir, False)  # only set last param to True for testing
+        if not manifest_file: manifest_file = use_previous_manifest(gnos_repo, output_dir, mani_output_dir)
 
     if manifest_file:
         sync_metadata_xml(gnos_repo, output_dir, manifest_file)
@@ -168,9 +171,14 @@ def main(argv=None):
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-c", "--config", dest="config",
              help="Configuration file for GNOS repositories", required=True)
+    parser.add_argument("-r", "--repo-from-cache", dest="cache_repo",
+             help="Repos will use local cache", required=False)
+
 
     args = parser.parse_args()
     conf_file = args.config
+    cache_repos = args.cache_repo.split(',') if args.cache_repo else None
+
 
     with open(conf_file) as f:
         conf = yaml.safe_load(f)
@@ -195,7 +203,7 @@ def main(argv=None):
     logger.addHandler(ch)
 
     for g in conf.get('gnos_repos'):
-        process_gnos_repo(g, output_dir, mani_output_dir)
+        process_gnos_repo(g, output_dir, mani_output_dir, cache_repos)
 
     return 0
 
