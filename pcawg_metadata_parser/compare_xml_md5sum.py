@@ -177,8 +177,20 @@ def generate_subreport(fname, subreport_dir):
                             row_order[fn] = row.get(fn)
                         subreport_list.append(row_order)
                 if not subreport_list: continue
-                print len(subreport_list)
                 write_file(subreport_list, subreport_name)
+    # other mismatch            
+    subreport_name = subreport_dir+'/other_mismatch.txt'
+    subreport_list = []
+    with open(fname, 'r') as s:
+        reader = csv.DictReader(s, delimiter='\t')
+        for row in reader:
+            if row.get('exist_qc_metrics_mismatch') == 'False' and row.get('exist_data_file_mismatch') == 'False' and row.get('exist_index_file_mismatch') == 'False':
+                row_order = OrderedDict()
+                for fn in reader.fieldnames:
+                    row_order[fn] = row.get(fn)
+                subreport_list.append(row_order)      
+        if subreport_list: write_file(subreport_list, subreport_name)  
+
 
 
 def write_file(flist, fn):
