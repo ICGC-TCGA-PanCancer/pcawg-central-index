@@ -113,7 +113,7 @@ def create_alignment(es_json, aliquot, data_type):
     alignment = {
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
-        'specimen_type': aliquot.get('dcc_specimjen_type'),
+        'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
             aliquot.get('aligned_bam').get('gnos_repo'), \
