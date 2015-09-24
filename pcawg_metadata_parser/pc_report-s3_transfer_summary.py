@@ -10,6 +10,7 @@ from argparse import RawDescriptionHelpFormatter
 from elasticsearch import Elasticsearch
 import glob
 import shutil
+import copy
 
 def get_project_donor_count(es, es_index, dcc_project_code):
     es_query_project = {
@@ -109,7 +110,7 @@ def generate_report(es, es_index, metadata_dir, report_name, timestamp, repo, s3
         donors_list = get_project_donor_count(es, es_index, project)
 
         report[project]['expected_to_be_transferred']['count'] = len(donors_list)
-        report[project]['expected_to_be_transferred']['donors'] = donors_list
+        report[project]['expected_to_be_transferred']['donors'] = copy.deepcopy(donors_list)
         report[project]['both_not_transferred']['count'] = len(donors_list)
         report[project]['both_not_transferred']['donors'] = donors_list
 
@@ -189,6 +190,7 @@ def main(argv=None):
 
     report_name = re.sub(r'^pc_report-', '', os.path.basename(__file__))
     report_name = re.sub(r'\.py$', '', report_name)
+
 
     # read and parse git for the gnos_ids and fnames which are completed for s3 transfer
     git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json'
