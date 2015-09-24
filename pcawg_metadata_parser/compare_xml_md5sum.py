@@ -20,6 +20,8 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import shutil
 from operator import itemgetter
+import csv
+from collections import OrderedDict
 
 
 def download_metadata_xml(gnos_repo, ao_uuid):
@@ -161,6 +163,56 @@ def calculate_xml_md5sum(xml_str, workflow, xml_dir, gnos_id, gnos_repo):
 
     return md5sum
 
+def generate_subreport(fname, subreport_dir):
+    for subreport in ['qc_metrics', 'data_file', 'index_file']:
+        for workflow in ['wgs_bwa', 'rna_seq']:
+            subreport_name = subreport_dir+'/'+workflow+'_'+subreport+'_mismatch.txt'
+            subreport_list = []
+            with open(fname, 'r') as s:
+                reader = csv.DictReader(s, delimiter='\t')
+                for row in reader:
+                    if row.get('workflow').startswith(workflow) and row.get('exist_'+subreport+'_mismatch') == 'True':
+                        row_order = OrderedDict()
+                        for fn in reader.fieldnames:
+                            row_order[fn] = row.get(fn)
+                        subreport_list.append(row_order)
+                if not subreport_list: continue
+                write_file(subreport_list, subreport_name)
+    # other mismatch            
+    subreport_name = subreport_dir+'/other_mismatch.txt'
+    subreport_list = []
+    with open(fname, 'r') as s:
+        reader = csv.DictReader(s, delimiter='\t')
+        for row in reader:
+            if row.get('exist_qc_metrics_mismatch') == 'False' and row.get('exist_data_file_mismatch') == 'False' and row.get('exist_index_file_mismatch') == 'False':
+                row_order = OrderedDict()
+                for fn in reader.fieldnames:
+                    row_order[fn] = row.get(fn)
+                subreport_list.append(row_order)      
+        if subreport_list: write_file(subreport_list, subreport_name)  
+
+
+
+def write_file(flist, fn):
+    with open(fn, 'w') as f:
+        header = True  
+        for r in flist:
+            if header:
+                f.write('\t'.join(r.keys()) + '\n')
+                header = False 
+            # make the list of output from dict
+            line = []
+            for p in r.keys():
+                if isinstance(r.get(p), list):
+                    line.append('|'.join(r.get(p)))
+                elif isinstance(r.get(p), set):
+                    line.append('|'.join(list(r.get(p))))
+                elif r.get(p) is None:
+                    line.append('')
+                else:
+                    line.append(str(r.get(p)))
+            f.write('\t'.join(line) + '\n')     
+
 
 def main(argv=None):
 
@@ -191,6 +243,13 @@ def main(argv=None):
     #output file
     detail_result = fname.replace('.txt', '_details') +'.txt'
     if os.path.isfile(detail_result): os.remove(detail_result)
+    # subreport output folder
+    subreport_name = re.sub(r'^compare_', '', os.path.basename(__file__))
+    subreport_name = re.sub(r'\.py$', '', subreport_name)
+    subreport_dir = os.path.dirname(detail_result)+'/'+subreport_name
+    if os.path.exists(subreport_dir): shutil.rmtree(subreport_dir, ignore_errors=True)  # empty the folder if exists
+    os.makedirs(subreport_dir)
+
 
     with open(detail_result, 'w') as m:
         with open(fname, 'r') as f:
@@ -221,15 +280,18 @@ def main(argv=None):
                     md5sum_data_file.append(md5sum[1])
                     md5sum_index_file.append(md5sum[2])
                 mismatch_effective = 'False' if len(set(md5sum_effective))==1 else 'True'
-                mismatch_qc_metrics = 'False' if len(set(md5sum_qc_metrics))==1 else 'True'
-                mismatch_data_file = 'False' if len(set(md5sum_data_file))==1 else 'True'
-                mismatch_index_file = 'False' if len(set(md5sum_index_file))==1 else 'True'
+                mismatch_qc_metrics = 'False' if len(set(md5sum_qc_metrics))==1 and not 'missing' in md5sum_qc_metrics else 'True'
+                mismatch_data_file = 'False' if len(set(md5sum_data_file))==1 and not 'missing' in md5sum_data_file else 'True'
+                mismatch_index_file = 'False' if len(set(md5sum_index_file))==1 and not 'missing' in md5sum_index_file else 'True'
                 l_new = '\t'.join([l.rstrip('\n'), mismatch_effective, \
                   '|'.join(md5sum_qc_metrics), '|'.join(md5sum_data_file), '|'.join(md5sum_index_file), \
                   mismatch_qc_metrics, mismatch_data_file, mismatch_index_file])+'\n'
                 m.write(l_new)
 
     #if os.path.isfile(fname): os.remove(fname)
+    # generate subreports
+    generate_subreport(detail_result, subreport_dir)
+
     return 0
 
 
