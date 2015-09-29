@@ -121,50 +121,58 @@ def calculate_xml_md5sum(xml_str, workflow, xml_dir, gnos_id, gnos_repo):
         else:
             md5sum.append('missing')
 
+    xml_str = re.sub(r'<ResultSet .+?>', '<ResultSet>', xml_str)
+    #xml_str = re.sub(r'<analysis_id>.+?</analysis_id>', '<analysis_id></analysis_id>', xml_str)
+    xml_str = re.sub(r'<last_modified>.+?</last_modified>', '<last_modified></last_modified>', xml_str)
+    xml_str = re.sub(r'<upload_date>.+?</upload_date>', '<upload_date></upload_date>', xml_str)
+    xml_str = re.sub(r'<published_date>.+?</published_date>', '<published_date></published_date>', xml_str)
+    xml_str = re.sub(r'<center_name>.+?</center_name>', '<center_name></center_name>', xml_str)
+    xml_str = re.sub(r'<analyte_code>.+?</analyte_code>', '<analyte_code></analyte_code>', xml_str)
+    xml_str = re.sub(r'<reason>.+?</reason>', '<reason></reason>', xml_str)
+    xml_str = re.sub(r'<study>.+?</study>', '<study></study>', xml_str)
+    xml_str = re.sub(r'<sample_accession>.+?</sample_accession>', '<sample_accession></sample_accession>', xml_str)
+    #xml_str = re.sub(r'<dcc_project_code>.+?</dcc_project_code>', '<dcc_project_code></dcc_project_code>', xml_str)
+    #xml_str = re.sub(r'<participant_id>.+?</participant_id>', '<participant_id></participant_id>', xml_str)
+    xml_str = re.sub(r'<dcc_specimen_type>.+?</dcc_specimen_type>', '<dcc_specimen_type></dcc_specimen_type>', xml_str)
+
+    xml_str = re.sub(r'<specimen_id>.+?</specimen_id>', '<specimen_id></specimen_id>', xml_str)
+    xml_str = re.sub(r'<sample_id>.+?</sample_id>', '<sample_id></sample_id>', xml_str)
+    xml_str = re.sub(r'<use_cntl>.+?</use_cntl>', '<use_cntl></use_cntl>', xml_str)
+    xml_str = re.sub(r'<library_strategy>.+?</library_strategy>', '<library_strategy></library_strategy>', xml_str)
+    xml_str = re.sub(r'<platform>.+?</platform>', '<platform></platform>', xml_str)
+    xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
+    #xml_str = re.sub(r'<VALUE>.*{"qc_metrics".+?</VALUE>', '<VALUE>\n{"qc_metrics"}</VALUE>', xml_str, re.DOTALL)
+
+
+    xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
+    xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
+    xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
+    xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
+    xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
+    xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
+    xml_str = re.sub(r'<analysis_submission_uri>.+?</analysis_submission_uri>', '<analysis_submission_uri></analysis_submission_uri>', xml_str)
+    xml_str = re.sub(r'<analysis_data_uri>.+?</analysis_data_uri>', '<analysis_data_uri></analysis_data_uri>', xml_str)
+
+    # we need to take care of xml properties in different order but effectively/semantically the same
+    effective_gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
+    effective_eq_xml = json.dumps(effective_gnos_analysis, indent=4, sort_keys=True)
+
     if xml_dir:
-        xml_str = re.sub(r'<ResultSet .+?>', '<ResultSet>', xml_str)
-        #xml_str = re.sub(r'<analysis_id>.+?</analysis_id>', '<analysis_id></analysis_id>', xml_str)
-        xml_str = re.sub(r'<last_modified>.+?</last_modified>', '<last_modified></last_modified>', xml_str)
-        xml_str = re.sub(r'<upload_date>.+?</upload_date>', '<upload_date></upload_date>', xml_str)
-        xml_str = re.sub(r'<published_date>.+?</published_date>', '<published_date></published_date>', xml_str)
-        xml_str = re.sub(r'<center_name>.+?</center_name>', '<center_name></center_name>', xml_str)
-        xml_str = re.sub(r'<analyte_code>.+?</analyte_code>', '<analyte_code></analyte_code>', xml_str)
-        xml_str = re.sub(r'<reason>.+?</reason>', '<reason></reason>', xml_str)
-        xml_str = re.sub(r'<study>.+?</study>', '<study></study>', xml_str)
-        xml_str = re.sub(r'<sample_accession>.+?</sample_accession>', '<sample_accession></sample_accession>', xml_str)
-        #xml_str = re.sub(r'<dcc_project_code>.+?</dcc_project_code>', '<dcc_project_code></dcc_project_code>', xml_str)
-        #xml_str = re.sub(r'<participant_id>.+?</participant_id>', '<participant_id></participant_id>', xml_str)
-        xml_str = re.sub(r'<dcc_specimen_type>.+?</dcc_specimen_type>', '<dcc_specimen_type></dcc_specimen_type>', xml_str)
-
-        xml_str = re.sub(r'<specimen_id>.+?</specimen_id>', '<specimen_id></specimen_id>', xml_str)
-        xml_str = re.sub(r'<sample_id>.+?</sample_id>', '<sample_id></sample_id>', xml_str)
-        xml_str = re.sub(r'<use_cntl>.+?</use_cntl>', '<use_cntl></use_cntl>', xml_str)
-        xml_str = re.sub(r'<library_strategy>.+?</library_strategy>', '<library_strategy></library_strategy>', xml_str)
-        xml_str = re.sub(r'<platform>.+?</platform>', '<platform></platform>', xml_str)
-        xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
-        #xml_str = re.sub(r'<VALUE>.*{"qc_metrics".+?</VALUE>', '<VALUE>\n{"qc_metrics"}</VALUE>', xml_str, re.DOTALL)
-
-
-        xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
-        xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
-        xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
-        xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
-        xml_str = re.sub(r'<RUN_SET .+?>', '<RUN_SET>', xml_str)
-        xml_str = re.sub(r'<analysis_detail_uri>.+?</analysis_detail_uri>', '<analysis_detail_uri></analysis_detail_uri>', xml_str)
-        xml_str = re.sub(r'<analysis_submission_uri>.+?</analysis_submission_uri>', '<analysis_submission_uri></analysis_submission_uri>', xml_str)
-        xml_str = re.sub(r'<analysis_data_uri>.+?</analysis_data_uri>', '<analysis_data_uri></analysis_data_uri>', xml_str)
-
-        # we need to take care of xml properties in different order but effectively/semantically the same
-        effective_gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
-        effective_eq_xml = json.dumps(effective_gnos_analysis, indent=4, sort_keys=True)
-
         with open(xml_dir+'/'+gnos_id+'_'+get_formal_repo_name(gnos_repo), 'w') as y:
             y.write(effective_eq_xml)
+
+    # all other parts other than the qc_metric, data_file, index_file
+    xml_str = re.sub(r'<VALUE>.*{"qc_metrics".+?</VALUE>', '<VALUE>{"qc_metrics"}</VALUE>', xml_str, re.DOTALL)
+    other_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result')
+    other_xml.pop('files')
+    other_str = json.dumps(other_xml, indent=4, sort_keys=True)
+
+    md5sum.append(hashlib.md5(other_str).hexdigest()) 
 
     return md5sum
 
 def generate_subreport(fname, subreport_dir):
-    for subreport in ['qc_metrics', 'data_file', 'index_file']:
+    for subreport in ['qc_metrics', 'data_file', 'index_file', 'other']:
         for workflow in ['wgs_bwa', 'rna_seq']:
             subreport_name = subreport_dir+'/'+workflow+'_'+subreport+'_mismatch.txt'
             subreport_list = []
@@ -178,19 +186,6 @@ def generate_subreport(fname, subreport_dir):
                         subreport_list.append(row_order)
                 if not subreport_list: continue
                 write_file(subreport_list, subreport_name)
-    # other mismatch            
-    subreport_name = subreport_dir+'/other_mismatch.txt'
-    subreport_list = []
-    with open(fname, 'r') as s:
-        reader = csv.DictReader(s, delimiter='\t')
-        for row in reader:
-            if row.get('exist_qc_metrics_mismatch') == 'False' and row.get('exist_data_file_mismatch') == 'False' and row.get('exist_index_file_mismatch') == 'False':
-                row_order = OrderedDict()
-                for fn in reader.fieldnames:
-                    row_order[fn] = row.get(fn)
-                subreport_list.append(row_order)      
-        if subreport_list: write_file(subreport_list, subreport_name)  
-
 
 
 def write_file(flist, fn):
@@ -255,8 +250,8 @@ def main(argv=None):
         with open(fname, 'r') as f:
             for l in f:
                 if l.startswith('donor_unique_id'): 
-                    header = '\t'.join([l.rstrip('\n'), 'exist_effective_xml_mismatch', 'qc_metrics_md5sum', 'data_file_md5sum', 'index_file_md5sum', \
-                        'exist_qc_metrics_mismatch', 'exist_data_file_mismatch', 'exist_index_file_mismatch'])
+                    header = '\t'.join([l.rstrip('\n'), 'exist_effective_xml_mismatch', 'qc_metrics_md5sum', 'data_file_md5sum', 'index_file_md5sum', 'other_md5sum',\
+                        'exist_qc_metrics_mismatch', 'exist_data_file_mismatch', 'exist_index_file_mismatch', 'exist_other_mismatch'])
                     m.write(header+'\n')
                     continue
                 field_info = str.split(l.strip(), '\t')
@@ -267,6 +262,7 @@ def main(argv=None):
                 md5sum_qc_metrics = []
                 md5sum_data_file = []
                 md5sum_index_file = []
+                md5sum_other = []
                 for repo in gnos_repo:
                     if not download_xml:
                         xml_str = find_cached_metadata_xml(metadata_dir, repo, gnos_id)
@@ -279,13 +275,15 @@ def main(argv=None):
                     md5sum_qc_metrics.append(md5sum[0])
                     md5sum_data_file.append(md5sum[1])
                     md5sum_index_file.append(md5sum[2])
+                    md5sum_other.append(md5sum[3])
                 mismatch_effective = 'False' if len(set(md5sum_effective))==1 else 'True'
                 mismatch_qc_metrics = 'False' if len(set(md5sum_qc_metrics))==1 and not 'missing' in md5sum_qc_metrics else 'True'
                 mismatch_data_file = 'False' if len(set(md5sum_data_file))==1 and not 'missing' in md5sum_data_file else 'True'
                 mismatch_index_file = 'False' if len(set(md5sum_index_file))==1 and not 'missing' in md5sum_index_file else 'True'
+                mismatch_other = 'False' if len(set(md5sum_other))==1 else 'True'
                 l_new = '\t'.join([l.rstrip('\n'), mismatch_effective, \
-                  '|'.join(md5sum_qc_metrics), '|'.join(md5sum_data_file), '|'.join(md5sum_index_file), \
-                  mismatch_qc_metrics, mismatch_data_file, mismatch_index_file])+'\n'
+                  '|'.join(md5sum_qc_metrics), '|'.join(md5sum_data_file), '|'.join(md5sum_index_file), '|'.join(md5sum_other),\
+                  mismatch_qc_metrics, mismatch_data_file, mismatch_index_file, mismatch_other])+'\n'
                 m.write(l_new)
 
     #if os.path.isfile(fname): os.remove(fname)
