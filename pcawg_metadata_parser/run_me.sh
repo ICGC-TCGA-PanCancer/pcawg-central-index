@@ -90,7 +90,7 @@ echo running alignment summary report for $M
 ./pc_report-broad_summary_counts.py -m $M
 ./pc_report-sanger_call_missing_input.py -m $M
 ./pc_report-donors_RNA_Seq_alignment_summary.py -m $M
-./pc_report-s3_transfer_summary.py -m $M
+./pc_report-transfer_summary.py -m $M
 ./generate_QC_reports.py -m $M
 ./generate_variant_called_donors.py -m $M
 ./generate_aligned_donors.py -m $M
