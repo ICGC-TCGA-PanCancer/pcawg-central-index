@@ -31,6 +31,11 @@ cd ../s3-transfer-operations/
 git pull
 cd $DIR
 
+echo update ceph-transfer-operations git submodule
+cd ../ceph_transfer_ops/
+git pull
+cd $DIR
+
 # this is just for running individual reports, does not affect downloader download from all gnos repos
 #gnos_repos=(ebi bsc dkfz)
 
