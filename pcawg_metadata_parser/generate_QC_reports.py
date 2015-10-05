@@ -1014,8 +1014,6 @@ def main(argv=None):
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
 
-        print len(donors_list)
-
         report_info_list_full = []
         for donor_unique_id in donors_list:
             # get json doc for each donor                 
