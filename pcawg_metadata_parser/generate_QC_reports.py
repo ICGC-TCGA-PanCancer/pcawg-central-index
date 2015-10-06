@@ -598,7 +598,7 @@ es_queries = [
 
 #query 11: get donors having fixed or version higher than 1.0.4 DKFZ/EMBL
 {
-  "name": "dkfz_embl_merged_and_higher_versions",
+  "name": "dkfz_embl_single_gnos_uploads",
   "content":{
        "fields":["donor_unique_id"],  
        "filter":{
