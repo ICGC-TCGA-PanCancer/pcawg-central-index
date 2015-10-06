@@ -596,6 +596,57 @@ es_queries = [
      }
 },
 
+#query 11: get donors having fixed or version higher than 1.0.4 DKFZ/EMBL
+{
+  "name": "dkfz_embl_single_gnos_uploads",
+  "content":{
+       "fields":["donor_unique_id"],  
+       "filter":{
+          "bool":{
+                "must":[         
+                  {
+                     "term":{
+                        "flags.is_dkfz_embl_variant_calling_performed":[
+                           "T"
+                        ]
+                     }
+                  },
+                  {
+                     "term":{
+                        "flags.is_dkfz_variant_calling_performed":[
+                           "F"
+                        ]
+                     }
+                  },
+                  {
+                     "term":{
+                        "flags.is_embl_variant_calling_performed":[
+                           "F"
+                        ]
+                     }
+                  }                        
+                ],
+                "must_not": [
+                        {
+                          "term": {
+                            "flags.is_manual_qc_failed": [
+                                    "T"
+                            ]
+                          }
+                        },
+                        {
+                          "term": {
+                            "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                        }
+                      ]
+                  }
+          },
+          "size": 10000
+      }
+},
 ]
 
 
@@ -628,8 +679,8 @@ def create_report_info(donor_unique_id, es_json, q_index):
 
     report_info = OrderedDict()
     report_info['donor_unique_id'] = donor_unique_id
-    report_info['submitter_donor_id'] = es_json['submitter_donor_id']
-    report_info['dcc_project_code'] = es_json['dcc_project_code']
+    #report_info['submitter_donor_id'] = es_json['submitter_donor_id']
+    #report_info['dcc_project_code'] = es_json['dcc_project_code']
     
     if q_index == 0:
         add_report_info_0(report_info, report_info_list, es_json)
@@ -665,8 +716,19 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 9:
         add_report_info_9(report_info, report_info_list, es_json)
 
+    if q_index == 11:
+        add_report_info_11(report_info, report_info_list, es_json)
+
     return report_info_list
 
+
+def add_report_info_11(report_info, report_info_list, es_json):
+    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+    if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('dkfz_embl_variant_calling'):
+        report_info['gnos_repo'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_repo')
+        report_info['gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id')
+        report_info_list.append(copy.deepcopy(report_info))
+    return report_info_list
 
 def add_report_info_9(report_info, report_info_list, es_json):
     report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
