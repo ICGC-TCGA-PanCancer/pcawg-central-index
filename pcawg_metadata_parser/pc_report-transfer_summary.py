@@ -197,7 +197,7 @@ def main(argv=None):
         if transfer_target == 's3':
             git_fnames = '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json'
         else:
-            git_fnames = '../ceph_transfer_ops/ceph-transfer-jobs/completed-jobs/*.json'
+            git_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/completed-jobs/*.json'
         report_name = transfer_target + '_' + report_name_base
         files = glob.glob(git_fnames)
         jobs = dict()
