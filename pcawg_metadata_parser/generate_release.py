@@ -35,20 +35,20 @@ es_queries = [
                             "value": "donor"
                           }
                         },
-                        {
-                          "terms":{
-                            "flags.is_sanger_variant_calling_performed":[
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
-                              "F"
-                            ]
-                          }
-                        },
+                        # {
+                        #   "terms":{
+                        #     "flags.is_sanger_variant_calling_performed":[
+                        #       "T"
+                        #     ]
+                        #   }
+                        # },
+                        # {
+                        #   "terms": {
+                        #     "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
+                        #       "F"
+                        #     ]
+                        #   }
+                        # },
                         {
                           "terms":{
                             "flags.is_normal_specimen_aligned":[
@@ -65,6 +65,27 @@ es_queries = [
                         }                    
                       ],
                       "must_not": [
+                        {
+                          "terms": {
+                            "flags.is_bam_used_by_variant_calling_missing": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                           "terms":{
+                              "flags.exists_xml_md5sum_mismatch":[
+                                 "T"
+                              ]
+                           }
+                        },
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
@@ -418,7 +439,19 @@ def generate_simple_release_tsv(release_donor_json, simple_release_tsv, vcf):
                 simple_release['entry_type'] = 'tumor_RNA_Seq_' + k.upper() + '_bam'
                 simple_release_tsv.append(copy.deepcopy(simple_release))
 
+    simple_release_tsv = remove_dup_items(simple_release_tsv)
+
     return simple_release_tsv
+
+def remove_dup_items(simple_release_tsv):
+    seen = set()
+    new_simple_release_tsv = []
+    for d in simple_release_tsv:
+        t = tuple(d.items())
+        if t not in seen:
+            seen.add(t)
+            new_simple_release_tsv.append(d)
+    return new_simple_release_tsv
 
 
 def main(argv=None):
