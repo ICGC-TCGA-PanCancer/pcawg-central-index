@@ -679,8 +679,8 @@ def create_report_info(donor_unique_id, es_json, q_index):
 
     report_info = OrderedDict()
     report_info['donor_unique_id'] = donor_unique_id
-    #report_info['submitter_donor_id'] = es_json['submitter_donor_id']
-    #report_info['dcc_project_code'] = es_json['dcc_project_code']
+    report_info['submitter_donor_id'] = es_json['submitter_donor_id']
+    report_info['dcc_project_code'] = es_json['dcc_project_code']
     
     if q_index == 0:
         add_report_info_0(report_info, report_info_list, es_json)
