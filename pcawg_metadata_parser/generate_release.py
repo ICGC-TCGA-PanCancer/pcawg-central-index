@@ -35,20 +35,6 @@ es_queries = [
                             "value": "donor"
                           }
                         },
-                        # {
-                        #   "terms":{
-                        #     "flags.is_sanger_variant_calling_performed":[
-                        #       "T"
-                        #     ]
-                        #   }
-                        # },
-                        # {
-                        #   "terms": {
-                        #     "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
-                        #       "F"
-                        #     ]
-                        #   }
-                        # },
                         {
                           "terms":{
                             "flags.is_normal_specimen_aligned":[
@@ -64,10 +50,53 @@ es_queries = [
                           }
                         }                    
                       ],
+                      "should": [
+                        {
+                           "terms":{
+                              "flags.is_sanger_variant_calling_performed":[
+                                 "T"
+                              ]
+                           }
+                        },
+                        {
+                           "bool":{
+                               "must":[
+                                      {
+                                       "terms":{
+                                          "flags.is_dkfz_embl_variant_calling_performed":[
+                                             "T"
+                                          ]
+                                        }
+                                      },
+                                      {
+                                         "term":{
+                                            "flags.is_dkfz_variant_calling_performed":[
+                                               "F"
+                                            ]
+                                         }
+                                      },
+                                      {
+                                         "term":{
+                                            "flags.is_embl_variant_calling_performed":[
+                                               "F"
+                                            ]
+                                         }
+                                      } 
+                                ]
+                           }
+                        }
+                      ],
                       "must_not": [
                         {
                           "terms": {
                             "flags.is_bam_used_by_variant_calling_missing": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.exists_vcf_file_prefix_mismatch": [
                               "T"
                             ]
                           }
@@ -79,13 +108,13 @@ es_queries = [
                             ]
                           }
                         },
-                        {
-                           "terms":{
-                              "flags.exists_xml_md5sum_mismatch":[
-                                 "T"
-                              ]
-                           }
-                        },
+                        # {
+                        #    "terms":{
+                        #       "flags.exists_xml_md5sum_mismatch":[
+                        #          "T"
+                        #       ]
+                        #    }
+                        # },
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
