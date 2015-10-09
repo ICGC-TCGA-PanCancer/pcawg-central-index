@@ -22,7 +22,6 @@ from distutils.version import LooseVersion
 import csv
 import hashlib
 
-id_service_token = os.environ.get('ICGC_TOKEN')
 logger = logging.getLogger('gnos parser')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
