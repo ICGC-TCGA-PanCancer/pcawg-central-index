@@ -22,7 +22,6 @@ from distutils.version import LooseVersion
 import csv
 import hashlib
 
-
 logger = logging.getLogger('gnos parser')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
@@ -486,6 +485,10 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "dcc_specimen_type": analysis_attrib.get('dcc_specimen_type'),
         "submitter_specimen_id": analysis_attrib.get('submitter_specimen_id'),
         "submitter_sample_id": analysis_attrib.get('submitter_sample_id'),
+        "icgc_specimen_id": annotations.get('icgc_specimen_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_specimen_id')) \
+                               if annotations.get('icgc_specimen_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_specimen_id')) else None,
+        "icgc_sample_id": annotations.get('icgc_sample_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_sample_id')) \
+                               if annotations.get('icgc_sample_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_sample_id')) else None,                       
         "aliquot_id": gnos_analysis.get('aliquot_id'),
         "use_cntl": analysis_attrib.get('use_cntl'),
         "total_lanes": analysis_attrib.get('total_lanes'),
@@ -625,6 +628,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': analysis_attrib['submitter_donor_id'],
         'dcc_project_code': analysis_attrib['dcc_project_code'],
+        'icgc_donor_id': annotations.get('icgc_donor_id').get(donor_unique_id) if annotations.get('icgc_donor_id').get(donor_unique_id) else None, 
         'gnos_study': gnos_analysis.get('study'),
         'gnos_repo': gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/', # can be better
         'flags': {
@@ -824,6 +828,9 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
+    read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
+    read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
+    read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
 
 
 
@@ -969,6 +976,16 @@ def read_annotations(annotations, type, file_name):
                 reader = csv.DictReader(r, delimiter='\t')
                 for row in reader:
                     annotations[type][row.get('Unique DonorId')] = int(row.get('Issue Summary'))
+
+            elif type in ['icgc_donor_id', 'icgc_sample_id', 'icgc_specimen_id']:
+                annotations[type] = {}
+                subtype = type.split('_')[1]
+                prefix = subtype[0:2]
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    icgc_id, id_pcawg, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
+                    annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id 
 
             else:
                 logger.warning('unknown annotation type: {}'.format(type))
@@ -1691,6 +1708,8 @@ def create_aggregated_bam_info_dict(bam):
         "submitter_specimen_id": bam['submitter_specimen_id'],
         "submitter_sample_id": bam['submitter_sample_id'],
         "dcc_specimen_type": bam['dcc_specimen_type'],
+        "icgc_specimen_id": bam['icgc_specimen_id'],
+        "icgc_sample_id": bam['icgc_sample_id'],         
         "aligned": True,
         "lane_count": set(),
         "do_lane_counts_in_every_bam_entry_match": False,
@@ -2017,6 +2036,8 @@ def create_aggregated_rna_bam_info(bam):
         "aliquot_id": bam['aliquot_id'],
         "submitter_specimen_id": bam['submitter_specimen_id'],
         "submitter_sample_id": bam['submitter_sample_id'],
+        "icgc_specimen_id": bam['icgc_specimen_id'],
+        "icgc_sample_id": bam['icgc_sample_id'],
         "dcc_specimen_type": bam['dcc_specimen_type'],
         "aligned": True,    
         "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
