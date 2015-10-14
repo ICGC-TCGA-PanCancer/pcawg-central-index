@@ -1009,6 +1009,11 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
                 if aliquot.get('star'):
                     donor.get('flags')['is_tumor_star_rna_seq_alignment_performed'] = True
 
+    # # for debug
+    # if donor.get('donor_unique_id') == 'OV-AU::AOCS-141':
+    #     print json.dumps(aggregated_bam_info.get('RNA-Seq'), default=set_default)
+    #     print json.dumps(donor.get('rna_seq').get('alignment'), default=set_default)
+    #     sys.exit(0)
         
 
     if donor.get('normal_alignment_status') and donor.get('normal_alignment_status').get('aligned'):
@@ -1600,17 +1605,19 @@ def add_rna_seq_status_to_donor(donor, aggregated_bam_info):
            (alignment_status.get('star') and 'normal' in alignment_status.get('star').get('dcc_specimen_type').lower()): # normal specimen
             if not donor.get('rna_seq').get('alignment').get('normal'): #no normal yet in RNA-Seq alignment of this donor
                 donor.get('rna_seq').get('alignment')['normal'] = alignment_status
-                if alignment_status.get('exists_xml_md5sum_mismatch'):
+                if alignment_status.get('tophat') and alignment_status.get('tophat').get('exists_xml_md5sum_mismatch') or \
+                   alignment_status.get('star') and alignment_status.get('star').get('exists_xml_md5sum_mismatch'):
                     donor.get('flags')['exists_xml_md5sum_mismatch'] = True
             else:
                 logger.warning('more than one RNA-Seq normal aliquot found in donor: {}'.format(donor.get('donor_unique_id')))
 
         elif (alignment_status.get('tophat') and 'tumour' in alignment_status.get('tophat').get('dcc_specimen_type').lower()) or \
            (alignment_status.get('star') and 'tumour' in alignment_status.get('star').get('dcc_specimen_type').lower()): 
-            if not donor.get('rna_seq').get('alignment').get('tumour'): #no tumor yet in RNA-Seq alignment of this donor
+            if not donor.get('rna_seq').get('alignment').get('tumor'): #no tumor yet in RNA-Seq alignment of this donor
                 donor.get('rna_seq').get('alignment')['tumor'] = []
-            donor.get('rna_seq').get('alignment')['tumor'].append(alignment_status)
-            if alignment_status.get('exists_xml_md5sum_mismatch'):
+            donor.get('rna_seq').get('alignment')['tumor'].append(copy.deepcopy(alignment_status))
+            if alignment_status.get('tophat') and alignment_status.get('tophat').get('exists_xml_md5sum_mismatch') or \
+                   alignment_status.get('star') and alignment_status.get('star').get('exists_xml_md5sum_mismatch'):
                 donor.get('flags')['exists_xml_md5sum_mismatch'] = True   
         else:
             logger.warning('invalid aliquot_id: {} in donor: {} '
