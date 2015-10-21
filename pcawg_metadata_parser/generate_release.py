@@ -141,6 +141,7 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf):
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': es_json['submitter_donor_id'],
         'dcc_project_code': es_json['dcc_project_code'],
+        'icgc_donor_id': es_json['icgc_donor_id'],
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
         'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
         'wgs': {
@@ -162,7 +163,9 @@ def create_alignment(es_json, aliquot, data_type):
     if not aliquot.get('aligned_bam'): return
     alignment = {
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
+        'icgc_specimen_id': aliquot.get('icgc_specimen_id'),
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
+        'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
@@ -214,7 +217,9 @@ def choose_variant_calling(es_json, vcf):
 def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type):
     variant_calling = {
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
+        'icgc_specimen_id': aliquot.get('icgc_specimen_id'),
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
+        'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'gnos_repo': wgs_tumor_vcf_info.get('gnos_repo'),
@@ -275,6 +280,7 @@ def add_rna_seq_info(reorganized_donor, es_json):
     for specimen_type in rna_seq_info.keys():
         if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
 		    continue
+        
         if 'normal' in specimen_type:
             aliquot = rna_seq_info.get(specimen_type)
             alignment_info = {}
@@ -284,13 +290,15 @@ def add_rna_seq_info(reorganized_donor, es_json):
 
             reorganized_donor.get('rna_seq')[specimen_type + '_specimen'] = alignment_info
         else:
+            tumor_rna_seq_specimen_count = 0
             for aliquot in rna_seq_info.get(specimen_type):
+                tumor_rna_seq_specimen_count += 1
                 alignment_info = {}
                 for workflow_type in aliquot.keys():
                     data_type = 'rna_seq_tumor_'+workflow_type
                     alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type)
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(copy.deepcopy(alignment_info)) 
-
+            reorganized_donor['tumor_rna_seq_specimen_count'] = tumor_rna_seq_specimen_count
 
 def get_donor_json(es, es_index, donor_unique_id):
     es_query_donor = {
@@ -333,8 +341,8 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf):
-    donor_info = ['dcc_project_code', 'submitter_donor_id', 'santa_cruz_pilot', 'validation_by_deep_seq']
-    specimen = ['submitter_specimen_id', 'submitter_sample_id', 'aliquot_id']
+    donor_info = ['dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', 'santa_cruz_pilot', 'validation_by_deep_seq']
+    specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
     pilot_tsv = OrderedDict()
@@ -354,7 +362,8 @@ def generate_tsv_file(reorganized_donor, vcf):
         alignment = reorganized_donor.get('rna_seq').get('normal_specimen')
         generate_alignment_info(pilot_tsv, alignment, 'normal', 'rna_seq', workflow.lower()+'_alignment')
     # rna_seq tumor
-    rna_seq_tumor = reorganized_donor.get('rna_seq').get('tumor_specimens')  
+    rna_seq_tumor = reorganized_donor.get('rna_seq').get('tumor_specimens')
+    pilot_tsv['tumor_rna_seq_specimen_count'] = reorganized_donor.get('tumor_rna_seq_specimen_count')  
     for workflow in ['star', 'tophat']:
         generate_alignment_info(pilot_tsv, rna_seq_tumor, 'tumor', 'rna_seq', workflow.lower()+'_alignment')
         
@@ -375,7 +384,7 @@ def generate_variant_calling_info(pilot_tsv, variant_calling, vcf):
 
 
 def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, workflow_type):
-    aliquot_field = ['submitter_specimen_id', 'submitter_sample_id', 'aliquot_id']
+    aliquot_field = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     gnos_field = ['gnos_repo', 'gnos_id']
     for d in aliquot_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+d): continue
