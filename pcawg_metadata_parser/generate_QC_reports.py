@@ -781,6 +781,8 @@ def add_report_info_12(report_info, report_info_list, es_json, annotations):
     report_info['is_sanger_variant_calling_performed'] = es_json.get('flags').get('is_sanger_variant_calling_performed')
     report_info['is_dkfz_embl_variant_calling_performed'] = es_json.get('flags').get('is_dkfz_embl_variant_calling_performed')
     report_info['dkfz_embl_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id') if es_json.get('flags').get('is_dkfz_embl_variant_calling_performed') else None
+    report_info['dkfz_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('dkfz_variant_calling').get('gnos_id') if es_json.get('flags').get('is_dkfz_variant_calling_performed') else None
+    report_info['embl_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('embl_variant_calling').get('gnos_id') if es_json.get('flags').get('is_embl_variant_calling_performed') else None
     report_info['is_broad_variant_calling_performed'] = es_json.get('flags').get('is_broad_variant_calling_performed')
     report_info['broad_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('broad_variant_calling').get('gnos_id') if es_json.get('flags').get('broad').get('broad_file_subset_exist') else None
     report_info['broad_tar_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('broad_tar_variant_calling').get('gnos_id') if es_json.get('flags').get('broad').get('broad_tar_file_subset_exist') else None
