@@ -647,6 +647,57 @@ es_queries = [
           "size": 10000
       }
 },
+
+# query 12: ESAD-UK_GNOS_entries 
+{
+    "name": "ESAD-UK_unaligned_gnos_entries",
+    "content": {
+        "fields": "donor_unique_id",      
+        "filter": {
+                    "bool": {
+                          "must": [
+                            {
+                              "type": {
+                                "value": "donor"
+                              }
+                            },
+                            {
+                              "terms": {
+                                "dcc_project_code": [
+                                  "ESAD-UK"
+                                ]
+                              }
+                            }, 
+                            {
+                              "terms": {
+                                "flags.is_sanger_variant_calling_performed": [
+                                  "F"
+                                ]
+                              }
+                            }                   
+                          ],
+                          "must_not": [
+                            {
+                              "terms": {
+                                "flags.is_manual_qc_failed": [
+                                  "T"
+                                ]
+                              }
+                            },
+                            # {
+                            #   "terms": {
+                            #     "flags.is_donor_blacklisted": [
+                            #       "T"
+                            #     ]
+                            #   }
+                            # }
+                          ]
+                        }
+                    },
+          "size": 10000
+        }
+}
+
 ]
 
 
@@ -682,6 +733,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
     report_info['submitter_donor_id'] = es_json['submitter_donor_id']
     report_info['dcc_project_code'] = es_json['dcc_project_code']
     
+    annotations = {}
     if q_index == 0:
         add_report_info_0(report_info, report_info_list, es_json)
 
@@ -719,6 +771,66 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 11:
         add_report_info_11(report_info, report_info_list, es_json)
 
+    if q_index == 12:
+        annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+        add_report_info_12(report_info, report_info_list, es_json, annotations)
+
+    return report_info_list
+
+def add_report_info_12(report_info, report_info_list, es_json, annotations):
+    report_info['is_sanger_variant_calling_performed'] = es_json.get('flags').get('is_sanger_variant_calling_performed')
+    report_info['is_dkfz_embl_variant_calling_performed'] = es_json.get('flags').get('is_dkfz_embl_variant_calling_performed')
+    report_info['dkfz_embl_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id') if es_json.get('flags').get('is_dkfz_embl_variant_calling_performed') else None
+    report_info['dkfz_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('dkfz_variant_calling').get('gnos_id') if es_json.get('flags').get('is_dkfz_variant_calling_performed') else None
+    report_info['embl_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('embl_variant_calling').get('gnos_id') if es_json.get('flags').get('is_embl_variant_calling_performed') else None
+    report_info['is_broad_variant_calling_performed'] = es_json.get('flags').get('is_broad_variant_calling_performed')
+    report_info['broad_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('broad_variant_calling').get('gnos_id') if es_json.get('flags').get('broad').get('broad_file_subset_exist') else None
+    report_info['broad_tar_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('broad_tar_variant_calling').get('gnos_id') if es_json.get('flags').get('broad').get('broad_tar_file_subset_exist') else None
+    report_info['muse_variant_calling_gnos_id'] = es_json.get('variant_calling_results').get('muse_variant_calling').get('gnos_id') if es_json.get('flags').get('broad').get('muse_file_subset_exist') else None
+    
+
+    if es_json.get('normal_alignment_status'):
+        add_report_info_12_aliquot(es_json.get('normal_alignment_status'), report_info, report_info_list, annotations)
+
+    if es_json.get('tumor_alignment_status'):
+        for aliquot in es_json.get('tumor_alignment_status'):
+            add_report_info_12_aliquot(aliquot, report_info, report_info_list, annotations)
+
+    return report_info_list
+
+
+def add_report_info_12_aliquot(aliquot, report_info, report_info_list, annotations):
+    report_info['library_strategy'] = 'WGS'
+    report_info['aliquot_id'] = aliquot.get('aliquot_id')
+    report_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
+    report_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
+    report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
+    report_info['aligned'] = aliquot.get('aligned')
+    report_info['total_lanes'] = aliquot.get('lane_count')
+
+    report_info['aligned_bam_gnos_id'] = None
+    report_info['aligned_bam_gnos_repo'] = []
+
+    if aliquot.get('aligned_bam'):
+        report_info['aligned_bam_gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
+        report_info['aligned_bam_gnos_repo'] = aliquot.get('aligned_bam').get('gnos_repo')
+
+    report_info['bam_with_unmappable_reads_gnos_id'] = None
+    report_info['bam_with_unmappable_reads_gnos_repo'] = []
+    if aliquot.get('bam_with_unmappable_reads'):
+        report_info['bam_with_unmappable_reads_gnos_id'] = aliquot.get('bam_with_unmappable_reads').get('gnos_id')
+        report_info['bam_with_unmappable_reads_gnos_repo'] = aliquot.get('bam_with_unmappable_reads').get('gnos_repo')  
+
+    if aliquot.get('unaligned_bams'):
+        report_info['entity_type'] = 'unaligned_bams'
+        for unaligned_bams in aliquot.get('unaligned_bams'):
+            report_info['unaligned_bams_gnos_id'] = unaligned_bams.get('gnos_id')
+            report_info['is_reheader'] = True if unaligned_bams.get('gnos_id') in annotations.get('esad-uk_reheader_uuid') else False
+            for gnos_repo in unaligned_bams.get('gnos_repo'):
+                report_info['unaligned_bams_gnos_repo'] = gnos_repo
+                report_info['unaligned_bams_gnos_metadata_url'] = gnos_repo + 'cghub/metadata/analysisFull/' + report_info['unaligned_bams_gnos_id']
+                report_info_list.append(copy.deepcopy(report_info))  
+
     return report_info_list
 
 
@@ -749,20 +861,15 @@ def add_report_info_9(report_info, report_info_list, es_json):
 
 
 def add_report_info_8_aliquot(aliquot, report_info, report_info_list):
-    report_info['aliquot_id'] = aliquot.get('aliquot_id')
-    report_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
-    report_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
-    report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')   
-    report_info['aligned'] = True if aliquot.get('aligned') else False
-    report_info['exist_aligned_bam_specimen_type_mismatch'] = aliquot.get('exist_aligned_bam_specimen_type_mismatch')
-    report_info['exist_unaligned_bam_specimen_type_mismatch'] = aliquot.get('exist_unaligned_bam_specimen_type_mismatch')
-    report_info['aligned_bam_gnos_repo'] = None
-    report_info['aligned_bam_gnos_id'] = None
-
     if aliquot.get('exist_specimen_type_mismatch'):
-        if aliquot.get('exist_aligned_bam_specimen_type_mismatch'):            
-            report_info['aligned_bam_gnos_repo'] = aliquot.get('aligned_bam').get('gnos_repo')
-            report_info['aligned_bam_gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
+        report_info['aliquot_id'] = aliquot.get('aliquot_id')
+        report_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
+        report_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
+        report_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')   
+        report_info['aligned'] = True if aliquot.get('aligned') else False
+        report_info['exist_aligned_bam_specimen_type_mismatch'] = aliquot.get('exist_aligned_bam_specimen_type_mismatch')
+        report_info['exist_unaligned_bam_specimen_type_mismatch'] = aliquot.get('exist_unaligned_bam_specimen_type_mismatch')
+        report_info['exist_bam_with_unmappable_reads_specimen_type_mismatch'] = aliquot.get('exist_bam_with_unmappable_reads_specimen_type_mismatch')
         report_info_list.append(copy.deepcopy(report_info))
 
     return report_info_list
@@ -973,6 +1080,23 @@ def init_report_dir(metadata_dir, report_name, repo):
 
     return report_dir
 
+
+def read_annotations(annotations, type, file_name):
+    if not os.path.isfile(file_name):
+        return
+    with open(file_name, 'r') as r:
+        if annotations.get(type): # reset annotation if exists
+            del annotations[type]
+
+        if type == 'esad-uk_reheader_uuid':
+            annotations[type] = set()
+            for line in r:
+                if line.startswith('#'): continue
+                if len(line.rstrip()) == 0: continue
+                annotations[type].add(line.rstrip())
+        else:
+            print('unknown annotation type: {}'.format(type))
+    return annotations
 
 def main(argv=None):
 

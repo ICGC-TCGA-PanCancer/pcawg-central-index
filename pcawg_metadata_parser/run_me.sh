@@ -97,6 +97,7 @@ echo running alignment summary report for $M
 ./pc_report-donors_RNA_Seq_alignment_summary.py -m $M
 ./pc_report-transfer_summary.py -m $M
 ./generate_QC_reports.py -m $M
+./compare_xml_md5sum.py -m $M
 ./generate_variant_called_donors.py -m $M
 ./generate_aligned_donors.py -m $M
 ./generate_all_donors.py -m $M
