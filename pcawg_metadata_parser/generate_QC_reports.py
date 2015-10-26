@@ -220,13 +220,13 @@ es_queries = [
                             ]
                           }
                       },
-                  {
-                    "terms":{
-                      "dcc_project_code": [
-                              "LIRI-JP"
-                      ]
-                    }
-                  }
+                  # {
+                  #   "terms":{
+                  #     "dcc_project_code": [
+                  #             "LIRI-JP"
+                  #     ]
+                  #   }
+                  # }
                  ]
                 }
               },
