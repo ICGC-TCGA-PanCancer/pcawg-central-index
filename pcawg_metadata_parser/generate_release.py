@@ -84,6 +84,13 @@ es_queries = [
                                       } 
                                 ]
                            }
+                        },
+                        {
+                           "terms":{
+                              "flags.is_broad_variant_calling_performed":[
+                                 "T"
+                              ]
+                           }
                         }
                       ],
                       "must_not": [
