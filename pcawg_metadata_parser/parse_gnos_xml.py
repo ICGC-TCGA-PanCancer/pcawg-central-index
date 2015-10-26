@@ -767,6 +767,8 @@ def add_effective_xml_md5sum(gnos_analysis, xml_str):
     xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
 
     xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
+    xml_str = re.sub(r'</STUDY_REF>', '', xml_str)
+    xml_str = re.sub(r'<STUDY_REF .+?>', '<STUDY_REF/>', xml_str)
     xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
     xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
     xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
@@ -1717,6 +1719,7 @@ def create_aggregated_bam_info_dict(bam):
         "exist_specimen_type_mismatch": False,
         "exist_aligned_bam_specimen_type_mismatch": False,
         "exist_unaligned_bam_specimen_type_mismatch": False,
+        "exist_bam_with_unmappable_reads_specimen_type_mismatch": False,
         "exists_xml_md5sum_mismatch": False,
         "aligned_bam": {
             "gnos_id": bam['bam_gnos_ao_id'],
@@ -1822,6 +1825,11 @@ def bam_aggregation(bam_files):
                 )
         else:
             alignment_status = aggregated_bam_info.get(bam['aliquot_id'])
+            
+            if not compare_specimen_type(alignment_status.get('dcc_specimen_type'), bam['dcc_specimen_type']):
+                alignment_status['exist_bam_with_unmappable_reads_specimen_type_mismatch'] = True
+                alignment_status['exist_specimen_type_mismatch'] = True
+
             if not alignment_status.get('bam_with_unmappable_reads'):
                 alignment_status['bam_with_unmappable_reads'] = {
                     "gnos_id": bam['bam_gnos_ao_id'],
@@ -1855,7 +1863,8 @@ def bam_aggregation(bam_files):
                 "do_lane_count_and_bam_count_match": False,  
                 "exist_specimen_type_mismatch": False,
                 "exist_aligned_bam_specimen_type_mismatch": False,
-                "exist_unaligned_bam_specimen_type_mismatch": False,              
+                "exist_unaligned_bam_specimen_type_mismatch": False,
+                "exist_bam_with_unmappable_reads_specimen_type_mismatch": False,              
                 "aligned_bam": {},
                 "bam_with_unmappable_reads": {},
                 "unaligned_bams": {
