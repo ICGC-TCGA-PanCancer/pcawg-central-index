@@ -201,7 +201,8 @@ def get_formal_vcf_name(vcf):
       "sanger": "sanger_variant_calling",
       "dkfz": "dkfz_embl_variant_calling",
       "embl": "dkfz_embl_variant_calling",
-      "broad": "broad_variant_calling"
+      "broad": "broad_variant_calling",
+      "muse": "muse_variant_calling"
     }   
 
     return vcf_map.get(vcf)
