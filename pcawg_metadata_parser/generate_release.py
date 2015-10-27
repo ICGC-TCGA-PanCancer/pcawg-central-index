@@ -149,6 +149,7 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf):
         'submitter_donor_id': es_json['submitter_donor_id'],
         'dcc_project_code': es_json['dcc_project_code'],
         'icgc_donor_id': es_json['icgc_donor_id'],
+        'aug2015_donor': True if es_json.get('flags').get('is_aug2015_donor') else False,
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
         'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
         'wgs': {
@@ -217,10 +218,21 @@ def choose_variant_calling(es_json, vcf):
         if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
             not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
             variant_calling.add(get_formal_vcf_name(v))
+            if not check_broad_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
         else:
             logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
     return variant_calling
 
+
+def check_broad_vcf(es_json, vcf_calling):
+    if vcf_calling == 'broad' or vcf_calling == 'muse':
+        if not es_json.get('flags').get('is_broad_variant_calling_performed'):
+            return False
+        else: 
+            return True
+    else:
+        return True
+        
 
 def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type):
     variant_calling = {
@@ -230,6 +242,7 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type):
         'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
+        'is_aug2015_entry': wgs_tumor_vcf_info.get('is_aug2015_entry'),
         'gnos_repo': wgs_tumor_vcf_info.get('gnos_repo'),
         'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
         'gnos_last_modified': wgs_tumor_vcf_info.get('gnos_last_modified')[-1],
@@ -349,7 +362,7 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf):
-    donor_info = ['dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', 'santa_cruz_pilot', 'validation_by_deep_seq']
+    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', 'aug2015_donor','santa_cruz_pilot', 'validation_by_deep_seq']
     specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
@@ -383,11 +396,13 @@ def generate_variant_calling_info(pilot_tsv, variant_calling, vcf):
         pilot_tsv[get_formal_vcf_name(v)+'_repo'] = []
         pilot_tsv[get_formal_vcf_name(v)+'_gnos_id'] = []
         pilot_tsv[get_formal_vcf_name(v)+'_file_name_prefix'] = []
+        pilot_tsv['is_aug2015_'+get_formal_vcf_name(v)] = []
         for specimen in variant_calling:
             if specimen.get(get_formal_vcf_name(v)):
                 pilot_tsv[get_formal_vcf_name(v)+'_repo'].append(specimen.get(get_formal_vcf_name(v)).get('gnos_repo'))
                 pilot_tsv[get_formal_vcf_name(v)+'_gnos_id'] = specimen.get(get_formal_vcf_name(v)).get('gnos_id')
                 pilot_tsv[get_formal_vcf_name(v)+'_file_name_prefix'].append(specimen.get(get_formal_vcf_name(v)).get('aliquot_id'))
+                pilot_tsv['is_aug2015_'+get_formal_vcf_name(v)] = specimen.get(get_formal_vcf_name(v)).get('is_aug2015_entry')
     return pilot_tsv
 
 
