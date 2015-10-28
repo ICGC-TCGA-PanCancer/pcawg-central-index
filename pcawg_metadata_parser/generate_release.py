@@ -205,7 +205,8 @@ def get_formal_vcf_name(vcf):
       "dkfz": "dkfz_embl_variant_calling",
       "embl": "dkfz_embl_variant_calling",
       "broad": "broad_variant_calling",
-      "muse": "muse_variant_calling"
+      "muse": "muse_variant_calling",
+      "broad_tar": "broad_tar_variant_calling"
     }   
 
     return vcf_map.get(vcf)
@@ -227,7 +228,7 @@ def choose_variant_calling(es_json, vcf):
 
 
 def check_broad_vcf(es_json, vcf_calling):
-    if vcf_calling == 'broad' or vcf_calling == 'muse':
+    if vcf_calling == 'broad' or vcf_calling == 'muse' or vcf_calling == 'broad_tar':
         if not es_json.get('flags').get('is_broad_variant_calling_performed'):
             return False
         else: 
