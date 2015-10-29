@@ -404,7 +404,7 @@ def generate_variant_calling_info(pilot_tsv, variant_calling, vcf):
         pilot_tsv['is_aug2015_'+get_formal_vcf_name(v)] = []
         for specimen in variant_calling:
             if specimen.get(get_formal_vcf_name(v)):
-                pilot_tsv[get_formal_vcf_name(v)+'_repo'].append(specimen.get(get_formal_vcf_name(v)).get('gnos_repo'))
+                pilot_tsv[get_formal_vcf_name(v)+'_repo'] = specimen.get(get_formal_vcf_name(v)).get('gnos_repo')
                 pilot_tsv[get_formal_vcf_name(v)+'_gnos_id'] = specimen.get(get_formal_vcf_name(v)).get('gnos_id')
                 pilot_tsv[get_formal_vcf_name(v)+'_file_name_prefix'].append(specimen.get(get_formal_vcf_name(v)).get('aliquot_id'))
                 pilot_tsv['is_aug2015_'+get_formal_vcf_name(v)] = specimen.get(get_formal_vcf_name(v)).get('is_aug2015_entry')
