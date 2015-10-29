@@ -178,6 +178,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded):
         'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
+        'is_aug2015_entry': aliquot.get('is_aug2015_entry'),
         'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
             aliquot.get('aligned_bam').get('gnos_repo'), \
             data_type, aliquot.get('aliquot_id')),
@@ -419,7 +420,9 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = []
     for d in gnos_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d): continue
-        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = []   
+        pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = []
+    if not pilot.tsv.get('is_aug2015_'+specimen_type+'_'+sequence_type):
+    	pilot.tsv.get('is_aug2015_'+specimen_type+'_'+sequence_type) = []
     if not pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'):
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = []
 
@@ -450,6 +453,7 @@ def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
     for d in gnos_field:
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(alignment.get(d))
+    pilot.tsv.get('is_aug2015_'+specimen_type+'_'+sequence_type).append(alignment.get('is_aug2015_entry'))
     for f in alignment.get('files'):
         if f.get('file_name').endswith('.bai'): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'].append(f.get('file_name'))                    
