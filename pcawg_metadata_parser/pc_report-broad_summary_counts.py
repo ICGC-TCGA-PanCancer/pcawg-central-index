@@ -67,7 +67,8 @@ def compute_site_report_new(metadata_dir, report_dir, today_donors):
         "sanger": set(),
         "idash": set(),
         "dkfz_hpc": set(),
-        "azure": set()        
+        "azure": set(),
+        "sevenbridges": set()        
     }
 
     get_whitelists(compute_sites)
@@ -143,7 +144,8 @@ def compute_site_report(metadata_dir, report_dir, today_donors):
         "sanger": set(),
         "idash": set(),
         "dkfz_hpc": set(),
-        "azure": set()        
+        "azure": set(),
+        "sevenbridges": set()        
     }
 
     get_whitelists(compute_sites)
