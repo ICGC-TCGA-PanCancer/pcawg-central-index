@@ -150,6 +150,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                              .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
+    # temporary hack here to skip any VALIDATION entries
     if gnos_analysis.get('library_strategy') == 'VALIDATION':
         logger.warning('ignore entry that is VALIDATION: {}'
                              .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
@@ -741,7 +742,11 @@ def get_analysis_attrib(gnos_analysis):
           or not gnos_analysis['analysis_xml']['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES'].get('ANALYSIS_ATTRIBUTE')
        ):
         return None
-    for a in gnos_analysis['analysis_xml']['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
+
+    analysis_attrib_fragment = gnos_analysis['analysis_xml']['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']
+    if (type(analysis_attrib_fragment) != list): analysis_attrib_fragment = [analysis_attrib_fragment]
+
+    for a in analysis_attrib_fragment:
         if not analysis_attrib.get(a['TAG']):
             analysis_attrib[a['TAG']] = a['VALUE']
         else:
