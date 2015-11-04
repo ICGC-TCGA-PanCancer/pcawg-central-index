@@ -150,6 +150,11 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                              .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
+    if gnos_analysis.get('library_strategy') == 'VALIDATION':
+        logger.warning('ignore entry that is VALIDATION: {}'
+                             .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+        return
+
     #TODO: put things above into one function
 
     # temporary hack here to skip any BAM entries from odsc-tcga repo as it's supposed not contain
