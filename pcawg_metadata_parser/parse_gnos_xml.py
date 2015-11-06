@@ -848,6 +848,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
+    read_annotations(annotations, 'barcode_to_uuid', 'pc_annotation-tcga_uuid2barcode.tsv')    
     read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
     read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
@@ -997,6 +998,15 @@ def read_annotations(annotations, type, file_name):
                 for row in reader:
                     annotations[type][row.get('Unique DonorId')] = int(row.get('Issue Summary'))
 
+            elif type == 'barcode_to_uuid':
+                annotations[type] = {}
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    TCGA_project, subtype, uuid, barcode = str.split(line.rstrip(), '\t')
+                    annotations[type][barcode] = uuid 
+
+
             elif type in ['icgc_donor_id', 'icgc_sample_id', 'icgc_specimen_id']:
                 annotations[type] = {}
                 subtype = type.split('_')[1]
@@ -1004,7 +1014,12 @@ def read_annotations(annotations, type, file_name):
                 for line in r:
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
-                    icgc_id, id_pcawg, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
+                    icgc_id, mapped_id, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
+                    if dcc_project_code.endswith('-US'):
+                        id_pcawg = annotations.get('barcode_to_uuid').get(mapped_id) if annotations.get('barcode_to_uuid').get(mapped_id) else None
+                    else:
+                        id_pcawg = mapped_id
+                    if id_pcawg is None: continue
                     annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id 
 
             else:
