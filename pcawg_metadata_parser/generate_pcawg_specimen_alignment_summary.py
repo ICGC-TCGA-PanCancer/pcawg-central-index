@@ -367,7 +367,9 @@ def main(argv=None):
         "ucsc": set(),
         "sanger": set(),
         "idash": set(),
-        "riken": set()
+        "riken": set(),
+        "azure": set(),
+        "sevenbridges": set()
     }
 
     get_whitelists(compute_sites)

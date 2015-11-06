@@ -993,10 +993,11 @@ def add_report_info_1_aliquot(aliquot, report_info, report_info_list):
 def add_report_info_2(report_info, report_info_list, es_json):
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
-        report_info['normal_bam_gnos_id'] = es_json.get('normal_alignment_status').get('aligned_bam').get('gnos_id')
+        report_info['normal_bam_gnos_id'] = es_json.get('normal_alignment_status').get('aligned_bam').get('gnos_id') if es_json.get('normal_alignment_status').get('aligned_bam') else None
         report_info['tumor_bam_gnos_id'] = []
         for bam in es_json.get('tumor_alignment_status'):
-            report_info['tumor_bam_gnos_id'].append(bam.get('aligned_bam').get('gnos_id'))
+            if bam.get('aligned_bam'):
+                report_info['tumor_bam_gnos_id'].append(bam.get('aligned_bam').get('gnos_id'))
         for workflow in ['sanger', 'embl', 'dkfz', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
             if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get('is_bam_used_by_' + workflow + '_missing'):
                 report_info['workflow_name'] = vcf.get(workflow+'_variant_calling').get('workflow_details').get('variant_workflow_name')
