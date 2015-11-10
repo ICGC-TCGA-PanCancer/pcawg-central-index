@@ -143,7 +143,7 @@ es_queries = [
     }
 ]
 
-def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded):
+def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
     reorganized_donor = {
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': es_json['submitter_donor_id'],
@@ -161,15 +161,16 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
              'tumor_specimens': []
         }
     }
-    add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded)
-    add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded)
+    add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+    add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
 
     return reorganized_donor
 
 
-def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded):
+def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
     if not aliquot.get('aligned_bam'): return
     gnos_id = aliquot.get('aligned_bam').get('gnos_id')
+    if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
     if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
     alignment = {
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
@@ -238,8 +239,9 @@ def check_broad_vcf(es_json, vcf_calling):
         return True
         
 
-def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos_ids_to_be_excluded):
+def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
     gnos_id = wgs_tumor_vcf_info.get('gnos_id')
+    if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
     if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: return
     variant_calling = {
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
@@ -265,11 +267,11 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos
     return variant_calling
 
 
-def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded):
+def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
     if es_json.get('normal_alignment_status'):
         wgs_normal_alignment_info = es_json.get('normal_alignment_status')
         data_type = 'wgs_normal_bwa'
-        reorganized_donor.get('wgs').get('normal_specimen')['bwa_alignment'] = create_alignment(es_json, wgs_normal_alignment_info, data_type, gnos_ids_to_be_excluded)
+        reorganized_donor.get('wgs').get('normal_specimen')['bwa_alignment'] = create_alignment(es_json, wgs_normal_alignment_info, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
 
     tumor_wgs_specimen_count = 0
     if es_json.get('tumor_alignment_status'):
@@ -280,12 +282,12 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded):
             aliquot_info = OrderedDict()
             tumor_wgs_specimen_count += 1
             data_type = 'wgs_tumor_bwa'
-            aliquot_info['bwa_alignment'] = create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded)        
+            aliquot_info['bwa_alignment'] = create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)        
             
             for vc in variant_calling:
                 wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(vc)
                 data_type = 'wgs_'+vc        
-                aliquot_info[vc] = create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos_ids_to_be_excluded)        
+                aliquot_info[vc] = create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)        
             reorganized_donor.get('wgs').get('tumor_specimens').append(copy.deepcopy(aliquot_info)) 
 
     reorganized_donor['tumor_wgs_specimen_count'] = tumor_wgs_specimen_count
@@ -302,7 +304,7 @@ def filter_liri_jp(project, gnos_repo, data_type, aliquot_id):
         return [ gnos_repo[0] ]  # return the first one, not an entirely proper solution but gets us going
 
 
-def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded):
+def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
     rna_seq_info = es_json.get('rna_seq').get('alignment')
     for specimen_type in rna_seq_info.keys():
         if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
@@ -313,7 +315,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded):
             alignment_info = {}
             for workflow_type in aliquot.keys():
                 data_type = 'rna_seq_normal_'+workflow_type
-                alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded)
+                alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
 
             reorganized_donor.get('rna_seq')[specimen_type + '_specimen'] = alignment_info
         else:
@@ -323,7 +325,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded):
                 alignment_info = {}
                 for workflow_type in aliquot.keys():
                     data_type = 'rna_seq_tumor_'+workflow_type
-                    alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded)
+                    alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(copy.deepcopy(alignment_info)) 
             reorganized_donor['tumor_rna_seq_specimen_count'] = tumor_rna_seq_specimen_count
 
@@ -541,6 +543,8 @@ def main(argv=None):
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
     parser.add_argument("-d", "--exclude_gnos_id_lists", dest="exclude_gnos_id_lists", 
              help="File(s) containing GNOS IDs to be excluded, use filename pattern to specify the file(s)", required=False)
+    parser.add_argument("-c", "--include_gnos_id_lists", dest="include_gnos_id_lists", 
+             help="File(s) containing GNOS IDs to be included, use filename pattern to specify the file(s)", required=False)
     parser.add_argument("-v", "--variant_calling", dest="vcf", nargs="*",
              help="List variant_calling types", required=False)
 
@@ -552,6 +556,7 @@ def main(argv=None):
     exclude_donor_id_lists = args.exclude_donor_id_lists
     include_donor_id_lists = args.include_donor_id_lists
     exclude_gnos_id_lists = args.exclude_gnos_id_lists
+    include_gnos_id_lists = args.include_gnos_id_lists
 
     vcf = args.vcf
 
@@ -606,16 +611,21 @@ def main(argv=None):
     # exclude the entries with gnos_ids in gnos_ids_to_be_excluded when this option is chosen
     gnos_ids_to_be_excluded = generate_id_list(exclude_gnos_id_lists)
 
+    # include the entries with gnos_ids in gnos_ids_to_be_included when this option is chosen
+    gnos_ids_to_be_included = generate_id_list(include_gnos_id_lists)
+
+    # remove the gnos_ids_to_be_include from gnos_ids_to_be_excluded
+    gnos_ids_to_be_excluded.difference_update(gnos_ids_to_be_included) 
+
     donors_list = sorted(donors_list)  
     simple_release_tsv = []
 
     # get json doc for each donor and reorganize it
     header = True 
     for donor_unique_id in donors_list:    
+        es_json = get_donor_json(es, es_index, donor_unique_id)
         
-    	es_json = get_donor_json(es, es_index, donor_unique_id)
-        
-        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded)
+        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
 
         donor_fh.write(json.dumps(reorganized_donor, default=set_default) + '\n')
 
