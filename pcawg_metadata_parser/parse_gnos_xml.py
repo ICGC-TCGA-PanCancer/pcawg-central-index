@@ -633,7 +633,14 @@ def is_corrupted_train_2_alignment(analysis_attrib, gnos_analysis):
         return False
 
 
+def detect_and_low_case_uuid(submitter_id):
+    uuid_pattern = re.compile('^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\Z', re.I)
+    uuid = submitter_id.lower() if uuid_pattern.search(submitter_id) else submitter_id
+    return uuid
+
+
 def get_icgc_id(donor_unique_id, dcc_project_code, submitter_id, subtype, annotations):
+    submitter_id = detect_and_low_case_uuid(submitter_id)
     if dcc_project_code.endswith('-US'):
         if not annotations.get('uuid_to_barcode').get(submitter_id):
             logger.warning('donor: {}, the {} with uuid: {} has no mapping barcode'.format(donor_unique_id, subtype, submitter_id))
@@ -1016,6 +1023,7 @@ def read_annotations(annotations, type, file_name):
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
                     TCGA_project, subtype, uuid, barcode = str.split(line.rstrip(), '\t')
+                    uuid = detect_and_low_case_uuid(uuid)
                     annotations[type][uuid] = barcode 
 
 
@@ -1027,6 +1035,7 @@ def read_annotations(annotations, type, file_name):
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
                     icgc_id, id_pcawg, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
+                    id_pcawg = detect_and_low_case_uuid(id_pcawg)
                     annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id 
 
             else:
