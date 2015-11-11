@@ -496,10 +496,8 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "dcc_specimen_type": analysis_attrib.get('dcc_specimen_type'),
         "submitter_specimen_id": analysis_attrib.get('submitter_specimen_id'),
         "submitter_sample_id": analysis_attrib.get('submitter_sample_id'),
-        "icgc_specimen_id": annotations.get('icgc_specimen_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_specimen_id')) \
-                               if annotations.get('icgc_specimen_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_specimen_id')) else None,
-        "icgc_sample_id": annotations.get('icgc_sample_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_sample_id')) \
-                               if annotations.get('icgc_sample_id').get(analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_sample_id')) else None,                       
+        "icgc_specimen_id": get_icgc_id(donor_unique_id, analysis_attrib['dcc_project_code'], analysis_attrib['submitter_specimen_id'], 'specimen', annotations),
+        "icgc_sample_id": get_icgc_id(donor_unique_id, analysis_attrib['dcc_project_code'], analysis_attrib['submitter_sample_id'], 'sample', annotations),                       
         "aliquot_id": gnos_analysis.get('aliquot_id'),
         "use_cntl": analysis_attrib.get('use_cntl'),
         "total_lanes": analysis_attrib.get('total_lanes'),
@@ -635,12 +633,33 @@ def is_corrupted_train_2_alignment(analysis_attrib, gnos_analysis):
         return False
 
 
+def detect_and_low_case_uuid(submitter_id):
+    uuid_pattern = re.compile('^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}\Z', re.I)
+    uuid = submitter_id.lower() if uuid_pattern.search(submitter_id) else submitter_id
+    return uuid
+
+
+def get_icgc_id(donor_unique_id, dcc_project_code, submitter_id, subtype, annotations):
+    submitter_id = detect_and_low_case_uuid(submitter_id)
+    if dcc_project_code.endswith('-US'):
+        if not annotations.get('uuid_to_barcode').get(submitter_id):
+            logger.warning('donor: {}, the {} with uuid: {} has no mapping barcode'.format(donor_unique_id, subtype, submitter_id))
+            return None
+        submitter_id = annotations.get('uuid_to_barcode').get(submitter_id)
+
+    if not annotations.get('icgc_'+subtype+'_id').get(dcc_project_code+'::'+submitter_id):
+        logger.warning('donor: {}, the {} with pcawg_id: {} has no mapping icgc_id'.format(donor_unique_id, subtype, submitter_id))
+        return None
+    icgc_id = annotations.get('icgc_'+subtype+'_id').get(dcc_project_code+'::'+submitter_id)
+    return icgc_id
+
+
 def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
     donor = {
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': analysis_attrib['submitter_donor_id'],
         'dcc_project_code': analysis_attrib['dcc_project_code'],
-        'icgc_donor_id': annotations.get('icgc_donor_id').get(donor_unique_id) if annotations.get('icgc_donor_id').get(donor_unique_id) else None, 
+        'icgc_donor_id': get_icgc_id(donor_unique_id, analysis_attrib['dcc_project_code'], analysis_attrib['submitter_donor_id'], 'donor', annotations), 
         'gnos_study': gnos_analysis.get('study'),
         'gnos_repo': gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/', # can be better
         'flags': {
@@ -848,6 +867,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
+    read_annotations(annotations, 'uuid_to_barcode', 'pc_annotation-tcga_uuid2barcode.tsv')    
     read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
     read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
@@ -997,6 +1017,16 @@ def read_annotations(annotations, type, file_name):
                 for row in reader:
                     annotations[type][row.get('Unique DonorId')] = int(row.get('Issue Summary'))
 
+            elif type == 'uuid_to_barcode':
+                annotations[type] = {}
+                for line in r:
+                    if line.startswith('#'): continue
+                    if len(line.rstrip()) == 0: continue
+                    TCGA_project, subtype, uuid, barcode = str.split(line.rstrip(), '\t')
+                    uuid = detect_and_low_case_uuid(uuid)
+                    annotations[type][uuid] = barcode 
+
+
             elif type in ['icgc_donor_id', 'icgc_sample_id', 'icgc_specimen_id']:
                 annotations[type] = {}
                 subtype = type.split('_')[1]
@@ -1005,6 +1035,7 @@ def read_annotations(annotations, type, file_name):
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
                     icgc_id, id_pcawg, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
+                    id_pcawg = detect_and_low_case_uuid(id_pcawg)
                     annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id 
 
             else:
