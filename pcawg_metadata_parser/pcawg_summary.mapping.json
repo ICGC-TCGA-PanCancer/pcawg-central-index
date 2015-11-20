@@ -1,0 +1,499 @@
+{
+      "donor" : {
+        "dynamic" : "true",
+        "dynamic_templates" : [ {
+          "template_1" : {
+            "mapping" : {
+              "index" : "not_analyzed"
+            },
+            "match" : "*",
+            "match_mapping_type" : "string"
+          }
+        } ],
+        "_all" : {
+          "enabled" : false
+        },
+        "_source" : {
+          "compress" : true,
+          "excludes" : [ "__comment__" ]
+        },
+        "properties" : {
+          "dcc_project_code" : {
+            "type" : "string",
+            "index" : "not_analyzed"
+          },
+          "donor_unique_id" : {
+            "type" : "string",
+            "index" : "not_analyzed"
+          },
+          "id" : {
+            "type" : "string",
+            "index" : "not_analyzed"
+          },
+          "rna_seq" : {
+            "properties" : {
+              "normal_specimen" : {
+                "properties" : {
+                  "star" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "long"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  },
+                  "tophat" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "long"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  }
+                }
+              },
+              "tumor_specimens" : {
+                "properties" : {
+                  "star" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "long"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  },
+                  "tophat" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "long"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "santa_cruz_pilot" : {
+            "type" : "boolean"
+          },
+          "submitter_donor_id" : {
+            "type" : "string",
+            "index" : "not_analyzed"
+          },
+          "tumor_wgs_specimen_count" : {
+            "type" : "long"
+          },
+          "validation_by_deep_seq" : {
+            "type" : "boolean"
+          },
+          "wgs" : {
+            "properties" : {
+              "normal_specimen" : {
+                "properties" : {
+                  "bwa_alignment" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "long"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  }
+                }
+              },
+              "tumor_specimens" : {
+                "type" : "nested",
+                "properties" : {
+                  "broad_variant_calling" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  },
+                  "bwa_alignment" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "long"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  },
+                  "dkfz_embl_variant_calling" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  },
+                  "sanger_variant_calling" : {
+                    "properties" : {
+                      "aliquot_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "files" : {
+                        "properties" : {
+                          "file_md5sum" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_name" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          },
+                          "file_size" : {
+                            "type" : "string",
+                            "index" : "not_analyzed"
+                          }
+                        }
+                      },
+                      "gnos_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "gnos_last_modified" : {
+                        "type" : "date",
+                        "format" : "dateOptionalTime"
+                      },
+                      "gnos_repo" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "specimen_type" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_sample_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      },
+                      "submitter_specimen_id" : {
+                        "type" : "string",
+                        "index" : "not_analyzed"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+}
