@@ -37,20 +37,6 @@ es_queries = [
                         },
                         {
                           "terms":{
-                            "flags.is_sanger_variant_calling_performed":[
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "variant_calling_results.sanger_variant_calling.is_bam_used_by_sanger_missing": [
-                              "F"
-                            ]
-                          }
-                        },
-                        {
-                          "terms":{
                             "flags.is_normal_specimen_aligned":[
                               "T"
                             ]
