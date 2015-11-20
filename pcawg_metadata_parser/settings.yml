@@ -12,7 +12,7 @@ gnos_repos:
     repo_location: London
     repo_code: ebi
     base_url: https://gtrepo-ebi.annailabs.com/
-    cgquery_para: study=*
+    cgquery_para: "state=*&-study=PCAWG\\ 2.0"
   - 
     repo_location: Barcelona
     repo_code: bsc

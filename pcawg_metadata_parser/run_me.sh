@@ -103,6 +103,7 @@ echo running alignment summary report for $M
 ./generate_all_donors.py -m $M
 ./generate_pcawg_sample_sheet.py -m $M
 ./generate_pcawg_specimen_alignment_summary.py -m $M
+./generate_release.py -m $M -f pcawg_summary -v sanger dkfz embl broad
 
 echo gzip all jsonl files under $M
 gzip $M/*.jsonl

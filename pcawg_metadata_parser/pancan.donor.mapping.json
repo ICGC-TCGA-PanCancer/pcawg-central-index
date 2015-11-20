@@ -750,6 +750,9 @@
                "is_aug2015_donor":{
                   "type":"boolean"
                },
+               "is_oct2015_donor":{
+                  "type":"boolean"
+               },
                "is_cell_line":{
                   "type":"boolean"
                },
