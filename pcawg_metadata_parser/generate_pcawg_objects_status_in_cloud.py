@@ -121,11 +121,12 @@ def generate_id_list(id_lists):
 
 def get_mapping_transfer_object(annotations):
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    s3_git_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
-    s3_files = glob.glob(s3_git_fnames)
+    # s3_git_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
+    # s3_files = glob.glob(s3_git_fnames)
     ceph_git_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
     ceph_files = glob.glob(ceph_git_fnames)
-    files = s3_files + ceph_files
+    # files = s3_files + ceph_files
+    files = ceph_files
     fname_set = set()
     annotations['transfer_objects_map'] = {}
     for f in files:
@@ -242,12 +243,25 @@ def get_cloud_object(donor_unique_id, es_json, object_fh, annotations, cloud_buc
 def create_cloud_mapping(cloud_object, cloud_bucket, annotations):
     object_id = cloud_object.get('object_id')
     object_size = cloud_object.get('gnos').get('file_size')
-    if annotations.get(cloud_bucket+'_objects'):		
-        cloud_object[cloud_bucket] = {
-	    'object_id': object_id if annotations.get(cloud_bucket+'_objects').get(object_id) else None,
-	    'object_id_match': True if annotations.get(cloud_bucket+'_objects').get(object_id) else False,
-	    'file_size_match': True if annotations.get(cloud_bucket+'_objects').get(object_id) and annotations.get(cloud_bucket+'_objects').get(object_id) == object_size else False
-	}
+    if annotations.get(cloud_bucket+'_objects'):
+        if not object_id:
+            cloud_object['is_'+cloud_bucket+'_transferred'] = False 
+            cloud_object[cloud_bucket] = {
+            'object_id': None,
+            'object_id_match': None,
+            'object_size_match': None
+            }
+            return cloud_object
+        if annotations.get(cloud_bucket+'_objects').get(object_id):
+            cloud_object['is_'+cloud_bucket+'_transferred'] = True
+            cloud_object[cloud_bucket] = {
+            'object_id': object_id,
+            'object_id_match': True,
+            'object_size_match': True if annotations.get(cloud_bucket+'_objects').get(object_id) == object_size else False
+            }
+        else:
+            cloud_object['is_'+cloud_bucket+'_transferred'] = None
+            logger.warning('Object: {} is missing on cloud bucket: {}'.format(object_id, get_bucket_url(cloud_bucket)))
     return cloud_object
 
 	
@@ -267,6 +281,9 @@ def create_cloud_object(gnos_id, file_name, file_size, cloud_object, obj, annota
         cloud_object['release']['is_'+release+'_entry'] =  obj.get('is_'+release+'_entry')
     for cloud_bucket in cloud_buckets:
         cloud_object = create_cloud_mapping(cloud_object, cloud_bucket, annotations)
+    
+    # push to Elasticsearch
+    # es.index(index=es_index_object, doc_type='object', body=json.loads(json.dumps(cloud_object, default=set_default)), timeout=90 )
     object_fh.write(json.dumps(cloud_object, default=set_default) + '\n')
     return object_id_set
 
@@ -385,8 +402,10 @@ def main(argv=None):
     es_index = 'p_' + ('' if not repo else repo+'_') + re.sub(r'\D', '', timestamp).replace('20','',1)
     es_type = "donor"
     es_host = 'localhost:9200'
-
     es = Elasticsearch([es_host])
+
+    es_index_object = 'c_' + ('' if not repo else repo+'_') + re.sub(r'\D', '', timestamp).replace('20','',1)
+
 
     logger.setLevel(logging.INFO)
     ch.setLevel(logging.WARN)
