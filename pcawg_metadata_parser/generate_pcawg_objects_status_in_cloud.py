@@ -121,12 +121,11 @@ def generate_id_list(id_lists):
 
 def get_mapping_transfer_object(annotations):
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    # s3_git_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
-    # s3_files = glob.glob(s3_git_fnames)
-    ceph_git_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
+    s3_git_fnames = '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json'
+    s3_files = glob.glob(s3_git_fnames)
+    ceph_git_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/completed-jobs/*.json'
     ceph_files = glob.glob(ceph_git_fnames)
-    # files = s3_files + ceph_files
-    files = ceph_files
+    files = s3_files + ceph_files
     fname_set = set()
     annotations['transfer_objects_map'] = {}
     for f in files:
@@ -175,9 +174,9 @@ def get_bucket_url(cloud_bucket):
 def get_cloud_object_list(cloud_bucket, annotations):
     list_file = cloud_bucket + '.ls.out'
     if cloud_bucket in ['aws', 'aws_public']:		
-        command = 'aws --profile amazon s3 ls ' + get_bucket_url(cloud_bucket) + ' > ' + list_file
+        command = 'aws --profile amazon_pay s3 ls ' + get_bucket_url(cloud_bucket) + ' > ' + list_file
     elif cloud_bucket in ['ceph', 'ceph_public']:
-        command = 'aws --profile collabo --endpoint-url https://www.cancercollaboratory.org:9080 s3 ls ' + get_bucket_url(cloud_bucket) + ' > ' + list_file
+        command = 'aws --profile collab --endpoint-url https://www.cancercollaboratory.org:9080 s3 ls ' + get_bucket_url(cloud_bucket) + ' > ' + list_file
     else:
     	sys.exit('Unknown cloud bucket: {}'.format(cloud_bucket))
 
@@ -200,7 +199,9 @@ def get_cloud_object_list(cloud_bucket, annotations):
             if len(line.rstrip()) == 0: continue
             fields = str.split(line.rstrip())
             if not len(fields) == 4: continue
-            annotations[cloud_bucket+'_objects'][fields[-1]] = fields[-2]
+            annotations[cloud_bucket+'_objects'][fields[-1]] = int(fields[-2])
+    
+    if os.path.isfile(list_file): os.remove(list_file)
 
     return annotations
 
@@ -243,6 +244,7 @@ def get_cloud_object(donor_unique_id, es_json, object_fh, annotations, cloud_buc
 def create_cloud_mapping(cloud_object, cloud_bucket, annotations):
     object_id = cloud_object.get('object_id')
     object_size = cloud_object.get('gnos').get('file_size')
+
     if annotations.get(cloud_bucket+'_objects'):
         if not object_id:
             cloud_object['is_'+cloud_bucket+'_transferred'] = False 
@@ -442,7 +444,7 @@ def main(argv=None):
     donors_list = sorted(donors_list) 
     print len(donors_list) 
     
-    cloud_buckets = ['ceph', 'ceph_public']
+    cloud_buckets = ['ceph', 'ceph_public', 'aws', 'aws_public']
     annotations = {}
     get_mapping_transfer_object(annotations)
     for cloud_bucket in cloud_buckets: #['aws','aws_public', 'ceph', 'ceph_public']:
