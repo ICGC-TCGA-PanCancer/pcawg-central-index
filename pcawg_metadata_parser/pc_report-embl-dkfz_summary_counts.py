@@ -45,7 +45,7 @@ def generate_report(metadata_dir, report_name):
     for i, d in enumerate(dates): data.append([d, counts[0][i], counts[1][i]])
 
     with open(report_dir + '/summary_counts.json', 'w') as o: o.write(json.dumps(data))
-    with open(report_dir + '/summary_counts.tsv', 'w') as o: 
+    with open(report_dir + '/summary_counts.txt', 'w') as o: 
         for r in data:
             o.write('\t'.join(str(x) for x in r) + '\n')
 
