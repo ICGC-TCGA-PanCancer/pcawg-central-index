@@ -25,10 +25,6 @@ import requests
 
 id_service_token = os.environ.get('ICGC_TOKEN')
 
-json_prefix_code = 'a'
-json_prefix_start = 1
-json_prefix_inc = 10
-
 logger = logging.getLogger('s3 transfer json generator')
 ch = logging.StreamHandler()
 
@@ -421,18 +417,6 @@ def get_formal_vcf_name(vcf):
     return vcf_map.get(vcf)
 
 
-# this is not used currently, but will be needed for generating JIRI-JP donors
-def filter_liri_jp(project, gnos_repo):
-    if not project == 'LIRI-JP':
-        return gnos_repo
-    elif "https://gtrepo-riken.annailabs.com/" in gnos_repo:
-        return ["https://gtrepo-riken.annailabs.com/"]
-    else:
-        print "This should never happen: alignment for LIRI-JP is not available at Riken repo"
-        #sys.exit(1)
-        return [ gnos_repo[0] ]  # return the first one, not an entirely proper solution but gets us going
-
-
 def add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir):
     # to build pcawg santa cruz pilot dataset, this is a temporary walkaround to exclude the 130 RNA-Seq bad
     # entries from MALY-DE and CLLE-ES projects
@@ -517,11 +501,8 @@ def get_donor_json(es, es_index, donor_unique_id):
         }
     }
     response = es.search(index=es_index, body=es_query_donor)
-
     es_json = response['hits']['hits'][0]['_source']
- 
     return es_json
-
 
 
 def get_donors_list(es, es_index, es_queries):
@@ -652,7 +633,6 @@ def main(argv=None):
 
     # pre-exclude donors when this option is chosen
     donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
-
     donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
     if not donor_ids_to_be_included:  
         donors_list = get_donors_list(es, es_index, es_queries)
@@ -704,7 +684,6 @@ def main(argv=None):
     if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
