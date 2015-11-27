@@ -238,36 +238,6 @@ def generate_object_id(filename, gnos_id):
         logger.info('No luck, generate FAKE ID')
         return ''
 
-
-# def create_reorganized_donor(donor_unique_id, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir):
-#     reorganized_donor = {
-#         'donor_unique_id': donor_unique_id,
-#         'submitter_donor_id': es_json['submitter_donor_id'],
-#         'dcc_project_code': es_json['dcc_project_code'],
-#         'is_santa_cruz': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
-#         'wgs': {
-#             'normal_specimen': {},
-#             'tumor_specimens': []
-#         },
-#         'variant_calling':{},
-#         'rna_seq': {
-#              'normal_specimen': {},
-#              'tumor_specimens': []
-#         }
-#     }
-
-#     add_wgs_normal_specimen(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
-
-#     add_wgs_tumor_specimens(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
-
-#     add_variant_calling(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
-
-#     #add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
-
-#     return reorganized_donor
-
-
-
 def add_wgs_normal_specimen(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir):
     aliquot = es_json.get('normal_alignment_status')
     gnos_id = aliquot.get('aligned_bam').get('gnos_id')
@@ -276,8 +246,6 @@ def add_wgs_normal_specimen(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
 
     aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
     write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
-
-    #reorganized_donor.get('wgs').get('normal_specimen').update(aliquot_info)
 
 
 def add_metadata_xml_info(obj, chosen_gnos_repo=None):
@@ -365,24 +333,23 @@ def add_wgs_tumor_specimens(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
         aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
         write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
 
-        #reorganized_donor.get('wgs').get('tumor_specimens').append(aliquot_info) 
-
 
 def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf):
     if not es_json.get('variant_calling_results'): return
+    
+    variant_callings = choose_variant_calling(es_json, vcf)
+    for v in variant_callings:
 
-    for v in vcf:
+        if not es_json.get('variant_calling_results').get(v): continue
 
-        if not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)): continue
-
-        wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(get_formal_vcf_name(v))
+        wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(v)
 
         gnos_id = wgs_tumor_vcf_info.get('gnos_id')
         if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
         if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
 
         variant_calling = {
-            'data_type': v.capitalize()+'-VCF',
+            'data_type': get_formal_vcf_name(v).capitalize()+'-VCF',
             'project_code': es_json['dcc_project_code'],
             'submitter_donor_id': es_json['submitter_donor_id'],  
             'is_santa_cruz': wgs_tumor_vcf_info.get('is_santa_cruz_entry'),             
@@ -409,7 +376,30 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
 
         write_s3_transfer_json(jobs_dir, variant_calling, gnos_ids_to_be_excluded)           
 
-        #reorganized_donor.get('variant_calling').update(variant_calling) 
+
+def choose_variant_calling(es_json, vcf):
+    variant_calling = set()
+    if not es_json.get('variant_calling_results') or not vcf:
+        return variant_calling
+
+    for v in vcf:
+        if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
+            not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
+            variant_calling.add(get_formal_vcf_name(v))
+            if not check_broad_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
+        else:
+            logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
+    return variant_calling
+
+
+def check_broad_vcf(es_json, vcf_calling):
+    if vcf_calling == 'broad' or vcf_calling == 'muse' or vcf_calling == 'broad_tar':
+        if not es_json.get('flags').get('is_broad_variant_calling_performed'):
+            return False
+        else: 
+            return True
+    else:
+        return True
 
 
 def get_formal_vcf_name(vcf):
@@ -420,7 +410,12 @@ def get_formal_vcf_name(vcf):
       "dkfz_embl": "dkfz_embl_variant_calling",
       "broad": "broad_variant_calling",
       "muse": "muse_variant_calling",
-      "broad_tar": "broad_tar_variant_calling"
+      "broad_tar": "broad_tar_variant_calling",
+      "sanger_variant_calling": "sanger",
+      "dkfz_embl_variant_calling": "dkfz_embl",
+      "broad_variant_calling": "broad",
+      "muse_variant_calling": "muse",
+      "broad_tar_variant_calling": "broad_tar"
     }   
 
     return vcf_map.get(vcf)
@@ -458,7 +453,6 @@ def add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, 
                 alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo)
                 write_s3_transfer_json(jobs_dir, alignment_info[workflow_type], gnos_ids_to_be_excluded)
 
-            #reorganized_donor.get('rna_seq')[specimen_type + '_specimen'] = alignment_info
         else:
             for aliquot in rna_seq_info.get(specimen_type):
                 alignment_info = {}
@@ -469,8 +463,6 @@ def add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, 
 
                     alignment_info[workflow_type] = create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo)
                     write_s3_transfer_json(jobs_dir, alignment_info[workflow_type], gnos_ids_to_be_excluded)
-
-                #reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(alignment_info) 
 
 
 def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
@@ -553,7 +545,6 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_excluded):
     if transfer_json:
         gnos_id = transfer_json.get('gnos_id')
 
-        prefix_for_priority = json_prefix_code + '0'*(6-len(str(json_prefix_start))) + str(json_prefix_start)
         project_code = transfer_json.get('project_code')
         donor_id = transfer_json.get('submitter_donor_id')
         specimen_id = '-' if transfer_json.get('data_type').endswith('-VCF') else transfer_json.get('submitter_specimen_id')
@@ -585,10 +576,12 @@ def generate_id_list(id_lists):
 
 def main(argv=None):
 
-    parser = ArgumentParser(description="S3 Transfer Jobs Json Generator",
+    parser = ArgumentParser(description="Transfer Jobs Json Generator",
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-m", "--metadata_dir", dest="metadata_dir",
              help="Directory containing metadata manifest files", required=True)
+    parser.add_argument("-t", "--target_cloud", dest="target_cloud",
+             help="Specify target_cloud of the job transfer", required=True)
     parser.add_argument("-r", "--specify source repo", dest="chosen_gnos_repo",
              help="Specify source gnos repo", required=False)
     parser.add_argument("-d", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
@@ -608,6 +601,7 @@ def main(argv=None):
 
     args = parser.parse_args()
     metadata_dir = args.metadata_dir  # this dir contains gnos manifest files, will also host all reports
+    target_cloud = args.target_cloud
     include_gnos_id_lists = args.include_gnos_id_lists
     exclude_gnos_id_lists = args.exclude_gnos_id_lists
     exclude_donor_id_lists = args.exclude_donor_id_lists
@@ -623,7 +617,12 @@ def main(argv=None):
     gnos_ids_to_be_excluded = generate_id_list(exclude_gnos_id_lists)
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
+    if target_cloud == 'aws':
+        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
+    elif target_cloud == 'collab':
+        git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
+    else:
+        sys.exit('Error: unknown target_cloud!')
     files = glob.glob(git_s3_fnames)
     for f in files:
         fname = str.split(f, '/')[-1]
@@ -639,7 +638,7 @@ def main(argv=None):
     # gnos_ids_to_be_excluded.difference_update(gnos_ids_to_be_included) 
 
     # remove the gnos_ids_to_be_excluded from gnos_ids_to_be_include
-    gnos_ids_to_be_included.difference_update(gnos_ids_to_be_excluded) 
+    gnos_ids_to_be_included.difference_update(gnos_ids_to_be_excluded)
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
@@ -665,7 +664,7 @@ def main(argv=None):
 
     report_dir = re.sub(r'^generate_', '', os.path.basename(__file__))
     report_dir = re.sub(r'\.py$', '', report_dir)
-    jobs_dir = metadata_dir + '/reports/' + report_dir
+    jobs_dir = metadata_dir + '/reports/' + report_dir + '_' + target_cloud
 
     if os.path.exists(jobs_dir): shutil.rmtree(jobs_dir, ignore_errors=True)  # empty the folder if exists
     os.makedirs(jobs_dir)
@@ -685,15 +684,13 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-
-    #donor_fh = open(jobs_dir+'/s3_transfer_json.jsonl', 'w')
     
     # get json doc for each donor 
     for donor_unique_id in donors_list:     
         
     	es_json = get_donor_json(es, es_index, donor_unique_id)
 
-        if 'wgs' in seq:
+        if seq and 'wgs' in seq:
             add_wgs_normal_specimen(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
 
             add_wgs_tumor_specimens(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
@@ -701,15 +698,8 @@ def main(argv=None):
         if vcf:
             add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf)
 
-        if 'rna_seq' in seq:
+        if seq and 'rna_seq' in seq:
             add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
-        
-        # reorganized_donor = create_reorganized_donor(donor_unique_id, es_json,\
-        #         gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
-
-        #donor_fh.write(json.dumps(reorganized_donor, default=set_default, sort_keys=True) + '\n')
-
-    #donor_fh.close()
 
     if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
