@@ -22,9 +22,8 @@ import shutil
 from operator import itemgetter
 
 es_queries = [
-# query 0: gnos entries only at BSC which needs to be synchronized to other repos
 { 
-    "name": "bam_gnos_objects_to_sync_into_bsc",
+    "name": "bam_gnos_objects_to_sync_from_others_into_bsc",
     "content":
               {
                  "fields":[
@@ -75,9 +74,8 @@ es_queries = [
                  "size": 10000
                 }
 },
-# query 1: gnos entries which are missing from BSC and needs to be synchronized to BSC
 {
-    "name": "bam_gnos_objects_to_sync_into_ebi",
+    "name": "bam_gnos_objects_to_sync_from_bsc_into_ebi",
     "content":
             {
                "fields":[
