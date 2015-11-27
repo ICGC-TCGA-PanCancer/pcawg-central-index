@@ -104,6 +104,7 @@ echo running alignment summary report for $M
 ./generate_pcawg_sample_sheet.py -m $M
 ./generate_pcawg_specimen_alignment_summary.py -m $M
 ./generate_release.py -m $M -f pcawg_summary -v sanger dkfz embl broad
+./generate_bsc_sync_reports.py -m $M
 
 echo gzip all jsonl files under $M
 gzip $M/*.jsonl

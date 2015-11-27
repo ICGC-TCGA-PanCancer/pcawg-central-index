@@ -355,7 +355,7 @@ def init_es(es_host, es_index):
     es = Elasticsearch([ es_host ])
     es.indices.create( es_index, ignore=400 )
     # create mappings
-    es_mapping = open('pancan.reorganized.donor.mapping.json')
+    es_mapping = open('pcawg_summary.mapping.json')
     es.indices.put_mapping(index=es_index, doc_type='donor', body=es_mapping.read())
     es_mapping.close()
     return es
@@ -451,7 +451,7 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
 def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen_type, sequence_type, workflow_type):
     if not alignment: return 
     for d in aliquot_field:
-        if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
+        if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] and sequence_type == 'rna_seq' or sequence_type == 'wgs':
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
     for d in gnos_field:
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(alignment.get(d))
@@ -567,11 +567,12 @@ def main(argv=None):
 
     timestamp = str.split(metadata_dir, '/')[-1]
     es_index = 'p_' + ('' if not repo else repo+'_') + re.sub(r'\D', '', timestamp).replace('20','',1)
-    es_index_reorganize = 'r_' + ('' if not repo else repo+'_') + re.sub(r'\D', '', timestamp).replace('20','',1)
+    es_index_summary = 'pcawg_summary'
     es_type = "donor"
     es_host = 'localhost:9200'
 
     es = Elasticsearch([es_host])
+    es_summary = init_es(es_host, es_index_summary)
 
     logger.setLevel(logging.INFO)
     ch.setLevel(logging.WARN)
@@ -626,6 +627,9 @@ def main(argv=None):
         es_json = get_donor_json(es, es_index, donor_unique_id)
         
         reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+
+        # push to Elasticsearch
+        es_summary.index(index=es_index_summary, doc_type='donor', id=reorganized_donor['donor_unique_id'], body=json.loads(json.dumps(reorganized_donor, default=set_default)), timeout=90 )
 
         donor_fh.write(json.dumps(reorganized_donor, default=set_default) + '\n')
 
