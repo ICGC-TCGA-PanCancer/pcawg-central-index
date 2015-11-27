@@ -180,9 +180,10 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'is_aug2015_entry': aliquot.get('aligned_bam').get('is_aug2015_entry') if 'wgs' in data_type else aliquot.get('is_aug2015_entry'),
-        'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
-            aliquot.get('aligned_bam').get('gnos_repo'), \
-            data_type, aliquot.get('aliquot_id')),
+        'gnos_repo': aliquot.get('aligned_bam').get('gnos_repo'),
+        #'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
+        #    aliquot.get('aligned_bam').get('gnos_repo'), \
+        #    data_type, aliquot.get('aliquot_id')),
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
         'gnos_last_modified': aliquot.get('aligned_bam').get('gnos_last_modified')[-1],
         'files': []
