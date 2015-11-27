@@ -299,6 +299,7 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                 else:
                     workflow_previous.get('gnos_repo').append(current_vcf_entry['gnos_repo'][0])
                     workflow_previous.get('gnos_last_modified').append(current_vcf_entry['gnos_last_modified'][0])
+                    workflow_previous.get('gnos_published_date').append(current_vcf_entry['gnos_published_date'][0])
                     workflow_previous.get('effective_xml_md5sum').append(current_vcf_entry['effective_xml_md5sum'][0])
                     workflow_previous['exists_xml_md5sum_mismatch'] = False if len(set(workflow_previous.get('effective_xml_md5sum'))) == 1 else True
                     logger.info( 'Donor: {} has synchronized variant calling with GNOS ID: {} in the repos: {}'
@@ -382,6 +383,7 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "gnos_id": gnos_analysis.get('analysis_id'),
         "gnos_repo": [gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/'],
         "gnos_last_modified": [dateutil.parser.parse(gnos_analysis.get('last_modified'))],
+        "gnos_published_date": [dateutil.parser.parse(gnos_analysis.get('published_date'))],
         "files": files,
         "study": gnos_analysis.get('study'),
         "effective_xml_md5sum": [gnos_analysis.get('_effective_xml_md5sum')],
@@ -1147,7 +1149,9 @@ def reorganize_dkfz_embl_calls(vcf_entries):
         # now create the combined dkfz_embl_variant_calling stub
         vcf_entries.update({
                 'dkfz_embl_variant_calling': {
+                    'gnos_id': vcf_entries.get('embl_variant_calling').get('gnos_id'),
                     'gnos_repo': vcf_entries.get('embl_variant_calling').get('gnos_repo'),  # this is needed for reporting purpose, get it from embl
+                    'gnos_published_date': vcf_entries.get('embl_variant_calling').get('gnos_published_date'),
                     'is_stub': True
                 }
             })
@@ -1783,6 +1787,7 @@ def create_aggregated_bam_info_dict(bam):
             "bai_file_md5sum": bam['bai_file_md5sum'],
             "effective_xml_md5sum": [bam['effective_xml_md5sum']],
             "gnos_last_modified": [bam['last_modified']],
+            "gnos_published_date": [bam['published_date']],
             "gnos_repo": [bam['gnos_repo']],
             "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
             "is_aug2015_entry": bam['is_aug2015_entry'],
@@ -1837,6 +1842,7 @@ def bam_aggregation(bam_files):
                 else:
                     alignment_status.get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                     alignment_status.get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                    alignment_status.get('aligned_bam').get('gnos_published_date').append(bam['published_date'])
                     alignment_status.get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
                     alignment_status['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
                     
@@ -2004,6 +2010,7 @@ def bam_aggregation(bam_files):
                     else:
                         alignment_status.get('tophat').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('tophat').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                        alignment_status.get('tophat').get('aligned_bam').get('gnos_published_date').append(bam['published_date'])
                         alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
                         alignment_status.get('tophat')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('tophat').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
@@ -2059,6 +2066,7 @@ def bam_aggregation(bam_files):
                     else:
                         alignment_status.get('star').get('aligned_bam').get('gnos_repo').append(bam['gnos_repo'])
                         alignment_status.get('star').get('aligned_bam').get('gnos_last_modified').append(bam['last_modified'])
+                        alignment_status.get('star').get('aligned_bam').get('gnos_published_date').append(bam['published_date'])
                         alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum').append(bam['effective_xml_md5sum'])
                         alignment_status.get('star')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
@@ -2132,6 +2140,7 @@ def create_aggregated_rna_bam_info(bam):
             "bai_file_md5sum": bam['bai_file_md5sum'],
             "bai_file_size": bam['bai_file_size'],
             "gnos_last_modified": [bam['last_modified']],
+            "gnos_published_date": [bam['published_date']],
             "effective_xml_md5sum": [bam['effective_xml_md5sum']]
             }
         }
@@ -2145,9 +2154,10 @@ def sort_repos_by_time(aggregated_bam_info):
         if not agg_bam.get('aligned_bam'):
             continue
         modified_dates = agg_bam.get('aligned_bam').get('gnos_last_modified')
+        published_dates = agg_bam.get('aligned_bam').get('gnos_published_date')
         gnos_repos = agg_bam.get('aligned_bam').get('gnos_repo')
-        agg_bam.get('aligned_bam')['gnos_last_modified'], agg_bam.get('aligned_bam')['gnos_repo'] = \
-            izip(*sorted(izip(modified_dates, gnos_repos), key=lambda x: x[0]))
+        agg_bam.get('aligned_bam')['gnos_last_modified'], agg_bam.get('aligned_bam')['gnos_repo'], agg_bam.get('aligned_bam')['gnos_published_date'] = \
+            izip(*sorted(izip(modified_dates, gnos_repos, published_dates), key=lambda x: x[0]))
 
 
 def find_latest_metadata_dir(output_dir):
