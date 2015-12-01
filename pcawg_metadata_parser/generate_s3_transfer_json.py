@@ -59,7 +59,8 @@ es_queries = [
                     "ORCA-IN",
                     "BTCA-SG",
                     "LAML-KR",
-                    "LICA-FR"
+                    "LICA-FR",
+                    "CLLE-ES"
                 ]
               }
             },
