@@ -886,6 +886,7 @@ def add_report_info_11(report_info, report_info_list, es_json):
     if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('dkfz_embl_variant_calling'):
         report_info['gnos_repo'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_repo')
         report_info['gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id')
+        report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_last_modified')
         report_info_list.append(copy.deepcopy(report_info))
     return report_info_list
 
@@ -939,6 +940,7 @@ def add_report_info_6_7(report_info, report_info_list, es_json):
         for workflow_type in ['broad', 'broad_tar', 'muse']:
             report_info[workflow_type+'_gnos_repo'] = vcf.get(workflow_type+'_variant_calling').get('gnos_repo')[0] if vcf.get(workflow_type+'_variant_calling') else None
             report_info[workflow_type+'_gnos_id'] = vcf.get(workflow_type+'_variant_calling').get('gnos_id') if vcf.get(workflow_type+'_variant_calling') else None
+            report_info[workflow_type+'_gnos_last_modified'] = vcf.get(workflow_type+'_variant_calling').get('gnos_last_modified')[0].split('T')[0] if vcf.get(workflow_type+'_variant_calling') else None
         report_info['is_cross_referencing_mismatch'] = es_json.get('flags').get('broad').get('exist_file_subsets_mismatch')
 
         report_info_list.append(copy.deepcopy(report_info))
