@@ -437,7 +437,7 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     elif workflow_name == 'DKFZ_EMBL_Merged':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
 
-    elif workflow_name == 'BROAD_MUSE_PIPELINE':
+    elif workflow_name == 'BROAD_MUSE_PIPELINE' or workflow_name == 'BROAD_MUSE_PIPELINE_SEVEN_BRIDGES':
         vcf_entry.get('workflow_details')['workflow_file_subset'] = analysis_attrib.get('workflow_file_subset')
         vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
         if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
