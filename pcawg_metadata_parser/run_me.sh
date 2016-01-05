@@ -107,6 +107,7 @@ echo running alignment summary report for $M
 curl -XDELETE localhost:9200/pcawg_summary
 ./generate_release.py -m $M -f pcawg_summary -v sanger dkfz embl broad
 ./generate_bsc_sync_reports.py -m $M
+./generate_pcawg_lane_level_gnos_analysis_ids.py -m $M
 
 echo gzip all jsonl files under $M
 gzip $M/*.jsonl
