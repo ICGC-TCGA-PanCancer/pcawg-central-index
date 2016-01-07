@@ -117,6 +117,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
 
+    for id_type in ['donor', 'specimen', 'sample']:
+        if not is_in_pcawg_final_list(analysis_attrib.get('dcc_project_code'), analysis_attrib.get('submitter_'+id_type+'_id'), id_type, annotations):
+            logger.warning('ignore non-pcawg final list {}: {} GNOS entry: {}'
+                             .format(id_type, analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_'+id_type+'_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+            return       
+
     if is_in_donor_blacklist(donor_unique_id):
         logger.warning('ignore blacklisted donor: {} GNOS entry: {}'
                          .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
@@ -276,6 +282,13 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     # Let's not worry about this index type, it seems not that useful
     #es.index(index=es_index, doc_type='bam_file', id=bam_file['bam_gnos_ao_id'], body=json.loads( json.dumps(bam_file, default=set_default) ), timeout=90)
     bam_output_fh.write(json.dumps(bam_file, default=set_default) + '\n')
+
+
+def is_in_pcawg_final_list(dcc_project_code, pcawg_id, id_type, annotations):
+    if annotations.get('pcawg_final_list').get(id_type).intersection([dcc_project_code+'::'+pcawg_id]):
+        return True
+    else:
+        return False
 
 
 def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
@@ -871,6 +884,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
     read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
+    read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
 
 
 
@@ -1036,7 +1050,20 @@ def read_annotations(annotations, type, file_name):
                     if len(line.rstrip()) == 0: continue
                     icgc_id, id_pcawg, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
                     id_pcawg = detect_and_low_case_uuid(id_pcawg)
-                    annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id 
+                    annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id
+
+            elif type == 'pcawg_final_list':
+                annotations[type] = {
+                    'donor': set(),
+                    'specimen': set(),
+                    'sample': set()
+                }
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    annotations[type]['donor'].add(row.get('donor_unique_id'))
+                    annotations[type]['specimen'].add(row.get('dcc_project_code')+'::'+row.get('submitter_specimen_id'))
+                    annotations[type]['sample'].add(row.get('dcc_project_code')+'::'+row.get('submitter_sample_id'))
+
 
             else:
                 logger.warning('unknown annotation type: {}'.format(type))
