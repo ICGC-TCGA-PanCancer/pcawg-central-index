@@ -922,11 +922,8 @@ def create_report_info(donor_unique_id, es_json, q_index):
 def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
     report_info['gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')[0]
     report_info['gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
-    if es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_status') \
-                                            and es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_status')=='fixed':
-        report_info['is_vcf_files_fixed'] = True
-    else:
-        report_info['is_vcf_files_fixed'] = False
+    report_info['vcf_workflow_result_version'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_result_version') 
+
     report_info_list.append(copy.deepcopy(report_info)) 
     return report_info_list
 

@@ -318,7 +318,7 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                                     .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
             
             else:
-                if current_vcf_entry.get('vcf_workflow_status') and current_vcf_entry.get('vcf_workflow_status')=='fixed':
+                if current_vcf_entry.get('vcf_workflow_result_version') and current_vcf_entry.get('vcf_workflow_result_version')=='v2':
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
                     logger.info(workflow_label+' results for donor: {}. Keep the fixed_entry: {}, additional {}'
                         .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                    
@@ -438,39 +438,48 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
-        vcf_entry['vcf_workflow_status'] = 'fixed'
+        vcf_entry['vcf_workflow_result_version'] = 'v2'
 
     elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name.startswith('EMBLPancancer') and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
         vcf_entry['vcf_workflow_type'] = 'embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZPancancerCnIndelSnv' and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz'      
+        vcf_entry['vcf_workflow_type'] = 'dkfz'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'   
 
     elif workflow_name == 'EMBLDKFZPancancerStrCnIndelSNV' and LooseVersion(workflow_version) >= LooseVersion('1.0.5'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'      
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZ_EMBL_Combined_HPC':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZ_EMBL_Merged':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'BROAD_MUSE_PIPELINE' or workflow_name == 'BROAD_MUSE_PIPELINE_SEVEN_BRIDGES':
         vcf_entry.get('workflow_details')['workflow_file_subset'] = analysis_attrib.get('workflow_file_subset')
         vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
         if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
             vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
             vcf_entry['vcf_workflow_type'] = 'broad'
-            vcf_entry['vcf_workflow_status'] = 'fixed'
+            vcf_entry['vcf_workflow_result_version'] = 'v2'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad_tar':
-            vcf_entry['vcf_workflow_type'] = 'broad_tar'   
+            vcf_entry['vcf_workflow_type'] = 'broad_tar'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'   
         else:
             vcf_entry['vcf_workflow_type'] = 'Unknown_broad'
             logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
