@@ -740,6 +740,94 @@ es_queries = [
          "size": 10000
      }
 },
+# query 14: get sanger uploads 
+{
+      "name": "sanger_uploads_svfixed_status",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_sanger_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+# query 15: get broad uploads 
+{
+      "name": "broad_uploads_snvfixed_status",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_broad_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 
 ]
 
@@ -822,6 +910,24 @@ def create_report_info(donor_unique_id, es_json, q_index):
         annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
         add_report_info_12(report_info, report_info_list, es_json, annotations)
 
+    if q_index == 14:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'sanger')
+
+    if q_index == 15:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'broad')
+
+    return report_info_list
+
+
+def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
+    report_info['gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')[0]
+    report_info['gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
+    if es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_status') \
+                                            and es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_status')=='fixed':
+        report_info['is_vcf_files_fixed'] = True
+    else:
+        report_info['is_vcf_files_fixed'] = False
+    report_info_list.append(copy.deepcopy(report_info)) 
     return report_info_list
 
 def add_report_info_12(report_info, report_info_list, es_json, annotations):

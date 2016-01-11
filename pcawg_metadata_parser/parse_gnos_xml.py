@@ -318,7 +318,11 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                                     .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
             
             else:
-                if current_vcf_entry['is_oct2015_entry']:
+                if current_vcf_entry.get('vcf_workflow_status') and current_vcf_entry.get('vcf_workflow_status')=='fixed':
+                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                    logger.info(workflow_label+' results for donor: {}. Keep the fixed_entry: {}, additional {}'
+                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                    
+                elif current_vcf_entry['is_oct2015_entry']:
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
                     logger.info(workflow_label+' results for donor: {}. Keep the oct2015_freeze_entry: {}, additional {}'
                         .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
@@ -431,7 +435,12 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
     workflow_version = vcf_entry.get('workflow_details').get('variant_workflow_version')
 
-    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_status'] = 'fixed'
+
+    elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
 
@@ -455,6 +464,9 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
         if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
             vcf_entry['vcf_workflow_type'] = 'broad'
+        # elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
+        #     vcf_entry['vcf_workflow_type'] = 'broad'
+        #     vcf_entry['vcf_workflow_status'] = 'fixed'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad_tar':
