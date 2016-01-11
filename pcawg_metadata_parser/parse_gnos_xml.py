@@ -464,9 +464,9 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
         if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
             vcf_entry['vcf_workflow_type'] = 'broad'
-        # elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
-        #     vcf_entry['vcf_workflow_type'] = 'broad'
-        #     vcf_entry['vcf_workflow_status'] = 'fixed'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_status'] = 'fixed'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad_tar':
