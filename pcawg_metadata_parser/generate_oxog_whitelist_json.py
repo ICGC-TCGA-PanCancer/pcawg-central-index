@@ -25,7 +25,7 @@ import requests
 
 id_service_token = os.environ.get('ICGC_TOKEN')
 
-logger = logging.getLogger('s3 transfer json generator')
+logger = logging.getLogger('OxOG filter json generator')
 ch = logging.StreamHandler()
 
 es_queries = [
@@ -49,7 +49,7 @@ es_queries = [
                     # "RECA-EU",
                     # "PAEN-AU",
                     # "PACA-AU",
-                    # "BOCA-UK",
+                    "BOCA-UK",
                     # "OV-AU",
                     # "MELA-AU",
                     # "BRCA-UK",
@@ -60,7 +60,7 @@ es_queries = [
                     # "BTCA-SG",
                     # "LAML-KR",
                     # "LICA-FR",
-                    "CLLE-ES"
+                    # "CLLE-ES"
                 ]
               }
             },
@@ -89,6 +89,20 @@ es_queries = [
                "terms":{
                   "flags.is_dkfz_embl_variant_calling_performed":[
                      "T"
+                  ]
+               }
+            },
+            {
+               "term":{
+                  "flags.is_dkfz_variant_calling_performed":[
+                     "F"
+                  ]
+               }
+            },
+            {
+               "term":{
+                  "flags.is_embl_variant_calling_performed":[
+                     "F"
                   ]
                }
             },
@@ -256,11 +270,6 @@ def generate_object_id(filename, gnos_id):
         logger.info('No luck, generate FAKE ID')
         return ''
 
-def add_wgs_normal_specimen(es_json, chosen_gnos_repo, jobs_dir, job_json):
-    aliquot = es_json.get('normal_alignment_status')
-    gnos_id = aliquot.get('aligned_bam').get('gnos_id')
-    job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
-
 
 def add_metadata_xml_info(obj, chosen_gnos_repo=None):
     repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ])
@@ -293,9 +302,10 @@ def get_available_repos(obj):
     return ret_repos
 
 
-def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
+def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
     aliquot_info = {
         'data_type': 'WGS-BWA-Normal' if 'normal' in aliquot.get('dcc_specimen_type').lower() else 'WGS-BWA-Tumor',
+        'oxog_score': oxog_score.get(aliquot.get('aliquot_id')) if oxog_score.get(aliquot.get('aliquot_id')) else None,
         'submitter_specimen_id': aliquot.get('submitter_specimen_id'),
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
@@ -333,22 +343,36 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
     return aliquot_info
 
 
-def add_wgs_tumor_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json):
-    wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
+def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score):
+    if not es_json.get('normal_alignment_status') or not es_json.get('tumor_alignment_status'):
+        logger.warning('The donor {} has no normal or tumor alignments.'.format(es_json.get('donor_unique_id')))
+        return
 
+    # add tumor
+    wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
     for aliquot in wgs_tumor_alignment_info:
-        gnos_id = aliquot.get('aligned_bam').get('gnos_id')
-        aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
+        if not oxog_score.get(aliquot.get('aliquot_id')):
+            logger.warning('The aliquot {} has no oxog_score.'.format(aliquot.get('aliquot_id'))) 
+            return
+        aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
         job_json.get('tumors').append(copy.deepcopy(aliquot_info))
 
+        # add normal
+    aliquot = es_json.get('normal_alignment_status')
+    job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
+
+    return job_json
+    
 
 def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
     if not es_json.get('variant_calling_results'): return
   
     for v in ['sanger', 'dkfz_embl', 'broad']:
 
-        if not es_json.get('variant_calling_results').get(v+'_variant_calling'): continue
-        wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(v+'_variant_calling')
+        if not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)):
+            logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
+            return
+        wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(get_formal_vcf_name(v))
         gnos_id = wgs_tumor_vcf_info.get('gnos_id')
         variant_calling = {
             'data_type': get_formal_vcf_name(v).capitalize()+'-VCF',          
@@ -447,15 +471,17 @@ def set_default(obj):
 
 
 def write_json(jobs_dir, job_json):
-    if job_json:
-        project_code = job_json.get('project_code')
-        donor_id = job_json.get('submitter_donor_id')
-        
-        json_name_list = [project_code, donor_id, 'json']
+    if not job_json.get('normal') or not job_json.get('sanger') or not job_json.get('dkfz_embl') or not job_json.get('broad'):
+        return
 
-        json_name = '.'.join(json_name_list)
-        with open(jobs_dir + '/' + json_name, 'w') as w:
-            w.write(json.dumps(job_json, indent=4, sort_keys=True))
+    project_code = job_json.get('project_code')
+    donor_id = job_json.get('submitter_donor_id')
+    
+    json_name_list = [project_code, donor_id, 'json']
+
+    json_name = '.'.join(json_name_list)
+    with open(jobs_dir + '/' + json_name, 'w') as w:
+        w.write(json.dumps(job_json, indent=4, sort_keys=True))
 
 
 def generate_id_list(id_lists):
@@ -467,6 +493,19 @@ def generate_id_list(id_lists):
                 for d in f: ids_list.add(d.rstrip())
 
     return ids_list
+
+def get_oxog_scores(oxog_scores):
+    oxog_score = {}
+    if oxog_scores:
+       files = glob.glob(oxog_scores)
+       for fname in files:
+          with open(fname) as f:
+              for line in f:
+                  if line.startswith('aliquot'): continue
+                  if len(line.rstrip()) == 0: continue
+                  aliquot_id, oxog = str.split(line.rstrip(), '\t')
+                  oxog_score[aliquot_id] = oxog
+    return oxog_score
 
 def create_job_json(es_json):
     job_json = {
@@ -487,65 +526,29 @@ def main(argv=None):
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-m", "--metadata_dir", dest="metadata_dir",
              help="Directory containing metadata manifest files", required=True)
-    # parser.add_argument("-t", "--target_cloud", dest="target_cloud",
-    #          help="Specify target_cloud of the job transfer", required=True)
+    parser.add_argument("-s", "--oxog_scores", dest="oxog_scores",
+             help="Specify the files containing oxog_scores", required=True)
+    parser.add_argument("-t", "--target_compute_site", dest="target_compute_site",
+             help="Specify target_compute_site of the jobs", required=True)
     parser.add_argument("-r", "--specify source repo", dest="chosen_gnos_repo",
              help="Specify source gnos repo", required=False)
     parser.add_argument("-d", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
     parser.add_argument("-c", "--include_donor_id_lists", dest="include_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
-    # parser.add_argument("-i", "--include_gnos_id_lists", dest="include_gnos_id_lists",
-    #          help="Specify which GNOS IDs to process, process all gnos_ids if none specified", required=False)
+
     # parser.add_argument("-x", "--exclude_gnos_id_lists", dest="exclude_gnos_id_lists", 
     #          help="File(s) containing GNOS IDs to be excluded, use filename pattern to specify the file(s)", required=False)
-    # parser.add_argument("-s", "--sequence_type", dest="seq", nargs="*",
-    #          help="List sequence_type types", required=False)
-    # parser.add_argument("-v", "--variant_calling", dest="vcf", nargs="*",
-    #          help="List variant_calling types", required=False)    
-
+ 
 
 
     args = parser.parse_args()
     metadata_dir = args.metadata_dir  # this dir contains gnos manifest files, will also host all reports
-    # target_cloud = args.target_cloud
-    # include_gnos_id_lists = args.include_gnos_id_lists
-    # exclude_gnos_id_lists = args.exclude_gnos_id_lists
+    target_compute_site = args.target_compute_site
     exclude_donor_id_lists = args.exclude_donor_id_lists
     include_donor_id_lists = args.include_donor_id_lists
     chosen_gnos_repo = args.chosen_gnos_repo
-    # seq = args.seq
-    # vcf = args.vcf
-    
-    # seq= list(seq) if seq else [] 
-    # vcf = list(vcf) if vcf else []   
-
-    # # pre-exclude gnos entries when this option is chosen
-    # gnos_ids_to_be_excluded = generate_id_list(exclude_gnos_id_lists)
-
-    # # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    # if target_cloud == 'aws':
-    #     git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
-    # elif target_cloud == 'collab':
-    #     git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
-    # else:
-    #     sys.exit('Error: unknown target_cloud!')
-    # files = glob.glob(git_s3_fnames)
-    # for f in files:
-    #     fname = str.split(f, '/')[-1]
-    #     gnos_id = str.split(fname, '.')[0]
-    #     gnos_ids_to_be_excluded.add(gnos_id)
-    #     sub_file_name = '.'.join(str.split(fname, '.')[1:])
-    #     gnos_ids_to_be_excluded.add(sub_file_name)
-
-    # # only process the gnos entries when this option is chosen
-    # gnos_ids_to_be_included = generate_id_list(include_gnos_id_lists) 
-
-    # # # remove the gnos_ids_to_be_include from gnos_ids_to_be_excluded
-    # # gnos_ids_to_be_excluded.difference_update(gnos_ids_to_be_included) 
-
-    # # remove the gnos_ids_to_be_excluded from gnos_ids_to_be_include
-    # gnos_ids_to_be_included.difference_update(gnos_ids_to_be_excluded)
+    oxog_scores = args.oxog_scores
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
@@ -557,16 +560,36 @@ def main(argv=None):
 
     es = Elasticsearch([es_host])
 
-    # pre-exclude donors when this option is chosen
+
+    # pre-exclude gnos entries when this option is chosen
     donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
-    donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
+
+    # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
+    if target_compute_site in ['aws', 'collab', 'ucsc']:
+        git_fnames = '../oxog-ops/oxog-'+target_compute_site+'-jobs-test/*/*.json'
+        # git_fnames = 'gnos_metadata/2016-01-11_11-44-53_EST/reports/oxog_whitelist_json/*.json'
+    else:
+        sys.exit('Error: unknown target_compute_site!')
+    files = glob.glob(git_fnames)
+    for f in files:
+        fname = str.split(f, '/')[-1]
+        donor_unique_id = str.split(fname, '.')[0]+'::'+str.split(fname, '.')[1]
+        donor_ids_to_be_excluded.add(donor_unique_id)
+
+    # only process the gnos entries when this option is chosen
+    donor_ids_to_be_included = generate_id_list(include_donor_id_lists) 
+
     if not donor_ids_to_be_included:  
         donors_list = get_donors_list(es, es_index, es_queries)
     else:
         donors_list = donor_ids_to_be_included
 
+
     # exclude the donors if they were specified on the exclude_donor_id_lists
     donors_list.difference_update(donor_ids_to_be_excluded)
+
+    # read oxog_scores files
+    oxog_score = get_oxog_scores(oxog_scores)
 
     report_dir = re.sub(r'^generate_', '', os.path.basename(__file__))
     report_dir = re.sub(r'\.py$', '', report_dir)
@@ -590,22 +613,23 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
+    
     print len(donors_list)
+
     
     # get json doc for each donor 
-    for donor_unique_id in donors_list:     
+    for donor_unique_id in donors_list:
+        # print donor_unique_id     
         
-    	es_json = get_donor_json(es, es_index, donor_unique_id)
+        es_json = get_donor_json(es, es_index, donor_unique_id)
 
         # ensure the sanger and broad have fixed sv and snv version of files
-        # if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_status'): continue
-        # if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_status'): continue
+        # if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
+        # if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
 
         job_json = create_job_json(es_json)       
 
-        add_wgs_normal_specimen(es_json, chosen_gnos_repo, jobs_dir, job_json)
-
-        add_wgs_tumor_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json)
+        add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score)
 
         add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json)
 
