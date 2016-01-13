@@ -1038,6 +1038,7 @@ def add_report_info_8(report_info, report_info_list, es_json):
 
 
 def add_report_info_6_7(report_info, report_info_list, es_json):
+    report_info['tumor_aliquot_ids'] = es_json.get('aligned_tumor_specimen_aliquots')
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
         for workflow_type in ['broad', 'broad_tar', 'muse']:
