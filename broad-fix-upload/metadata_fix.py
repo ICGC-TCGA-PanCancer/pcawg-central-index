@@ -325,7 +325,7 @@ def get_files(gnos_analysis_object, fixed_file_dir, gnos_entry_dir):
  
     # print matched_files
     # print len(matched_files) 
-    
+
     for fp in file_name_patterns:
         logger.error('Missing expected variant call result file with pattern: {}'.format(fp))
         sys.exit('Missing expected variant call result file, see log file for details.')
@@ -381,16 +381,12 @@ def main():
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    # now download metadata xml
-    # if not test:
+    # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
     download_metadata_files(work_dir, donors_to_be_fixed)
 
     print('\nGenerating index files for fixed_files ...')
     # generate_index_files(work_dir, donors_to_be_fixed)
-
-    # print('\nCreate symlink for fixed snv_mnv files ...')
-    # attach_fixed_files(work_dir, donors_to_be_fixed)
 
     # validate working direcotry first
     print('\nValidating working directory...')
@@ -399,21 +395,10 @@ def main():
     # dectect whether uploads dir exists, stop if exists
     detect_folder(work_dir, 'uploads')
     detect_folder(work_dir, 'updated_metafiles')
-    # upload_dir = os.path.join(work_dir, 'uploads')
-    # if os.path.isdir(upload_dir):
-    #     try:
-    #         os.rmdir(upload_dir)
-    #     except OSError as ex:
-    #         sys.exit('\nStop: none empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.\n'.format(upload_dir))
-
-    # os.mkdir(upload_dir)
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files...')
     metadata_fix(work_dir, donors_to_be_fixed)
-
-    # print('\nGenerating the updated related metadata XML files...')
-    # generate_updated_metadata(work_dir, donors_to_be_fixed)
     
     print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
     print('Processing log file: {}'.format(log_file))
