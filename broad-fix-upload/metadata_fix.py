@@ -25,8 +25,32 @@ ch = logging.StreamHandler()
 #gnos_key = '/home/ubuntu/.ssh/gnos_key'
 gnos_key = '~/.ssh/gnos_key'
 
-def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir):
-    metadata_xml_dir = download_dir + workflow_type + '/' + gnos_id
+
+def get_formal_repo_name(repo):
+    repo_url_to_repo = {
+      "https://gtrepo-bsc.annailabs.com/": "bsc",
+      "bsc": "https://gtrepo-bsc.annailabs.com/",
+      "https://gtrepo-ebi.annailabs.com/": "ebi",
+      "ebi": "https://gtrepo-ebi.annailabs.com/",
+      "https://cghub.ucsc.edu/": "cghub",
+      "cghub": "https://cghub.ucsc.edu/",
+      "https://gtrepo-dkfz.annailabs.com/": "dkfz",
+      "dkfz": "https://gtrepo-dkfz.annailabs.com/",
+      "https://gtrepo-riken.annailabs.com/": "riken",
+      "riken": "https://gtrepo-riken.annailabs.com/",
+      "https://gtrepo-osdc-icgc.annailabs.com/": "osdc-icgc",
+      "osdc-icgc": "https://gtrepo-osdc-icgc.annailabs.com/",
+      "https://gtrepo-osdc-tcga.annailabs.com/": "osdc-tcga",
+      "osdc-tcga": "https://gtrepo-osdc-tcga.annailabs.com/",
+      "https://gtrepo-etri.annailabs.com/": "etri",
+      "etri": "https://gtrepo-etri.annailabs.com/"
+    }
+
+    return repo_url_to_repo.get(repo)
+
+
+def download_metadata_xml(gnos_id, gnos_repo, download_dir):
+    metadata_xml_dir = os.path.join(download_dir, gnos_id)
     logger.info('Download metadata xml from GNOS repo: {} for analysis object: {}'.format(gnos_repo, gnos_id))
     
     url = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_id
@@ -47,11 +71,11 @@ def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir):
         with open(metadata_xml_file, 'w') as f:  # write to metadata xml file now
             f.write(metadata_xml_str.encode('utf8'))
 
-def download_datafiles(gnos_id, gnos_repo, workflow_type, download_dir):
+def download_datafiles(gnos_id, gnos_repo, download_dir):
     url = gnos_repo + 'cghub/data/analysis/download/' + gnos_id
-    datafiles_dir = download_dir + workflow_type
+    # datafiles_dir = download_dir + workflow_type
     for i in range(10):
-        command =   'cd {} && '.format(datafiles_dir) + \
+        command =   'cd {} && '.format(download_dir) + \
                     'gtdownload -c ' + gnos_key + ' ' + url
 
         process = subprocess.Popen(
@@ -66,7 +90,7 @@ def download_datafiles(gnos_id, gnos_repo, workflow_type, download_dir):
         if not process.returncode:
             break
         time.sleep(randint(1,10))  # pause a few seconds before retry
-    os.remove(os.path.join(datafiles_dir, gnos_id+'.gto'))
+    os.remove(os.path.join(download_dir, gnos_id+'.gto'))
 
 
 def generate_uuid():
@@ -74,44 +98,44 @@ def generate_uuid():
     return uuid_str
 
 
-def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, download_dir, gnos_id):
-    lookup_dir = download_dir + workflow_type + '/' + gnos_id
-    fname_all = []
-    data_block_files_new = []
-    for f in data_block_files:
-        fname = str(f.get('@filename'))
-        if not fname in fname_all:
-            fname_all.append(fname)
-            fname_list = str.split(fname, '.')
-            fname_list[2] = '[0-9]*[0-9]'
-            fname_search = '.'.join(fname_list) 
-            f_fixed = glob.glob(lookup_dir + '/fixed_files/' + fname_search)
-            if not f_fixed:
-                f_old = glob.glob(lookup_dir + '/' + fname_search )
-                if len(f_old) == 1:
-                    f_checksum = generate_md5(f_old[0]) 
-                    if not f_checksum == f.get('@checksum'):
-                        logger.warning('file: {} in the downloads folder has different checksum with the original one for analysis object: {}'.format(fname, gnos_id))
-                        return
-                elif not f_old:
-                    logger.warning('file: {} is missing in the downloads folder for analysis object: {}'.format(fname, gnos_id))
-                    return
-                else:
-                    logger.warning('file: {} has duplicates in the downloads folder for analysis object: {}'.format(fname, gnos_id))
-                    return
-            elif len(f_fixed) == 1:
-                f['@filename'] = f_fixed[0].split('/')[-1]
-                f['@checksum'] = generate_md5(f_fixed[0])
+# def update_fixed_data_block_files(data_block_files, workflow_type, upload_dir, download_dir, gnos_id):
+#     lookup_dir = os.path.join(download_dir, gnos_id)
+#     fname_all = []
+#     data_block_files_new = []
+#     for f in data_block_files:
+#         fname = str(f.get('@filename'))
+#         if not fname in fname_all:
+#             fname_all.append(fname)
+#             fname_list = str.split(fname, '.')
+#             fname_list[2] = '[0-9]*[0-9]'
+#             fname_search = '.'.join(fname_list) 
+#             f_fixed = glob.glob(lookup_dir + '/fixed_files/' + fname_search)
+#             if not f_fixed:
+#                 f_old = glob.glob(lookup_dir + '/' + fname_search )
+#                 if len(f_old) == 1:
+#                     f_checksum = generate_md5(f_old[0]) 
+#                     if not f_checksum == f.get('@checksum'):
+#                         logger.warning('file: {} in the downloads folder has different checksum with the original one for analysis object: {}'.format(fname, gnos_id))
+#                         return
+#                 elif not f_old:
+#                     logger.warning('file: {} is missing in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+#                     return
+#                 else:
+#                     logger.warning('file: {} has duplicates in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+#                     return
+#             elif len(f_fixed) == 1:
+#                 f['@filename'] = f_fixed[0].split('/')[-1]
+#                 f['@checksum'] = generate_md5(f_fixed[0])
                 
-            else:
-                logger.warning('file: {} has duplicates fixed files in the downloads folder for analysis object: {}'.format(fname, gnos_id))
-                return
-            data_block_files_new.append(copy.deepcopy(f))
+#             else:
+#                 logger.warning('file: {} has duplicates fixed files in the downloads folder for analysis object: {}'.format(fname, gnos_id))
+#                 return
+#             data_block_files_new.append(copy.deepcopy(f))
 
-        else: # duplicates, not keep in the data_block_files_new
-            logger.warning('file: {} is duplicated and removed from the data_block_files for analysis object: {}'.format(fname, gnos_id))            
+#         else: # duplicates, not keep in the data_block_files_new
+#             logger.warning('file: {} is duplicated and removed from the data_block_files for analysis object: {}'.format(fname, gnos_id))            
         
-    return data_block_files_new
+#     return data_block_files_new
 
 
 def generate_md5(fname):
@@ -141,7 +165,7 @@ def get_fix_donor_list (list_file):
 def validate_work_dir(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
         caller = 'broad'
-        gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, donor.get(caller + '_gnos_id'))
+        gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         if not os.path.isdir(gnos_entry_dir):
             logger.error('Expected GNOS entry does not exist: {}. Please ensure all GNOS entries are downloaded.'.format(gnos_entry_dir))
             sys.exit('Validating working directory failed, please check log for details.')
@@ -160,23 +184,24 @@ def validate_work_dir(work_dir, donors_to_be_fixed):
 def download_metadata_files(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
         caller = 'broad'
-        download_datafiles(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), caller, os.path.join(work_dir, 'downloads/'))
-        download_metadata_xml(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), caller, os.path.join(work_dir, 'downloads/'))
+        download_datafiles(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
+        download_metadata_xml(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
 
 
 def metadata_fix(work_dir, donors_to_be_fixed):
+    caller = 'broad'
     for donor in donors_to_be_fixed:
         gnos_analysis_objects = {}
 
         upload_gnos_uuid = generate_uuid()
-        upload_dir = os.path.join(work_dir, 'uploads', upload_gnos_uuid)
+        upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
         if os.path.isdir(upload_dir): # this should never happen, but if happen regenerate a new UUID
             upload_gnos_uuid = generate_uuid()
-            upload_dir = os.path.join(work_dir, 'uploads', upload_gnos_uuid)
-        os.mkdir(upload_dir)
+            upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
+        os.makedirs(upload_dir)
 
-        caller = 'broad'
-        gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, donor.get(caller + '_gnos_id'))
+
+        gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         fixed_file_dir = os.path.join(work_dir, '../fixed_files')
         xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
 
@@ -187,10 +212,11 @@ def metadata_fix(work_dir, donors_to_be_fixed):
 
         create_fixed_gnos_submission(upload_dir, gnos_analysis_object) # merge xml
 
-        generate_updated_metadata(donor)
+        generate_updated_metadata(donor, upload_gnos_uuid)
 
 
-def generate_updated_metadata(work_dir, donors_to_be_fixed):
+def generate_updated_metadata(donor, upload_gnos_uuid):
+    pass
     
 
 
@@ -200,7 +226,7 @@ def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
     attributes = fixed_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
     for attr in attributes:
         if attr.get('TAG') == 'workflow_file_subset':
-            attr['VALUE'] = 'broad_snvfix'
+            attr['VALUE'] = 'broad-v2'
 
         else:
             pass  # all others, leave it unchanged
@@ -239,7 +265,7 @@ def apply_data_block_patches(gnos_analysis_object, files):
         checksum_method = None
         checksum = None
 
-        if '/fixed_files/../' in realfile: # this is one of the old files, use previous values
+        if not '/../fixed_files/' in realfile: # this is one of the old files, use previous values
             filetype = old_files.get(filename).get('filetype')
             checksum_method = old_files.get(filename).get('checksum_method')
             checksum = old_files.get(filename).get('checksum')
@@ -304,7 +330,8 @@ def get_files(gnos_analysis_object, fixed_file_dir, gnos_entry_dir):
 
             if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
  
-    # print matched_files
+    print matched_files
+
     # print len(matched_files) 
     for fp in file_name_patterns:
         logger.error('Missing expected variant call result file with pattern: {}'.format(fp))
