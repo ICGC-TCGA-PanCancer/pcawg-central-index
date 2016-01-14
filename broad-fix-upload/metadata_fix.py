@@ -154,57 +154,56 @@ def metadata_fix(work_dir, donors_to_be_fixed):
             upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
         os.makedirs(upload_dir)
 
+        donor.update({'broad_v2_gnos_id': upload_gnos_uuid})
+
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         fixed_file_dir = work_dir+'_fixed_files'
         xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
 
         gnos_analysis_object = get_gnos_analysis_object(xml_file)
-        files = get_files(gnos_analysis_object, fixed_file_dir, gnos_entry_dir)
+        files = get_files(donor, fixed_file_dir, gnos_entry_dir)
         create_symlinks(upload_dir, files)
         apply_data_block_patches(gnos_analysis_object, files)
 
-        create_fixed_gnos_submission(upload_dir, gnos_analysis_object) # merge xml
+        create_fixed_gnos_submission(upload_dir, gnos_analysis_object) 
 
-        generate_updated_metadata(donor, upload_gnos_uuid, work_dir)
+        generate_updated_metadata(donor, work_dir)
+    return donors_to_be_fixed
 
-
-def generate_updated_metadata(donor, upload_gnos_uuid, work_dir):
+def generate_updated_metadata(donor, work_dir):
     for caller in ['muse', 'broad_tar']:
         gnos_id = donor.get(caller+'_gnos_id')
         gnos_repo = donor.get(caller+'_gnos_repo')
-        xml_str = download_metadata_xml(gnos_id, gnos_repo)
-        donor_unique_id = donor.get('donor_unique_id')
         update_field = 'related_file_subset_uuids'
-        analysis_xml_str = modify_metadata(xml_str, update_field, caller, gnos_repo, gnos_id, donor.get('donor_unique_id'), upload_gnos_uuid, donor.get('broad_gnos_id'))
+        donor_unique_id = donor.get('donor_unique_id')
+        broad_gnos_id = donor.get('broad_gnos_id')
+        broad_v2_gnos_id = donor.get('broad_v2_gnos_id')
+
+        xml_str = download_metadata_xml(gnos_id, gnos_repo)
+        gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
+        if not gnos_analysis.get('analysis_id') == gnos_id or not gnos_analysis.get('dcc_project_code') == donor_unique_id.split('::')[0] \
+            or not gnos_analysis.get('participant_id') == donor_unique_id.split('::')[1]:
+            logger.warning('donor: {} has wrong gnos entry {} at repo: {}'.format(donor_uniqu_id, gnos_id, gnos_repo))
+            return None
+        analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+        for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
+            if a['TAG'] == update_field:
+                uuid_set = set(a['VALUE'].split(','))
+                uuid_set.remove(broad_gnos_id)
+                uuid_set.add(broad_v2_gnos_id)
+                a['VALUE'] = ','.join(list(uuid_set))
+                logger.info('donor: {} update the {} for {}_variant_calling with gnos_id: {} at gnos_repo: {}'.format(donor_unique_id, update_field, caller, gnos_id, gnos_repo))
+
+        analysis_xml = {'analysis_xml': analysis_xml}
+        analysis_xml_str = xmltodict.unparse(analysis_xml, pretty=True)
+
+        # analysis_xml_str = modify_metadata(xml_str, update_field, caller, gnos_repo, gnos_id, donor.get('donor_unique_id'), donor.get('broad_v2_gnos_id'), donor.get('broad_gnos_id'))
         updated_metafiles_dir = os.path.join(work_dir, 'updated_metafiles', get_formal_repo_name(gnos_repo), gnos_id)
         if not os.path.exists(updated_metafiles_dir):
             os.makedirs(updated_metafiles_dir)
         with open(updated_metafiles_dir+'/analysis.xml', 'w') as y:
             y.write(analysis_xml_str)
-
-
-def modify_metadata(xml_str, update_field, caller, gnos_repo, gnos_id, donor_unique_id, new_gnos_id, old_gnos_id):
-    # we need to take care of xml properties in different order but effectively/semantically the same
-    gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
-    if not gnos_analysis.get('analysis_id') == gnos_id or not gnos_analysis.get('dcc_project_code') == donor_unique_id.split('::')[0] \
-        or not gnos_analysis.get('participant_id') == donor_unique_id.split('::')[1]:
-        logger.warning('donor: {} has wrong gnos entry {} at repo: {}'.format(donor_uniqu_id, gnos_id, gnos_repo))
-        return None
-    analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
-    for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
-        if a['TAG'] == update_field:
-            uuid_set = set(a['VALUE'].split(','))
-            uuid_set.remove(old_gnos_id)
-            uuid_set.add(new_gnos_id)
-            a['VALUE'] = ','.join(list(uuid_set))
-            logger.info('donor: {} update the {} for {}_variant_calling with gnos_id: {} at gnos_repo: {}'.format(donor_unique_id, update_field, caller, gnos_id, gnos_repo))
-
-    analysis_xml = {'analysis_xml': analysis_xml}
-    analysis_xml_str = xmltodict.unparse(analysis_xml, pretty=True)
-
-    return analysis_xml_str
     
-
 
 def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
     fixed_analysis_object = copy.deepcopy(gnos_analysis_object) 
@@ -285,40 +284,47 @@ def create_symlinks(target, source):
         os.symlink(s, os.path.join(target, os.path.basename(s)))
 
 
-def get_files(gnos_analysis_object, fixed_file_dir, gnos_entry_dir):
-    file_name_patterns = set([
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz\.idx$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz\.idx$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger\..+\.somatic\.sv\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger\..+\.somatic\.sv\.vcf\.gz\.idx$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman\..+\.somatic\.sv\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman\..+\.somatic\.sv\.vcf\.gz\.idx$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman\..+\.somatic\.sv\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman\..+\.somatic\.sv\.vcf\.gz\.idx$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.sv\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.sv\.vcf\.gz\.idx$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
-        ])
+def get_files(donor, fixed_file_dir, gnos_entry_dir):
 
     matched_files = []
-    for file_dir in (fixed_file_dir, gnos_entry_dir): # match fixed_file dir first
-        for file in glob.glob(os.path.join(file_dir, "*")):
-            file_name = os.path.basename(file)
-            matched_fp = None
+    tumor_aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
+    for aliquot in tumor_aliquot_ids:
+        file_name_patterns = set([
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger.+\.somatic\.sv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman.+\.somatic\.sv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.sv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.sv\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
+            ])
+
+        for file_dir in (fixed_file_dir, gnos_entry_dir): # match fixed_file dir first
+            for file in glob.glob(os.path.join(file_dir, aliquot+'*')):
+                file_name = os.path.basename(file)
+                print file_name
+                matched_fp = None
+                for fp in file_name_patterns:
+                    if re.match(fp, file_name):
+                        matched_fp = fp
+                        matched_files.append(file)
+
+                if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
+        
+        # print matched_files
+        # print len(matched_files)
+        if file_name_patterns:
             for fp in file_name_patterns:
-                if re.match(fp, file_name):
-                    matched_fp = fp
-                    matched_files.append(file)
-
-            if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
-
-    for fp in file_name_patterns:
-        logger.error('Missing expected variant call result file with pattern: {}'.format(fp))
-        sys.exit('Missing expected variant call result file, see log file for details.')
-
+                logger.error('Missing expected variant call result file with pattern: {}'.format(fp))
+            sys.exit('Missing expected variant call result file, see log file for details.')
+     
     return matched_files
 
 def generate_index_files(work_dir, donors_to_be_fixed):
@@ -394,9 +400,6 @@ def main():
 
     donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file)
 
-    write_file(donors_to_be_fixed, donor_list_file)
-    if not os.path.exists(donor_list_file): sys.exit('Fixed donor list file is missing!')
-
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
     logger.setLevel(logging.INFO)
@@ -426,7 +429,11 @@ def main():
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files...')
-    metadata_fix(work_dir, donors_to_be_fixed)
+    donors_to_be_fixed = metadata_fix(work_dir, donors_to_be_fixed)
+
+    # write the fixed donor informaton 
+    write_file(donors_to_be_fixed, donor_list_file)
+    if not os.path.exists(donor_list_file): sys.exit('Fixed donor list file is missing!')
     
     print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
     print('Processing log file: {}'.format(log_file))
