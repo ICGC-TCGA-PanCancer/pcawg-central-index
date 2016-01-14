@@ -89,9 +89,11 @@ def download_datafiles(gnos_id, gnos_repo, download_dir):
         out, err = process.communicate()
 
         if not process.returncode:
-            break
+            os.remove(os.path.join(download_dir, gnos_id+'.gto'))
+            return
         time.sleep(randint(1,10))  # pause a few seconds before retry
-    os.remove(os.path.join(download_dir, gnos_id+'.gto'))
+    logger.error('Unable to download datafiles for: {} from {}'.format(gnos_id, url))
+    sys.exit('Unable to download GNOS datafiles, please check the log for details.')
 
 
 def generate_uuid():
@@ -113,15 +115,6 @@ def get_gnos_analysis_object(f):
     return analysis_xml
 
 
-def get_fix_donor_list (list_file):
-    donors_to_be_fixed = []
-    with open(list_file) as f:
-        reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
-        for row in reader:
-            donors_to_be_fixed.append(row)
-
-    return donors_to_be_fixed
-
 
 def validate_work_dir(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
@@ -130,15 +123,15 @@ def validate_work_dir(work_dir, donors_to_be_fixed):
         if not os.path.isdir(gnos_entry_dir):
             logger.error('Expected GNOS entry does not exist: {}. Please ensure all GNOS entries are downloaded.'.format(gnos_entry_dir))
             sys.exit('Validating working directory failed, please check log for details.')
-        if not os.path.isdir(os.path.join(work_dir, '../fixed_files')):
-            logger.error('Expected folder for BROAD fixed files does not exist: {}'.format(os.path.join(work_dir, 'fixed_files')))
+        if not os.path.isdir(work_dir+'_fixed_files'):
+            logger.error('Expected folder for BROAD fixed files does not exist: {}'.format(work_dir+'_fixed_files'))
             sys.exit('Validating working directory failed, please check log for details.')
         else:
             aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
             for aliquot_id in aliquot_ids:
-                if not os.path.exists(os.path.join(work_dir, '../fixed_files/', aliquot_id+'.oxoG.somatic.snv_mnv.vcf.gz')) or not \
-                       os.path.exists(os.path.join(work_dir, '../fixed_files/', aliquot_id+'.oxoG.somatic.snv_mnv.vcf.gz.idx')):
-                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(os.path.join(work_dir, '../fixed_files'), donor.get('donor_unique_id')))
+                if not os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.oxoG.somatic.snv_mnv.vcf.gz')) or not \
+                       os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.oxoG.somatic.snv_mnv.vcf.gz.idx')):
+                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(work_dir+ '_fixed_files'), donor.get('donor_unique_id'))
                     sys.exit('Validating working directory failed, please check log for details.')                     
 
 
@@ -162,7 +155,7 @@ def metadata_fix(work_dir, donors_to_be_fixed):
         os.makedirs(upload_dir)
 
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
-        fixed_file_dir = os.path.join(work_dir, '../fixed_files')
+        fixed_file_dir = work_dir+'_fixed_files'
         xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
 
         gnos_analysis_object = get_gnos_analysis_object(xml_file)
@@ -225,7 +218,6 @@ def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
             pass  # all others, leave it unchanged
 
     new_analysis_xml_str = xmltodict.unparse(fixed_analysis_object, pretty=True)
-    # print new_analysis_xml  # debug only
     new_analysis_xml_file = os.path.join(upload_dir, 'analysis.xml')
     with open(new_analysis_xml_file, 'w') as f:  f.write(new_analysis_xml_str.encode('utf8'))
 
@@ -258,7 +250,7 @@ def apply_data_block_patches(gnos_analysis_object, files):
         checksum_method = None
         checksum = None
 
-        if not '/../fixed_files/' in realfile: # this is one of the old files, use previous values
+        if not 'fixed_files' in realfile: # this is one of the old files, use previous values
             filetype = old_files.get(filename).get('filetype')
             checksum_method = old_files.get(filename).get('checksum_method')
             checksum = old_files.get(filename).get('checksum')
@@ -322,9 +314,6 @@ def get_files(gnos_analysis_object, fixed_file_dir, gnos_entry_dir):
                     matched_files.append(file)
 
             if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
- 
-    # print matched_files
-    # print len(matched_files) 
 
     for fp in file_name_patterns:
         logger.error('Missing expected variant call result file with pattern: {}'.format(fp))
@@ -334,6 +323,43 @@ def get_files(gnos_analysis_object, fixed_file_dir, gnos_entry_dir):
 
 def generate_index_files(work_dir, donors_to_be_fixed):
     pass
+
+def get_fix_donor_list (fixed_file_dir, vcf_info_file):
+    donors_to_be_fixed = []
+    aliquot_ids = set()
+    for f in glob.glob(os.path.join(fixed_file_dir, "*.gz")):
+        aliquot_ids.add(os.path.basename(f).split('.')[0])
+
+    with open(vcf_info_file) as f:
+        reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
+        for row in reader:
+            tumor_aliquot_ids = set(row.get('tumor_aliquot_ids').split('|'))
+            if tumor_aliquot_ids.difference(aliquot_ids): continue   
+            donors_to_be_fixed.append(row)
+
+    return donors_to_be_fixed
+
+
+def write_file(donors_list, filename):
+    with open(filename, 'w') as fh:
+        header = True  
+        for r in donors_list:
+            if header:
+                fh.write('\t'.join(r.keys()) + '\n')
+                header = False 
+            # make the list of output from dict
+            line = []
+            for p in r.keys():
+                if isinstance(r.get(p), list):
+                    line.append('|'.join(r.get(p)))
+                elif isinstance(r.get(p), set):
+                    line.append('|'.join(list(r.get(p))))
+                elif r.get(p) is None:
+                    line.append('')
+                else:
+                    line.append(str(r.get(p)))
+            fh.write('\t'.join(line) + '\n') 
+                  
 
 
 def detect_folder(work_dir, folder_name):
@@ -355,16 +381,21 @@ def main():
     os.makedirs(work_dir+'/downloads')
     work_dir = os.path.abspath(work_dir)
 
-    if work_dir == os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test'):
+    if work_dir == 'test':
         print('\nUsing \'test\' folder as working directory ...')
-        test = True
-        donor_list_file = 'test_donor_list.txt'
-    else:
-        donor_list_file = 'to_be_fixed_donor_list.txt'
 
-    if not os.path.exists(donor_list_file): sys.exit('Helper file missing!')
-    donors_to_be_fixed = get_fix_donor_list (donor_list_file)
+    donor_list_file = work_dir+'_donor_list.txt'
+    fixed_file_dir = work_dir+'_fixed_files'
 
+    if not os.path.isdir(fixed_file_dir): sys.exit('Fixed files are missing!')
+
+    vcf_info_file = 'broad_successful_uploads.txt'
+    if not os.path.exists(vcf_info_file): sys.exit('Helper file is missing')
+
+    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file)
+
+    write_file(donors_to_be_fixed, donor_list_file)
+    if not os.path.exists(donor_list_file): sys.exit('Fixed donor list file is missing!')
 
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -384,9 +415,6 @@ def main():
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
     download_metadata_files(work_dir, donors_to_be_fixed)
-
-    print('\nGenerating index files for fixed_files ...')
-    # generate_index_files(work_dir, donors_to_be_fixed)
 
     # validate working direcotry first
     print('\nValidating working directory...')
