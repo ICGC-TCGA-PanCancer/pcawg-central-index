@@ -18,7 +18,7 @@ import datetime
 import dateutil.parser
 from itertools import izip
 from distutils.version import LooseVersion
-
+import util
 
 
 
@@ -236,36 +236,44 @@ def main(argv=None):
 
     PCAWG_GNOS_entity_fh = open(metadata_dir+'/PCAWG_Full_List_GNOS_entities_'+es_index+'.jsonl', 'w')
 
-    PCAWG_GNOS_entity_tsv_fh = open(metadata_dir + '/PCAWG_Full_List_GNOS_entities_' + es_index + '.tsv', 'w')
+    PCAWG_GNOS_entity_tsv = metadata_dir + '/PCAWG_Full_List_GNOS_entities_' + es_index + '.tsv'
 
 
 	# get the full list of donors in PCAWG
     donors_list = get_donors_list(es, es_index, es_queries)
     
     header = True
-    # get json doc for each donor and reorganize it 
+    # get json doc for each donor and reorganize it
+    gnos_entity_info_list_full = [] 
     for donor_unique_id in donors_list:     
         
     	es_json = get_donor_json(es, es_index, donor_unique_id)
         
         gnos_entity_info_list = create_gnos_entity_info(donor_unique_id, es_json)
-        
+
         for gnos_entity in gnos_entity_info_list: 
             PCAWG_GNOS_entity_fh.write(json.dumps(gnos_entity, default=set_default) + '\n')
-            if header:
-                PCAWG_GNOS_entity_tsv_fh.write('\t'.join(gnos_entity.keys()) + '\n')
-                header = False 
-            # write to the tsv file
-            for p in gnos_entity.keys():
-                if isinstance(gnos_entity.get(p), set):
-                    PCAWG_GNOS_entity_tsv_fh.write('|'.join(list(gnos_entity.get(p))) + '\t')
-                elif not gnos_entity.get(p):
-                    PCAWG_GNOS_entity_tsv_fh.write('\t')
-                else:
-                    PCAWG_GNOS_entity_tsv_fh.write(str(gnos_entity.get(p)) + '\t')
-            PCAWG_GNOS_entity_tsv_fh.write('\n')
+
+        gnos_entity_info_list_full.extend(gnos_entity_info_list)
+
+    util.write_tsv_file(gnos_entity_info_list_full, PCAWG_GNOS_entity_tsv)
         
-    PCAWG_GNOS_entity_tsv_fh.close()
+    #     for gnos_entity in gnos_entity_info_list: 
+    #         PCAWG_GNOS_entity_fh.write(json.dumps(gnos_entity, default=set_default) + '\n')
+    #         if header:
+    #             PCAWG_GNOS_entity_tsv_fh.write('\t'.join(gnos_entity.keys()) + '\n')
+    #             header = False 
+    #         # write to the tsv file
+    #         for p in gnos_entity.keys():
+    #             if isinstance(gnos_entity.get(p), set):
+    #                 PCAWG_GNOS_entity_tsv_fh.write('|'.join(list(gnos_entity.get(p))) + '\t')
+    #             elif not gnos_entity.get(p):
+    #                 PCAWG_GNOS_entity_tsv_fh.write('\t')
+    #             else:
+    #                 PCAWG_GNOS_entity_tsv_fh.write(str(gnos_entity.get(p)) + '\t')
+    #         PCAWG_GNOS_entity_tsv_fh.write('\n')
+        
+    # PCAWG_GNOS_entity_tsv_fh.close()
 
     PCAWG_GNOS_entity_fh.close()
 

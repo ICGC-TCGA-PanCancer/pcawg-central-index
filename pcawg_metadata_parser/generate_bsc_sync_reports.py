@@ -20,6 +20,7 @@ from distutils.version import LooseVersion
 import csv
 import shutil
 from operator import itemgetter
+import util
 
 es_queries = [
 { 
@@ -300,7 +301,7 @@ def main(argv=None):
     report_dir = init_report_dir(metadata_dir, report_name)
 
     for q in q_index:
-        report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
+        report_tsv = report_dir + '/' + es_queries[q].get('name') + '.txt'
 
         # get the list of donors
         donors_list = get_donors_list(es, es_index, es_queries, q)
@@ -315,26 +316,28 @@ def main(argv=None):
 
             report_info_list_full.extend(report_info_list_donor)
 
+        # write to tsv file
+        util.write_tsv_file(report_info_list_full, report_tsv)
 
-        header = True  
-        for r in report_info_list_full:
-            if header:
-                report_tsv_fh.write('\t'.join(r.keys()) + '\n')
-                header = False 
-            # make the list of output from dict
-            line = []
-            for p in r.keys():
-                if isinstance(r.get(p), list):
-                    line.append(', '.join(str(x) for x in r.get(p)))
-                elif isinstance(r.get(p), set):
-                    line.append(', '.join(list(r.get(p))))
-                elif r.get(p) is None:
-                    line.append('')
-                else:
-                    line.append(str(r.get(p)))
-            report_tsv_fh.write('\t'.join(line) + '\n') 
+        # header = True  
+        # for r in report_info_list_full:
+        #     if header:
+        #         report_tsv_fh.write('\t'.join(r.keys()) + '\n')
+        #         header = False 
+        #     # make the list of output from dict
+        #     line = []
+        #     for p in r.keys():
+        #         if isinstance(r.get(p), list):
+        #             line.append(', '.join(str(x) for x in r.get(p)))
+        #         elif isinstance(r.get(p), set):
+        #             line.append(', '.join(list(r.get(p))))
+        #         elif r.get(p) is None:
+        #             line.append('')
+        #         else:
+        #             line.append(str(r.get(p)))
+        #     report_tsv_fh.write('\t'.join(line) + '\n') 
         
-        report_tsv_fh.close()            
+        # report_tsv_fh.close()            
 
 
     return 0

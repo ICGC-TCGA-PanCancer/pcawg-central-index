@@ -22,6 +22,7 @@ import shutil
 from operator import itemgetter
 import csv
 from collections import OrderedDict
+import util
 
 
 def download_metadata_xml(gnos_repo, ao_uuid):
@@ -187,28 +188,28 @@ def generate_subreport(fname, subreport_dir):
                             row_order[fn] = row.get(fn)
                         subreport_list.append(row_order)
                 if not subreport_list: continue
-                write_file(subreport_list, subreport_name)
+                util.write_tsv_file(subreport_list, subreport_name)
 
 
-def write_file(flist, fn):
-    with open(fn, 'w') as f:
-        header = True  
-        for r in flist:
-            if header:
-                f.write('\t'.join(r.keys()) + '\n')
-                header = False 
-            # make the list of output from dict
-            line = []
-            for p in r.keys():
-                if isinstance(r.get(p), list):
-                    line.append('|'.join(r.get(p)))
-                elif isinstance(r.get(p), set):
-                    line.append('|'.join(list(r.get(p))))
-                elif r.get(p) is None:
-                    line.append('')
-                else:
-                    line.append(str(r.get(p)))
-            f.write('\t'.join(line) + '\n')     
+# def write_file(flist, fn):
+#     with open(fn, 'w') as f:
+#         header = True  
+#         for r in flist:
+#             if header:
+#                 f.write('\t'.join(r.keys()) + '\n')
+#                 header = False 
+#             # make the list of output from dict
+#             line = []
+#             for p in r.keys():
+#                 if isinstance(r.get(p), list):
+#                     line.append('|'.join(r.get(p)))
+#                 elif isinstance(r.get(p), set):
+#                     line.append('|'.join(list(r.get(p))))
+#                 elif r.get(p) is None:
+#                     line.append('')
+#                 else:
+#                     line.append(str(r.get(p)))
+#             f.write('\t'.join(line) + '\n')     
 
 
 def main(argv=None):

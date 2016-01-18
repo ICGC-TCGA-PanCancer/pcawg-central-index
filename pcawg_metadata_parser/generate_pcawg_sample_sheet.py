@@ -18,7 +18,7 @@ import datetime
 import dateutil.parser
 from itertools import izip
 from distutils.version import LooseVersion
-
+import util
 
 
 
@@ -215,40 +215,23 @@ def main(argv=None):
 
     es = Elasticsearch([es_host])
 
-    #PCAWG_specimen_fh = open(metadata_dir+'/reports/pcawg_sample_sheet.jsonl', 'w')
-
-    PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')
+    PCAWG_specimen_tsv = metadata_dir + '/reports/pcawg_sample_sheet.tsv'
     
-    # read the tsv fields file and write to the pilot donor tsv file
-    tsv_fields = [ "donor_unique_id", "submitter_donor_id", "icgc_donor_id",
-        "dcc_project_code", "aliquot_id", "submitter_specimen_id", "icgc_specimen_id",
-        "submitter_sample_id", "icgc_sample_id", "dcc_specimen_type", "library_strategy" 
-    ]
-    PCAWG_specimen_tsv_fh.write('\t'.join(tsv_fields) + '\n')
-
 	# get the full list of donors in PCAWG
     donors_list = get_donors_list(es, es_index, es_queries)
-    
+
     # get json doc for each donor and reorganize it 
+    specimen_info_list_full = []
     for donor_unique_id in donors_list:     
         
     	es_json = get_donor_json(es, es_index, donor_unique_id)
         
         specimen_info_list = create_specimen_info(donor_unique_id, es_json)
-        
-        for specimen in specimen_info_list: 
-            #PCAWG_specimen_fh.write(json.dumps(specimen, default=set_default) + '\n')
-            # write to the tsv file
-            for p in specimen.keys():
-                if isinstance(specimen.get(p), set):
-                    PCAWG_specimen_tsv_fh.write('|'.join(list(specimen.get(p))) + '\t')
-                else:
-                    PCAWG_specimen_tsv_fh.write(str(specimen.get(p)) + '\t')
-            PCAWG_specimen_tsv_fh.write('\n')
-        
-    PCAWG_specimen_tsv_fh.close()
 
-    #PCAWG_specimen_fh.close()
+        specimen_info_list_full.extend(specimen_info_list)
+
+    # write to tsv file
+    util.write_tsv_file(specimen_info_list_full, PCAWG_specimen_tsv)
 
     return 0
 
