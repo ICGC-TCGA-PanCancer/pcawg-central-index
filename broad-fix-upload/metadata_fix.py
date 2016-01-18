@@ -19,7 +19,7 @@ import subprocess
 from random import randint
 import shutil
 
-logger = logging.getLogger('metadata_fix_and_merge')
+logger = logging.getLogger('metadata_fix_and_upload')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
 #gnos_key = '/home/ubuntu/.ssh/gnos_key'
@@ -53,24 +53,32 @@ def download_metadata_xml(gnos_id, gnos_repo, download_dir=None):
     logger.info('Download metadata xml from GNOS repo: {} for analysis object: {}'.format(gnos_repo, gnos_id))
     
     url = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_id
-    response = None
-    try:
-        response = requests.get(url, stream=True, timeout=15)
-    except:
-        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
 
-    if not response or not response.ok:
-        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
+    if download_dir:
+        job_dir = os.path.join(download_dir, gnos_id)
     else:
-        metadata_xml_str = response.text
-        if download_dir:
-            metadata_xml_file = os.path.join(download_dir, gnos_id, gnos_id+'.xml')
-            with open(metadata_xml_file, 'w') as f:  # write to metadata xml file now
-                f.write(metadata_xml_str.encode('utf8'))
-        else:
-            return metadata_xml_str
+        job_dir = os.path.dirname(os.path.realpath(__file__))
+
+    command =   'cd {} && '.format(job_dir) + \
+                'wget ' + url + ' -O ' + gnos_id+'.xml'
+    process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    out, err = process.communicate()
+
+    if process.returncode:
+        # should not exit for just this error, improve it later
+        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
+        sys.exit('Unable to download metadata file from {}.\nError message: {}'.format(url, err))
+
+    if not download_dir:
+        with open(os.path.join(job_dir, gnos_id+'.xml'), 'r') as f: metadata_xml_str = f.read()
+        os.remove(os.path.join(job_dir, gnos_id+'.xml'))
+        return metadata_xml_str
+         
 
 def download_datafiles(gnos_id, gnos_repo, download_dir):
     url = gnos_repo + 'cghub/data/analysis/download/' + gnos_id
@@ -89,7 +97,7 @@ def download_datafiles(gnos_id, gnos_repo, download_dir):
         out, err = process.communicate()
 
         if not process.returncode:
-            os.remove(os.path.join(download_dir, gnos_id+'.gto'))
+            #os.remove(os.path.join(download_dir, gnos_id+'.gto'))
             return
         time.sleep(randint(1,10))  # pause a few seconds before retry
     logger.error('Unable to download datafiles for: {} from {}'.format(gnos_id, url))
@@ -129,9 +137,9 @@ def validate_work_dir(work_dir, donors_to_be_fixed):
         else:
             aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
             for aliquot_id in aliquot_ids:
-                if not os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.oxoG.somatic.snv_mnv.vcf.gz')) or not \
-                       os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.oxoG.somatic.snv_mnv.vcf.gz.idx')):
-                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(work_dir+ '_fixed_files'), donor.get('donor_unique_id'))
+                if not os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz')) or not \
+                       os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz.idx')):
+                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(work_dir+'_fixed_files', donor.get('donor_unique_id')))
                     sys.exit('Validating working directory failed, please check log for details.')                     
 
 
@@ -162,7 +170,7 @@ def metadata_fix(work_dir, donors_to_be_fixed):
 
         gnos_analysis_object = get_gnos_analysis_object(xml_file)
         files = get_files(donor, fixed_file_dir, gnos_entry_dir)
-        create_symlinks(upload_dir, files)
+        copy_file(upload_dir, files)
         apply_data_block_patches(gnos_analysis_object, files)
 
         create_fixed_gnos_submission(upload_dir, gnos_analysis_object) 
@@ -279,9 +287,9 @@ def apply_data_block_patches(gnos_analysis_object, files):
     gnos_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('DATA_BLOCK').get('FILES')['FILE'] = new_files
 
 
-def create_symlinks(target, source):
+def copy_file(target, source):
     for s in source:
-        os.symlink(s, os.path.join(target, os.path.basename(s)))
+        shutil.copy(s, target)       
 
 
 def get_files(donor, fixed_file_dir, gnos_entry_dir):
@@ -294,8 +302,8 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir):
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz\.idx$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger.+\.somatic\.sv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz\.idx$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman.+\.somatic\.sv\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz$',
@@ -307,14 +315,14 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir):
             ])
 
         for file_dir in (fixed_file_dir, gnos_entry_dir): # match fixed_file dir first
-            for file in glob.glob(os.path.join(file_dir, aliquot+'*')):
-                file_name = os.path.basename(file)
-                print file_name
+            for f in glob.glob(os.path.join(file_dir, aliquot+'*')):
+                file_name = os.path.basename(f)
+                # print file_name
                 matched_fp = None
                 for fp in file_name_patterns:
                     if re.match(fp, file_name):
                         matched_fp = fp
-                        matched_files.append(file)
+                        matched_files.append(copy.deepcopy(f))
 
                 if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
         
@@ -340,8 +348,18 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file):
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
             tumor_aliquot_ids = set(row.get('tumor_aliquot_ids').split('|'))
-            if tumor_aliquot_ids.difference(aliquot_ids): continue   
-            donors_to_be_fixed.append(row)
+            miss = tumor_aliquot_ids.difference(aliquot_ids)
+            if len(miss) == 0:
+                if 'tcga' in row.get('broad_gnos_repo'):
+                    logger.warning('The donor: {} is TCGA donor and skip for now'.format(row.get('donor_unique_id')))
+                    continue 
+                donors_to_be_fixed.append(copy.deepcopy(row))
+            elif len(miss) < len(tumor_aliquot_ids): 
+                logger.warning('The donor: {} is likely a multi-tumors donor and missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
+                continue
+            else:
+                continue       
+            
 
     return donors_to_be_fixed
 
@@ -398,8 +416,6 @@ def main():
     vcf_info_file = 'broad_successful_uploads.txt'
     if not os.path.exists(vcf_info_file): sys.exit('Helper file is missing')
 
-    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file)
-
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
     logger.setLevel(logging.INFO)
@@ -414,6 +430,9 @@ def main():
     ch.setFormatter(formatter)
     logger.addHandler(fh)
     logger.addHandler(ch)
+
+    # generate the donors_to_be_fixed list from the files in fixed_files folder
+    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file)
 
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
