@@ -9,6 +9,8 @@ import xmltodict
 import requests
 import logging
 from collections import OrderedDict
+from argparse import ArgumentParser
+from argparse import RawDescriptionHelpFormatter
 import time
 import uuid
 import copy
@@ -23,7 +25,7 @@ logger = logging.getLogger('metadata_fix_and_upload')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
 #gnos_key = '/home/ubuntu/.ssh/gnos_key'
-gnos_key = '~/.ssh/gnos_key'
+# gnos_key = '~/.ssh/gnos_key'
 
 
 def get_formal_repo_name(repo):
@@ -79,10 +81,19 @@ def download_metadata_xml(gnos_id, gnos_repo, download_dir=None):
         os.remove(os.path.join(job_dir, gnos_id+'.xml'))
         return metadata_xml_str
          
+def get_gnos_key(gnos_repo):
+    if 'osdc-tcga' in gnos_repo:
+        gnos_key = '~/.ssh/gnos_key-tcga'
+    else:
+        gnos_key = '~/.ssh/gnos_key'
+    
+    return gnos_key
+
 
 def download_datafiles(gnos_id, gnos_repo, download_dir):
     url = gnos_repo + 'cghub/data/analysis/download/' + gnos_id
     # datafiles_dir = download_dir + workflow_type
+    gnos_key = get_gnos_key(gnos_repo)
     for i in range(10):
         command =   'cd {} && '.format(download_dir) + \
                     'gtdownload -c ' + gnos_key + ' ' + url
@@ -189,9 +200,8 @@ def generate_updated_metadata(donor, work_dir):
 
         xml_str = download_metadata_xml(gnos_id, gnos_repo)
         gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
-        if not gnos_analysis.get('analysis_id') == gnos_id or not gnos_analysis.get('dcc_project_code') == donor_unique_id.split('::')[0] \
-            or not gnos_analysis.get('participant_id') == donor_unique_id.split('::')[1]:
-            logger.warning('donor: {} has wrong gnos entry {} at repo: {}'.format(donor_uniqu_id, gnos_id, gnos_repo))
+        if not gnos_analysis.get('analysis_id') == gnos_id:
+            logger.warning('donor: {} has wrong gnos entry {} at repo: {}'.format(donor_unique_id, gnos_id, gnos_repo))
             return None
         analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
         for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
@@ -338,7 +348,7 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir):
 def generate_index_files(work_dir, donors_to_be_fixed):
     pass
 
-def get_fix_donor_list (fixed_file_dir, vcf_info_file):
+def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded):
     donors_to_be_fixed = []
     aliquot_ids = set()
     for f in glob.glob(os.path.join(fixed_file_dir, "*.gz")):
@@ -350,9 +360,15 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file):
             tumor_aliquot_ids = set(row.get('tumor_aliquot_ids').split('|'))
             miss = tumor_aliquot_ids.difference(aliquot_ids)
             if len(miss) == 0:
-                if 'tcga' in row.get('broad_gnos_repo'):
-                    logger.warning('The donor: {} is TCGA donor and skip for now'.format(row.get('donor_unique_id')))
+                if donor_ids_to_be_included and not row.get('donor_unique_id') in donor_ids_to_be_included:
+                    logger.warning('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
+                    continue
+                if donor_ids_to_be_excluded and row.get('donor_unique_id') in donor_ids_to_be_excluded:
+                    logger.warning('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
                     continue 
+                # if 'tcga' in row.get('broad_gnos_repo'):
+                #     logger.warning('The donor: {} is TCGA donor and skip for now'.format(row.get('donor_unique_id')))
+                #     continue 
                 donors_to_be_fixed.append(copy.deepcopy(row))
             elif len(miss) < len(tumor_aliquot_ids): 
                 logger.warning('The donor: {} is likely a multi-tumors donor and missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
@@ -398,12 +414,39 @@ def detect_folder(work_dir, folder_name):
     os.mkdir(job_dir)
 
 
-def main():
-    if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
-    work_dir = sys.argv[1]
+def generate_id_list(id_lists):
+    ids_list = set()
+    if id_lists:
+        files = glob.glob(id_lists)
+        for fname in files:
+            with open(fname) as f:
+                reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
+                for row in reader:
+                    ids_list.add(row.get('donor_unique_id'))
+
+    return ids_list
+
+
+def main(argv=None):
+    parser = ArgumentParser(description="Broad snv file fix and upload",
+             formatter_class=RawDescriptionHelpFormatter)
+    parser.add_argument("-b", "--work_dir", dest="work_dir",
+             help="Directory name containing fixed variant call files", required=True)
+    parser.add_argument("-x", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
+             help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
+    parser.add_argument("-i", "--include_donor_id_lists", dest="include_donor_id_lists", 
+             help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
+
+    args = parser.parse_args()
+    work_dir = args.work_dir 
+    exclude_donor_id_lists = args.exclude_donor_id_lists
+    include_donor_id_lists = args.include_donor_id_lists
+
+    # if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
+    # work_dir = sys.argv[1]
     if os.path.isdir(work_dir): shutil.rmtree(work_dir, ignore_errors=True)  # empty the folder if exists
     os.makedirs(work_dir+'/downloads')
-    work_dir = os.path.abspath(work_dir)
+    # work_dir = os.path.abspath(work_dir)
 
     if work_dir == 'test':
         print('\nUsing \'test\' folder as working directory ...')
@@ -431,8 +474,13 @@ def main():
     logger.addHandler(fh)
     logger.addHandler(ch)
 
+
+    # pre-exclude donors when this option is chosen
+    donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
+    donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
+
     # generate the donors_to_be_fixed list from the files in fixed_files folder
-    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file)
+    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded)
 
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
