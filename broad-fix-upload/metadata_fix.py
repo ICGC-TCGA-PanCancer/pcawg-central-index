@@ -157,6 +157,10 @@ def validate_work_dir(work_dir, donors_to_be_fixed):
 def download_metadata_files(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
         caller = 'broad'
+        gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
+        if os.path.isdir(gnos_entry_dir): 
+            logger.warning('The donor: {} has downloaded files already!'.format(donor.get('donor_unique_id')))
+            continue
         download_datafiles(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
         download_metadata_xml(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
 
@@ -348,7 +352,7 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir):
 def generate_index_files(work_dir, donors_to_be_fixed):
     pass
 
-def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded):
+def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file):
     donors_to_be_fixed = []
     aliquot_ids = set()
     for f in glob.glob(os.path.join(fixed_file_dir, "*.gz")):
@@ -375,7 +379,8 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included,
                 continue
             else:
                 continue       
-            
+    
+    write_file(donors_to_be_fixed, donor_list_file)        
 
     return donors_to_be_fixed
 
@@ -444,8 +449,7 @@ def main(argv=None):
 
     # if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
     # work_dir = sys.argv[1]
-    if os.path.isdir(work_dir): shutil.rmtree(work_dir, ignore_errors=True)  # empty the folder if exists
-    os.makedirs(work_dir+'/downloads')
+    if not os.path.isdir(work_dir): os.makedirs(work_dir+'/downloads')
     # work_dir = os.path.abspath(work_dir)
 
     if work_dir == 'test':
@@ -480,7 +484,7 @@ def main(argv=None):
     donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
 
     # generate the donors_to_be_fixed list from the files in fixed_files folder
-    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded)
+    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file)
 
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
