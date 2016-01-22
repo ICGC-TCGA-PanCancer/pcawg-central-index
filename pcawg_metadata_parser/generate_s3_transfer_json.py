@@ -40,30 +40,30 @@ es_queries = [
                 "value": "donor"
               }
             },
-            # {
-            #   "terms": {
-            #     "dcc_project_code": [
-            #         "LIRI-JP",
-            #         "PACA-CA",
-            #         "PRAD-CA",
-            #         "RECA-EU",
-            #         "PAEN-AU",
-            #         "PACA-AU",
-            #         "BOCA-UK",
-            #         "OV-AU",
-            #         "MELA-AU",
-            #         "BRCA-UK",
-            #         "PRAD-UK",
-            #         "CMDI-UK",
-            #         "LINC-JP",
-            #         "ORCA-IN",
-            #         "BTCA-SG",
-            #         "LAML-KR",
-            #         "LICA-FR",
-            #         "CLLE-ES"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "dcc_project_code": [
+                    "LIRI-JP",
+                    "PACA-CA",
+                    "PRAD-CA",
+                    "RECA-EU",
+                    "PAEN-AU",
+                    "PACA-AU",
+                    "BOCA-UK",
+                    "OV-AU",
+                    "MELA-AU",
+                    "BRCA-UK",
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES"
+                ]
+              }
+            },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -102,11 +102,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            # {
-            #   "regexp": {
-            #     "dcc_project_code": ".*-DE"
-            #   }
-            # },
+            {
+              "regexp": {
+                "dcc_project_code": ".*-DE"
+              }
+            },
             # {
             #   "terms": {
             #     "flags.is_bam_used_by_variant_calling_missing": [
