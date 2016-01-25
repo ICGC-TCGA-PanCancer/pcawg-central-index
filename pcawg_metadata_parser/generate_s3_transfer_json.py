@@ -60,7 +60,8 @@ es_queries = [
                     "BTCA-SG",
                     "LAML-KR",
                     "LICA-FR",
-                    "CLLE-ES"
+                    "CLLE-ES",
+                    "ESAD-UK"
                 ]
               }
             },
@@ -336,13 +337,14 @@ def add_wgs_tumor_specimens(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
         write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
 
 
-def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf):
+def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf, vcf_result_version):
     if not es_json.get('variant_calling_results'): return
     
     variant_callings = choose_variant_calling(es_json, vcf)
     for v in variant_callings:
 
         if not es_json.get('variant_calling_results').get(v): continue
+        if not es_json.get('variant_calling_results').get(v).get('vcf_workflow_result_version') == vcf_result_version: continue
 
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(v)
 
@@ -582,7 +584,9 @@ def main(argv=None):
     parser.add_argument("-s", "--sequence_type", dest="seq", nargs="*",
              help="List sequence_type types", required=False)
     parser.add_argument("-v", "--variant_calling", dest="vcf", nargs="*",
-             help="List variant_calling types", required=False)    
+             help="List variant_calling types", required=False) 
+    parser.add_argument("-n", "--specify the vcf_workflow_result_version", dest="vcf_result_version", default="v2", type=str,
+             help="Specify vcf_workflow_result_version", required=False)   
 
 
 
@@ -596,7 +600,9 @@ def main(argv=None):
     chosen_gnos_repo = args.chosen_gnos_repo
     seq = args.seq
     vcf = args.vcf
-    
+    vcf_result_version = args.vcf_result_version
+
+
     seq= list(seq) if seq else [] 
     vcf = list(vcf) if vcf else []   
 
@@ -605,7 +611,7 @@ def main(argv=None):
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
     if target_cloud == 'aws':
-        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
+        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs-prod2-v2/*/*.json'
     elif target_cloud == 'collab':
         git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
     else:
@@ -682,7 +688,7 @@ def main(argv=None):
             add_wgs_tumor_specimens(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
 
         if vcf:
-            add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf)
+            add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf, vcf_result_version)
 
         if seq and 'rna_seq' in seq:
             add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
