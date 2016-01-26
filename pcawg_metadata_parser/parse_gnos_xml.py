@@ -706,6 +706,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_cell_line': is_cell_line(analysis_attrib, gnos_analysis),
             'is_train2_donor': False,
             'is_train2_pilot': False,
+            'has_validation_data': True if donor_unique_id in annotations.get('validation') else False,
             'is_santa_cruz_donor': True if donor_unique_id in annotations.get('santa_cruz').get('donor') else False,
             'is_aug2015_donor': True if donor_unique_id in annotations.get('aug2015').get('donor') else False,
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
@@ -911,7 +912,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
-
+    read_annotations(annotations, 'validation', 'pc_annotation-validation-50.txt')
 
 
     # hard-code the file name for now    
@@ -1032,7 +1033,7 @@ def read_annotations(annotations, type, file_name):
                     donor_id, ao_id = str.split(line.rstrip(), '\t')
                     annotations[type][donor_id] = ao_id
                     
-            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed', 'validation']:
                 annotations[type] = set()
                 for line in r:
                     if line.startswith('#'): continue
