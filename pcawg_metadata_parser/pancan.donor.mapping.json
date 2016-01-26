@@ -820,6 +820,9 @@
                "is_train2_pilot":{
                   "type":"boolean"
                },
+               "has_validation_data":{
+                  "type":"boolean"
+               },
                "variant_calling_performed":{
                   "type":"string",
                   "index":"not_analyzed"

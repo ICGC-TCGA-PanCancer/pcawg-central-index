@@ -829,6 +829,51 @@ es_queries = [
       }
 },
 
+# query 16: get validation data status
+{
+      "name": "donors_with_validation_data",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.has_validation_data":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
 ]
 
 
@@ -916,6 +961,26 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 15:
         add_report_info_14_15(report_info, report_info_list, es_json, 'broad')
 
+    if q_index == 16:
+        add_report_info_16(report_info, report_info_list, es_json)
+
+    return report_info_list
+
+def add_report_info_16(report_info, report_info_list, es_json):
+    report_info['has_validation_data'] = es_json.get('flags').get('has_validation_data')
+    if not es_json.get('variant_calling_results'): return
+    for v in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+        report_info[v+'_gnos_repo'] = None
+        report_info[v+'_gnos_id'] = None
+        report_info[v+'_result_version'] = None
+    for v in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+        if not es_json.get('variant_calling_results').get(v+'_variant_calling'): continue
+        report_info[v+'_gnos_repo'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('gnos_repo')[0]
+        report_info[v+'_gnos_id'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('gnos_id')
+        report_info[v+'_result_version'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('vcf_workflow_result_version')
+    report_info['is_broad_variant_calling_performed'] = es_json.get('flags').get('is_broad_variant_calling_performed')
+
+    report_info_list.append(copy.deepcopy(report_info)) 
     return report_info_list
 
 
