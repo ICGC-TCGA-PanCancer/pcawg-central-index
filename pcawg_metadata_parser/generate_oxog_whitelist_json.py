@@ -372,6 +372,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
         if not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)):
             logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
             return
+
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(get_formal_vcf_name(v))
         gnos_id = wgs_tumor_vcf_info.get('gnos_id')
         variant_calling = {
@@ -624,8 +625,8 @@ def main(argv=None):
         es_json = get_donor_json(es, es_index, donor_unique_id)
 
         # ensure the sanger and broad have fixed sv and snv version of files
-        # if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
-        # if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
+        if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
+        if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
 
         job_json = create_job_json(es_json)       
 
