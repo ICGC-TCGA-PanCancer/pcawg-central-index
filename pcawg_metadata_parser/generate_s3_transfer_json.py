@@ -86,11 +86,11 @@ es_queries = [
                 ]
               }
             },
-            {
-              "range":{
-                "flags.all_tumor_specimen_aliquot_counts":{"gte": 2}
-              }
-            },
+            # {
+            #   "range":{
+            #     "flags.all_tumor_specimen_aliquot_counts":{"gte": 2}
+            #   }
+            # },
             {
               "range":{
                     "qc_score":{"gte": 0, "lt": 10000}
@@ -356,7 +356,7 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
             'data_type': get_formal_vcf_name(v).capitalize()+'-VCF',
             'project_code': es_json['dcc_project_code'],
             'submitter_donor_id': es_json['submitter_donor_id'],  
-            'is_santa_cruz': wgs_tumor_vcf_info.get('is_santa_cruz_entry'),             
+            'vcf_workflow_result_version': wgs_tumor_vcf_info.get('vcf_workflow_result_version'),             
             'submitter_specimen_id': None,
             'submitter_sample_id': None,
             'specimen_type': None,
