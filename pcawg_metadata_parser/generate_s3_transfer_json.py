@@ -52,16 +52,16 @@ es_queries = [
                     "BOCA-UK",
                     "OV-AU",
                     "MELA-AU",
-                    "BRCA-UK",
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES",
-                    "ESAD-UK"
+                    "BRCA-UK"
+                    # "PRAD-UK",
+                    # "CMDI-UK",
+                    # "LINC-JP",
+                    # "ORCA-IN",
+                    # "BTCA-SG",
+                    # "LAML-KR",
+                    # "LICA-FR",
+                    # "CLLE-ES",
+                    # "ESAD-UK"
                 ]
               }
             },
