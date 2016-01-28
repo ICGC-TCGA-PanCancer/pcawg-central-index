@@ -153,12 +153,12 @@ es_queries = [
 
 def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
     source_repo_rank = [
-        "https://gtrepo-bsc.annailabs.com/",
-        "https://gtrepo-dkfz.annailabs.com/",
         "https://gtrepo-osdc-icgc.annailabs.com/",
         "https://gtrepo-ebi.annailabs.com/",
         "https://gtrepo-riken.annailabs.com/",
-        "https://gtrepo-etri.annailabs.com/"
+        "https://gtrepo-etri.annailabs.com/",
+        "https://gtrepo-bsc.annailabs.com/",
+        "https://gtrepo-dkfz.annailabs.com/"
     ]
     if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
         source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
