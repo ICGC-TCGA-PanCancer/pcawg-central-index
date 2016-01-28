@@ -135,21 +135,21 @@ def get_gnos_analysis_object(f):
 
 
 
-def validate_work_dir(work_dir, donors_to_be_fixed):
+def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir):
     for donor in donors_to_be_fixed:
         caller = 'broad'
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         if not os.path.isdir(gnos_entry_dir):
             logger.error('Expected GNOS entry does not exist: {}. Please ensure all GNOS entries are downloaded.'.format(gnos_entry_dir))
             sys.exit('Validating working directory failed, please check log for details.')
-        if not os.path.isdir(work_dir+'_fixed_files'):
+        if not os.path.isdir(fixed_file_dir):
             logger.error('Expected folder for BROAD fixed files does not exist: {}'.format(work_dir+'_fixed_files'))
             sys.exit('Validating working directory failed, please check log for details.')
         else:
             aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
             for aliquot_id in aliquot_ids:
-                if not os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz')) or not \
-                       os.path.exists(os.path.join(work_dir+'_fixed_files', aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz.idx')):
+                if not os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz')) or not \
+                       os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz.idx')):
                     logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(work_dir+'_fixed_files', donor.get('donor_unique_id')))
                     sys.exit('Validating working directory failed, please check log for details.')                     
 
@@ -165,7 +165,7 @@ def download_metadata_files(work_dir, donors_to_be_fixed):
         download_metadata_xml(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
 
 
-def metadata_fix(work_dir, donors_to_be_fixed):
+def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
     caller = 'broad'
     for donor in donors_to_be_fixed:
         gnos_analysis_objects = {}
@@ -180,7 +180,6 @@ def metadata_fix(work_dir, donors_to_be_fixed):
         donor.update({'broad_v2_gnos_id': upload_gnos_uuid})
 
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
-        fixed_file_dir = work_dir+'_fixed_files'
         xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
 
         gnos_analysis_object = get_gnos_analysis_object(xml_file)
@@ -456,7 +455,7 @@ def main(argv=None):
         print('\nUsing \'test\' folder as working directory ...')
 
     donor_list_file = work_dir+'_donor_list.txt'
-    fixed_file_dir = work_dir+'_fixed_files'
+    fixed_file_dir = 'broad_fixed_files'
 
     if not os.path.isdir(fixed_file_dir): sys.exit('Fixed files are missing!')
 
@@ -492,7 +491,7 @@ def main(argv=None):
 
     # validate working direcotry first
     print('\nValidating working directory...')
-    validate_work_dir(work_dir, donors_to_be_fixed)
+    validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir)
 
     # dectect whether uploads dir exists, stop if exists
     detect_folder(work_dir, 'uploads')
@@ -500,7 +499,7 @@ def main(argv=None):
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files...')
-    donors_to_be_fixed = metadata_fix(work_dir, donors_to_be_fixed)
+    donors_to_be_fixed = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir)
 
     # write the fixed donor informaton 
     write_file(donors_to_be_fixed, donor_list_file)
