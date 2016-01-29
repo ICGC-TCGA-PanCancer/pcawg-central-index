@@ -412,6 +412,10 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
+        "is_s3_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('s3_qc_matched') else False,
+        "is_ceph_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_scheduled') else False,
+        "is_ceph_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_completed') else False,
+        "is_ceph_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_qc_matched') else False,
         "exists_xml_md5sum_mismatch": False,
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
@@ -547,6 +551,10 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
+        "is_s3_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('s3_qc_matched') else False,
+        "is_ceph_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_scheduled') else False,
+        "is_ceph_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_completed') else False,
+        "is_ceph_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_qc_matched') else False,
 
         "library_strategy": gnos_analysis.get('library_strategy'),
         "gnos_repo": gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/',
@@ -906,6 +914,10 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'oct2015', '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
+    read_annotations(annotations, 's3_qc_matched', '../s3-transfer-operations/s3-qc-jobs*/match-jobs/*.json')
+    read_annotations(annotations, 'ceph_transfer_scheduled', '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json')
+    read_annotations(annotations, 'ceph_transfer_completed', '../ceph_transfer_ops/ceph-transfer-jobs*/completed-jobs/*.json')
+    read_annotations(annotations, 'ceph_qc_matched', '../ceph_transfer_ops/ceph-qc-jobs*/match-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
     read_annotations(annotations, 'uuid_to_barcode', 'pc_annotation-tcga_uuid2barcode.tsv')    
     read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
@@ -1004,7 +1016,7 @@ def read_train2_bams(filename):
 
 def read_annotations(annotations, type, file_name):
 
-    if type in ['s3_transfer_scheduled', 's3_transfer_completed']:
+    if type in ['s3_transfer_scheduled', 's3_transfer_completed', 's3_qc_matched', 'ceph_transfer_scheduled', 'ceph_transfer_completed', 'ceph_qc_matched']:
         annotations[type] = set()
         files = glob.glob(file_name)
         for f in files:
@@ -1842,7 +1854,11 @@ def create_aggregated_bam_info_dict(bam):
             "is_aug2015_entry": bam['is_aug2015_entry'],
             "is_oct2015_entry": bam['is_oct2015_entry'],
             "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
-            "is_s3_transfer_completed": bam['is_s3_transfer_completed']
+            "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
+            "is_s3_qc_matched": bam['is_s3_qc_matched'],
+            "is_ceph_transfer_scheduled": bam['is_ceph_transfer_scheduled'],
+            "is_ceph_transfer_completed": bam['is_ceph_transfer_completed'],
+            "is_ceph_qc_matched": bam['is_ceph_qc_matched']
          },
          "bam_with_unmappable_reads": {},
          "unaligned_bams": {}
@@ -2175,6 +2191,11 @@ def create_aggregated_rna_bam_info(bam):
         "is_oct2015_entry": bam['is_oct2015_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
         "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
+        "is_s3_qc_matched": bam['is_s3_qc_matched'],
+        "is_ceph_transfer_scheduled": bam['is_ceph_transfer_scheduled'],  
+        "is_ceph_transfer_completed": bam['is_ceph_transfer_completed'],
+        "is_ceph_qc_matched": bam['is_ceph_qc_matched'],
+
         "exists_xml_md5sum_mismatch": False,           
         "aligned_bam": {
             "gnos_repo": [bam['gnos_repo']],
