@@ -53,18 +53,25 @@ es_queries = [
                     "OV-AU",
                     "MELA-AU",
                     "BRCA-UK"
-                    # "PRAD-UK",
-                    # "CMDI-UK",
-                    # "LINC-JP",
-                    # "ORCA-IN",
-                    # "BTCA-SG",
-                    # "LAML-KR",
-                    # "LICA-FR",
-                    # "CLLE-ES",
-                    # "ESAD-UK"
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES",
+                    "ESAD-UK"
                 ]
               }
             },
+            # {
+            #   "terms":{
+            #     "donor_unique_id":[
+            #       "LIRI-JP::RK159"
+            #     ]
+            #   }
+            # },           
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -370,6 +377,9 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
         
         # add the object_id for each file object
         for f in variant_calling.get('files'):
+            if int(f.get('file_size')) == 0: 
+                logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
+                variant_calling.get('files').remove(f)
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
             f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
 
