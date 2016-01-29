@@ -43,27 +43,35 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                    # "LIRI-JP",
-                    # "PACA-CA",
-                    # "PRAD-CA",
-                    # "RECA-EU",
-                    # "PAEN-AU",
-                    # "PACA-AU",
+                    "LIRI-JP",
+                    "PACA-CA",
+                    "PRAD-CA",
+                    "RECA-EU",
+                    "PAEN-AU",
+                    "PACA-AU",
                     "BOCA-UK",
-                    # "OV-AU",
-                    # "MELA-AU",
-                    # "BRCA-UK",
-                    # "PRAD-UK",
-                    # "CMDI-UK",
-                    # "LINC-JP",
-                    # "ORCA-IN",
-                    # "BTCA-SG",
-                    # "LAML-KR",
-                    # "LICA-FR",
-                    # "CLLE-ES"
+                    "OV-AU",
+                    "MELA-AU",
+                    "BRCA-UK",
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES"
                 ]
               }
             },
+            # {
+            #   "terms": {
+            #     "donor_unique_id": [
+            #         "LIRI-JP::RK159"
+
+            #     ]
+            #   }
+            # },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -137,13 +145,13 @@ es_queries = [
             #     "dcc_project_code": ".*-DE"
             #   }
             # },
-            # {
-            #   "terms": {
-            #     "flags.is_bam_used_by_variant_calling_missing": [
-            #       "T"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "flags.is_bam_used_by_variant_calling_missing": [
+                  "T"
+                ]
+              }
+            },
             {
               "terms": {
                 "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
@@ -346,18 +354,18 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
 def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score):
     if not es_json.get('normal_alignment_status') or not es_json.get('tumor_alignment_status'):
         logger.warning('The donor {} has no normal or tumor alignments.'.format(es_json.get('donor_unique_id')))
-        return
+        return False
 
     # add tumor
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
     for aliquot in wgs_tumor_alignment_info:
         if not oxog_score.get(aliquot.get('aliquot_id')):
-            logger.warning('The aliquot {} has no oxog_score.'.format(aliquot.get('aliquot_id'))) 
-            return
+            logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
+            return False
         aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
         job_json.get('tumors').append(copy.deepcopy(aliquot_info))
 
-        # add normal
+    # add normal
     aliquot = es_json.get('normal_alignment_status')
     job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
 
@@ -365,13 +373,13 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score)
     
 
 def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
-    if not es_json.get('variant_calling_results'): return
+    if not es_json.get('variant_calling_results'): return False
   
-    for v in ['sanger', 'dkfz_embl', 'broad']:
+    for v in ['sanger', 'dkfz_embl', 'broad', 'muse']:
 
         if not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)):
             logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
-            return
+            return False
 
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(get_formal_vcf_name(v))
         gnos_id = wgs_tumor_vcf_info.get('gnos_id')
@@ -381,11 +389,15 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
             'gnos_repo': [ wgs_tumor_vcf_info.get('gnos_repo')[ \
                 get_source_repo_index_pos(wgs_tumor_vcf_info.get('gnos_repo'), chosen_gnos_repo) ] ],
             'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
-            'files': wgs_tumor_vcf_info.get('files')
+            'files': wgs_tumor_vcf_info.get('files'),
+            'vcf_workflow_result_version': wgs_tumor_vcf_info.get('vcf_workflow_result_version')
         }
         
         # add the object_id for each file object
         for f in variant_calling.get('files'):
+            if int(f.get('file_size')) == 0: 
+                logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
+                variant_calling.get('files').remove(f)
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
             f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
 
@@ -395,6 +407,8 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
         variant_calling.get('files').append(metadata_xml_file_info)
 
         job_json.update({v: copy.deepcopy(variant_calling)})       
+        
+    return job_json
 
 
 def choose_variant_calling(es_json, vcf):
@@ -472,8 +486,10 @@ def set_default(obj):
 
 
 def write_json(jobs_dir, job_json):
-    if not job_json.get('normal') or not job_json.get('sanger') or not job_json.get('dkfz_embl') or not job_json.get('broad'):
-        return
+    for data_type in ['normal', 'tumors', 'sanger', 'dkfz_embl', 'broad', 'muse']:
+        if not job_json.get(data_type):
+            logger.warning('donor: {} has no information of {}'.format(job_json.get('project_code')+'::'+job_json.get('submitter_donor_id'), data_type))
+            return
 
     project_code = job_json.get('project_code')
     donor_id = job_json.get('submitter_donor_id')
@@ -615,9 +631,6 @@ def main(argv=None):
     logger.addHandler(ch)
 
     
-    print len(donors_list)
-
-    
     # get json doc for each donor 
     for donor_unique_id in donors_list:
         # print donor_unique_id     
@@ -625,14 +638,20 @@ def main(argv=None):
         es_json = get_donor_json(es, es_index, donor_unique_id)
 
         # ensure the sanger and broad have fixed sv and snv version of files
-        if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
-        if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': continue
+        if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': 
+            logger.warning('donor: {} has no sanger-v2 variant calling'.format(donor_unique_id))
+            continue
+        if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': 
+            logger.warning('donor: {} has no broad-v2 variant calling'.format(donor_unique_id))
+            continue
 
         job_json = create_job_json(es_json)       
 
-        add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score)
+        add_success = add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score)
+        if not add_success: continue
 
-        add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json)
+        add_success = add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json)
+        if not add_success: continue
 
         write_json(jobs_dir, job_json)
 
