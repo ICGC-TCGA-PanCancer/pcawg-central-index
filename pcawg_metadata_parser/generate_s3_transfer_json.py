@@ -115,13 +115,13 @@ es_queries = [
                 "dcc_project_code": ".*-DE"
               }
             },
-            # {
-            #   "terms": {
-            #     "flags.is_bam_used_by_variant_calling_missing": [
-            #       "T"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "flags.is_bam_used_by_variant_calling_missing": [
+                  "T"
+                ]
+              }
+            },
             {
               "terms": {
                 "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
@@ -621,7 +621,7 @@ def main(argv=None):
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
     if target_cloud == 'aws':
-        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs-prod2-v2/*/*.json'
+        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
     elif target_cloud == 'collab':
         git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
     else:
