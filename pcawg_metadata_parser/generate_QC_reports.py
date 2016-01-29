@@ -844,69 +844,121 @@ es_queries = [
                           "value":"donor"
                        }
                     },          
+                    # {
+                    #   "terms": {
+                    #     "donor_unique_id": [
+                    #       "BLCA-US::096b4f32-10c1-4737-a0dd-cae04c54ee33",
+                    #       "BLCA-US::178b28cd-99c3-48dc-8d09-1ef71b4cee80",
+                    #       "BLCA-US::1e308b12-0590-4dae-94d0-a539fcf25df7",
+                    #       "BRCA-US::045c13ef-3db7-4adf-b0a3-23338f0479f3",
+                    #       "BRCA-US::05506f4c-e701-4a9d-ae06-97f066aade43",
+                    #       "BRCA-US::08da7c4c-3067-4bcf-9d7a-78566df72e69",
+                    #       "BTCA-SG::BTCA_donor_A153",
+                    #       "CESC-US::00ad0ffe-2105-4829-a495-1c2aceb5bb31",
+                    #       "CESC-US::0809ba8b-4ab6-4f43-934c-c1ccbc014a7e",
+                    #       "CESC-US::14c65927-b9dd-4ef6-9917-db7bc431ff2f",
+                    #       "COAD-US::0cb0dac8-4ce2-444a-b1ae-1550e065b4d9",
+                    #       "COAD-US::268c01b3-d2ce-44c0-a2fe-ea846a1253cc",
+                    #       "ESAD-UK::OCCAMS-AH-088",
+                    #       "ESAD-UK::OCCAMS-AH-131",
+                    #       "ESAD-UK::OCCAMS-ST-020",
+                    #       "ESAD-UK::OCCAMS-WG-009",
+                    #       "GBM-US::0798dbe2-1914-427c-a2fe-2a865d0d6eda",
+                    #       "GBM-US::12824b2b-9c0a-4dcf-8941-34593a4e93da",
+                    #       "HNSC-US::0956bc67-dd55-4c54-a56a-f22f2856662a",
+                    #       "HNSC-US::180036a2-3b56-405e-a1fe-d5932517b6c7",
+                    #       "HNSC-US::1f744ada-6de1-446d-b62c-76a7fc8b40af",
+                    #       "KICH-US::0ec3caa1-7c51-417b-a89c-18e9fceb80c4",
+                    #       "KIRC-US::11ab53c8-6366-4bc9-b60d-23e6ed2d1cae",
+                    #       "KIRC-US::1adb05d4-e1ca-4ede-81c7-ff24a243abae",
+                    #       "KIRP-US::925ae8ff-3200-4564-be76-94db0984b027",
+                    #       "LAML-US::05924106-07f6-44ca-ba15-7452b8a657e4",
+                    #       "LGG-US::01c4ca12-ac08-41dd-9e4f-bfb0971688a2",
+                    #       "LIHC-US::56a82a56-0241-4d3d-9de2-696b0c36df91",
+                    #       "LIHC-US::c7f1b389-aec7-4993-8afb-b7a56064f8fc",
+                    #       "LIHC-US::ee63c44b-91f4-4004-8dea-192eab527036",
+                    #       "LUAD-US::028e99e9-5b9a-4954-bb6e-6d4709a3cea8",
+                    #       "LUSC-US::037c57d1-b4a5-45dc-bda4-0550461d321b",
+                    #       "LUSC-US::0398eae1-7216-4595-80a5-6b117d96e070",
+                    #       "OV-US::098acb76-0bf5-44e5-bcae-f919cf5fa5e5",
+                    #       "OV-US::0a48873a-092a-4b25-822b-b0b3c18c08a8",
+                    #       "PRAD-UK::0065_CRUK_PC_0065",
+                    #       "PRAD-UK::0072_CRUK_PC_0072",
+                    #       "PRAD-UK::0082_CRUK_PC_0082",
+                    #       "PRAD-US::10fbe481-f111-4f88-ae45-4d67cb265567",
+                    #       "PRAD-US::11fb5853-8eeb-4ad8-825d-3eaaf3fa08d6",
+                    #       "READ-US::0bb786ee-07cf-4853-9b49-ec95cd14e282",
+                    #       "READ-US::0cb21fb0-520f-4105-99ec-697a335115b5",
+                    #       "SARC-US::257dc623-41e1-4fa3-859c-c787db10bd60",
+                    #       "SKCM-US::01ad975d-c2ed-4e4d-bd3b-c9512fc9073c",
+                    #       "SKCM-US::1404791b-86bf-4dfd-85b4-c8ff356f109c",
+                    #       "STAD-US::0aecac64-5982-4d76-8f31-958f6a00951d",
+                    #       "STAD-US::0b4e8d73-459d-4930-9d1a-abb8d53e1844",
+                    #       "THCA-US::2501ee46-8d38-448b-8765-e9c9706cbbe8",
+                    #       "UCEC-US::09066fbf-6a1d-46c9-a4c5-c53340c3d1ba",
+                    #       "UCEC-US::2b76cc9c-c379-43e4-9c3f-56197a3353be"
+                    #     ]
+                    #   }
+                    # }, 
                     {
-                      "terms": {
-                        "donor_unique_id": [
-                          "BLCA-US::096b4f32-10c1-4737-a0dd-cae04c54ee33",
-                          "BLCA-US::178b28cd-99c3-48dc-8d09-1ef71b4cee80",
-                          "BLCA-US::1e308b12-0590-4dae-94d0-a539fcf25df7",
-                          "BRCA-US::045c13ef-3db7-4adf-b0a3-23338f0479f3",
-                          "BRCA-US::05506f4c-e701-4a9d-ae06-97f066aade43",
-                          "BRCA-US::08da7c4c-3067-4bcf-9d7a-78566df72e69",
-                          "BTCA-SG::BTCA_donor_A153",
-                          "CESC-US::00ad0ffe-2105-4829-a495-1c2aceb5bb31",
-                          "CESC-US::0809ba8b-4ab6-4f43-934c-c1ccbc014a7e",
-                          "CESC-US::14c65927-b9dd-4ef6-9917-db7bc431ff2f",
-                          "COAD-US::0cb0dac8-4ce2-444a-b1ae-1550e065b4d9",
-                          "COAD-US::268c01b3-d2ce-44c0-a2fe-ea846a1253cc",
-                          "ESAD-UK::OCCAMS-AH-088",
-                          "ESAD-UK::OCCAMS-AH-131",
-                          "ESAD-UK::OCCAMS-ST-020",
-                          "ESAD-UK::OCCAMS-WG-009",
-                          "GBM-US::0798dbe2-1914-427c-a2fe-2a865d0d6eda",
-                          "GBM-US::12824b2b-9c0a-4dcf-8941-34593a4e93da",
-                          "HNSC-US::0956bc67-dd55-4c54-a56a-f22f2856662a",
-                          "HNSC-US::180036a2-3b56-405e-a1fe-d5932517b6c7",
-                          "HNSC-US::1f744ada-6de1-446d-b62c-76a7fc8b40af",
-                          "KICH-US::0ec3caa1-7c51-417b-a89c-18e9fceb80c4",
-                          "KIRC-US::11ab53c8-6366-4bc9-b60d-23e6ed2d1cae",
-                          "KIRC-US::1adb05d4-e1ca-4ede-81c7-ff24a243abae",
-                          "KIRP-US::925ae8ff-3200-4564-be76-94db0984b027",
-                          "LAML-US::05924106-07f6-44ca-ba15-7452b8a657e4",
-                          "LGG-US::01c4ca12-ac08-41dd-9e4f-bfb0971688a2",
-                          "LIHC-US::56a82a56-0241-4d3d-9de2-696b0c36df91",
-                          "LIHC-US::c7f1b389-aec7-4993-8afb-b7a56064f8fc",
-                          "LIHC-US::ee63c44b-91f4-4004-8dea-192eab527036",
-                          "LUAD-US::028e99e9-5b9a-4954-bb6e-6d4709a3cea8",
-                          "LUSC-US::037c57d1-b4a5-45dc-bda4-0550461d321b",
-                          "LUSC-US::0398eae1-7216-4595-80a5-6b117d96e070",
-                          "OV-US::098acb76-0bf5-44e5-bcae-f919cf5fa5e5",
-                          "OV-US::0a48873a-092a-4b25-822b-b0b3c18c08a8",
-                          "PRAD-UK::0065_CRUK_PC_0065",
-                          "PRAD-UK::0072_CRUK_PC_0072",
-                          "PRAD-UK::0082_CRUK_PC_0082",
-                          "PRAD-US::10fbe481-f111-4f88-ae45-4d67cb265567",
-                          "PRAD-US::11fb5853-8eeb-4ad8-825d-3eaaf3fa08d6",
-                          "READ-US::0bb786ee-07cf-4853-9b49-ec95cd14e282",
-                          "READ-US::0cb21fb0-520f-4105-99ec-697a335115b5",
-                          "SARC-US::257dc623-41e1-4fa3-859c-c787db10bd60",
-                          "SKCM-US::01ad975d-c2ed-4e4d-bd3b-c9512fc9073c",
-                          "SKCM-US::1404791b-86bf-4dfd-85b4-c8ff356f109c",
-                          "STAD-US::0aecac64-5982-4d76-8f31-958f6a00951d",
-                          "STAD-US::0b4e8d73-459d-4930-9d1a-abb8d53e1844",
-                          "THCA-US::2501ee46-8d38-448b-8765-e9c9706cbbe8",
-                          "UCEC-US::09066fbf-6a1d-46c9-a4c5-c53340c3d1ba",
-                          "UCEC-US::2b76cc9c-c379-43e4-9c3f-56197a3353be"
+                       "terms":{
+                          "flags.has_validation_data":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+# query 17: get all data status
+{
+      "name": "donors_data_status",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                      "terms":{
+                        "flags.is_normal_specimen_aligned":[
+                          "T"
                         ]
                       }
-                    }, 
-                    # {
-                    #    "terms":{
-                    #       "flags.has_validation_data":[
-                    #          "T"
-                    #       ]
-                    #    }
-                    # }                        
+                    },
+                    {
+                      "terms":{
+                        "flags.are_all_tumor_specimens_aligned":[
+                          "T"
+                        ]
+                      }
+                    }                      
                   ],
                   "must_not": [
                   {
@@ -1017,12 +1069,12 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 15:
         add_report_info_14_15(report_info, report_info_list, es_json, 'broad')
 
-    if q_index == 16:
-        add_report_info_16(report_info, report_info_list, es_json)
+    if q_index in [16, 17]:
+        add_report_info_16_17(report_info, report_info_list, es_json)
 
     return report_info_list
 
-def add_report_info_16(report_info, report_info_list, es_json):
+def add_report_info_16_17(report_info, report_info_list, es_json):
     report_info['has_validation_data'] = es_json.get('flags').get('has_validation_data')
     if not es_json.get('normal_alignment_status') or not es_json.get('normal_alignment_status').get('aligned_bam'): return
     aliquot = es_json.get('normal_alignment_status').get('aligned_bam')
