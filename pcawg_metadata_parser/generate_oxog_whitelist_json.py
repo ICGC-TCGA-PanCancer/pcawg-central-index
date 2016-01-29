@@ -40,38 +40,38 @@ es_queries = [
                 "value": "donor"
               }
             },
-            {
-              "terms": {
-                "dcc_project_code": [
-                    "LIRI-JP",
-                    "PACA-CA",
-                    "PRAD-CA",
-                    "RECA-EU",
-                    "PAEN-AU",
-                    "PACA-AU",
-                    "BOCA-UK",
-                    "OV-AU",
-                    "MELA-AU",
-                    "BRCA-UK",
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES"
-                ]
-              }
-            },
             # {
             #   "terms": {
-            #     "donor_unique_id": [
-            #         "LIRI-JP::RK159"
-
+            #     "dcc_project_code": [
+            #         "LIRI-JP",
+            #         "PACA-CA",
+            #         "PRAD-CA",
+            #         "RECA-EU",
+            #         "PAEN-AU",
+            #         "PACA-AU",
+            #         "BOCA-UK",
+            #         "OV-AU",
+            #         "MELA-AU",
+            #         "BRCA-UK",
+            #         "PRAD-UK",
+            #         "CMDI-UK",
+            #         "LINC-JP",
+            #         "ORCA-IN",
+            #         "BTCA-SG",
+            #         "LAML-KR",
+            #         "LICA-FR",
+            #         "CLLE-ES"
             #     ]
             #   }
             # },
+            {
+              "terms": {
+                "donor_unique_id": [
+                    "LIRI-JP::RK159"
+
+                ]
+              }
+            },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -135,16 +135,16 @@ es_queries = [
             }
           ],
           "must_not": [
-            # {
-            #   "regexp": {
-            #     "dcc_project_code": ".*-US"
-            #   }
-            # },
-            # {
-            #   "regexp": {
-            #     "dcc_project_code": ".*-DE"
-            #   }
-            # },
+            {
+              "regexp": {
+                "dcc_project_code": ".*-US"
+              }
+            },
+            {
+              "regexp": {
+                "dcc_project_code": ".*-DE"
+              }
+            },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -350,8 +350,19 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
 
     return aliquot_info
 
+def cloud_transfer(target_compute_site, aliquot):
+    if target_compute_site == 'aws':
+        if not aliquot.get('is_s3_transfer_completed'):# or not aliquot.get('is_s3_qc_matched'):
+            return False
+    elif target_compute_site == 'collab':
+        if not aliquot.get('is_ceph_transfer_completed') or not aliquot.get('is_ceph_qc_matched'):
+            return False        
+    else:
+        return True
+    return True
 
-def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score):
+
+def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score, target_compute_site):
     if not es_json.get('normal_alignment_status') or not es_json.get('tumor_alignment_status'):
         logger.warning('The donor {} has no normal or tumor alignments.'.format(es_json.get('donor_unique_id')))
         return False
@@ -359,20 +370,36 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score)
     # add tumor
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
     for aliquot in wgs_tumor_alignment_info:
-        if not oxog_score.get(aliquot.get('aliquot_id')):
-            logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
+        # if not oxog_score.get(aliquot.get('aliquot_id')):
+        #     logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
+        #     return False
+        
+        if not aliquot.get('aligned_bam'):
+            logger.warning('The donor {} has no aligned_bam.'.format(es_json.get('donor_unique_id'))) 
             return False
+
+        if not cloud_transfer(target_compute_site, aliquot.get('aligned_bam')):
+            logger.warning('The donor {} has NOT transferred tumor bam to {}.'.format(es_json.get('donor_unique_id'), target_compute_site)) 
+            return False             
+
         aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
         job_json.get('tumors').append(copy.deepcopy(aliquot_info))
 
     # add normal
     aliquot = es_json.get('normal_alignment_status')
+    if not aliquot.get('aligned_bam'):
+        logger.warning('The donor {} has no aligned_bam.'.format(es_json.get('donor_unique_id'))) 
+        return False
+
+    if not cloud_transfer(target_compute_site, aliquot.get('aligned_bam')):
+        logger.warning('The donor {} has NOT transferred normal bam to {}.'.format(es_json.get('donor_unique_id'), target_compute_site)) 
+        return False 
     job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
 
     return job_json
     
 
-def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
+def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, target_compute_site):
     if not es_json.get('variant_calling_results'): return False
   
     for v in ['sanger', 'dkfz_embl', 'broad', 'muse']:
@@ -382,6 +409,11 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json):
             return False
 
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(get_formal_vcf_name(v))
+
+        if not cloud_transfer(target_compute_site, wgs_tumor_vcf_info):
+            logger.warning('The donor {} has NOT transferred {}_variant_calling to {}.'.format(es_json.get('donor_unique_id'), v, target_compute_site)) 
+            return False 
+
         gnos_id = wgs_tumor_vcf_info.get('gnos_id')
         variant_calling = {
             'data_type': get_formal_vcf_name(v).capitalize()+'-VCF',          
@@ -582,11 +614,11 @@ def main(argv=None):
     donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    if target_compute_site in ['aws', 'collab', 'ucsc']:
-        git_fnames = '../oxog-ops/oxog-'+target_compute_site+'-jobs-test/*/*.json'
+    # if target_compute_site in ['aws', 'collab', 'ucsc']:
+    git_fnames = '../oxog-ops/oxog-*-jobs-test/*/*.json'
         # git_fnames = 'gnos_metadata/2016-01-11_11-44-53_EST/reports/oxog_whitelist_json/*.json'
-    else:
-        sys.exit('Error: unknown target_compute_site!')
+    # else:
+    #     sys.exit('Error: unknown target_compute_site!')
     files = glob.glob(git_fnames)
     for f in files:
         fname = str.split(f, '/')[-1]
@@ -647,10 +679,10 @@ def main(argv=None):
 
         job_json = create_job_json(es_json)       
 
-        add_success = add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score)
+        add_success = add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score, target_compute_site)
         if not add_success: continue
 
-        add_success = add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json)
+        add_success = add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, target_compute_site)
         if not add_success: continue
 
         write_json(jobs_dir, job_json)
