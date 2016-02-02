@@ -1075,34 +1075,56 @@ def create_report_info(donor_unique_id, es_json, q_index):
     return report_info_list
 
 def add_report_info_16_17(report_info, report_info_list, es_json):
+    flags = ['s3_transfer_completed', 's3_qc_matched', 'ceph_transfer_completed', 'ceph_qc_matched']
     report_info['has_validation_data'] = es_json.get('flags').get('has_validation_data')
     if not es_json.get('normal_alignment_status') or not es_json.get('normal_alignment_status').get('aligned_bam'): return
     aliquot = es_json.get('normal_alignment_status').get('aligned_bam')
     # report_info['normal_gnos_repo'] = aliquot.get('gnos_repo')
     report_info['normal_gnos_id'] = aliquot.get('gnos_id')
-    report_info['is_normal_s3_transfer_completed'] = aliquot.get('is_s3_transfer_completed')
-
+    for flag in flags:
+        report_info['normal_'+flag] = aliquot.get('is_'+flag)
+    # report_info['normal_s3_qc_matched'] = aliquot.get('is_s3_qc_matched')
+    # report_info['normal_ceph_transfer_completed'] = aliquot.get('is_ceph_transfer_completed')
+    # report_info['normal_ceph_qc_matched'] = aliquot.get('is_ceph_qc_matched')
     if not es_json.get('tumor_alignment_status'): return
     report_info['tumor_aliquot_counts'] = es_json.get('flags').get('all_tumor_specimen_aliquot_counts')
     report_info['tumor_gnos_id'] = []
-    report_info['is_tumor_s3_transfer_completed'] = []
+    for flag in flags:
+        report_info['tumor_'+flag] = []
+
+    # report_info['tumor_s3_transfer_completed'] = []
+    # report_info['tumor_s3_qc_matched'] = []
+    # report_info['tumor_ceph_transfer_completed'] = []
+    # report_info['tumor_ceph_qc_matched'] = []
     for aliquot in es_json.get('tumor_alignment_status'):
         if not aliquot.get('aligned_bam'): return
         report_info['tumor_gnos_id'].append(aliquot.get('aligned_bam').get('gnos_id'))
-        report_info['is_tumor_s3_transfer_completed'].append(str(aliquot.get('aligned_bam').get('is_s3_transfer_completed')))
+        for flag in flags:
+            report_info['tumor_'+flag].append(str(aliquot.get('aligned_bam').get('is_'+flag)))
+        # report_info['tumor_s3_transfer_completed'].append(str(aliquot.get('aligned_bam').get('is_s3_transfer_completed')))
+        # report_info['tumor_s3_qc_matched'].append(str(aliquot.get('aligned_bam').get('is_s3_qc_matched')))
+        # report_info['tumor_ceph_transfer_completed'].append(str(aliquot.get('aligned_bam').get('is_ceph_transfer_completed')))
+        # report_info['tumor_ceph_qc_matched'].append(str(aliquot.get('aligned_bam').get('is_ceph_qc_matched')))
 
     if not es_json.get('variant_calling_results'): return
     for v in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
         report_info[v+'_gnos_repo'] = None
         report_info[v+'_gnos_id'] = None
         report_info[v+'_result_version'] = None
-        report_info['is_'+v+'_s3_transfer_completed'] = None
+        for flag in flags:
+            report_info[v+'_'+flag] = None
+        # report_info[v+'_s3_transfer_completed'] = None
+        # report_info[v+'_s3_qc_matched'] = None
     for v in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
         if not es_json.get('variant_calling_results').get(v+'_variant_calling'): continue
         report_info[v+'_gnos_repo'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('gnos_repo')[0]
         report_info[v+'_gnos_id'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('gnos_id')
         report_info[v+'_result_version'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('vcf_workflow_result_version')
-        report_info['is_'+v+'_s3_transfer_completed'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('is_s3_transfer_completed')
+        for flag in flags:
+            report_info[v+'_'+flag] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('is_'+flag)
+
+
+        # report_info['is_'+v+'_s3_transfer_completed'] = es_json.get('variant_calling_results').get(v+'_variant_calling').get('is_s3_transfer_completed')
     report_info['is_broad_variant_calling_performed'] = es_json.get('flags').get('is_broad_variant_calling_performed')
 
     report_info_list.append(copy.deepcopy(report_info)) 
