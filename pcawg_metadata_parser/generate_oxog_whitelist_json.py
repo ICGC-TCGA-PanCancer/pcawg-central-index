@@ -40,34 +40,34 @@ es_queries = [
                 "value": "donor"
               }
             },
-            # {
-            #   "terms": {
-            #     "dcc_project_code": [
-            #         "LIRI-JP",
-            #         "PACA-CA",
-            #         "PRAD-CA",
-            #         "RECA-EU",
-            #         "PAEN-AU",
-            #         "PACA-AU",
-            #         "BOCA-UK",
-            #         "OV-AU",
-            #         "MELA-AU",
-            #         "BRCA-UK",
-            #         "PRAD-UK",
-            #         "CMDI-UK",
-            #         "LINC-JP",
-            #         "ORCA-IN",
-            #         "BTCA-SG",
-            #         "LAML-KR",
-            #         "LICA-FR",
-            #         "CLLE-ES"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "dcc_project_code": [
+                    "LIRI-JP",
+                    "PACA-CA",
+                    "PRAD-CA",
+                    "RECA-EU",
+                    "PAEN-AU",
+                    "PACA-AU",
+                    "BOCA-UK",
+                    "OV-AU",
+                    "MELA-AU",
+                    "BRCA-UK",
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES"
+                ]
+              }
+            },
             {
               "terms": {
                 "donor_unique_id": [
-                    "LIRI-JP::RK159"
+                    "BTCA-SG::BTCA_donor_A153"
 
                 ]
               }
@@ -430,6 +430,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, target_co
             if int(f.get('file_size')) == 0: 
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
                 variant_calling.get('files').remove(f)
+                continue
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
             f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
 
