@@ -69,6 +69,7 @@ def get_donors_list(es, es_index, dcc_project_code):
 
 def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excluded, dcc_project_code, ega_dir, pcawg_sample_sheet, seq, annotations):
     for sequence_type in seq:
+        print('\nCollecting the Sample Data for sequence_type: {} of project: {}'.format(sequence_type, dcc_project_code))
         sample_sheet = []
         with open(pcawg_sample_sheet, 'r') as s:
             reader = csv.DictReader(s, delimiter='\t')
@@ -97,7 +98,7 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
                         if sample_info.get(tag):
                             sample[tag] = sample_info.get(tag)  
                         else: 
-                            click.echo('Warning: missing  %s informaion for donor: %s' % tag, sample_info['icgc_donor_id'], err=True)
+                            click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_info['icgc_donor_id']), err=True)
                             return
                     sample['specimen_type'] = sample_info['dcc_specimen_type']
                     sample['aliquot_id/sample_uuid'] = sample_info['aliquot_id']
@@ -119,7 +120,7 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
             out_dir = os.path.join(ega_dir, dcc_project_code, 'sample')
             if not os.path.isdir(out_dir): os.makedirs(out_dir)
             epoch_time = str(int(calendar.timegm(time.gmtime())))
-            out_file = os.path.join(out_dir, 'sample.'+dcc_project_code+'.'+sequence_type+'.'+epoch_time+'.tsv')
+            out_file = os.path.join(out_dir, 'sample.'+dcc_project_code+'.'+sequence_type+'_'+epoch_time+'.tsv')
             write_tsv_file(sample_sheet, out_file)
 
 def effective_xml_md5sum(xml_str):
@@ -163,19 +164,18 @@ def effective_xml_md5sum(xml_str):
 
 
 def download_metadata_xml(gnos_id):
-    logger.info('Download metadata xml from BSC GNOS repo for analysis object: {}'.format(gnos_id))
     
     url = 'https://gtrepo-bsc.annailabs.com/cghub/metadata/analysisFull/' + gnos_id
     response = None
     try:
         response = requests.get(url, stream=True, timeout=15)
     except:
-        logger.error('Error: Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
+        click.echo('Error: Unable to download metadata from %s' % url, err=True)
+        sys.exit(0)
 
     if not response or not response.ok:
-        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
+        click.echo('Error: Unable to download metadata from %s' % url, err=True)
+        sys.exit(0)
     else:
         metadata_xml_str = response.text
 
@@ -184,6 +184,9 @@ def download_metadata_xml(gnos_id):
 def find_cached_metadata_xml(gnos_id):
 
     metadata_xml_files = 'gnos_metadata/__all_metadata_xml/bsc/' + gnos_id + '__live__*.xml'
+    if not glob.glob(metadata_xml_files): 
+        click.echo('Warning: missing cached GNOS metadata xml in BSC for gnos_id: %s' % gnos_id, err=True)
+        sys.exit(0)
     metadata_xml_file = sorted(glob.glob(metadata_xml_files))[-1]
     with open (metadata_xml_file, 'r') as x: data = x.read()
     return data
@@ -192,6 +195,7 @@ def find_cached_metadata_xml(gnos_id):
 def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow):
     
     for w in workflow:
+        print('\nCollecting the GNOS xmls for workflow: {} of project: {}'.format(get_mapping(w), project))
         gnos_xml_dir = os.path.join(ega_dir, project, get_mapping(w), 'GNOS_xml')
         if not os.path.exists(gnos_xml_dir): os.makedirs(gnos_xml_dir)
         gnos_xml_sheet = []
@@ -210,7 +214,8 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 cached_xml_str = find_cached_metadata_xml(gnos_id)
                 cached_effective_xml_md5sum = effective_xml_md5sum(cached_xml_str)
                 if not latest_effective_xml_md5sum == cached_effective_xml_md5sum:
-                   sys.exit('BSC gnos xml has different effective md5sum with the cached xml.')
+                    click.echo('Warning: BSC gnos xml has different effective md5sum with the cached xml for gnos_id: %s' % gnos_id, err=True)
+                    sys.exit(0)
                 
                 gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
                 with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
@@ -221,8 +226,10 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 gnos_xml['unencrypted_checksum'] = xml_gz_md5sum
                 gnos_xml_sheet.append(copy.deepcopy(gnos_xml))
         if gnos_xml_sheet:
+            out_dir = os.path.join(ega_dir, 'file_info', 'staged_files')
+            if not os.path.isdir(out_dir): os.makedirs(out_dir)
             epoch_time = str(int(calendar.timegm(time.gmtime())))  
-            staged_files = os.path.join(ega_dir, 'file_info/staged_'+project+'_'+w+'_'+epoch_time+'_GNOS_xml_files.tsv')
+            staged_files = os.path.join(out_dir,'staged_GNOS_xml_files.'+project+'.'+w+'_'+epoch_time+'.tsv')
             write_tsv_file(gnos_xml_sheet, staged_files)
 
 
@@ -327,8 +334,6 @@ def read_annotations(annotations, type, file_name):
 
 
 def generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded):
-    # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    #sample_fnames = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
     files = glob.glob(file_pattern)
     for f in files:
         with open(f, 'r') as fn:
@@ -444,7 +449,6 @@ def main(argv=None):
 
     for project in dcc_project_code:
         donors_list = get_donors_list(es, es_index, project)
-        
 
         if seq:
             file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
@@ -452,7 +456,7 @@ def main(argv=None):
             collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations)
 
         if workflow:
-            file_pattern = os.path.join(ega_dir, 'file_info', 'staged_'+project+'_*_GNOS_xml_files.tsv')
+            file_pattern = os.path.join(ega_dir, 'file_info', 'staged_files', 'staged_GNOS_xml_files.'+project+'.*.tsv')
             gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
             collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow)
 
