@@ -143,14 +143,14 @@ def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir):
             logger.error('Expected GNOS entry does not exist: {}. Please ensure all GNOS entries are downloaded.'.format(gnos_entry_dir))
             sys.exit('Validating working directory failed, please check log for details.')
         if not os.path.isdir(fixed_file_dir):
-            logger.error('Expected folder for BROAD fixed files does not exist: {}'.format(work_dir+'_fixed_files'))
+            logger.error('Expected folder for BROAD fixed files does not exist: {}'.format(fixed_file_dir))
             sys.exit('Validating working directory failed, please check log for details.')
         else:
             aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
             for aliquot_id in aliquot_ids:
                 if not os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz')) or not \
                        os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz.idx')):
-                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(work_dir+'_fixed_files', donor.get('donor_unique_id')))
+                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(fixed_file_dir, donor.get('donor_unique_id')))
                     sys.exit('Validating working directory failed, please check log for details.')                     
 
 
