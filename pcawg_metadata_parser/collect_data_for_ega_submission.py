@@ -226,10 +226,10 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 gnos_xml['unencrypted_checksum'] = xml_gz_md5sum
                 gnos_xml_sheet.append(copy.deepcopy(gnos_xml))
         if gnos_xml_sheet:
-            out_dir = os.path.join(ega_dir, 'file_info', 'staged_files')
+            out_dir = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info')
             if not os.path.isdir(out_dir): os.makedirs(out_dir)
             epoch_time = str(int(calendar.timegm(time.gmtime())))  
-            staged_files = os.path.join(out_dir,'staged_GNOS_xml_files.'+project+'.'+w+'_'+epoch_time+'.tsv')
+            staged_files = os.path.join(out_dir, project+'.'+w+'_'+epoch_time+'.tsv')
             write_tsv_file(gnos_xml_sheet, staged_files)
 
 
@@ -456,7 +456,7 @@ def main(argv=None):
             collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations)
 
         if workflow:
-            file_pattern = os.path.join(ega_dir, 'file_info', 'staged_files', 'staged_GNOS_xml_files.'+project+'.*.tsv')
+            file_pattern = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info', project+'.*.tsv')
             gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
             collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow)
 
