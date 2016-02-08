@@ -215,7 +215,7 @@ def generate_updated_metadata(donor, work_dir):
                 a['VALUE'] = ','.join(list(uuid_set))
                 logger.info('donor: {} update the {} for {}_variant_calling with gnos_id: {} at gnos_repo: {}'.format(donor_unique_id, update_field, caller, gnos_id, gnos_repo))
 
-        analysis_xml = {'analysis_xml': analysis_xml}
+        # analysis_xml = {'analysis_xml': analysis_xml}
         analysis_xml_str = xmltodict.unparse(analysis_xml, pretty=True)
 
         # analysis_xml_str = modify_metadata(xml_str, update_field, caller, gnos_repo, gnos_id, donor.get('donor_unique_id'), donor.get('broad_v2_gnos_id'), donor.get('broad_gnos_id'))
