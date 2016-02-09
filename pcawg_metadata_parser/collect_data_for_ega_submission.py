@@ -221,7 +221,7 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
                 xml_gz_md5sum = get_md5(gnos_xml_gz_file, False)
                 gnos_xml = OrderedDict()
-                gnos_xml['filename'] = gnos_id+'/analysis.'+gnos_id+'.GNOS.xml.gz.pgp'
+                gnos_xml['filename'] = gnos_id+'/analysis.'+gnos_id+'.GNOS.xml.gz.gpg'
                 gnos_xml['checksum'] = None
                 gnos_xml['unencrypted_checksum'] = xml_gz_md5sum
                 gnos_xml_sheet.append(copy.deepcopy(gnos_xml))
@@ -317,11 +317,12 @@ def read_annotations(annotations, type, file_name):
             for row in reader:
                 if not row.get('study_donor_involved_in') == 'PCAWG': continue
                 annotations[type][row.get('icgc_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
-        elif type == 'phenotype':
-            annotations[type] = {}
+        elif type == 'ega':
+            annotations[type] = set()
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
-                annotations[type][row.get('dcc_project_code')] = row.get('phenotype') if row.get('phenotype') else None
+                if row.get('checksum') and row.get('unencrypted_checksum'):
+                    annotations[type].add(row.get('filename'))
         elif type == 'project':
             annotations[type] = set()
             reader = csv.DictReader(r, delimiter='\t')
@@ -356,6 +357,75 @@ def generate_id_list(id_lists):
 
     return ids_list
 
+def get_donor_json(es, es_index, donor_unique_id):
+    es_query_donor = {
+        "query": {
+            "term": {
+                "donor_unique_id": donor_unique_id
+            }
+        }
+    }
+    response = es.search(index=es_index, body=es_query_donor)
+
+    es_json = response['hits']['hits'][0]['_source']
+ 
+    return es_json
+
+
+def get_formal_vcf_name(vcf):
+    vcf_map = {
+      "sanger": "sanger_variant_calling",
+      "dkfz": "dkfz_embl_variant_calling",
+      "embl": "dkfz_embl_variant_calling",
+      "dkfz_embl": "dkfz_embl_variant_calling",
+      "broad": "broad_variant_calling",
+      "muse": "muse_variant_calling",
+      "broad_tar": "broad_tar_variant_calling"
+    }   
+
+    return vcf_map.get(vcf)
+
+
+def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index):
+    for dt in unstage_type:
+        print('\nCheck the unstaging files for data_type: {} of project: {}'.format(dt, project))
+        missing_files = set()
+        for donor_unique_id in donors_list:
+            es_json = get_donor_json(es, es_index, donor_unique_id)
+            if dt == 'wgs':
+                analysis = es_json.get('wgs').get('normal_specimen').get('bwa_alignment')
+                add_files(analysis, missing_files, annotations)
+                for aliquot in es_json.get('wgs').get('tumor_specimens'):        
+                    analysis = aliquot.get('bwa_alignment')
+                    add_files(analysis, missing_files, annotations)
+
+            elif dt == 'rna_seq':
+                pass
+
+            else:
+                for aliquot in es_json.get('wgs').get('tumor_specimens'):  
+                    if not aliquot.get(get_formal_vcf_name(dt)):
+                        break                 
+                    analysis = aliquot.get(get_formal_vcf_name(vcf))
+                    add_files(analysis, missing_files, annotations)
+
+        if missing_files:    
+            out_dir = os.path.join(ega_dir, 'file_info', 'bulk_report_of_files_missed_on_ftp_server')
+            if not os.path.isdir(out_dir): os.makedirs(out_dir)
+            out_file = os.path.join(out_dir, project+'.'+dt+'.tsv')
+            with open(out_file, 'w') as o: o.write('\n'.join(sorted(missing_files)))        
+
+
+def add_files(analysis, missing_files, annotations):
+    filename = os.path.join(analysis.get('gnos_id'), 'analysis.'+analysis.get('gnos_id')+'.GNOS.xml.gz.gpg')
+    if not filename in annotations.get('ega'):
+        missing_files.add(filename)
+    for f in analysis.get('files'):
+        filename = os.path.join(analysis.get('gnos_id'), f.get('file_name')+'.gpg')
+        if not filename in annotations.get('ega'):
+            missing_files.add(filename)
+    return missing_files
+
 
 def main(argv=None):
 
@@ -378,6 +448,8 @@ def main(argv=None):
     parser.add_argument("-x", "--exclude_gnos_sample_id_lists", dest="exclude_gnos_sample_id_lists", 
              help="File(s) containing GNOS/SAMPLE IDs to be excluded, use filename pattern to specify the file(s)", required=False)
 
+    parser.add_argument("-u", "--unstage_type", dest="unstage_type", nargs="*",
+             help="Specify data_type for reporting the unstaging files", required=False)
     parser.add_argument("-s", "--sequence_type", dest="seq", nargs="*",
              help="List sequence_type types[wgs, rna-seq]", required=False)
     parser.add_argument("-w", "--workflow", dest="workflow", nargs="*",
@@ -392,7 +464,7 @@ def main(argv=None):
 
     annotations = {}
     read_annotations(annotations, 'gender', ega_dir+'/annotation/donor.all_projects.release20.tsv')
-    # read_annotations(annotations, 'phenotype', ega_dir+'/annotation/project_info.tsv')
+    read_annotations(annotations, 'ega', ega_dir+'/file_info/file_info.tsv')
     read_annotations(annotations, 'project', ega_dir+'/annotation/project_info.tsv')
 
     dcc_project_code = args.dcc_project_code
@@ -404,9 +476,11 @@ def main(argv=None):
     include_gnos_sample_id_lists = args.include_gnos_sample_id_lists
     exclude_gnos_sample_id_lists = args.exclude_gnos_sample_id_lists
 
+    unstage_type = args.unstage_type
     seq = args.seq
     workflow = args.workflow
 
+    unstage_type = list(unstage_type) if unstage_type else []
     seq= list(seq) if seq else [] 
     workflow = list(workflow) if workflow else []   
 
@@ -449,6 +523,9 @@ def main(argv=None):
 
     for project in dcc_project_code:
         donors_list = get_donors_list(es, es_index, project)
+
+        if unstage_type:
+            generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index) 
 
         if seq:
             file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
