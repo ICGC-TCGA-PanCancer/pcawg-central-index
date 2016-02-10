@@ -829,6 +829,58 @@ es_queries = [
       }
 },
 
+# query 16: get gender information of pcawg donors
+{
+      "name": "pcawg_donors_gender_info",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },
+                    {
+                      "terms":{
+                        "flags.is_normal_specimen_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "terms":{
+                        "flags.are_all_tumor_specimens_aligned":[
+                          "T"
+                        ]
+                      }
+                    }                                
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
 ]
 
 
@@ -916,7 +968,48 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 15:
         add_report_info_14_15(report_info, report_info_list, es_json, 'broad')
 
+    if q_index == 16:
+        annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
+        add_report_info_16(report_info, report_info_list, es_json, annotations)
+
     return report_info_list
+
+def get_mapping(source):
+    target = {
+        "XX": "female",
+        "XY": "male",
+        "female": "female",
+        "male": "male"
+    }
+    return target.get(source)
+
+def gen_dict_extract(key, var):
+    if hasattr(var,'iteritems'):
+        for k, v in var.iteritems():
+            if k.startswith(key) and not isinstance(v, dict):
+                yield v
+            if isinstance(v, dict):
+                for result in gen_dict_extract(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    for result in gen_dict_extract(key, d):
+                        yield result
+
+
+def add_report_info_16(report_info, report_info_list, es_json, annotations):
+    report_info['gender'] = set()
+    report_info['dcc_gender'] = annotations.get('gender').get(es_json.get('donor_unique_id')) if annotations.get('gender').get(es_json.get('donor_unique_id')) else None
+    if report_info.get('dcc_gender'): report_info['gender'].add(report_info['dcc_gender']) 
+    for vcf in ['sanger', 'dkfz_embl', 'broad', 'muse']:
+        report_info[vcf+'_gender'] = None
+        if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(vcf+'_variant_calling'):
+            if es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details') and \
+                es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics'):
+                v = list(gen_dict_extract('gender', es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics')))
+                report_info[vcf+'_gender'] = get_mapping(v[0]) if v else None
+                if report_info.get(vcf+'_gender'): report_info['gender'].add(report_info[vcf+'_gender'])
+    report_info_list.append(copy.deepcopy(report_info))
 
 
 def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
@@ -1249,6 +1342,13 @@ def read_annotations(annotations, type, file_name):
                 if line.startswith('#'): continue
                 if len(line.rstrip()) == 0: continue
                 annotations[type].add(line.rstrip())
+        elif type == 'gender':
+            annotations[type] = {}
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                # if not row.get('study_donor_involved_in') == 'PCAWG': continue
+                if not row.get('project_code') or not row.get('submitted_donor_id'): continue
+                annotations[type][row.get('project_code')+'::'+row.get('submitted_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
         else:
             print('unknown annotation type: {}'.format(type))
     return annotations
