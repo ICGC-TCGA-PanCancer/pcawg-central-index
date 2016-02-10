@@ -315,7 +315,7 @@ def read_annotations(annotations, type, file_name):
             annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
-                if not row.get('study_donor_involved_in') == 'PCAWG': continue
+                # if not row.get('study_donor_involved_in') == 'PCAWG': continue
                 annotations[type][row.get('icgc_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
         elif type == 'ega':
             annotations[type] = set()
