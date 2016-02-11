@@ -74,13 +74,14 @@ def download_metadata_xml(gnos_id, gnos_repo, download_dir=None):
     if process.returncode:
         # should not exit for just this error, improve it later
         logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download metadata file from {}.\nError message: {}'.format(url, err))
+        return False
 
     if not download_dir:
         with open(os.path.join(job_dir, gnos_id+'.xml'), 'r') as f: metadata_xml_str = f.read()
         os.remove(os.path.join(job_dir, gnos_id+'.xml'))
         return metadata_xml_str
-         
+    return True
+
 def get_gnos_key(gnos_repo):
     if 'osdc-tcga' in gnos_repo:
         gnos_key = '~/.ssh/gnos_key-tcga'
@@ -94,9 +95,9 @@ def download_datafiles(gnos_id, gnos_repo, download_dir):
     url = gnos_repo + 'cghub/data/analysis/download/' + gnos_id
     # datafiles_dir = download_dir + workflow_type
     gnos_key = get_gnos_key(gnos_repo)
-    for i in range(10):
+    for i in range(5):
         command =   'cd {} && '.format(download_dir) + \
-                    'gtdownload -c ' + gnos_key + ' ' + url
+                    'gtdownload -c ' + gnos_key + ' -k 20 ' + url
 
         process = subprocess.Popen(
                 command,
@@ -109,10 +110,10 @@ def download_datafiles(gnos_id, gnos_repo, download_dir):
 
         if not process.returncode:
             #os.remove(os.path.join(download_dir, gnos_id+'.gto'))
-            return
+            return True
         time.sleep(randint(1,10))  # pause a few seconds before retry
     logger.error('Unable to download datafiles for: {} from {}'.format(gnos_id, url))
-    sys.exit('Unable to download GNOS datafiles, please check the log for details.')
+    return False
 
 
 def generate_uuid():
@@ -155,15 +156,22 @@ def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir):
 
 
 def download_metadata_files(work_dir, donors_to_be_fixed):
-    for donor in donors_to_be_fixed:
+    donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
+    for donor in donors_to_be_fixed_old:
         caller = 'broad'
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         if os.path.isdir(gnos_entry_dir): 
             logger.warning('The donor: {} has downloaded files already!'.format(donor.get('donor_unique_id')))
             continue
-        download_datafiles(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
-        download_metadata_xml(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
-
+        success = download_datafiles(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
+        if not success:
+            donors_to_be_fixed.remove(donor)
+            continue
+        success = download_metadata_xml(donor.get(caller + '_gnos_id'), donor.get(caller + '_gnos_repo'), os.path.join(work_dir, 'downloads'))
+        if not success:
+            donors_to_be_fixed.remove(donor)
+            continue
+    return donors_to_be_fixed
 
 def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
     caller = 'broad'
@@ -487,7 +495,7 @@ def main(argv=None):
 
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
-    download_metadata_files(work_dir, donors_to_be_fixed)
+    donors_to_be_fixed = download_metadata_files(work_dir, donors_to_be_fixed)
 
     # validate working direcotry first
     print('\nValidating working directory...')
