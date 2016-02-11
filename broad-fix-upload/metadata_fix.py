@@ -97,7 +97,7 @@ def download_datafiles(gnos_id, gnos_repo, download_dir):
     gnos_key = get_gnos_key(gnos_repo)
     for i in range(5):
         command =   'cd {} && '.format(download_dir) + \
-                    'gtdownload -c ' + gnos_key + ' -k 20 ' + url
+                    'gtdownload -c ' + gnos_key + ' -k 10 ' + url
 
         process = subprocess.Popen(
                 command,
