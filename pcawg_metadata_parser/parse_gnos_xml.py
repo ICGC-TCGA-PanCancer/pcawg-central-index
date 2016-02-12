@@ -440,7 +440,12 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
     workflow_version = vcf_entry.get('workflow_details').get('variant_workflow_version')
 
-    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX2' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v3'
+
+    elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
         vcf_entry['vcf_workflow_result_version'] = 'v2'
