@@ -192,7 +192,7 @@ def find_cached_metadata_xml(gnos_id):
     return data
 
 
-def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow):
+def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations):
     
     for w in workflow:
         print('\nCollecting the GNOS xmls for workflow: {} of project: {}'.format(get_mapping(w), project))
@@ -209,27 +209,28 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 entry_type = row.get('entry_type')
                 if not get_mapping(entry_type) == w: continue
                 
-                latest_xml_str = download_metadata_xml(gnos_id)
-                latest_effective_xml_md5sum = effective_xml_md5sum(latest_xml_str)
-                cached_xml_str = find_cached_metadata_xml(gnos_id)
-                cached_effective_xml_md5sum = effective_xml_md5sum(cached_xml_str)
-                if not latest_effective_xml_md5sum == cached_effective_xml_md5sum:
-                    click.echo('Warning: BSC gnos xml has different effective md5sum with the cached xml for gnos_id: %s' % gnos_id, err=True)
-                    sys.exit(0)
-                
                 gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
-                with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
+                if not os.path.exists(gnos_xml_gz_file):
+                    latest_xml_str = download_metadata_xml(gnos_id)
+                    latest_effective_xml_md5sum = effective_xml_md5sum(latest_xml_str)
+                    cached_xml_str = find_cached_metadata_xml(gnos_id)
+                    cached_effective_xml_md5sum = effective_xml_md5sum(cached_xml_str)
+                    if not latest_effective_xml_md5sum == cached_effective_xml_md5sum:
+                        click.echo('Warning: BSC gnos xml has different effective md5sum with the cached xml for gnos_id: %s' % gnos_id, err=True)
+                        sys.exit(0)
+                    
+                    # gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
+                    with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
                 xml_gz_md5sum = get_md5(gnos_xml_gz_file, False)
                 gnos_xml = OrderedDict()
                 gnos_xml['filename'] = gnos_id+'/analysis.'+gnos_id+'.GNOS.xml.gz.gpg'
-                gnos_xml['checksum'] = None
+                gnos_xml['checksum'] = annotations.get('xml_encrypted_checksum').get(gnos_xml['filename']) if annotations.get('xml_encrypted_checksum').get(gnos_xml['filename']) else None
                 gnos_xml['unencrypted_checksum'] = xml_gz_md5sum
                 gnos_xml_sheet.append(copy.deepcopy(gnos_xml))
         if gnos_xml_sheet:
             out_dir = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info')
-            if not os.path.isdir(out_dir): os.makedirs(out_dir)
-            epoch_time = str(int(calendar.timegm(time.gmtime())))  
-            staged_files = os.path.join(out_dir, project+'.'+w+'_'+epoch_time+'.tsv')
+            if not os.path.isdir(out_dir): os.makedirs(out_dir)  
+            staged_files = os.path.join(out_dir, project+'.'+w+'.tsv')
             write_tsv_file(gnos_xml_sheet, staged_files)
 
 
@@ -328,6 +329,12 @@ def read_annotations(annotations, type, file_name):
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 annotations[type].add(row.get('dcc_project_code'))
+        elif type == 'xml_encrypted_checksum':
+            annotations[type] = {}
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                if row.get('path') and row.get('encrypted MD5'):
+                    annotations[type][row.get('path')] = row.get('encrypted MD5')
 
         else:
             logger.warning('unknown annotation type: {}'.format(type))
@@ -466,6 +473,7 @@ def main(argv=None):
     read_annotations(annotations, 'gender', ega_dir+'/annotation/donor.all_projects.release20.tsv')
     read_annotations(annotations, 'ega', ega_dir+'/file_info/file_info.tsv')
     read_annotations(annotations, 'project', ega_dir+'/annotation/project_info.tsv')
+    read_annotations(annotations, 'xml_encrypted_checksum', ega_dir+'/annotation/pancancer_xml_encrypted_checksum_2016_02_11.tsv')
 
     dcc_project_code = args.dcc_project_code
     dcc_project_code = list(dcc_project_code) if dcc_project_code else list(annotations.get('project'))
@@ -533,9 +541,9 @@ def main(argv=None):
             collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations)
 
         if workflow:
-            file_pattern = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info', project+'.*.tsv')
-            gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
-            collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow)
+            # file_pattern = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info', project+'.*.tsv')
+            # gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
+            collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations)
 
 
     return 0
