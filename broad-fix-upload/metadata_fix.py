@@ -497,6 +497,7 @@ def main(argv=None):
     print('\nDownloading data files and metadata XML from GNOS ...')
     donors_to_be_fixed = download_metadata_files(work_dir, donors_to_be_fixed)
 
+    print('\nThe number of donors to be fixed is: {}'.format(len(donors_to_be_fixed)))
     # validate working direcotry first
     print('\nValidating working directory...')
     validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir)
@@ -510,8 +511,8 @@ def main(argv=None):
     donors_to_be_fixed = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir)
 
     # write the fixed donor informaton 
-    write_file(donors_to_be_fixed, donor_list_file)
-    if not os.path.exists(donor_list_file): sys.exit('Fixed donor list file is missing!')
+    write_file(donors_to_be_fixed, 'fixed_'+donor_list_file)
+    if not os.path.exists('fixed_'+donor_list_file): sys.exit('Fixed donor list file is missing!')
     
     print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
     print('Processing log file: {}'.format(log_file))
