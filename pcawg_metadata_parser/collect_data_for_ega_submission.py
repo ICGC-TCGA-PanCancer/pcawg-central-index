@@ -344,13 +344,19 @@ def read_annotations(annotations, type, file_name):
 def generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded):
     files = glob.glob(file_pattern)
     for f in files:
-        with open(f, 'r') as fn:
-            reader = csv.DictReader(fn, delimiter='\t')
-            for r in reader:
-                if r.get('icgc_sample_id'):
-                    gnos_sample_ids_to_be_excluded.add(r.get('icgc_sample_id'))
-                if r.get('filename'):
-                    gnos_sample_ids_to_be_excluded.add(r.get('filename').split('/')[0])
+        if f.endswith('.xml'):
+            fname = str.split(f, '/')[-1]
+            gnos_id = str.split(fname, '.')[1]
+            gnos_sample_ids_to_be_excluded.add(gnos_id)
+
+        elif f.endswith('.tsv'):
+            with open(f, 'r') as fn:
+                reader = csv.DictReader(fn, delimiter='\t')
+                for r in reader:
+                    if r.get('icgc_sample_id'):
+                        gnos_sample_ids_to_be_excluded.add(r.get('icgc_sample_id'))
+                    if r.get('filename'):
+                        gnos_sample_ids_to_be_excluded.add(r.get('filename').split('/')[0])
 
     return gnos_sample_ids_to_be_excluded
 
@@ -393,18 +399,21 @@ def get_formal_vcf_name(vcf):
     return vcf_map.get(vcf)
 
 
-def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index):
+def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded):
     for dt in unstage_type:
         print('\nCheck the unstaging files for data_type: {} of project: {}'.format(dt, project))
+        file_pattern = os.path.join(ega_dir, project, get_mapping(dt), 'analysis','analysis.*.receipt-*.xml')
+        gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
+
         missing_files = set()
         for donor_unique_id in donors_list:
             es_json = get_donor_json(es, es_index, donor_unique_id)
-            if dt == 'wgs':
+            if dt == 'bwa':
                 analysis = es_json.get('wgs').get('normal_specimen').get('bwa_alignment')
-                add_files(analysis, missing_files, annotations)
+                add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded)
                 for aliquot in es_json.get('wgs').get('tumor_specimens'):        
                     analysis = aliquot.get('bwa_alignment')
-                    add_files(analysis, missing_files, annotations)
+                    add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded)
 
             elif dt == 'rna_seq':
                 pass
@@ -414,7 +423,7 @@ def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotat
                     if not aliquot.get(get_formal_vcf_name(dt)):
                         break                 
                     analysis = aliquot.get(get_formal_vcf_name(vcf))
-                    add_files(analysis, missing_files, annotations)
+                    add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded)
 
         if missing_files:    
             out_dir = os.path.join(ega_dir, 'file_info', 'bulk_report_of_files_missed_on_ftp_server')
@@ -423,7 +432,8 @@ def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotat
             with open(out_file, 'w') as o: o.write('\n'.join(sorted(missing_files)))        
 
 
-def add_files(analysis, missing_files, annotations):
+def add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded):
+    if gnos_sample_ids_to_be_excluded and analysis.get('gnos_id') in gnos_sample_ids_to_be_excluded: return
     filename = os.path.join(analysis.get('gnos_id'), 'analysis.'+analysis.get('gnos_id')+'.GNOS.xml.gz.gpg')
     if not filename in annotations.get('ega'):
         missing_files.add(filename)
@@ -533,7 +543,7 @@ def main(argv=None):
         donors_list = get_donors_list(es, es_index, project)
 
         if unstage_type:
-            generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index) 
+            generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded) 
 
         if seq:
             file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
