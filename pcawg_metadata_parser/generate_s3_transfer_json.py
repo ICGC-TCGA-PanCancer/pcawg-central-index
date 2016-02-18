@@ -621,7 +621,7 @@ def main(argv=None):
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
     if target_cloud == 'aws':
-        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
+        git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs-vcf-v3/*/*.json'
     elif target_cloud == 'collab':
         git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
     else:
