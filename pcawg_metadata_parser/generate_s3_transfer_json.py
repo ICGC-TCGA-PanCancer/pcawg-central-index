@@ -40,38 +40,38 @@ es_queries = [
                 "value": "donor"
               }
             },
-            # {
-            #   "terms": {
-            #     "dcc_project_code": [
-            #         "LIRI-JP",
-            #         "PACA-CA",
-            #         "PRAD-CA",
-            #         "RECA-EU",
-            #         "PAEN-AU",
-            #         "PACA-AU",
-            #         "BOCA-UK",
-            #         "OV-AU",
-            #         "MELA-AU",
-            #         "BRCA-UK"
-            #         "PRAD-UK",
-            #         "CMDI-UK",
-            #         "LINC-JP",
-            #         "ORCA-IN",
-            #         "BTCA-SG",
-            #         "LAML-KR",
-            #         "LICA-FR",
-            #         "CLLE-ES",
-            #         "ESAD-UK"
-            #     ]
-            #   }
-            # },
             {
-              "terms":{
-                "donor_unique_id":[
-                  "PACA-AU::ICGC_0088"
+              "terms": {
+                "dcc_project_code": [
+                    "LIRI-JP",
+                    "PACA-CA",
+                    "PRAD-CA",
+                    "RECA-EU",
+                    "PAEN-AU",
+                    "PACA-AU",
+                    "BOCA-UK",
+                    "OV-AU",
+                    "MELA-AU",
+                    "BRCA-UK"
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES",
+                    "ESAD-UK"
                 ]
               }
-            },           
+            },
+            # {
+            #   "terms":{
+            #     "donor_unique_id":[
+            #       "PACA-AU::ICGC_0088"
+            #     ]
+            #   }
+            # },           
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
