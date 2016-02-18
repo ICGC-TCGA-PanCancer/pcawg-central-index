@@ -64,14 +64,14 @@ es_queries = [
                 ]
               }
             },
-            {
-              "terms": {
-                "donor_unique_id": [
-                    "BTCA-SG::BTCA_donor_A153"
+            # {
+            #   "terms": {
+            #     "donor_unique_id": [
+            #         "BTCA-SG::BTCA_donor_A153"
 
-                ]
-              }
-            },
+            #     ]
+            #   }
+            # },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -370,9 +370,10 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
     # add tumor
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
     for aliquot in wgs_tumor_alignment_info:
-        # if not oxog_score.get(aliquot.get('aliquot_id')):
-        #     logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
-        #     return False
+        if not oxog_score.get(aliquot.get('aliquot_id')):
+        # if not oxog_score.get(aliquot.get('aliquot_id')) or float(oxog_score.get(aliquot.get('aliquot_id'))) >= 40:
+            logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
+            return False
         
         if not aliquot.get('aligned_bam'):
             logger.warning('The donor {} has no aligned_bam.'.format(es_json.get('donor_unique_id'))) 
@@ -672,7 +673,7 @@ def main(argv=None):
 
         # ensure the sanger and broad have fixed sv and snv version of files
         if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': 
-            logger.warning('donor: {} has no sanger-v2 variant calling'.format(donor_unique_id))
+            logger.warning('donor: {} has no sanger-v3 variant calling'.format(donor_unique_id))
             continue
         if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': 
             logger.warning('donor: {} has no broad-v2 variant calling'.format(donor_unique_id))
