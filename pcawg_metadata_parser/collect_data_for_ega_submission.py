@@ -551,8 +551,6 @@ def main(argv=None):
             collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations)
 
         if workflow:
-            # file_pattern = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info', project+'.*.tsv')
-            # gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
             collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations)
 
 
