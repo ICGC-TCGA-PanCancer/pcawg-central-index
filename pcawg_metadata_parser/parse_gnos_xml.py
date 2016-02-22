@@ -320,8 +320,8 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
             else:
                 if LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) > LooseVersion(workflow_previous.get('vcf_workflow_result_version')):
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous['gnos_id'])) 
+                    logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {} result version: {}'
+                        .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous.get('vcf_workflow_result_version'), workflow_previous['gnos_id'])) 
                 elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):                   
                     if current_vcf_entry['is_oct2015_entry']:
                         vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
