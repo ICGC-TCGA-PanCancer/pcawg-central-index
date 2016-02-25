@@ -197,7 +197,7 @@ def get_donors(fname):
     donors = []
     with open(fname) as f:
         for d in f:
-            if len(d.rstrip()) == 0: continue
+            if not d.strip(): continue
             donors.append(d.rstrip())
     return donors
 
