@@ -492,11 +492,13 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
             vcf_entry['vcf_workflow_result_version'] = 'v1'   
         else:
             vcf_entry['vcf_workflow_type'] = 'Unknown_broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016
             logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
                      .format(vcf_entry.get('workflow_details')['workflow_file_subset'], donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
             
     else:
         vcf_entry['vcf_workflow_type'] = 'Unknown'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016 to avoid code crash when an unknow variant call entry shows up
         logger.warning('the entry is variant calling but likely is test entry, donor: {} GNOS entry: {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
 
