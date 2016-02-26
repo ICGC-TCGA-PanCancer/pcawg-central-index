@@ -43,24 +43,24 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                    "LIRI-JP",
-                    "PACA-CA",
-                    "PRAD-CA",
-                    "RECA-EU",
-                    "PAEN-AU",
-                    "PACA-AU",
-                    "BOCA-UK",
-                    "OV-AU",
-                    "MELA-AU",
-                    "BRCA-UK",
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES"
+                    # "LIRI-JP",
+                    "PACA-CA"
+                    # "PRAD-CA",
+                    # "RECA-EU",
+                    # "PAEN-AU",
+                    # "PACA-AU",
+                    # "BOCA-UK",
+                    # "OV-AU",
+                    # "MELA-AU",
+                    # "BRCA-UK",
+                    # "PRAD-UK",
+                    # "CMDI-UK",
+                    # "LINC-JP",
+                    # "ORCA-IN",
+                    # "BTCA-SG",
+                    # "LAML-KR",
+                    # "LICA-FR",
+                    # "CLLE-ES"
                 ]
               }
             },
@@ -370,8 +370,8 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
     # add tumor
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
     for aliquot in wgs_tumor_alignment_info:
-        if not oxog_score.get(aliquot.get('aliquot_id')):
-        # if not oxog_score.get(aliquot.get('aliquot_id')) or float(oxog_score.get(aliquot.get('aliquot_id'))) >= 40:
+        # if not oxog_score.get(aliquot.get('aliquot_id')):
+        if not oxog_score.get(aliquot.get('aliquot_id')) or float(oxog_score.get(aliquot.get('aliquot_id'))) >= 40:
             logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
             return False
         
@@ -672,7 +672,7 @@ def main(argv=None):
         es_json = get_donor_json(es, es_index, donor_unique_id)
 
         # ensure the sanger and broad have fixed sv and snv version of files
-        if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v2': 
+        if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v3': 
             logger.warning('donor: {} has no sanger-v3 variant calling'.format(donor_unique_id))
             continue
         if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': 
