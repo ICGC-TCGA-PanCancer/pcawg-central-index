@@ -484,6 +484,9 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
             vcf_entry['vcf_workflow_type'] = 'broad'
             vcf_entry['vcf_workflow_result_version'] = 'v2'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v3':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v3'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
             vcf_entry['vcf_workflow_result_version'] = 'v1'
