@@ -192,7 +192,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
      
 
     # only do the following when it is WGS
-    if bam_file.get('library_strategy') == 'WGS':
+    if bam_file.get('library_strategy') == 'WGS' and bam_file.get('bam_type') == 'Specimen level aligned BAM':
         if 'normal' in bam_file.get('dcc_specimen_type').lower(): # normal
             if donors.get(donor_unique_id).get('normal_specimen'): # normal specimen exists
                 if donors.get(donor_unique_id).get('normal_specimen').get('aliquot_id') == gnos_analysis.get('aliquot_id'):
