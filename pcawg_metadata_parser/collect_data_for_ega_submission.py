@@ -20,11 +20,13 @@ import hashlib
 import subprocess
 import time
 import calendar
+import ftplib
 
 
 logger = logging.getLogger('Collect sample and gnos_xml data')
 ch = logging.StreamHandler()
 
+ega_box_token = os.environ.get('EGA_TOKEN')
 
 def generate_es_query(dcc_project_code):
     es_query = {
@@ -399,7 +401,7 @@ def get_formal_vcf_name(vcf):
     return vcf_map.get(vcf)
 
 
-def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded):
+def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids):
     for dt in unstage_type:
         print('\nCheck the unstaging files for data_type: {} of project: {}'.format(dt, project))
         file_pattern = os.path.join(ega_dir, project, get_mapping(dt), 'analysis','analysis.*.receipt-*.xml')
@@ -410,10 +412,10 @@ def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotat
             es_json = get_donor_json(es, es_index, donor_unique_id)
             if dt == 'bwa':
                 analysis = es_json.get('wgs').get('normal_specimen').get('bwa_alignment')
-                add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded)
+                add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids)
                 for aliquot in es_json.get('wgs').get('tumor_specimens'):        
                     analysis = aliquot.get('bwa_alignment')
-                    add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded)
+                    add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids)
 
             elif dt == 'rna_seq':
                 pass
@@ -423,7 +425,7 @@ def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotat
                     if not aliquot.get(get_formal_vcf_name(dt)):
                         break                 
                     analysis = aliquot.get(get_formal_vcf_name(vcf))
-                    add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded)
+                    add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids)
 
         if missing_files:    
             out_dir = os.path.join(ega_dir, 'file_info', 'bulk_report_of_files_missed_on_ftp_server')
@@ -432,16 +434,38 @@ def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotat
             with open(out_file, 'w') as o: o.write('\n'.join(sorted(missing_files)))        
 
 
-def add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded):
+def add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids):
     if gnos_sample_ids_to_be_excluded and analysis.get('gnos_id') in gnos_sample_ids_to_be_excluded: return
-    filename = os.path.join(analysis.get('gnos_id'), 'analysis.'+analysis.get('gnos_id')+'.GNOS.xml.gz.gpg')
-    if not filename in annotations.get('ega'):
+    # check if ftp has the folder, if not then all the files are missing for this analysis_id
+    if ftp_gnos_ids and analysis.get('gnos_id') not in ftp_gnos_ids:
+        filename = os.path.join(analysis.get('gnos_id'), 'analysis.'+analysis.get('gnos_id')+'.GNOS.xml.gz.gpg')
         missing_files.add(filename)
+        for f in analysis.get('files'):
+            filename = os.path.join(analysis.get('gnos_id'), f.get('file_name')+'.gpg')
+            missing_files.add(filename)
+        return
+    # if ftp has the folder, check first if the files have the information in file_info, if not check if they exist in the ftp
+    filename = os.path.join(analysis.get('gnos_id'), 'analysis.'+analysis.get('gnos_id')+'.GNOS.xml.gz.gpg')
+    ftp_files = None
+    if not filename in annotations.get('ega'):
+        ftp_files = get_ftp_files(ftp, analysis.get('gnos_id'))
+        if not ftp_files: print('\nWarning: FTP did not response for analysis_id: {}'.format(analysis.get('gnos_id')))
+        if ftp_files and not filename in ftp_files: missing_files.add(filename)
     for f in analysis.get('files'):
         filename = os.path.join(analysis.get('gnos_id'), f.get('file_name')+'.gpg')
         if not filename in annotations.get('ega'):
-            missing_files.add(filename)
+            if not ftp_files: ftp_files = get_ftp_files(ftp, analysis.get('gnos_id'))
+            if not ftp_files: print('\nWarning: FTP did not response for analysis_id: {}'.format(analysis.get('gnos_id')))
+            if ftp_files and not filename in ftp_files: missing_files.add(filename)
     return missing_files
+
+def get_ftp_files(ftp, gnos_id):
+    try:
+        ftp_files = set(ftp.nlst(gnos_id))
+    except:
+        return
+
+    return ftp_files
 
 
 def main(argv=None):
@@ -539,11 +563,16 @@ def main(argv=None):
     pcawg_sample_sheet = ega_dir+'/annotation/pcawg_sample_sheet.2016-01-13.tsv'
     pcawg_gnos_id_sheet = metadata_dir+'/reports/pcawg_summary_entry.tsv'
 
+    # connect with the ftp
+    ftp=ftplib.FTP('ftp.ega.ebi.ac.uk', 'ega-box-520', ega_box_token)
+    ftp_gnos_ids = set(ftp.nlst())
+
+
     for project in dcc_project_code:
         donors_list = get_donors_list(es, es_index, project)
 
         if unstage_type:
-            generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded) 
+            generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids) 
 
         if seq:
             file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
