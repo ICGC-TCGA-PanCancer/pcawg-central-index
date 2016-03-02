@@ -44,7 +44,7 @@ es_queries = [
               "terms": {
                 "dcc_project_code": [
                     # "LIRI-JP",
-                    "PACA-CA"
+                    #"PACA-CA",
                     # "PRAD-CA",
                     # "RECA-EU",
                     # "PAEN-AU",
@@ -60,7 +60,8 @@ es_queries = [
                     # "BTCA-SG",
                     # "LAML-KR",
                     # "LICA-FR",
-                    # "CLLE-ES"
+                    # "CLLE-ES",
+                    "EPOC-DE"
                 ]
               }
             },
@@ -140,11 +141,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            {
-              "regexp": {
-                "dcc_project_code": ".*-DE"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-DE"
+            #   }
+            # },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -355,7 +356,7 @@ def cloud_transfer(target_compute_site, aliquot):
         if not aliquot.get('is_s3_transfer_completed'):# or not aliquot.get('is_s3_qc_matched'):
             return False
     elif target_compute_site == 'collab':
-        if not aliquot.get('is_ceph_transfer_completed') or not aliquot.get('is_ceph_qc_matched'):
+        if not aliquot.get('is_ceph_transfer_completed'):# or not aliquot.get('is_ceph_qc_matched'):
             return False        
     else:
         return True
@@ -675,8 +676,8 @@ def main(argv=None):
         if not es_json.get('variant_calling_results').get('sanger_variant_calling').get('vcf_workflow_result_version') == 'v3': 
             logger.warning('donor: {} has no sanger-v3 variant calling'.format(donor_unique_id))
             continue
-        if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v2': 
-            logger.warning('donor: {} has no broad-v2 variant calling'.format(donor_unique_id))
+        if not es_json.get('variant_calling_results').get('broad_variant_calling').get('vcf_workflow_result_version') == 'v3': 
+            logger.warning('donor: {} has no broad-v3 variant calling'.format(donor_unique_id))
             continue
 
         job_json = create_job_json(es_json)       
