@@ -22,6 +22,7 @@ import hashlib
 import xml.dom.minidom
 import shutil
 import requests
+import csv
 
 id_service_token = os.environ.get('ICGC_TOKEN')
 
@@ -61,7 +62,7 @@ es_queries = [
                     # "LAML-KR",
                     # "LICA-FR",
                     # "CLLE-ES",
-                    "EPOC-DE"
+                    "EOPC-DE"
                 ]
               }
             },
@@ -552,11 +553,10 @@ def get_oxog_scores(oxog_scores):
        files = glob.glob(oxog_scores)
        for fname in files:
           with open(fname) as f:
-              for line in f:
-                  if line.startswith('aliquot'): continue
-                  if len(line.rstrip()) == 0: continue
-                  aliquot_id, oxog = str.split(line.rstrip(), '\t')
-                  oxog_score[aliquot_id] = oxog
+              reader = csv.DictReader(f, delimiter='\t')
+              for row in reader:
+                  if not row.get('aliquot_GUUID'): continue
+                  oxog_score[row.get('aliquot_GUUID')] = row.get('picard_oxoQ')
     return oxog_score
 
 def create_job_json(es_json):
@@ -636,12 +636,12 @@ def main(argv=None):
     else:
         donors_list = donor_ids_to_be_included
 
-
     # exclude the donors if they were specified on the exclude_donor_id_lists
     donors_list.difference_update(donor_ids_to_be_excluded)
 
     # read oxog_scores files
     oxog_score = get_oxog_scores(oxog_scores)
+
 
     report_dir = re.sub(r'^generate_', '', os.path.basename(__file__))
     report_dir = re.sub(r'\.py$', '', report_dir)
