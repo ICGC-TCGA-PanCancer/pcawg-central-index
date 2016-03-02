@@ -318,59 +318,68 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                                     .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
             
             else:
-                if current_vcf_entry['is_oct2015_entry']:
+                if LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) > LooseVersion(workflow_previous.get('vcf_workflow_result_version')):
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the oct2015_freeze_entry: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                elif current_vcf_entry['is_s3_transfer_scheduled']:
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the one scheduled for S3 transfer: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                
-                elif current_vcf_entry['is_aug2015_entry']:
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the aug2015_freeze_entry: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {}'
+                        .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous['gnos_id'])) 
+                elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):                   
+                    if current_vcf_entry['is_oct2015_entry']:
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the oct2015_freeze_entry: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    elif current_vcf_entry['is_s3_transfer_scheduled']:
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the one scheduled for S3 transfer: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    
+                    elif current_vcf_entry['is_aug2015_entry']:
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the aug2015_freeze_entry: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
 
-                elif current_vcf_entry['is_santa_cruz_entry']:
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the santa_cruz_freeze_entry: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    elif current_vcf_entry['is_santa_cruz_entry']:
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the santa_cruz_freeze_entry: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
 
-                elif annotations.get(variant_workflow) and current_vcf_entry.get('gnos_id') in annotations.get(variant_workflow):
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the one in whitelist: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    elif annotations.get(variant_workflow) and current_vcf_entry.get('gnos_id') in annotations.get(variant_workflow):
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the one in whitelist: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
 
-                elif annotations.get(variant_workflow+'_vcf_in_jamboree') and \
-                       annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) and \
-                         annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'):
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the one already saved in Jamboree: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                         
+                    elif annotations.get(variant_workflow+'_vcf_in_jamboree') and \
+                           annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) and \
+                             annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'):
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the one already saved in Jamboree: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                         
 
+                    else:
+                        workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
+                        workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
+                        gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
+                        gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
+
+                        if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
+                            logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                                .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
+                                    current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                    workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                            vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                        elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
+                             and gnos_updated_current > gnos_updated_previous: # current is newer
+                            logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                                .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
+                                    current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                    workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                            vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                        else: # no need to replace
+                            logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
+                                .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
                 else:
-                    workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
-                    workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
-                    gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
-                    gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
-
-                    if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
-                        logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
-                            .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
-                                current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
-                                workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
-                        vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-                    elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
-                         and gnos_updated_current > gnos_updated_previous: # current is newer
-                        logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
-                            .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
-                                current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
-                                workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
-                        vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-                    else: # no need to replace
-                        logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
-                            .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
+                    # no need to replace
+                    logger.warning('{} variant calling result already exist and has latest result version for donor: {}, ignoring entry {} in {}'
+                                  .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
 
     
 
@@ -403,6 +412,10 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
+        "is_s3_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('s3_qc_matched') else False,
+        "is_ceph_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_scheduled') else False,
+        "is_ceph_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_completed') else False,
+        "is_ceph_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_qc_matched') else False,
         "exists_xml_md5sum_mismatch": False,
         "variant_calling_performed_at": gnos_analysis.get('analysis_xml').get('ANALYSIS_SET').get('ANALYSIS').get('@center_name'),
         "workflow_details": {
@@ -431,34 +444,51 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
     workflow_version = vcf_entry.get('workflow_details').get('variant_workflow_version')
 
-    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v2'
+
+    elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name.startswith('EMBLPancancer') and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
         vcf_entry['vcf_workflow_type'] = 'embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZPancancerCnIndelSnv' and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz'      
+        vcf_entry['vcf_workflow_type'] = 'dkfz'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'   
 
     elif workflow_name == 'EMBLDKFZPancancerStrCnIndelSNV' and LooseVersion(workflow_version) >= LooseVersion('1.0.5'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'      
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZ_EMBL_Combined_HPC':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZ_EMBL_Merged':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'BROAD_MUSE_PIPELINE' or workflow_name == 'BROAD_MUSE_PIPELINE_SEVEN_BRIDGES':
         vcf_entry.get('workflow_details')['workflow_file_subset'] = analysis_attrib.get('workflow_file_subset')
         vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
         if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
             vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v2'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad_tar':
-            vcf_entry['vcf_workflow_type'] = 'broad_tar'   
+            vcf_entry['vcf_workflow_type'] = 'broad_tar'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'   
         else:
             vcf_entry['vcf_workflow_type'] = 'Unknown_broad'
             logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
@@ -521,6 +551,10 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
+        "is_s3_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('s3_qc_matched') else False,
+        "is_ceph_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_scheduled') else False,
+        "is_ceph_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_transfer_completed') else False,
+        "is_ceph_qc_matched": True if gnos_analysis.get('analysis_id') in annotations.get('ceph_qc_matched') else False,
 
         "library_strategy": gnos_analysis.get('library_strategy'),
         "gnos_repo": gnos_analysis.get('analysis_detail_uri').split('/cghub/')[0] + '/',
@@ -680,6 +714,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_cell_line': is_cell_line(analysis_attrib, gnos_analysis),
             'is_train2_donor': False,
             'is_train2_pilot': False,
+            'has_validation_data': True if donor_unique_id in annotations.get('validation') else False,
             'is_santa_cruz_donor': True if donor_unique_id in annotations.get('santa_cruz').get('donor') else False,
             'is_aug2015_donor': True if donor_unique_id in annotations.get('aug2015').get('donor') else False,
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
@@ -879,13 +914,17 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'oct2015', '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
+    read_annotations(annotations, 's3_qc_matched', '../s3-transfer-operations/s3-qc-jobs*/match-jobs/*.json')
+    read_annotations(annotations, 'ceph_transfer_scheduled', '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json')
+    read_annotations(annotations, 'ceph_transfer_completed', '../ceph_transfer_ops/ceph-transfer-jobs*/completed-jobs/*.json')
+    read_annotations(annotations, 'ceph_qc_matched', '../ceph_transfer_ops/ceph-qc-jobs*/match-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
     read_annotations(annotations, 'uuid_to_barcode', 'pc_annotation-tcga_uuid2barcode.tsv')    
     read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
     read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
-
+    read_annotations(annotations, 'validation', 'pc_annotation-validation-50.txt')
 
 
     # hard-code the file name for now    
@@ -977,7 +1016,7 @@ def read_train2_bams(filename):
 
 def read_annotations(annotations, type, file_name):
 
-    if type in ['s3_transfer_scheduled', 's3_transfer_completed']:
+    if type in ['s3_transfer_scheduled', 's3_transfer_completed', 's3_qc_matched', 'ceph_transfer_scheduled', 'ceph_transfer_completed', 'ceph_qc_matched']:
         annotations[type] = set()
         files = glob.glob(file_name)
         for f in files:
@@ -1006,7 +1045,7 @@ def read_annotations(annotations, type, file_name):
                     donor_id, ao_id = str.split(line.rstrip(), '\t')
                     annotations[type][donor_id] = ao_id
                     
-            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed', 'validation']:
                 annotations[type] = set()
                 for line in r:
                     if line.startswith('#'): continue
@@ -1815,7 +1854,11 @@ def create_aggregated_bam_info_dict(bam):
             "is_aug2015_entry": bam['is_aug2015_entry'],
             "is_oct2015_entry": bam['is_oct2015_entry'],
             "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
-            "is_s3_transfer_completed": bam['is_s3_transfer_completed']
+            "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
+            "is_s3_qc_matched": bam['is_s3_qc_matched'],
+            "is_ceph_transfer_scheduled": bam['is_ceph_transfer_scheduled'],
+            "is_ceph_transfer_completed": bam['is_ceph_transfer_completed'],
+            "is_ceph_qc_matched": bam['is_ceph_qc_matched']
          },
          "bam_with_unmappable_reads": {},
          "unaligned_bams": {}
@@ -2148,6 +2191,11 @@ def create_aggregated_rna_bam_info(bam):
         "is_oct2015_entry": bam['is_oct2015_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
         "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
+        "is_s3_qc_matched": bam['is_s3_qc_matched'],
+        "is_ceph_transfer_scheduled": bam['is_ceph_transfer_scheduled'],  
+        "is_ceph_transfer_completed": bam['is_ceph_transfer_completed'],
+        "is_ceph_qc_matched": bam['is_ceph_qc_matched'],
+
         "exists_xml_md5sum_mismatch": False,           
         "aligned_bam": {
             "gnos_repo": [bam['gnos_repo']],
