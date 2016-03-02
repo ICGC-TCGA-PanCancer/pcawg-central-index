@@ -192,7 +192,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
      
 
     # only do the following when it is WGS
-    if bam_file.get('library_strategy') == 'WGS':
+    if bam_file.get('library_strategy') == 'WGS' and bam_file.get('bam_type') == 'Specimen level aligned BAM':
         if 'normal' in bam_file.get('dcc_specimen_type').lower(): # normal
             if donors.get(donor_unique_id).get('normal_specimen'): # normal specimen exists
                 if donors.get(donor_unique_id).get('normal_specimen').get('aliquot_id') == gnos_analysis.get('aliquot_id'):
@@ -320,8 +320,8 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
             else:
                 if LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) > LooseVersion(workflow_previous.get('vcf_workflow_result_version')):
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous['gnos_id'])) 
+                    logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {} result version: {}'
+                        .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous.get('vcf_workflow_result_version'), workflow_previous['gnos_id'])) 
                 elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):                   
                     if current_vcf_entry['is_oct2015_entry']:
                         vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
@@ -444,7 +444,12 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
     workflow_version = vcf_entry.get('workflow_details').get('variant_workflow_version')
 
-    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX2' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v3'
+
+    elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
         vcf_entry['vcf_workflow_result_version'] = 'v2'
@@ -483,6 +488,9 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
             vcf_entry['vcf_workflow_type'] = 'broad'
             vcf_entry['vcf_workflow_result_version'] = 'v2'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v3':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v3'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
             vcf_entry['vcf_workflow_result_version'] = 'v1'
@@ -491,11 +499,13 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
             vcf_entry['vcf_workflow_result_version'] = 'v1'   
         else:
             vcf_entry['vcf_workflow_type'] = 'Unknown_broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016
             logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
                      .format(vcf_entry.get('workflow_details')['workflow_file_subset'], donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
             
     else:
         vcf_entry['vcf_workflow_type'] = 'Unknown'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016 to avoid code crash when an unknow variant call entry shows up
         logger.warning('the entry is variant calling but likely is test entry, donor: {} GNOS entry: {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
 
