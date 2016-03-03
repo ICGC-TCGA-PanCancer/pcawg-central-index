@@ -42,6 +42,7 @@ def download_metadata_xml(gnos_repo, ao_uuid):
         pass
 
     if not response or not response.ok:
+        print('Unable to download {}'.format(url))
         return None
     else:
         metadata_xml_str = response.text
