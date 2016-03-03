@@ -150,9 +150,9 @@ def read_annotations(annotations, type, file_name):
                     if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
                     annotations[type][donor_unique_id][row.get('old_submitter_id')] = row.get('new_submitter_id')
                 elif row.get('project_code') == 'MELA-AU':
-                    donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
+                    donor_unique_id = row.get('project_code')+'::'+row.get('pcawg_submitter_donor_id')
                     if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
-                    annotations[type][donor_unique_id][row.get('pcawg_submitter_id')] = row.get('dcc_submitter_id')                    
+                    annotations[type][donor_unique_id][row.get('pcawg_submitter_specimen_id')] = row.get('dcc_submitter_specimen_id')                    
                 else:
                     continue
 
@@ -186,8 +186,8 @@ def main(argv=None):
 
     parser = ArgumentParser(description="Compare the effective xml md5sum among repos",
              formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument("-f", "--information for metadata update", dest="fname",
-             help="Specify file to update the metadata", required=False)
+    parser.add_argument("-f", "--information for gnos entries", dest="fname",
+             help="Specify file to update the metadata", required=True)
     parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir",
              help="Specify output folder for the fixed metadata", required=False)
 
@@ -215,6 +215,7 @@ def main(argv=None):
     read_annotations(annotations, 'mismatch_metadata', 'specimens_with_mismatch_effective_xml_md5sum.txt')
     read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
     read_annotations(annotations, 'id_mapping', 'PAEN-AU_id_fixes.tsv')
+    read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv')
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
@@ -278,13 +279,6 @@ def main(argv=None):
                 fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
                 fixed_metadata['fixed_type'] = 'fixed_mismatch'
                 if fixed_metadata['gnos_repo_download'] == fixed_metadata['gnos_repo_original']: continue
-                # # download orignal xml 
-                # xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_original']), fixed_metadata['gnos_id'])
-                # generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'orignal')
-                # # download from the repo with metadata fixed copy
-                # xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
-                # generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, fixed_metadata['fixed_type'])
-                # generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'fixed_all')
 
             else:
                 print('Warning: {} not any of the above situations!!!'.format(row.get('gnos_id'))) 
