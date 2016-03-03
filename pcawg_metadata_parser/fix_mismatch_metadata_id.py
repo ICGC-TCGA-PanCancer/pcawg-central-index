@@ -149,6 +149,10 @@ def read_annotations(annotations, type, file_name):
                     donor_unique_id = row.get('submitter_donor_id')
                     if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
                     annotations[type][donor_unique_id][row.get('old_submitter_id')] = row.get('new_submitter_id')
+                elif row.get('project_code') == 'MELA-AU':
+                    donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
+                    if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                    annotations[type][donor_unique_id][row.get('pcawg_submitter_id')] = row.get('dcc_submitter_id')                    
                 else:
                     continue
 
