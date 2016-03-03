@@ -48,24 +48,6 @@ def download_metadata_xml(gnos_repo, ao_uuid):
         return metadata_xml_str
 
 
-    # url = gnos_repo + '/cghub/metadata/analysisFull/' + ao_uuid
-    # command =   'wget ' + url + ' -O ' + 'tmp.xml'
-    # process = subprocess.Popen(
-    #         command,
-    #         shell=True,
-    #         stdout=subprocess.PIPE,
-    #         stderr=subprocess.PIPE
-    #     )
-    # out, err = process.communicate()
-    # if process.returncode:
-    #     # should not exit for just this error, improve it later
-    #     sys.exit('Unable to download metadata file from {}.\nError message: {}'.format(url, err))
-
-    # with open('tmp.xml', 'r') as f: xml_str = f.read()
-    # return xml_str
-
-
-
 def get_formal_repo_name(repo):
     repo_url_to_repo = {
       "https://gtrepo-bsc.annailabs.com/": "bsc",
