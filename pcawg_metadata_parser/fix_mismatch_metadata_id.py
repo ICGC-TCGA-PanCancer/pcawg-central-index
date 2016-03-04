@@ -73,6 +73,7 @@ def get_formal_repo_name(repo):
 
 def fix_illegal_id(xml_str, id_mapping):
     for key, value in id_mapping.iteritems():
+        key = key.replace('*', '\*')
         xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
         xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
         xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)        
@@ -87,8 +88,11 @@ def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
     
     for xml_subtype in ['analysis', 'experiment', 'run']:
         if xmltodict.parse(xml_str).get('ResultSet').get('Result').get(xml_subtype+'_xml'):
-            eq_xml = json.dumps(xmltodict.parse(xml_str).get('ResultSet').get('Result').get(xml_subtype+'_xml'), indent=4, sort_keys=True)
-            xml_subtype_str = xmltodict.unparse(json.loads(eq_xml), pretty=True)
+            xml_subtype_str = xmltodict.unparse(
+                                                xmltodict.parse(xml_str).
+                                                get('ResultSet').
+                                                get('Result').
+                                                get(xml_subtype+'_xml'), pretty=True)
             with open(xml_dir+'/'+ xml_subtype+ '.xml', 'w') as y:
                 y.write(xml_subtype_str)
 
