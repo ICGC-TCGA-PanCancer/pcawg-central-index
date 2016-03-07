@@ -243,8 +243,10 @@ def check_vcf(es_json, vcf_calling):
         else: 
             return True
     elif vcf_calling == 'sanger':
-        if not es_json.get('variant_calling_results').get(get_formal_vcf_name(vcf_calling)).get('vcf_workflow_result_version') == 'v3':
+        if not es_json.get('variant_calling_results').get(get_formal_vcf_name('sanger')).get('vcf_workflow_result_version') == 'v3':
             return False
+        else:
+            return True
     else:
         return True
 
@@ -649,8 +651,11 @@ def main(argv=None):
     # include the entries with gnos_ids in gnos_ids_to_be_included when this option is chosen
     gnos_ids_to_be_included = generate_id_list(include_gnos_id_lists)
 
-    # remove the gnos_ids_to_be_include from gnos_ids_to_be_excluded
-    gnos_ids_to_be_excluded.difference_update(gnos_ids_to_be_included) 
+    # # remove the gnos_ids_to_be_include from gnos_ids_to_be_excluded
+    # gnos_ids_to_be_excluded.difference_update(gnos_ids_to_be_included) 
+
+    # remove the gnos_ids_to_be_excluded from gnos_ids_to_be_included
+    gnos_ids_to_be_included.difference_update(gnos_ids_to_be_excluded)
 
     donors_list = sorted(donors_list)  
     simple_release_tsv = []
