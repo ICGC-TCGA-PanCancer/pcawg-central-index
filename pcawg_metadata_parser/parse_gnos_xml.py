@@ -323,7 +323,11 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                     logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {} result version: {}'
                         .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous.get('vcf_workflow_result_version'), workflow_previous['gnos_id'])) 
                 elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):                   
-                    if current_vcf_entry['is_oct2015_entry']:
+                    if current_vcf_entry['is_mar2016_entry']:
+                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                        logger.info(workflow_label+' results for donor: {}. Keep the mar2016_freeze_entry: {}, additional {}'
+                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    elif current_vcf_entry['is_oct2015_entry']:
                         vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
                         logger.info(workflow_label+' results for donor: {}. Keep the oct2015_freeze_entry: {}, additional {}'
                             .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
@@ -410,6 +414,7 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
+        "is_mar2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('mar2016').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
         "exists_xml_md5sum_mismatch": False,
@@ -555,6 +560,7 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
+        "is_mar2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('mar2016').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
 
@@ -719,6 +725,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_santa_cruz_donor': True if donor_unique_id in annotations.get('santa_cruz').get('donor') else False,
             'is_aug2015_donor': True if donor_unique_id in annotations.get('aug2015').get('donor') else False,
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
+            'is_mar2016_donor': True if donor_unique_id in annotations.get('mar2016').get('donor') else False,
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -913,6 +920,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
     read_annotations(annotations, 'aug2015', '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv')
     read_annotations(annotations, 'oct2015', '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv')
+    read_annotations(annotations, 'mar2016', '../pcawg-operations/data_releases/mar2016/pre_release_mar2016_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
@@ -1049,7 +1057,7 @@ def read_annotations(annotations, type, file_name):
                     if len(line.rstrip()) == 0: continue
                     annotations[type].add(line.rstrip())
 
-            elif type in ['santa_cruz', 'aug2015', 'oct2015']:
+            elif type in ['santa_cruz', 'aug2015', 'oct2015', 'mar2016']:
                 annotations[type] = {
                     'donor': set(),
                     'gnos_id': set()
@@ -1283,7 +1291,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                         bam_file.get('bam_gnos_ao_id')),
                                 'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                                 'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
-                                'is_oct2015_entry': bam_file.get('is_oct2015_entry')
+                                'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
+                                'is_mar2016_entry': bam_file.get('is_mar2016_entry')
                             }
                         )
                 else:
@@ -1305,7 +1314,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                         bam_file.get('bam_gnos_ao_id')),
                                 'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                                 'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
-                                'is_oct2015_entry': bam_file.get('is_oct2015_entry')
+                                'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
+                                'is_mar2016_entry': bam_file.get('is_mar2016_entry')
                             }
                         ]
                     }
@@ -1333,7 +1343,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                     bam_file.get('bam_gnos_ao_id')),
                             'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                             'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
-                            'is_oct2015_entry': bam_file.get('is_oct2015_entry')
+                            'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
+                            'is_mar2016_entry': bam_file.get('is_mar2016_entry')
                         }
                     )
 
@@ -1850,6 +1861,7 @@ def create_aggregated_bam_info_dict(bam):
             "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
             "is_aug2015_entry": bam['is_aug2015_entry'],
             "is_oct2015_entry": bam['is_oct2015_entry'],
+            "is_mar2016_entry": bam['is_mar2016_entry'],
             "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
             "is_s3_transfer_completed": bam['is_s3_transfer_completed']
          },
@@ -1904,7 +1916,11 @@ def bam_aggregation(bam_files):
                     alignment_status['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
                     
             else:
-                if bam['is_oct2015_entry']:
+                if bam['is_mar2016_entry']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in mar2016: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
+                elif bam['is_oct2015_entry']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in oct2015: {}, additional: {}'
                         .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
@@ -2072,7 +2088,12 @@ def bam_aggregation(bam_files):
 
 
                 else:
-                    if bam['is_oct2015_entry']:
+                    if bam['is_mar2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in mar2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('tophat').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_oct2015_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in oct2015: {}, additional: {}'
@@ -2126,7 +2147,12 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
                 else:
-                    if bam['is_oct2015_entry']:
+                    if bam['is_mar2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in mar2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('star').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_oct2015_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in oct2015: {}, additional: {}'
@@ -2182,6 +2208,7 @@ def create_aggregated_rna_bam_info(bam):
         "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
         "is_aug2015_entry": bam['is_aug2015_entry'],
         "is_oct2015_entry": bam['is_oct2015_entry'],
+        "is_mar2016_entry": bam['is_mar2016_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
         "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
         "exists_xml_md5sum_mismatch": False,           
