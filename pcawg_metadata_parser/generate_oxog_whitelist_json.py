@@ -41,31 +41,31 @@ es_queries = [
                 "value": "donor"
               }
             },
-            {
-              "terms": {
-                "dcc_project_code": [
-                    # "LIRI-JP",
-                    #"PACA-CA",
-                    # "PRAD-CA",
-                    # "RECA-EU",
-                    # "PAEN-AU",
-                    # "PACA-AU",
-                    # "BOCA-UK",
-                    # "OV-AU",
-                    # "MELA-AU",
-                    # "BRCA-UK",
-                    # "PRAD-UK",
-                    # "CMDI-UK",
-                    # "LINC-JP",
-                    # "ORCA-IN",
-                    # "BTCA-SG",
-                    # "LAML-KR",
-                    # "LICA-FR",
-                    # "CLLE-ES",
-                    "EOPC-DE"
-                ]
-              }
-            },
+            # {
+            #   "terms": {
+            #     "dcc_project_code": [
+            #         # "LIRI-JP",
+            #         #"PACA-CA",
+            #         # "PRAD-CA",
+            #         # "RECA-EU",
+            #         # "PAEN-AU",
+            #         # "PACA-AU",
+            #         # "BOCA-UK",
+            #         # "OV-AU",
+            #         # "MELA-AU",
+            #         # "BRCA-UK",
+            #         # "PRAD-UK",
+            #         # "CMDI-UK",
+            #         # "LINC-JP",
+            #         # "ORCA-IN",
+            #         # "BTCA-SG",
+            #         # "LAML-KR",
+            #         # "LICA-FR",
+            #         # "CLLE-ES",
+            #         # "EOPC-DE"
+            #     ]
+            #   }
+            # },
             # {
             #   "terms": {
             #     "donor_unique_id": [
@@ -74,6 +74,13 @@ es_queries = [
             #     ]
             #   }
             # },
+            {
+              "terms":{
+                "flags.has_validation_data":[
+                  "T"
+                ]
+              }
+            },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -137,11 +144,11 @@ es_queries = [
             }
           ],
           "must_not": [
-            {
-              "regexp": {
-                "dcc_project_code": ".*-US"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-US"
+            #   }
+            # },
             # {
             #   "regexp": {
             #     "dcc_project_code": ".*-DE"
@@ -168,6 +175,13 @@ es_queries = [
             #     ]
             #   }
             # },
+            {
+              "terms": {
+                "flags.exists_vcf_file_prefix_mismatch": [
+                  "T"
+                ]
+              }
+            },
             {
               "terms": {
                 "flags.is_manual_qc_failed": [
@@ -197,7 +211,9 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         "https://gtrepo-osdc-icgc.annailabs.com/",
         "https://gtrepo-ebi.annailabs.com/",
         "https://gtrepo-riken.annailabs.com/",
-        "https://gtrepo-etri.annailabs.com/"
+        "https://gtrepo-etri.annailabs.com/",
+        "https://gtrepo-osdc-tcga.annailabs.com/",
+        "https://cghub.ucsc.edu/"
     ]
     if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
         source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
@@ -353,14 +369,14 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
     return aliquot_info
 
 def cloud_transfer(target_compute_site, aliquot):
-    if target_compute_site == 'aws':
-        if not aliquot.get('is_s3_transfer_completed'):# or not aliquot.get('is_s3_qc_matched'):
-            return False
-    elif target_compute_site == 'collab':
-        if not aliquot.get('is_ceph_transfer_completed'):# or not aliquot.get('is_ceph_qc_matched'):
-            return False        
-    else:
-        return True
+    # if target_compute_site == 'aws':
+    #     if not aliquot.get('is_s3_transfer_completed'):# or not aliquot.get('is_s3_qc_matched'):
+    #         return False
+    # elif target_compute_site == 'collab':
+    #     if not aliquot.get('is_ceph_transfer_completed'):# or not aliquot.get('is_ceph_qc_matched'):
+    #         return False        
+    # else:
+    #     return True
     return True
 
 
@@ -373,7 +389,7 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
     wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
     for aliquot in wgs_tumor_alignment_info:
         # if not oxog_score.get(aliquot.get('aliquot_id')):
-        if not oxog_score.get(aliquot.get('aliquot_id')) or float(oxog_score.get(aliquot.get('aliquot_id'))) >= 40:
+        if not oxog_score.get(aliquot.get('aliquot_id')):# or float(oxog_score.get(aliquot.get('aliquot_id'))) >= 40:
             logger.warning('The aliquot {} of donor {} has no oxog_score.'.format(aliquot.get('aliquot_id'), es_json.get('donor_unique_id'))) 
             return False
         
@@ -456,17 +472,24 @@ def choose_variant_calling(es_json, vcf):
         if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
             not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
             variant_calling.add(get_formal_vcf_name(v))
-            if not check_broad_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
+            if not check_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
         else:
             logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
     return variant_calling
 
 
-def check_broad_vcf(es_json, vcf_calling):
+def check_vcf(es_json, vcf_calling):
     if vcf_calling == 'broad' or vcf_calling == 'muse' or vcf_calling == 'broad_tar':
         if not es_json.get('flags').get('is_broad_variant_calling_performed'):
             return False
+        elif not es_json.get('variant_calling_results').get(get_formal_vcf_name('broad')).get('vcf_workflow_result_version') == 'v3':
+            return False
         else: 
+            return True
+    elif vcf_calling == 'sanger':
+        if not es_json.get('variant_calling_results').get(get_formal_vcf_name('sanger')).get('vcf_workflow_result_version') == 'v3':
+            return False
+        else:
             return True
     else:
         return True
@@ -635,7 +658,7 @@ def main(argv=None):
         donors_list = get_donors_list(es, es_index, es_queries)
     else:
         donors_list = donor_ids_to_be_included
-
+# 
     # exclude the donors if they were specified on the exclude_donor_id_lists
     donors_list.difference_update(donor_ids_to_be_excluded)
 
