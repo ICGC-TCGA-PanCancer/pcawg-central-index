@@ -426,12 +426,11 @@ def generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotat
                         break                 
                     analysis = aliquot.get(get_formal_vcf_name(vcf))
                     add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids)
-
-        if missing_files:    
-            out_dir = os.path.join(ega_dir, 'file_info', 'bulk_report_of_files_missed_on_ftp_server')
-            if not os.path.isdir(out_dir): os.makedirs(out_dir)
-            out_file = os.path.join(out_dir, project+'.'+dt+'.tsv')
-            with open(out_file, 'w') as o: o.write('\n'.join(sorted(missing_files)))        
+ 
+        out_dir = os.path.join(ega_dir, 'file_info', 'bulk_report_of_files_missed_on_ftp_server')
+        if not os.path.isdir(out_dir): os.makedirs(out_dir)
+        out_file = os.path.join(out_dir, project+'.'+dt+'.tsv')
+        with open(out_file, 'w') as o: o.write('\n'.join(sorted(missing_files)))        
 
 
 def add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids):
