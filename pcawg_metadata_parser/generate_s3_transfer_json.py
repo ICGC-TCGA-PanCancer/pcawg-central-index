@@ -40,31 +40,31 @@ es_queries = [
                 "value": "donor"
               }
             },
-            {
-              "terms": {
-                "dcc_project_code": [
-                    "LIRI-JP",
-                    "PACA-CA",
-                    "PRAD-CA",
-                    "RECA-EU",
-                    "PAEN-AU",
-                    "PACA-AU",
-                    "BOCA-UK",
-                    "OV-AU",
-                    "MELA-AU",
-                    "BRCA-UK"
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES",
-                    "ESAD-UK"
-                ]
-              }
-            },
+            # {
+            #   "terms": {
+            #     "dcc_project_code": [
+            #         "LIRI-JP",
+            #         "PACA-CA",
+            #         "PRAD-CA",
+            #         "RECA-EU",
+            #         "PAEN-AU",
+            #         "PACA-AU",
+            #         "BOCA-UK",
+            #         "OV-AU",
+            #         "MELA-AU",
+            #         "BRCA-UK"
+            #         "PRAD-UK",
+            #         "CMDI-UK",
+            #         "LINC-JP",
+            #         "ORCA-IN",
+            #         "BTCA-SG",
+            #         "LAML-KR",
+            #         "LICA-FR",
+            #         "CLLE-ES",
+            #         "ESAD-UK"
+            #     ]
+            #   }
+            # },
             # {
             #   "terms":{
             #     "donor_unique_id":[
@@ -110,11 +110,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            {
-              "regexp": {
-                "dcc_project_code": ".*-DE"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-DE"
+            #   }
+            # },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -129,13 +129,13 @@ es_queries = [
                 ]
               }
             },
-            # {
-            #   "terms": {
-            #     "flags.exists_xml_md5sum_mismatch": [
-            #       "T"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "flags.exists_xml_md5sum_mismatch": [
+                  "T"
+                ]
+              }
+            },
             {
               "terms": {
                 "flags.is_manual_qc_failed": [
@@ -351,7 +351,7 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
     for v in variant_callings:
 
         if not es_json.get('variant_calling_results').get(v): continue
-        if not es_json.get('variant_calling_results').get(v).get('vcf_workflow_result_version') == vcf_result_version: continue
+        # if not es_json.get('variant_calling_results').get(v).get('vcf_workflow_result_version') == vcf_result_version: continue
 
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(v)
 
@@ -400,17 +400,24 @@ def choose_variant_calling(es_json, vcf):
         if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
             not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
             variant_calling.add(get_formal_vcf_name(v))
-            if not check_broad_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
+            if not check_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
         else:
             logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
     return variant_calling
 
 
-def check_broad_vcf(es_json, vcf_calling):
+def check_vcf(es_json, vcf_calling):
     if vcf_calling == 'broad' or vcf_calling == 'muse' or vcf_calling == 'broad_tar':
         if not es_json.get('flags').get('is_broad_variant_calling_performed'):
             return False
+        elif not es_json.get('variant_calling_results').get(get_formal_vcf_name('broad')).get('vcf_workflow_result_version') == 'v3':
+            return False
         else: 
+            return True
+    elif vcf_calling == 'sanger':
+        if not es_json.get('variant_calling_results').get(get_formal_vcf_name('sanger')).get('vcf_workflow_result_version') == 'v3':
+            return False
+        else:
             return True
     else:
         return True
