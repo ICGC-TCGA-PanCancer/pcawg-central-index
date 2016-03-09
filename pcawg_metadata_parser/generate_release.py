@@ -153,7 +153,7 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
         'icgc_donor_id': es_json['icgc_donor_id'],
         previous_release+'_donor': True if es_json.get('flags').get('is_'+previous_release+'_donor') else False,
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
-        'validation_by_deep_seq': True if es_json.get('flags').get('has_validation_data') else False,
+        'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
         'wgs': {
             'normal_specimen': {},
             'tumor_specimens': []
