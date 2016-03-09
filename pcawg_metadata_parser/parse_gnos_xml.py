@@ -117,11 +117,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
 
-    for id_type in ['donor', 'specimen', 'sample']:
-        if not is_in_pcawg_final_list(analysis_attrib.get('dcc_project_code'), analysis_attrib.get('submitter_'+id_type+'_id'), id_type, annotations):
-            logger.warning('ignore non-pcawg final list {}: {} GNOS entry: {}'
-                             .format(id_type, analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_'+id_type+'_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-            return       
+    #disable this check for now as we are still fixing IDs
+    #for id_type in ['donor', 'specimen', 'sample']:
+    #    if not is_in_pcawg_final_list(analysis_attrib.get('dcc_project_code'), analysis_attrib.get('submitter_'+id_type+'_id'), id_type, annotations):
+    #        logger.warning('ignore non-pcawg final list {}: {} GNOS entry: {}'
+    #                         .format(id_type, analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_'+id_type+'_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+    #        return
 
     if is_in_donor_blacklist(donor_unique_id):
         logger.warning('ignore blacklisted donor: {} GNOS entry: {}'
