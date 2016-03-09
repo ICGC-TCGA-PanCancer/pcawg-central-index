@@ -1358,7 +1358,7 @@ def main(argv=None):
             elif q==13:
                 release_tsv = '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv'
             elif q==16:
-                release_tsv = '../pcawg-operations/data_releases/oct2015/release_mar2016_entry.tsv'
+                release_tsv = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
             else:
                 print('No entry for this query!')
             # generate the set of gnos_id
