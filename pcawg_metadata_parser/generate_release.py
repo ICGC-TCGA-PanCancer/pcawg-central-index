@@ -163,13 +163,13 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
              'tumor_specimens': []
         }
     }
-    add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
-    add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+    add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
+    add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
 
     return reorganized_donor
 
 
-def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
+def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     if not aliquot.get('aligned_bam'): return
     gnos_id = aliquot.get('aligned_bam').get('gnos_id')
     if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: return
@@ -181,6 +181,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
+        'oxog_score': annotations.get('oxog_score').get(aliquot.get('aliquot_id')) if annotations.get('oxog_score').get(aliquot.get('aliquot_id')) else None,
         'is_'+previous_release+'_entry': aliquot.get('aligned_bam').get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
         'gnos_repo': aliquot.get('aligned_bam').get('gnos_repo'),
         #'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
@@ -280,11 +281,11 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos
     return variant_calling
 
 
-def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
+def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     if es_json.get('normal_alignment_status'):
         wgs_normal_alignment_info = es_json.get('normal_alignment_status')
         data_type = 'wgs_normal_bwa'
-        reorganized_donor.get('wgs').get('normal_specimen')['bwa_alignment'] = create_alignment(es_json, wgs_normal_alignment_info, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+        reorganized_donor.get('wgs').get('normal_specimen')['bwa_alignment'] = create_alignment(es_json, wgs_normal_alignment_info, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
 
     tumor_wgs_specimen_count = 0
     if es_json.get('tumor_alignment_status'):
@@ -295,7 +296,7 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
             aliquot_info = OrderedDict()
             tumor_wgs_specimen_count += 1
             data_type = 'wgs_tumor_bwa'
-            aliquot_info['bwa_alignment'] = create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)        
+            aliquot_info['bwa_alignment'] = create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)        
             
             for vc in variant_calling:
                 wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(vc)
@@ -317,7 +318,7 @@ def filter_liri_jp(project, gnos_repo, data_type, aliquot_id):
         return [ gnos_repo[0] ]  # return the first one, not an entirely proper solution but gets us going
 
 
-def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
+def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     rna_seq_info = es_json.get('rna_seq').get('alignment')
     for specimen_type in rna_seq_info.keys():
         if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
@@ -328,7 +329,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_i
             alignment_info = {}
             for workflow_type in aliquot.keys():
                 data_type = 'rna_seq_normal_'+workflow_type
-                alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+                alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
 
             reorganized_donor.get('rna_seq')[specimen_type + '_specimen'] = alignment_info
         else:
@@ -338,7 +339,7 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_i
                 alignment_info = {}
                 for workflow_type in aliquot.keys():
                     data_type = 'rna_seq_tumor_'+workflow_type
-                    alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+                    alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(copy.deepcopy(alignment_info)) 
             reorganized_donor['tumor_rna_seq_specimen_count'] = tumor_rna_seq_specimen_count
 
@@ -438,11 +439,13 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
     for d in aliquot_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+d): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = []
+    if specimen_type == 'tumor' and sequence_type == 'wgs':
+        pilot_tsv[specimen_type+'_'+sequence_type+'_oxog_score'] = []
     for d in gnos_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = []
     if not pilot_tsv.get('is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type):
-    	pilot_tsv['is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type] = []
+    	  pilot_tsv['is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type] = []
     if not pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'):
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = []
 
@@ -471,6 +474,8 @@ def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen
     for d in aliquot_field:
         if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] and sequence_type == 'rna_seq' or sequence_type == 'wgs':
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
+    if specimen_type == 'tumor' and sequence_type == 'wgs':
+        pilot_tsv[specimen_type+'_'+sequence_type+'_oxog_score'].append(alignment.get('oxog_score'))    
     for d in gnos_field:
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(alignment.get(d))
     pilot_tsv.get('is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type).append(alignment.get('is_'+previous_release+'_entry'))
@@ -558,6 +563,13 @@ def read_annotations(annotations, type, file_name):
                 annotations[type][row.get('donor_unique_id')] = {}
                 for vcf in ['sanger', 'broad']:
                     if row.get(vcf+'_variant_calling_gnos_id'): annotations[type][row.get('donor_unique_id')][vcf]=row.get(vcf+'_variant_calling_gnos_id') 
+        elif type == 'oxog_score':
+            annotations[type] = {}
+            reader = csv.DictReader(f, delimiter='\t')
+            for row in reader:
+                if not row.get('aliquot_GUUID'): continue
+                annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ')
+
         else:
             print('unknown annotation type: {}'.format(type))
     return annotations
@@ -662,6 +674,7 @@ def main(argv=None):
 
     annotations = {}
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/data_releases/oct2015/release_oct2015.v1.tsv')
+    read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
 
 
     # get json doc for each donor and reorganize it
@@ -669,7 +682,7 @@ def main(argv=None):
     for donor_unique_id in donors_list:    
         es_json = get_donor_json(es, es_index, donor_unique_id)
         
-        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
 
         # push to Elasticsearch
         es_summary.index(index=es_index_summary, doc_type='donor', id=reorganized_donor['donor_unique_id'], body=json.loads(json.dumps(reorganized_donor, default=set_default)), timeout=90 )
