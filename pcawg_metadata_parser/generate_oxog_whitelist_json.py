@@ -620,7 +620,7 @@ def main(argv=None):
     donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
 
     # read and parse git for the donors which are scheduled for Oxog filtering
-    git_fnames = '../oxog-ops/oxog-*-jobs-test/*/*.json'
+    git_fnames = '../oxog-ops/oxog-*-jobs/*/*.json'
 
     files = glob.glob(git_fnames)
     for f in files:
