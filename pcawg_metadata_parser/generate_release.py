@@ -145,7 +145,7 @@ es_queries = [
     }
 ]
 
-def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included):
+def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     reorganized_donor = {
         'donor_unique_id': donor_unique_id,
         'submitter_donor_id': es_json['submitter_donor_id'],
@@ -557,15 +557,16 @@ def read_annotations(annotations, type, file_name):
             del annotations[type]
 
         if type == 'deprecated_gnos_id':
-            annotations[type] = {}
+            if not annotations.get(type): annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
-                annotations[type][row.get('donor_unique_id')] = {}
+                if not annotations.get(type).get(row.get('donor_unique_id')): annotations[type][row.get('donor_unique_id')] = {}
                 for vcf in ['sanger', 'broad']:
-                    if row.get(vcf+'_variant_calling_gnos_id'): annotations[type][row.get('donor_unique_id')][vcf]=row.get(vcf+'_variant_calling_gnos_id') 
+                    if not row.get(vcf+'_variant_calling_gnos_id'): continue
+                    annotations[type][row.get('donor_unique_id')][vcf]=row.get(vcf+'_variant_calling_gnos_id') 
         elif type == 'oxog_score':
             annotations[type] = {}
-            reader = csv.DictReader(f, delimiter='\t')
+            reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 if not row.get('aliquot_GUUID'): continue
                 annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ')
