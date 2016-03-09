@@ -40,31 +40,31 @@ es_queries = [
                 "value": "donor"
               }
             },
-            # {
-            #   "terms": {
-            #     "dcc_project_code": [
-            #         "LIRI-JP",
-            #         "PACA-CA",
-            #         "PRAD-CA",
-            #         "RECA-EU",
-            #         "PAEN-AU",
-            #         "PACA-AU",
-            #         "BOCA-UK",
-            #         "OV-AU",
-            #         "MELA-AU",
-            #         "BRCA-UK"
-            #         "PRAD-UK",
-            #         "CMDI-UK",
-            #         "LINC-JP",
-            #         "ORCA-IN",
-            #         "BTCA-SG",
-            #         "LAML-KR",
-            #         "LICA-FR",
-            #         "CLLE-ES",
-            #         "ESAD-UK"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "dcc_project_code": [
+                    "LIRI-JP",
+                    "PACA-CA",
+                    "PRAD-CA",
+                    "RECA-EU",
+                    "PAEN-AU",
+                    "PACA-AU",
+                    "BOCA-UK",
+                    "OV-AU",
+                    "MELA-AU",
+                    "BRCA-UK"
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES",
+                    "ESAD-UK"
+                ]
+              }
+            },
             # {
             #   "terms":{
             #     "donor_unique_id":[
@@ -110,11 +110,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            # {
-            #   "regexp": {
-            #     "dcc_project_code": ".*-DE"
-            #   }
-            # },
+            {
+              "regexp": {
+                "dcc_project_code": ".*-DE"
+              }
+            },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -129,6 +129,13 @@ es_queries = [
                 ]
               }
             },
+            {
+               "terms":{
+                  "flags.exists_vcf_file_prefix_mismatch":[
+                     "T"
+                  ]
+               }
+            }, 
             {
               "terms": {
                 "flags.exists_xml_md5sum_mismatch": [
@@ -638,8 +645,8 @@ def main(argv=None):
         fname = str.split(f, '/')[-1]
         gnos_id = str.split(fname, '.')[0]
         gnos_ids_to_be_excluded.add(gnos_id)
-        sub_file_name = '.'.join(str.split(fname, '.')[1:])
-        gnos_ids_to_be_excluded.add(sub_file_name)
+        # sub_file_name = '.'.join(str.split(fname, '.')[1:])
+        # gnos_ids_to_be_excluded.add(sub_file_name)
 
     # only process the gnos entries when this option is chosen
     gnos_ids_to_be_included = generate_id_list(include_gnos_id_lists) 
