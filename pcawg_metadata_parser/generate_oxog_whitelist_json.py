@@ -44,24 +44,25 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                    # "LIRI-JP",
-                    # "PACA-CA",
-                    # "PRAD-CA",
-                    # "RECA-EU",
-                    # "PAEN-AU",
-                    # "PACA-AU",
-                    # "BOCA-UK",
-                    # "OV-AU",
-                    # "MELA-AU",
-                    # "BRCA-UK",
-                    # "PRAD-UK",
-                    # "CMDI-UK",
-                    # "LINC-JP",
-                    # "ORCA-IN",
-                    # "BTCA-SG",
-                    # "LAML-KR",
-                    # "LICA-FR",
-                    "CLLE-ES"
+                    "LIRI-JP",
+                    "PACA-CA",
+                    "PRAD-CA",
+                    "RECA-EU",
+                    "PAEN-AU",
+                    "PACA-AU",
+                    "BOCA-UK",
+                    "OV-AU",
+                    "MELA-AU",
+                    "BRCA-UK",
+                    "PRAD-UK",
+                    "CMDI-UK",
+                    "LINC-JP",
+                    "ORCA-IN",
+                    "BTCA-SG",
+                    "LAML-KR",
+                    "LICA-FR",
+                    "CLLE-ES",
+                    "ESAD-UK"
                     # "EOPC-DE"
                 ]
               }
@@ -142,11 +143,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            # {
-            #   "regexp": {
-            #     "dcc_project_code": ".*-DE"
-            #   }
-            # },
+            {
+              "regexp": {
+                "dcc_project_code": ".*-DE"
+              }
+            },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -154,6 +155,13 @@ es_queries = [
                 ]
               }
             },
+            {
+               "terms":{
+                  "flags.exists_vcf_file_prefix_mismatch":[
+                     "T"
+                  ]
+               }
+            }, 
             {
               "terms": {
                 "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
