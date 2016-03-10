@@ -105,7 +105,7 @@ echo running alignment summary report for $M
 ./generate_pcawg_specimen_alignment_summary.py -m $M
 # cleaning the old ES index
 curl -XDELETE localhost:9200/pcawg_summary
-./generate_release.py -m $M -f pcawg_summary -v sanger dkfz embl broad
+./generate_release.py -m $M -f pcawg_summary -v sanger dkfz broad muse broad_tar
 ./generate_bsc_sync_reports.py -m $M
 ./generate_pcawg_lane_level_gnos_analysis_ids.py -m $M
 

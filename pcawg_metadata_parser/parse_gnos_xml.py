@@ -25,6 +25,8 @@ import hashlib
 logger = logging.getLogger('gnos parser')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
+latest_release = 'mar2016'
+previous_releases = ['oct2015', 'aug2015', 'santa_cruz']
 
 
 def init_es(es_host, es_index):
@@ -292,6 +294,12 @@ def is_in_pcawg_final_list(dcc_project_code, pcawg_id, id_type, annotations):
     else:
         return False
 
+def exist_in_previous_releases(vcf_entry):
+    for r in previous_releases:
+        if vcf_entry.get('is_'+r+'_entry'): return True
+    return False
+
+
 
 def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
 
@@ -324,64 +332,46 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
                     logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {} result version: {}'
                         .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous.get('vcf_workflow_result_version'), workflow_previous['gnos_id'])) 
-                elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):                   
-                    if current_vcf_entry['is_mar2016_entry']:
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the mar2016_freeze_entry: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                    elif current_vcf_entry['is_oct2015_entry']:
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the oct2015_freeze_entry: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                    elif current_vcf_entry['is_s3_transfer_scheduled']:
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the one scheduled for S3 transfer: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                    
-                    elif current_vcf_entry['is_aug2015_entry']:
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the aug2015_freeze_entry: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):
+                    if not workflow_previous['is_'+latest_release+'_entry']:                   
+                        if current_vcf_entry['is_'+latest_release+'_entry']:
+                            vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                            logger.info(workflow_label+' results for donor: {}. Keep the '+latest_release+'_freeze_entry: {}, additional {}'
+                                .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                        elif not exist_in_previous_releases(current_vcf_entry) and exist_in_previous_releases(workflow_previous):
+                            vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                            logger.info(workflow_label+' results for donor: {}. Keep the entry not in previous releases: {}, additional {}'
+                                .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                        elif exist_in_previous_releases(current_vcf_entry) and not exist_in_previous_releases(workflow_previous):
+                            # no need to replace
+                            logger.warning('{} variant calling result already exist and not in the previous releases for donor: {}, ignoring entry {} in {}'
+                                      .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))                        
+                        else:
+                            workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
+                            workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
+                            gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
+                            gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
 
-                    elif current_vcf_entry['is_santa_cruz_entry']:
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the santa_cruz_freeze_entry: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-
-                    elif annotations.get(variant_workflow) and current_vcf_entry.get('gnos_id') in annotations.get(variant_workflow):
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the one in whitelist: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-
-                    elif annotations.get(variant_workflow+'_vcf_in_jamboree') and \
-                           annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) and \
-                             annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'):
-                        vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                        logger.info(workflow_label+' results for donor: {}. Keep the one already saved in Jamboree: {}, additional {}'
-                            .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                         
-
+                            if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
+                                logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                                    .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
+                                        current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                        workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                                vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                            elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
+                                 and gnos_updated_current > gnos_updated_previous: # current is newer
+                                logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                                    .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
+                                        current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                        workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                                vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                            else: # no need to replace
+                                logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
+                                    .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
                     else:
-                        workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
-                        workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
-                        gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
-                        gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
-
-                        if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
-                            logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
-                                .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
-                                    current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
-                                    workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
-                            vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-                        elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
-                             and gnos_updated_current > gnos_updated_previous: # current is newer
-                            logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
-                                .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
-                                    current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
-                                    workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
-                            vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-                        else: # no need to replace
-                            logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
-                                .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
+                        # no need to replace
+                        logger.warning('{} variant calling result already exist and in the latest release for donor: {}, ignoring entry {} in {}'
+                                      .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
                 else:
                     # no need to replace
                     logger.warning('{} variant calling result already exist and has latest result version for donor: {}, ignoring entry {} in {}'
