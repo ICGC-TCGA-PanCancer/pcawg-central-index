@@ -75,12 +75,17 @@ es_queries = [
             #   }
             # },
             {
-              "terms":{
-                "flags.has_validation_data":[
-                  "T"
-                ]
+              "regexp": {
+                "dcc_project_code": ".*-US"
               }
             },
+            # {
+            #   "terms":{
+            #     "flags.has_validation_data":[
+            #       "T"
+            #     ]
+            #   }
+            # },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -132,7 +137,7 @@ es_queries = [
             },
             {
               "terms":{
-                "flags.is_oct2015_donor":[
+                "flags.is_mar2016_donor":[
                   "T"
                 ]
               }
@@ -168,13 +173,13 @@ es_queries = [
                 ]
               }
             },
-            # {
-            #   "terms": {
-            #     "flags.exists_xml_md5sum_mismatch": [
-            #       "T"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "flags.exists_xml_md5sum_mismatch": [
+                  "T"
+                ]
+              }
+            },
             {
               "terms": {
                 "flags.exists_vcf_file_prefix_mismatch": [
@@ -641,7 +646,7 @@ def main(argv=None):
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
     # if target_compute_site in ['aws', 'collab', 'ucsc']:
-    git_fnames = '../oxog-ops/oxog-*-jobs-test/*/*.json'
+    git_fnames = '../oxog-ops/oxog-*-jobs*/*/*.json'
         # git_fnames = 'gnos_metadata/2016-01-11_11-44-53_EST/reports/oxog_whitelist_json/*.json'
     # else:
     #     sys.exit('Error: unknown target_compute_site!')
