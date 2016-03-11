@@ -419,17 +419,20 @@ def generate_variant_calling_info(pilot_tsv, variant_calling, vcf, annotations):
         pilot_tsv[get_formal_vcf_name(v)+'_gnos_id'] = []
         pilot_tsv[get_formal_vcf_name(v)+'_file_name_prefix'] = []
         pilot_tsv['is_'+previous_release+'_'+get_formal_vcf_name(v)] = []
+        # if v in ['sanger', 'dkfz', 'broad']:
+        #     pilot_tsv[get_formal_vcf_name(v)+'_deprecated_gnos_id'] = []
         if v in ['sanger', 'dkfz', 'broad']:
-            pilot_tsv[get_formal_vcf_name(v)+'_deprecated_gnos_id'] = []
+            pilot_tsv[get_formal_vcf_name(v)+'_deprecated_gnos_id'] = annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) \
+                if annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')) and annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) else None
         for specimen in variant_calling:
             if specimen.get(get_formal_vcf_name(v)):
                 pilot_tsv[get_formal_vcf_name(v)+'_repo'] = specimen.get(get_formal_vcf_name(v)).get('gnos_repo')
                 pilot_tsv[get_formal_vcf_name(v)+'_gnos_id'] = specimen.get(get_formal_vcf_name(v)).get('gnos_id')
                 pilot_tsv[get_formal_vcf_name(v)+'_file_name_prefix'].append(specimen.get(get_formal_vcf_name(v)).get('aliquot_id'))
                 pilot_tsv['is_'+previous_release+'_'+get_formal_vcf_name(v)] = specimen.get(get_formal_vcf_name(v)).get('is_'+previous_release+'_entry')
-                if v in ['sanger', 'dkfz', 'broad']:
-                    pilot_tsv[get_formal_vcf_name(v)+'_deprecated_gnos_id'] = annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) \
-                        if annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')) and annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) else None
+                # if v in ['sanger', 'dkfz', 'broad']:
+                #     pilot_tsv[get_formal_vcf_name(v)+'_deprecated_gnos_id'] = annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) \
+                #         if annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')) and annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) else None
     return pilot_tsv
 
 
@@ -553,8 +556,6 @@ def read_annotations(annotations, type, file_name):
     if not os.path.isfile(file_name):
         return
     with open(file_name, 'r') as r:
-        if annotations.get(type): # reset annotation if exists
-            del annotations[type]
 
         if type == 'deprecated_gnos_id':
             if not annotations.get(type): annotations[type] = {}
@@ -565,6 +566,7 @@ def read_annotations(annotations, type, file_name):
                 for vcf in ['sanger', 'dkfz', 'broad']:
                     if not row.get(vcf+'_variant_calling_deprecated_gnos_id'): continue
                     annotations[type][donor_unique_id][vcf]=row.get(vcf+'_variant_calling_deprecated_gnos_id') 
+
         elif type == 'oxog_score':
             annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
@@ -675,12 +677,12 @@ def main(argv=None):
     simple_release_tsv = []
 
     annotations = {}
-    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/sanger_deprecated_gnos_id.160310.tsv')
+    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/sanger_deprecated_gnos_id.160310.tsv')   
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/dkfz_embl_deprecated_gnos_id.160310.tsv')
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/broad_deprecated_gnos_id.160310.tsv')
     read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
 
-    # print annotations.get('deprecated_gnos_id')
+    # print annotations.get('deprecated_gnos_id').get('ESAD-UK::OCCAMS-AH-061')
     # sys.exit(0)
 
 
