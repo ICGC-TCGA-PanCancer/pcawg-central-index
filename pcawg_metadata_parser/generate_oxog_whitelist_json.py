@@ -268,38 +268,39 @@ def generate_md5_size(metadata_xml_file):
 
 
 def generate_object_id(filename, gnos_id):
-    global id_service_token
-    url = 'https://meta.icgc.org/entities'
-    # try get request first
-    r = requests.get(url + '?gnosId=' + gnos_id + '&fileName=' + filename,
-                       headers={'Content-Type': 'application/json'})
-    if not r or not r.ok:
-        logger.warning('GET request unable to access metadata service: {}'.format(url))
-        return ''
-    elif r.json().get('totalElements') == 1:
-        logger.info('GET request got the id')
-        return r.json().get('content')[0].get('id')
-    elif r.json().get('totalElements') > 1:
-        logger.warning('GET request to metadata service return multiple matches for gnos_id: {} and filename: {}'
-                          .format(gnos_id, filename))
-        return ''
-    elif id_service_token:  # no match then try post to create
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + id_service_token
-        }
-        body = {
-            "gnosId": gnos_id,
-            "fileName": filename
-        }
-        r = requests.post(url, data=json.dumps(body), headers=headers)
-        if not r or not r.ok:
-            logger.warning('POST request failed')
-            return ''
-        return r.json().get('id')
-    else:
-        logger.info('No luck, generate FAKE ID')
-        return ''
+    # global id_service_token
+    # url = 'https://meta.icgc.org/entities'
+    # # try get request first
+    # r = requests.get(url + '?gnosId=' + gnos_id + '&fileName=' + filename,
+    #                    headers={'Content-Type': 'application/json'})
+    # if not r or not r.ok:
+    #     logger.warning('GET request unable to access metadata service: {}'.format(url))
+    #     return ''
+    # elif r.json().get('totalElements') == 1:
+    #     logger.info('GET request got the id')
+    #     return r.json().get('content')[0].get('id')
+    # elif r.json().get('totalElements') > 1:
+    #     logger.warning('GET request to metadata service return multiple matches for gnos_id: {} and filename: {}'
+    #                       .format(gnos_id, filename))
+    #     return ''
+    # elif id_service_token:  # no match then try post to create
+    #     headers = {
+    #         'Content-Type': 'application/json',
+    #         'Authorization': 'Bearer ' + id_service_token
+    #     }
+    #     body = {
+    #         "gnosId": gnos_id,
+    #         "fileName": filename
+    #     }
+    #     r = requests.post(url, data=json.dumps(body), headers=headers)
+    #     if not r or not r.ok:
+    #         logger.warning('POST request failed')
+    #         return ''
+    #     return r.json().get('id')
+    # else:
+    #     logger.info('No luck, generate FAKE ID')
+    #     return ''
+    return ''
 
 
 def add_metadata_xml_info(obj, chosen_gnos_repo=None):
@@ -609,7 +610,7 @@ def main(argv=None):
     parser.add_argument("-s", "--oxog_scores", dest="oxog_scores",
              help="Specify the files containing oxog_scores", required=False)
     parser.add_argument("-t", "--target_compute_site", dest="target_compute_site",
-             help="Specify target_compute_site of the jobs", required=True)
+             help="Specify target_compute_site of the jobs", required=False, default="tcga", type=str)
     parser.add_argument("-r", "--specify source repo", dest="chosen_gnos_repo",
              help="Specify source gnos repo", required=False)
     parser.add_argument("-d", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
