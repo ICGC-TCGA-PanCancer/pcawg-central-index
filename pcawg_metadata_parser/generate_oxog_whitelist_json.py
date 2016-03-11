@@ -41,32 +41,32 @@ es_queries = [
                 "value": "donor"
               }
             },
-            {
-              "terms": {
-                "dcc_project_code": [
-                    "LIRI-JP",
-                    "PACA-CA",
-                    "PRAD-CA",
-                    "RECA-EU",
-                    "PAEN-AU",
-                    "PACA-AU",
-                    "BOCA-UK",
-                    "OV-AU",
-                    "MELA-AU",
-                    "BRCA-UK",
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES",
-                    "ESAD-UK"
-                    # "EOPC-DE"
-                ]
-              }
-            },
+            # {
+            #   "terms": {
+            #     "dcc_project_code": [
+            #         "LIRI-JP",
+            #         "PACA-CA",
+            #         "PRAD-CA",
+            #         "RECA-EU",
+            #         "PAEN-AU",
+            #         "PACA-AU",
+            #         "BOCA-UK",
+            #         "OV-AU",
+            #         "MELA-AU",
+            #         "BRCA-UK",
+            #         "PRAD-UK",
+            #         "CMDI-UK",
+            #         "LINC-JP",
+            #         "ORCA-IN",
+            #         "BTCA-SG",
+            #         "LAML-KR",
+            #         "LICA-FR",
+            #         "CLLE-ES",
+            #         "ESAD-UK"
+            #         # "EOPC-DE"
+            #     ]
+            #   }
+            # },
             # {
             #   "terms": {
             #     "donor_unique_id": [
@@ -143,11 +143,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            {
-              "regexp": {
-                "dcc_project_code": ".*-DE"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-DE"
+            #   }
+            # },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -585,7 +585,7 @@ def main(argv=None):
     parser.add_argument("-m", "--metadata_dir", dest="metadata_dir",
              help="Directory containing metadata manifest files", required=True)
     parser.add_argument("-s", "--oxog_scores", dest="oxog_scores",
-             help="Specify the files containing oxog_scores", required=True)
+             help="Specify the files containing oxog_scores", required=False)
     parser.add_argument("-t", "--target_cloud", dest="target_cloud",
              help="Specify target_cloud of the jobs", required=True)
     parser.add_argument("-r", "--specify source repo", dest="chosen_gnos_repo",
@@ -604,6 +604,9 @@ def main(argv=None):
     include_donor_id_lists = args.include_donor_id_lists
     chosen_gnos_repo = args.chosen_gnos_repo
     oxog_scores = args.oxog_scores
+
+    if not oxog_scores:
+        oxog_scores = '../pcawg-operations/lists/broad_qc_metrics.tsv'
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
