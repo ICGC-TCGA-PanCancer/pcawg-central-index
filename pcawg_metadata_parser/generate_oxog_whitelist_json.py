@@ -607,7 +607,7 @@ def main(argv=None):
     parser.add_argument("-m", "--metadata_dir", dest="metadata_dir",
              help="Directory containing metadata manifest files", required=True)
     parser.add_argument("-s", "--oxog_scores", dest="oxog_scores",
-             help="Specify the files containing oxog_scores", required=True)
+             help="Specify the files containing oxog_scores", required=False)
     parser.add_argument("-t", "--target_compute_site", dest="target_compute_site",
              help="Specify target_compute_site of the jobs", required=True)
     parser.add_argument("-r", "--specify source repo", dest="chosen_gnos_repo",
@@ -629,6 +629,9 @@ def main(argv=None):
     include_donor_id_lists = args.include_donor_id_lists
     chosen_gnos_repo = args.chosen_gnos_repo
     oxog_scores = args.oxog_scores
+
+    if not oxog_scores:
+        oxog_scores = '../pcawg-operations/lists/broad_qc_metrics.tsv'
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
