@@ -426,7 +426,8 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_
         }
         
         # add the object_id for each file object
-        for f in variant_calling.get('files'):
+        vcf_files = copy.deepcopy(variant_calling.get('files'))
+        for f in vcf_files:
             if int(f.get('file_size')) == 0: 
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
                 variant_calling.get('files').remove(f)
