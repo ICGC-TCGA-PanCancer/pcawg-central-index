@@ -379,16 +379,18 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
             'gnos_repo': [ wgs_tumor_vcf_info.get('gnos_repo')[ \
                 get_source_repo_index_pos(wgs_tumor_vcf_info.get('gnos_repo'), chosen_gnos_repo) ] ],
             'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
-            'files': wgs_tumor_vcf_info.get('files')
+            'files': []
         }
         
+        vcf_files = wgs_tumor_vcf_info.get('files')
         # add the object_id for each file object
-        for f in variant_calling.get('files'):
+        for f in vcf_files:
             if int(f.get('file_size')) == 0: 
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
-                variant_calling.get('files').remove(f)
+                continue
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
             f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
+            variant_calling.get('files').append(f)
 
         # add the metadata_xml_file_info
         metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, chosen_gnos_repo)
