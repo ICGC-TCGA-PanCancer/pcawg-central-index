@@ -682,7 +682,7 @@ def main(argv=None):
 
     report_dir = re.sub(r'^generate_', '', os.path.basename(__file__))
     report_dir = re.sub(r'\.py$', '', report_dir)
-    jobs_dir = metadata_dir + '/reports/' + report_dir
+    jobs_dir = metadata_dir + '/reports/' + report_dir + '_' + target_cloud
 
     if os.path.exists(jobs_dir): shutil.rmtree(jobs_dir, ignore_errors=True)  # empty the folder if exists
     os.makedirs(jobs_dir)
