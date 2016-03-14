@@ -40,31 +40,31 @@ es_queries = [
                 "value": "donor"
               }
             },
-            {
-              "terms": {
-                "dcc_project_code": [
-                    "LIRI-JP",
-                    "PACA-CA",
-                    "PRAD-CA",
-                    "RECA-EU",
-                    "PAEN-AU",
-                    "PACA-AU",
-                    "BOCA-UK",
-                    "OV-AU",
-                    "MELA-AU",
-                    "BRCA-UK"
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES",
-                    "ESAD-UK"
-                ]
-              }
-            },
+            # {
+            #   "terms": {
+            #     "dcc_project_code": [
+            #         "LIRI-JP",
+            #         "PACA-CA",
+            #         "PRAD-CA",
+            #         "RECA-EU",
+            #         "PAEN-AU",
+            #         "PACA-AU",
+            #         "BOCA-UK",
+            #         "OV-AU",
+            #         "MELA-AU",
+            #         "BRCA-UK"
+            #         "PRAD-UK",
+            #         "CMDI-UK",
+            #         "LINC-JP",
+            #         "ORCA-IN",
+            #         "BTCA-SG",
+            #         "LAML-KR",
+            #         "LICA-FR",
+            #         "CLLE-ES",
+            #         "ESAD-UK"
+            #     ]
+            #   }
+            # },
             # {
             #   "terms":{
             #     "donor_unique_id":[
@@ -88,7 +88,7 @@ es_queries = [
             },
             {
               "terms":{
-                "flags.is_oct2015_donor":[
+                "flags.is_mar2016_donor":[
                   "T"
                 ]
               }
@@ -110,11 +110,11 @@ es_queries = [
                 "dcc_project_code": ".*-US"
               }
             },
-            {
-              "regexp": {
-                "dcc_project_code": ".*-DE"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-DE"
+            #   }
+            # },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
