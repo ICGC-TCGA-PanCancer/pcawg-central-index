@@ -88,10 +88,10 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
 
                 try:
                     sample['subject_id'] = sample_info['icgc_donor_id']
-                    if annotations.get('gender') and annotations.get('gender').get(sample_info['icgc_donor_id']):
-                        sample['gender'] = annotations.get('gender').get(sample_info['icgc_donor_id']) 
+                    if annotations.get('gender') and annotations.get('gender').get(sample_info.get('donor_unique_id')):
+                        sample['gender'] = annotations.get('gender').get(sample_info.get('donor_unique_id')) 
                     else:
-                        click.echo('Warning: missing gender informaion for donor: %s' % sample_info['icgc_donor_id'], err=True)
+                        click.echo('Warning: missing gender informaion for donor: %s' % sample_info.get('donor_unique_id'), err=True)
                         return
                     sample['phenotype'] = None
                     sample['icgc_project_code'] = sample_info['dcc_project_code']
@@ -100,7 +100,7 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
                         if sample_info.get(tag):
                             sample[tag] = sample_info.get(tag)  
                         else: 
-                            click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_info['icgc_donor_id']), err=True)
+                            click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_info.get('donor_unique_id')), err=True)
                             return
                     sample['specimen_type'] = sample_info['dcc_specimen_type']
                     sample['aliquot_id/sample_uuid'] = sample_info['aliquot_id']
@@ -319,7 +319,7 @@ def read_annotations(annotations, type, file_name):
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 # if not row.get('study_donor_involved_in') == 'PCAWG': continue
-                annotations[type][row.get('icgc_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
+                annotations[type][row.get('donor_unique_id')] = row.get('gender') if row.get('gender') else None
         elif type == 'ega':
             annotations[type] = set()
             reader = csv.DictReader(r, delimiter='\t')
@@ -559,8 +559,8 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    pcawg_sample_sheet = ega_dir+'/annotation/pcawg_sample_sheet.2016-01-13.tsv'
-    pcawg_gnos_id_sheet = metadata_dir+'/reports/pcawg_summary_entry.tsv'
+    pcawg_sample_sheet = '../pcawg-operations/lists/pcawg_sample_sheet.2016-03-11.tsv'
+    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
 
     # connect with the ftp
     ftp=ftplib.FTP('ftp.ega.ebi.ac.uk', 'ega-box-520', ega_box_token)
