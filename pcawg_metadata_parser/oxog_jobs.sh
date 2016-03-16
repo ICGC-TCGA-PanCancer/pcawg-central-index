@@ -2,7 +2,7 @@
 
 CLOUD=$1
 PROJECT_FILE=$2
-$MAX_TIME=$3
+MAX_TIME=$3
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
