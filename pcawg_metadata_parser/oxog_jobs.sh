@@ -9,9 +9,9 @@ DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 COUNTER=0
 while [  $COUNTER -lt $MAX_TIME ]; do
 
-	for f in `cat $PROJECT_FILE`;
-	    do echo generate oxog jsons from $f
-		echo Script location: $DIR
+	for f in `cat $PROJECT_FILE`; do
+	    echo generate oxog jsons from $f
+	    echo Script location: $DIR
 		cd $DIR
 
 		M=`find gnos_metadata -maxdepth 1 -type d -regex 'gnos_metadata/20[0-9][0-9]-[0-9][0-9].*[0-9][0-9]_[A-Z][A-Z][A-Z]' | sort | tail -1`
@@ -64,8 +64,8 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	done
 
 	let COUNTER=COUNTER+1 
-    echo The counter is $COUNTER
-    echo sleeping an hour
+	echo The counter is $COUNTER
+	echo sleeping an hour
 	sleep 1h
     
 done
