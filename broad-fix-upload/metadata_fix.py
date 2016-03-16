@@ -131,7 +131,11 @@ def generate_md5(fname):
 
 def get_gnos_analysis_object(f):
     with open (f, 'r') as x: xml_str = x.read()
-    analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+    if xmltodict.parse(xml_str).get('ResultSet') and xmltodict.parse(xml_str).get('ResultSet').get('Result') and xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml'):
+        analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+    else:
+        logger.error('Could not parse the file: {}'.format(f))
+        return 
     return analysis_xml
 
 
@@ -184,6 +188,12 @@ def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
             donors_to_be_fixed.remove(donor)
             continue
 
+        xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
+        gnos_analysis_object = get_gnos_analysis_object(xml_file)
+        if not gnos_analysis_object:
+            donors_to_be_fixed.remove(donor)
+            continue  
+
         upload_gnos_uuid = generate_uuid()
         upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
         if os.path.isdir(upload_dir): # this should never happen, but if happen regenerate a new UUID
@@ -192,9 +202,6 @@ def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
         os.makedirs(upload_dir)
 
         donor.update({'broad_v3_gnos_id': upload_gnos_uuid})
-        
-        xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
-        gnos_analysis_object = get_gnos_analysis_object(xml_file)
 
         copy_file(upload_dir, files)
         apply_data_block_patches(gnos_analysis_object, files)
