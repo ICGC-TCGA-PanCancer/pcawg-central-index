@@ -24,7 +24,8 @@ import shutil
 import requests
 import csv
 
-id_service_token = os.environ.get('ICGC_TOKEN')
+# id_service_token = os.environ.get('ICGC_TOKEN')
+icgc_project_code = os.environ.get('ICGC_PROJECT_CODE')
 
 logger = logging.getLogger('OxOG filter json generator')
 ch = logging.StreamHandler()
@@ -39,6 +40,11 @@ es_queries = [
             {
               "type": {
                 "value": "donor"
+              }
+            },
+            {
+              "terms": {
+                "dcc_project_code": [icgc_project_code]
               }
             },
             # {
