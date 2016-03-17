@@ -1,9 +1,9 @@
 #!/bin/bash
 
-ICGC_TOKEN_CODE=$4
+ICGC_TOKEN_CODE=$1
 CLOUD=$2
 PROJECT_FILE=$3
-MAX_TIME=$1
+MAX_TIME=$4
 
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
