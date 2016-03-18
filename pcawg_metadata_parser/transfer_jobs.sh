@@ -44,7 +44,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the transfer jsons from $f...
-		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -i release_mar2016/release_mar2016_gnos_ids_freeze_21286_v1.txt -s wgs -v sanger dkfz broad muse
+		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s wgs -v sanger broad muse
 
 		JOB_NUM=`ls -l $M/reports/s3_transfer_json_$CLOUD/ |grep json|wc -l`
 		Z=0
@@ -80,13 +80,13 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	        git push     
 	    else
 	    	echo no new job could be generated from $f
-	    	echo
 		fi
+		echo
 	done
 
 	let COUNTER=COUNTER+1 
 	echo The counter is $COUNTER
-	echo sleeping an hour
-	sleep 1h
+	# echo sleeping an hour
+	# sleep 1h
     
 done

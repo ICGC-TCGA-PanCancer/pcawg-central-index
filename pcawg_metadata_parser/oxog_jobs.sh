@@ -10,6 +10,8 @@ COUNTER=0
 while [  $COUNTER -lt $MAX_TIME ]; do
 
 	for f in `cat $PROJECT_FILE`; do
+		echo
+		echo --------------------------------------
 	    echo generate oxog jsons from $f
 	    echo Script location: $DIR
 		cd $DIR
@@ -61,6 +63,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	    else
 	    	echo no new job could be generated from $f
 		fi
+		echo
 	done
 
 	let COUNTER=COUNTER+1 
