@@ -970,6 +970,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
 
     if q_index == 16:
         annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
+        annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
         add_report_info_16(report_info, report_info_list, es_json, annotations)
 
     return report_info_list
@@ -1349,6 +1350,12 @@ def read_annotations(annotations, type, file_name):
                 # if not row.get('study_donor_involved_in') == 'PCAWG': continue
                 if not row.get('project_code') or not row.get('submitted_donor_id'): continue
                 annotations[type][row.get('project_code')+'::'+row.get('submitted_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
+        elif type == 'gender_update':
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                if not row.get('donor_unique_id'): continue
+                annotations['gender'][row.get('donor_unique_id')] = row.get('DCC ICGC21 submitted donor_sex') if row.get('DCC ICGC21 submitted donor_sex') else None
+
         else:
             print('unknown annotation type: {}'.format(type))
     return annotations
