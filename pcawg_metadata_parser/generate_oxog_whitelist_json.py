@@ -657,7 +657,7 @@ def main(argv=None):
     if target_cloud == 'aws':
         git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json'
     elif target_cloud == 'collab':
-        git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/completed-jobs/*.json'
+        git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*completed-jobs/*.json'
     else:
         sys.exit('Error: unknown target_cloud!')
     files = glob.glob(git_s3_fnames)

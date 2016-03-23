@@ -49,11 +49,11 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 
 		if [ "$JOB_NUM" -gt "$Z" ]; then
 			echo move job to oxog-ops
-			cp $M/reports/oxog_whitelist_json/*.json ../oxog-ops/oxog-$CLOUD-jobs/queued-jobs/.
+			cp $M/reports/oxog_whitelist_json/*.json ../oxog-ops/oxog-$CLOUD-jobs/backlog-jobs/.
 			rm -rf ${M}/reports/oxog_whitelist_json
 	        
 	        echo check the job into git
-	        cd ../oxog-ops/oxog-$CLOUD-jobs/queued-jobs/
+	        cd ../oxog-ops/oxog-$CLOUD-jobs/backlog-jobs/
 	        git checkout master
 	        git reset --hard origin/master
 	        git pull
