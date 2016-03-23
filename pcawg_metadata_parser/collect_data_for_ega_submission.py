@@ -92,7 +92,7 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
                         sample['gender'] = annotations.get('gender').get(sample_info.get('donor_unique_id')) 
                     else:
                         click.echo('Warning: missing gender informaion for donor: %s' % sample_info.get('donor_unique_id'), err=True)
-                        return
+                        continue
                     sample['phenotype'] = None
                     sample['icgc_project_code'] = sample_info['dcc_project_code']
 
@@ -116,7 +116,7 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
                     click.echo('Error: %s' % str(e), err=True)
                     return
 
-                sample_sheet.append(copy.deepcopy(sample))
+                sample_sheet.append(copy.deepcopy(sample))     
 
         if sample_sheet:    
             out_dir = os.path.join(ega_dir, dcc_project_code, 'sample')
@@ -525,6 +525,9 @@ def main(argv=None):
     seq= list(seq) if seq else [] 
     workflow = list(workflow) if workflow else []   
 
+    donor_id_to_be_incuded = generate_id_list(include_donor_id_lists)
+    donor_id_to_be_excluded = generate_id_list(exclude_donor_id_lists)
+
     # pre-exclude gnos entries when this option is chosen
     gnos_sample_ids_to_be_excluded = generate_id_list(exclude_gnos_sample_id_lists)
 
@@ -569,6 +572,7 @@ def main(argv=None):
 
     for project in dcc_project_code:
         donors_list = get_donors_list(es, es_index, project)
+        donors_list.difference_update(donor_id_to_be_excluded)
 
         if unstage_type:
             generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids) 
