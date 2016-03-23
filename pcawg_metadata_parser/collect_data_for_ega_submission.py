@@ -565,16 +565,15 @@ def main(argv=None):
     pcawg_sample_sheet = '../pcawg-operations/lists/pcawg_sample_sheet.2016-03-11.tsv'
     pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
 
-    # connect with the ftp
-    ftp=ftplib.FTP('ftp.ega.ebi.ac.uk', 'ega-box-520', ega_box_token)
-    ftp_gnos_ids = set(ftp.nlst())
-
 
     for project in dcc_project_code:
         donors_list = get_donors_list(es, es_index, project)
         donors_list.difference_update(donor_id_to_be_excluded)
 
         if unstage_type:
+            # connect with the ftp
+            ftp=ftplib.FTP('ftp.ega.ebi.ac.uk', 'ega-box-520', ega_box_token)
+            ftp_gnos_ids = set(ftp.nlst())
             generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids) 
 
         if seq:
