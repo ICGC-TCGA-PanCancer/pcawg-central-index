@@ -52,13 +52,13 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		if [ "$JOB_NUM" -gt "$Z" ]; then
 			echo move job to job folders
 			if [ "$CLOUD" == "collab" ]; then
-				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../ceph_transfer_ops/ceph-transfer-jobs-bwa/queued-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../ceph_transfer_ops/ceph-transfer-jobs-bwa/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/queued-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/queued-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/queued-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/queued-jobs/.
 			else
-				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/queued-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/queued-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/queued-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/queued-jobs/.
