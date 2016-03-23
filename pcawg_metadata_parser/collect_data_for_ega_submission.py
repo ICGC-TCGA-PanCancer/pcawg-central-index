@@ -219,7 +219,7 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                     cached_effective_xml_md5sum = effective_xml_md5sum(cached_xml_str)
                     if not latest_effective_xml_md5sum == cached_effective_xml_md5sum:
                         click.echo('Warning: BSC gnos xml has different effective md5sum with the cached xml for gnos_id: %s' % gnos_id, err=True)
-                        sys.exit(0)
+                        continue
                     
                     # gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
                     with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
