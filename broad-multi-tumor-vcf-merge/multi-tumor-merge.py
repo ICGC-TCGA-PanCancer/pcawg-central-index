@@ -98,7 +98,10 @@ def merge_obj(merged_obj, input_obj, input_obj_uuid, merged_gnos_object):
 
     merged_runs = merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
         'ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('RUN_LABELS').get('RUN')
-    if not type(merged_runs) == list: merged_runs = [ merged_runs ]
+    if not type(merged_runs) == list:
+        merged_runs = deepcopy([ merged_runs ])
+        merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
+            'ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('RUN_LABELS')['RUN'] = merged_runs
 
     existing_read_group_labels = set([ run.get('@read_group_label') for run in merged_runs ])
     incoming_read_group_labels = set([ run.get('@read_group_label') for run in input_runs ])
@@ -116,7 +119,10 @@ def merge_obj(merged_obj, input_obj, input_obj_uuid, merged_gnos_object):
 
     merged_seqs = merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
         'ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('SEQ_LABELS').get('SEQUENCE')
-    if not type(merged_seqs) == list: merged_seqs = [ merged_seqs ]
+    if not type(merged_seqs) == list:
+        merged_seqs = deepcopy([ merged_seqs ])
+        merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get(
+            'REFERENCE_ALIGNMENT').get('SEQ_LABELS')['SEQUENCE'] = merged_seqs
 
     existing_seqs = set([ seq.get('@data_block_name') + '|' + seq.get('@accession') for seq in merged_seqs ])
     incoming_seqs = set([ seq.get('@data_block_name') + '|' + seq.get('@accession') for seq in input_seqs ])
@@ -134,7 +140,10 @@ def merge_obj(merged_obj, input_obj, input_obj_uuid, merged_gnos_object):
 
     merged_targets = merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
         'TARGETS').get('TARGET')
-    if not type(merged_targets) == list: merged_targets = [ merged_targets ]
+    if not type(merged_targets) == list:
+        merged_targets = deepcopy([ merged_targets ])
+        merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
+            'TARGETS')['TARGET'] = merged_targets
 
     existing_targets = set([target.get('@refname') for target in merged_targets])
     incoming_targets = set([target.get('@refname') for target in input_targets])
@@ -152,7 +161,10 @@ def merge_obj(merged_obj, input_obj, input_obj_uuid, merged_gnos_object):
 
     merged_files = merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
         'DATA_BLOCK').get('FILES').get('FILE')
-    if not type(merged_files) == list: merged_files = [ merged_files ]
+    if not type(merged_files) == list:
+        merged_files = deepcopy([merged_files])
+        merged_obj.get('ANALYSIS_SET').get('ANALYSIS').get(
+            'DATA_BLOCK').get('FILES')['FILE'] = merged_files
 
 
     existing_files = set([f.get('@filename') for f in merged_files])
