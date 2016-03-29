@@ -96,6 +96,11 @@ es_queries = [
               }
             },
             {
+              "range":{
+                    "flags.all_tumor_specimen_aliquot_counts":{"lt": 2}
+                }
+            }, 
+            {
                "terms":{
                   "flags.is_sanger_variant_calling_performed":[
                      "T"
