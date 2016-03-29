@@ -66,14 +66,14 @@ es_queries = [
             #     ]
             #   }
             # },
-            {
-              "terms": {
-                "donor_unique_id": [
-                    "BLCA-US::096b4f32-10c1-4737-a0dd-cae04c54ee33"
+            # {
+            #   "terms": {
+            #     "donor_unique_id": [
+            #         "BLCA-US::096b4f32-10c1-4737-a0dd-cae04c54ee33"
 
-                ]
-              }
-            },
+            #     ]
+            #   }
+            # },
             {
               "regexp": {
                 "dcc_project_code": ".*-US"
@@ -86,6 +86,11 @@ es_queries = [
             #     ]
             #   }
             # },
+            {
+              "range":{
+                "flags.all_tumor_specimen_aliquot_counts":{"lt": 2}
+              }
+            },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -142,11 +147,11 @@ es_queries = [
                 ]
               }
             },
-            {
-              "range":{
-                    "qc_score":{"gte": 0, "lt": 10000}
-                }
-            }
+            # {
+            #   "range":{
+            #         "qc_score":{"gte": 0, "lt": 10000}
+            #     }
+            # }
           ],
           "must_not": [
             # {
@@ -154,11 +159,11 @@ es_queries = [
             #     "dcc_project_code": ".*-US"
             #   }
             # },
-            # {
-            #   "regexp": {
-            #     "dcc_project_code": ".*-DE"
-            #   }
-            # },
+            {
+              "regexp": {
+                "dcc_project_code": ".*-DE"
+              }
+            },
             {
               "terms": {
                 "flags.is_bam_used_by_variant_calling_missing": [
@@ -173,20 +178,20 @@ es_queries = [
                 ]
               }
             },
-            {
-              "terms": {
-                "flags.exists_xml_md5sum_mismatch": [
-                  "T"
-                ]
-              }
-            },
-            {
-              "terms": {
-                "flags.exists_vcf_file_prefix_mismatch": [
-                  "T"
-                ]
-              }
-            },
+            # {
+            #   "terms": {
+            #     "flags.exists_xml_md5sum_mismatch": [
+            #       "T"
+            #     ]
+            #   }
+            # },
+            # {
+            #   "terms": {
+            #     "flags.exists_vcf_file_prefix_mismatch": [
+            #       "T"
+            #     ]
+            #   }
+            # },
             {
               "terms": {
                 "flags.is_manual_qc_failed": [
@@ -651,7 +656,7 @@ def main(argv=None):
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
     # if target_compute_site in ['aws', 'collab', 'ucsc']:
-    git_fnames = '../oxog-ops/oxog-*-jobs*/*/*.json'
+    git_fnames = '../oxog-ops/oxog-*-jobs/*/*.json'
         # git_fnames = 'gnos_metadata/2016-01-11_11-44-53_EST/reports/oxog_whitelist_json/*.json'
     # else:
     #     sys.exit('Error: unknown target_compute_site!')
