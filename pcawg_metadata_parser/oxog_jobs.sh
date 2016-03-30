@@ -58,7 +58,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	        git reset --hard origin/master
 	        git pull
 	        git add .
-	        git commit -m "add $JOB_NUM new jobs for project: $f"        
+	        git commit -m "$CLOUD: add $JOB_NUM new jobs for project: $f"        
 	        git push
 	    else
 	    	echo no new job could be generated from $f
