@@ -42,7 +42,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the jsons from $f...
-		ICGC_PROJECT_CODE=$f ./generate_oxog_whitelist_json.py -m $M -t $CLOUD
+		ICGC_PROJECT_CODE=$f ./generate_oxog_whitelist_json_multitumors.py -m $M -t $CLOUD
 
 		JOB_NUM=`ls -l $M/reports/oxog_whitelist_json/ |grep json|wc -l`
 		Z=0
@@ -58,7 +58,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	        git reset --hard origin/master
 	        git pull
 	        git add .
-	        git commit -m "$CLOUD: add $JOB_NUM new jobs for project: $f"        
+	        git commit -m "$CLOUD: add $JOB_NUM new multitumors jobs for project: $f"        
 	        git push
 	    else
 	    	echo no new job could be generated from $f
