@@ -178,20 +178,21 @@ def download_metadata_files(work_dir, donors_to_be_fixed):
     return donors_to_be_fixed
 
 def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
-    donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
+    # donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
+    fixed_donors = []
     caller = 'broad'
-    for donor in donors_to_be_fixed_old:
+    for donor in donors_to_be_fixed:
         gnos_analysis_objects = {}
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         files = get_files(donor, fixed_file_dir, gnos_entry_dir)
         if not files:
-            donors_to_be_fixed.remove(donor)
+            # donors_to_be_fixed.remove(donor)
             continue
 
         xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
         gnos_analysis_object = get_gnos_analysis_object(xml_file)
         if not gnos_analysis_object:
-            donors_to_be_fixed.remove(donor)
+            # donors_to_be_fixed.remove(donor)
             continue  
 
         upload_gnos_uuid = generate_uuid()
@@ -209,7 +210,10 @@ def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
         create_fixed_gnos_submission(upload_dir, gnos_analysis_object) 
 
         generate_updated_metadata(donor, work_dir)
-    return donors_to_be_fixed
+
+        fixed_donors.append(donor)
+
+    return fixed_donors
 
 def generate_updated_metadata(donor, work_dir):
     for caller in ['muse', 'broad_tar']:
@@ -219,6 +223,10 @@ def generate_updated_metadata(donor, work_dir):
         donor_unique_id = donor.get('donor_unique_id')
         broad_gnos_id = donor.get('broad_v2_gnos_id') if donor.get('broad_v2_gnos_id') else donor.get('broad_gnos_id')
         broad_v3_gnos_id = donor.get('broad_v3_gnos_id')
+        if caller == 'muse':
+            uuid_set = [broad_v3_gnos_id, donor.get('broad_tar_gnos_id')]
+        else:
+            uuid_set = [broad_v3_gnos_id, donor.get('muse_gnos_id')]
 
         xml_str = download_metadata_xml(gnos_id, gnos_repo)
         gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
@@ -228,10 +236,10 @@ def generate_updated_metadata(donor, work_dir):
         analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
         for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
             if a['TAG'] == update_field:
-                uuid_set = set(a['VALUE'].split(','))
-                uuid_set.remove(broad_gnos_id)
-                uuid_set.add(broad_v3_gnos_id)
-                a['VALUE'] = ','.join(list(uuid_set))
+                # uuid_set = set(a['VALUE'].split(','))
+                # uuid_set.remove(broad_gnos_id)
+                # uuid_set.add(broad_v3_gnos_id)
+                a['VALUE'] = ','.join(uuid_set)
                 logger.info('donor: {} update the {} for {}_variant_calling with gnos_id: {} at gnos_repo: {}'.format(donor_unique_id, update_field, caller, gnos_id, gnos_repo))
 
         # analysis_xml = {'analysis_xml': analysis_xml}
@@ -523,10 +531,10 @@ def main(argv=None):
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files...')
-    donors_to_be_fixed = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir)
+    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir)
 
     # write the fixed donor informaton 
-    write_file(donors_to_be_fixed, 'fixed_'+donor_list_file)
+    write_file(fixed_donors, 'fixed_'+donor_list_file)
     if not os.path.exists('fixed_'+donor_list_file): sys.exit('Fixed donor list file is missing!')
     
     print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
