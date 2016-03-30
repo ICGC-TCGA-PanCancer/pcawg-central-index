@@ -142,11 +142,11 @@ es_queries = [
                 ]
               }
             },
-            {
-              "range":{
-                    "qc_score":{"gte": 0, "lt": 10000}
-                }
-            }
+            # {
+            #   "range":{
+            #         "qc_score":{"gte": 0, "lt": 10000}
+            #     }
+            # }
           ],
           "must_not": [
             {

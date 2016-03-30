@@ -68,7 +68,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 
 	let COUNTER=COUNTER+1 
 	echo The counter is $COUNTER
-	echo sleeping an hour
-	sleep 1h
+	# echo sleeping an hour
+	# sleep 1h
     
 done
