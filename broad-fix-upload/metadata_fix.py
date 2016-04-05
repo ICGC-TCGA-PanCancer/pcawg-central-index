@@ -209,7 +209,9 @@ def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
 
         create_fixed_gnos_submission(upload_dir, gnos_analysis_object) 
 
-        generate_updated_metadata(donor, work_dir)
+        updated_metadata = generate_updated_metadata(donor, work_dir)
+        if not updated_metadata:
+            continue
 
         fixed_donors.append(donor)
 
@@ -232,7 +234,7 @@ def generate_updated_metadata(donor, work_dir):
         gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
         if not gnos_analysis.get('analysis_id') == gnos_id:
             logger.warning('donor: {} has wrong gnos entry {} at repo: {}'.format(donor_unique_id, gnos_id, gnos_repo))
-            return None
+            return False
         analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
         for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
             if a['TAG'] == update_field:
@@ -251,6 +253,8 @@ def generate_updated_metadata(donor, work_dir):
             os.makedirs(updated_metafiles_dir)
         with open(updated_metafiles_dir+'/analysis.xml', 'w') as y:
             y.write(analysis_xml_str)
+
+    return True
     
 
 def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
