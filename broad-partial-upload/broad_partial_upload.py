@@ -336,16 +336,16 @@ def copy_file(target, source):
         shutil.copy(s, target)       
 
 
-def get_files(donor_id, call):
+def get_files(donor_id, call, work_dir):
 
     matched_files = []
     if call == 'muse':
         file_dirs = ['Muse-calls']
         file_name_patterns = set([
                 r'^.+\.somatic\.snv_mnv\.vcf\.gz$',
-                r'^.+\.somatic\.snv_mnv\.vcf\.gz\.md5$',
-                r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx$',
-                r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx\.md5$'
+                # r'^.+\.somatic\.snv_mnv\.vcf\.gz\.md5$',
+                r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
+                # r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx\.md5$'
             ])
     elif call == 'broad':
         file_dirs = [];
@@ -370,7 +370,7 @@ def get_files(donor_id, call):
 
 
     for file_dir in file_dirs: # match fixed_file dir first
-        for f in glob.glob(os.path.join(file_dir, donor_id+'*')):
+        for f in glob.glob(os.path.join(work_dir, file_dir, donor_id+'*')):
             file_name = os.path.basename(f)
             # print file_name
             matched_fp = None
@@ -472,13 +472,13 @@ def generate_id_list(id_lists):
 
     return ids_list
 
-def create_soft_links(row, create_soft_link, work_dir):
+def create_results_copy(row, create_results_copy, work_dir):
     # with open(vcf_info_file, 'r') as f:
     #     reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
     #     for row in reader:
     donor_id = row.get('Submitter_donor_ID')
     aliquot_id = row.get('Tumour_WGS_aliquot_IDs')
-    for dt in create_soft_link:
+    for dt in create_results_copy:
         call_results_dir = work_dir+'/call_results_dir/'+dt
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
         if dt=='muse':
@@ -583,8 +583,8 @@ def main(argv=None):
              help="Directory name containing fixed variant call files", required=True)
     parser.add_argument("-v", "--vcf_info_file", dest="vcf_info_file",
              help="vcf information file", required=False)
-    parser.add_argument("-c", "--create_soft_link", dest="create_soft_link", nargs="*",
-             help="create soft link for given variant call", required=False)
+    parser.add_argument("-c", "--create_results_copy", dest="create_results_copy", nargs="*",
+             help="create results copy for given variant call", required=False)
     parser.add_argument("-g", "--generate_analysis_xml", dest="generate_analysis_xml", nargs="*",
              help="generate analysis xml for given variant call", required=False)
     parser.add_argument("-x", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
@@ -595,15 +595,15 @@ def main(argv=None):
     args = parser.parse_args()
     work_dir = args.work_dir
     vcf_info_file = args.vcf_info_file 
-    create_soft_link = args.create_soft_link 
+    create_results_copy = args.create_results_copy 
     generate_analysis_xml = args.generate_analysis_xml 
     exclude_donor_id_lists = args.exclude_donor_id_lists
     include_donor_id_lists = args.include_donor_id_lists
 
-    create_soft_link = list(create_soft_link) if create_soft_link else []
+    create_results_copy = list(create_results_copy) if create_results_copy else []
     generate_analysis_xml= list(generate_analysis_xml) if generate_analysis_xml else []    
 
-    if not os.path.isdir(work_dir): os.makedirs(work_dir+'/call_results_dir')
+    if not os.path.isdir(work_dir+'/call_results_dir'): os.makedirs(work_dir+'/call_results_dir')
 
 
     if 'test' in work_dir:
@@ -640,7 +640,7 @@ def main(argv=None):
     with open(vcf_info_file, 'r') as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
-            if create_soft_link: create_soft_links(row, create_soft_link, work_dir)
+            if create_results_copy: create_results_copy(row, create_results_copy, work_dir)
 
             if generate_analysis_xml: generate_analysis_xmls(row, generate_analysis_xml, work_dir)
 
