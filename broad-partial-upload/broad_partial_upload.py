@@ -555,7 +555,7 @@ def id_mapping(vcf):
 
 def generate_perl_command(gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir):
 
-    command =   'perl -I ../gt-download-upload-wrapper/lib/ ../vcf-uploader/gnos_upload_vcf.pl' +\
+    command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
                  ' --key gnos_fake_key '+\
                  ' --metadata-urls ' + metadata_urls +\
                  ' --vcfs ' + ','.join(vcf_files) +\
