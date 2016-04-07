@@ -472,7 +472,7 @@ def generate_id_list(id_lists):
 
     return ids_list
 
-def create_results_copy(row, create_results_copy, work_dir):
+def create_results_copys(row, create_results_copy, work_dir):
     # with open(vcf_info_file, 'r') as f:
     #     reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
     #     for row in reader:
@@ -482,7 +482,7 @@ def create_results_copy(row, create_results_copy, work_dir):
         call_results_dir = work_dir+'/call_results_dir/'+dt
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
         if dt=='muse':
-            muse_files = get_files(donor_id, dt)
+            muse_files = get_files(donor_id, dt, work_dir)
             copy_files(call_results_dir, muse_files, donor_id, aliquot_id, dt)
         else:
             pass        
@@ -640,7 +640,7 @@ def main(argv=None):
     with open(vcf_info_file, 'r') as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
-            if create_results_copy: create_results_copy(row, create_results_copy, work_dir)
+            if create_results_copy: create_results_copys(row, create_results_copy, work_dir)
 
             if generate_analysis_xml: generate_analysis_xmls(row, generate_analysis_xml, work_dir)
 
