@@ -430,8 +430,13 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     if isinstance(qc, dict): vcf_entry.get('workflow_details')['variant_qc_metrics'] = qc
 
     # DO NOT KEEP timing metrics, it's way too verbose
-    #timing = json.loads( analysis_attrib.get('variant_timing_metrics') ).get('timing_metrics') if analysis_attrib.get('variant_timing_metrics') else {}
-    #if isinstance(timing, dict): vcf_entry.get('workflow_details')['variant_timing_metrics'] = timing
+    # uncomment this temporarily for Keiran who needs timing data
+    timing = {}
+    try:
+        timing = json.loads( analysis_attrib.get('variant_timing_metrics') ).get('timing_metrics') if analysis_attrib.get('variant_timing_metrics') else {}
+    except:
+        pass  # don't care
+    if isinstance(timing, dict): vcf_entry.get('workflow_details')['variant_timing_metrics'] = timing
 
     #print json.dumps(vcf_entry)  # debugging only
     workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
