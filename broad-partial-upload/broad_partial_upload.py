@@ -402,9 +402,8 @@ def get_files(donor_id, call, work_dir, aliquot_id):
 
 
     elif call == 'broad_tar':
-        file_dir = 'Broad-calls/'+donor_id+'/links_for_broad/*'
-        for f in glob.glob(os.path.join(work_dir, file_dir, '*')):
-            matched_files.append(copy.deepcopy(f))
+        file_dir = 'Broad-calls/'+donor_id+'/links_for_broad'
+        matched_files = glob.glob(os.path.join(work_dir, file_dir, '*'))
         return matched_files            
 
     else:
@@ -503,8 +502,8 @@ def create_results_copys(row, create_results_copy, work_dir):
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
         # if dt=='muse':
         vcf_files = get_files(donor_id, dt, work_dir, aliquot_id)
-        print vcf_files
-        sys.exit(0)
+        #print vcf_files
+        #sys.exit(0)
 
         # else:
         #     pass        
