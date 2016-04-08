@@ -20,6 +20,7 @@ import hashlib
 import subprocess
 from random import randint
 import shutil
+import tarfile
 
 logger = logging.getLogger('metadata_fix_and_upload')
 # create console handler with a higher log level
@@ -55,7 +56,7 @@ def get_files(donor_id, call, work_dir, aliquot_id):
             for fp in file_name_patterns:
                 logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot)) 
 
-    elif call == 'broad':
+    elif call == 'broad-v3':
         file_name_patterns = set([
                 r'^.+\.germline\.indel\.vcf\.gz$',
                 r'^.+\.germline\.indel\.vcf\.gz\.idx$',
@@ -98,7 +99,7 @@ def get_files(donor_id, call, work_dir, aliquot_id):
 
         if file_name_patterns:
             for fp in file_name_patterns:
-                logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))       
+                logger.warning('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot_id))       
 
 
     elif call == 'broad_tar':
@@ -123,7 +124,7 @@ def create_results_copys(row, create_results_copy, work_dir):
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
         # if dt=='muse':
         vcf_files = get_files(donor_id, dt, work_dir, aliquot_id)
-        #print vcf_files
+        print vcf_files
         #sys.exit(0)
 
         # else:
@@ -153,7 +154,7 @@ def copy_files(target, source, donor_id, aliquot_id, call):
             filename = os.path.basename(s).replace(donor_id, aliquot_id)
             shutil.copy(s, os.path.join(target, filename))
 
-    elif call=='broad':
+    elif call=='broad-v3':
         for s in source:
             filename = os.path.basename(s).replace(donor_id, aliquot_id).replace('DATECODE', '20160401')
             shutil.copy(s, os.path.join(target, filename))
@@ -169,15 +170,13 @@ def copy_files(target, source, donor_id, aliquot_id, call):
     
 
 def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
-    # with open(vcf_info_file, 'r') as f:
-    #     reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
-    #     for row in reader:
     donor_id = row.get('Submitter_donor_ID')
     aliquot_id = row.get('Tumour_WGS_aliquot_IDs')
     normal_bam_url = row.get('Normal_WGS_alignment_GNOS_repos').split('|')[0] + 'cghub/metadata/analysisFull/' + row.get('Normal_WGS_alignment_GNOS_analysis_ID')
     tumor_bam_url = row.get('Tumour_WGS_alignment_GNOS_repos').split('|')[0] + 'cghub/metadata/analysisFull/' + row.get('Tumour_WGS_alignment_GNOS_analysis_IDs')
     metadata_urls = normal_bam_url + ',' + tumor_bam_url
-    
+    project_code = row.get('Project_code')
+ 
     for dt in generate_analysis_xml:
         call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
         vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz')) if dt in ['muse', 'broad-v3'] else glob.glob(os.path.join(call_results_dir, aliquot_id+'.broad.intermediate.tar'))
@@ -185,15 +184,12 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
         gnos_id = row.get(id_mapping(dt))
         related_file_subset_uuids = [row.get('Muse_VCF_UUID'), row.get('Broad_VCF_UUID'), row.get('Broad_TAR_UUID')]
         related_file_subset_uuids.remove(row.get(id_mapping(dt)))
-        output_dir = dt
-
-        # if dt == 'muse':
-        #     glob.glob(os.path.join(file_dir, donor_id+'*'))
+        output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc') 
 
         command = generate_perl_command(gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir)
 
-        print command
-        sys.exit(0)
+#        print command
+#        sys.exit(0)
 
         process = subprocess.Popen(
             command,
@@ -203,13 +199,12 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
         )
 
         out, err = process.communicate()
-        print err
-        sys.exit(0)
-        if not process.returncode:
-            sys.exit(0)
-        else:
+ #       print err
+ #       sys.exit(0)
+        if not process.returncode:#success
             continue
-
+        else:
+            sys.exit('Error:{}'.format(err))
 
 
 def id_mapping(vcf):
