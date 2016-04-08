@@ -121,14 +121,6 @@ def generate_uuid():
     return uuid_str
 
 
-def generate_md5(fname):
-    hash = hashlib.md5()
-    with open(fname) as f:
-        for chunk in iter(lambda: f.read(4096), ""):
-            hash.update(chunk)
-    return hash.hexdigest()
-
-
 def get_gnos_analysis_object(f):
     with open (f, 'r') as x: xml_str = x.read()
     if xmltodict.parse(xml_str).get('ResultSet') and xmltodict.parse(xml_str).get('ResultSet').get('Result') and xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml'):
@@ -336,41 +328,19 @@ def copy_file(target, source):
         shutil.copy(s, target)       
 
 
-def get_files(donor_id, call, work_dir):
+def get_files(donor_id, call, work_dir, aliquot_id):
 
     matched_files = []
     if call == 'muse':
-        file_dirs = ['Muse-calls']
         file_name_patterns = set([
                 r'^.+\.somatic\.snv_mnv\.vcf\.gz$',
                 # r'^.+\.somatic\.snv_mnv\.vcf\.gz\.md5$',
                 r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
                 # r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx\.md5$'
             ])
-    elif call == 'broad':
-        file_dirs = [];
-        file_name_patterns = set([
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman.+\.somatic\.sv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.sv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.sv\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
-            ])
-    else:
-        pass
 
-
-    for file_dir in file_dirs: # match fixed_file dir first
-        for f in glob.glob(os.path.join(work_dir, file_dir, donor_id+'*')):
+        file_dir = 'Muse-calls'
+        for f in glob.glob(os.path.join(work_dir, file_dir, donor_id+'*'))
             file_name = os.path.basename(f)
             # print file_name
             matched_fp = None
@@ -380,18 +350,68 @@ def get_files(donor_id, call, work_dir):
                     matched_files.append(copy.deepcopy(f))
 
             if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
-        
-        # print matched_files
-        # print len(matched_files)
+
         if file_name_patterns:
             for fp in file_name_patterns:
-                logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
-            # sys.exit('Missing expected variant call result file, see log file for details.')
+                logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot)) 
+
+    elif call == 'broad':
+        file_name_patterns = set([
+                r'^.+\.germline\.indel\.vcf\.gz$',
+                r'^.+\.germline\.indel\.vcf\.gz\.idx$',
+                r'^.+\.somatic\.indel\.vcf\.gz$',
+                r'^.+\.somatic\.indel\.vcf\.gz\.idx$',
+                r'^.+\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz$',
+                r'^.+\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^.+\.broad-snowman.+\.somatic\.sv\.vcf\.gz$',
+                r'^.+\.broad-snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^.+\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz$',
+                r'^.+\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^.+\.germline\.sv\.vcf\.gz$',
+                r'^.+\.germline\.sv\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
+            ])
+        file_dir = 'broad-fix-for-long-running-jobs'
+        for f in glob.glob(os.path.join(work_dir, file_dir, aliquot_id+'*')):
+            file_name = os.path.basename(f)
+            # print file_name
+            matched_fp = None
+            for fp in file_name_patterns:
+                if re.match(fp, file_name):
+                    matched_fp = fp
+                    matched_files.append(copy.deepcopy(f))
+
+            if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
+
+        file_dir = 'Broad-calls/'+donor_id+'/links_for_gnos/tabix_*'
+        for f in glob.glob(os.path.join(work_dir, file_dir, donor_id+'*'))
+            file_name = os.path.basename(f)
+            # print file_name
+            matched_fp = None
+            for fp in file_name_patterns:
+                if re.match(fp, file_name):
+                    matched_fp = fp
+                    matched_files.append(copy.deepcopy(f))
+
+            if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
+
+        if file_name_patterns:
+            for fp in file_name_patterns:
+                logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))       
+
+
+    elif call == 'broad_tar':
+        file_dir = 'Broad-calls/'+donor_id+'/links_for_broad/*'
+        for f in glob.glob(os.path.join(work_dir, file_dir, '*')):
+            matched_files.append(copy.deepcopy(f))
+        return matched_files            
+
+    else:
+        pass
      
     return matched_files
 
-def generate_index_files(work_dir, donors_to_be_fixed):
-    pass
 
 def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file):
     donors_to_be_fixed = []
@@ -479,13 +499,32 @@ def create_results_copys(row, create_results_copy, work_dir):
     donor_id = row.get('Submitter_donor_ID')
     aliquot_id = row.get('Tumour_WGS_aliquot_IDs')
     for dt in create_results_copy:
-        call_results_dir = work_dir+'/call_results_dir/'+dt
+        call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
-        if dt=='muse':
-            muse_files = get_files(donor_id, dt, work_dir)
-            copy_files(call_results_dir, muse_files, donor_id, aliquot_id, dt)
-        else:
-            pass        
+        # if dt=='muse':
+        vcf_files = get_files(donor_id, dt, work_dir, aliquot_id)
+        print vcf_files
+        sys.exit(0)
+
+        # else:
+        #     pass        
+
+        copy_files(call_results_dir, vcf_files, donor_id, aliquot_id, dt)
+        generate_md5_files(call_results_dir, aliquot_id)
+        
+
+def generate_md5_files(folder_name, aliquot_id):
+    for f in glob.glob(os.path.join(folder_name, aliquot_id+'*')):
+        md5_value = generate_md5(f)
+        with open(f+'.md5', 'w') as fh: fh.write(md5_value)
+
+
+def generate_md5(fname):
+    hash = hashlib.md5()
+    with open(fname) as f:
+        for chunk in iter(lambda: f.read(4096), ""):
+            hash.update(chunk)
+    return hash.hexdigest()
 
 
 def copy_files(target, source, donor_id, aliquot_id, call):
@@ -493,7 +532,17 @@ def copy_files(target, source, donor_id, aliquot_id, call):
         for s in source:
             filename = os.path.basename(s).replace(donor_id, aliquot_id)
             shutil.copy(s, os.path.join(target, filename))
-            # os.symlink(s, os.path.join(target, filename))
+
+    elif call=='broad':
+        for s in source:
+            filename = os.path.basename(s).replace(donor_id, aliquot_id).replace('DATECODE', '20160401')
+            shutil.copy(s, os.path.join(target, filename))
+
+    elif call=='broad_tar':
+        filename = aliquot_id+'.broad.intermediate.tar'
+        with tarfile.open(os.path.join(target, filename), "w") as tar:
+            for s in source:
+                tar.add(s) 
 
     else:
         pass
@@ -510,8 +559,8 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
     metadata_urls = normal_bam_url + ',' + tumor_bam_url
     
     for dt in generate_analysis_xml:
-        call_results_dir = work_dir+'/call_results_dir/'+dt
-        vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz'))
+        call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
+        vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz')) if dt in ['muse', 'broad-v3'] else glob.glob(os.path.join(call_results_dir, aliquot_id+'.broad.intermediate.tar'))
         workflow_file_subset = dt
         gnos_id = row.get(id_mapping(dt))
         related_file_subset_uuids = [row.get('Muse_VCF_UUID'), row.get('Broad_VCF_UUID'), row.get('Broad_TAR_UUID')]
@@ -545,7 +594,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
 
 def id_mapping(vcf):
     vcf_map = {
-      "broad": "Broad_VCF_UUID",
+      "broad-v3": "Broad_VCF_UUID",
       "muse": "Muse_VCF_UUID",
       "broad_tar": "Broad_TAR_UUID"
     }   
