@@ -340,7 +340,7 @@ def get_files(donor_id, call, work_dir, aliquot_id):
             ])
 
         file_dir = 'Muse-calls'
-        for f in glob.glob(os.path.join(work_dir, file_dir, donor_id+'*'))
+        for f in glob.glob(os.path.join(work_dir, file_dir, donor_id+'*')):
             file_name = os.path.basename(f)
             # print file_name
             matched_fp = None
