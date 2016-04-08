@@ -35,9 +35,7 @@ def get_files(donor_id, call, work_dir, aliquot_id):
     if call == 'muse':
         file_name_patterns = set([
                 r'^.+\.somatic\.snv_mnv\.vcf\.gz$',
-                # r'^.+\.somatic\.snv_mnv\.vcf\.gz\.md5$',
                 r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
-                # r'^.+\.somatic\.snv_mnv\.vcf\.gz\.idx\.md5$'
             ])
 
         file_dir = 'Muse-calls'
@@ -114,21 +112,13 @@ def get_files(donor_id, call, work_dir, aliquot_id):
 
 
 def create_results_copys(row, create_results_copy, work_dir):
-    # with open(vcf_info_file, 'r') as f:
-    #     reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
-    #     for row in reader:
+
     donor_id = row.get('Submitter_donor_ID')
     aliquot_id = row.get('Tumour_WGS_aliquot_IDs')
     for dt in create_results_copy:
         call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
-        # if dt=='muse':
-        vcf_files = get_files(donor_id, dt, work_dir, aliquot_id)
-        print vcf_files
-        #sys.exit(0)
-
-        # else:
-        #     pass        
+        vcf_files = get_files(donor_id, dt, work_dir, aliquot_id)      
 
         copy_files(call_results_dir, vcf_files, donor_id, aliquot_id, dt)
         generate_md5_files(call_results_dir, aliquot_id)
