@@ -136,6 +136,7 @@ def create_results_copys(row, create_results_copy, work_dir):
 
 def generate_md5_files(folder_name, aliquot_id):
     for f in glob.glob(os.path.join(folder_name, aliquot_id+'*')):
+        if f.endswith('md5'): continue
         md5_value = generate_md5(f)
         with open(f+'.md5', 'w') as fh: fh.write(md5_value)
 
@@ -161,9 +162,10 @@ def copy_files(target, source, donor_id, aliquot_id, call):
 
     elif call=='broad_tar':
         filename = aliquot_id+'.broad.intermediate.tar'
-        with tarfile.open(os.path.join(target, filename), "w") as tar:
-            for s in source:
-                tar.add(s) 
+        if not os.path.isfile(os.path.join(target, filename)):
+            with tarfile.open(os.path.join(target, filename), "w") as tar:
+                for s in source:
+                    tar.add(s) 
 
     else:
         pass
