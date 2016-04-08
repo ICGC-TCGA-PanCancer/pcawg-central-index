@@ -186,10 +186,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
         related_file_subset_uuids.remove(row.get(id_mapping(dt)))
         output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc') 
 
-        command = generate_perl_command(gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir)
-
-#        print command
-#        sys.exit(0)
+        command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir)
 
         process = subprocess.Popen(
             command,
@@ -199,8 +196,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
         )
 
         out, err = process.communicate()
- #       print err
- #       sys.exit(0)
+
         if not process.returncode:#success
             continue
         else:
@@ -217,25 +213,43 @@ def id_mapping(vcf):
     return vcf_map.get(vcf)
 
 
-def generate_perl_command(gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir):
+def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir):
 
-    command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
-                 ' --key gnos_fake_key '+\
-                 ' --metadata-urls ' + metadata_urls +\
-                 ' --vcfs ' + ','.join(vcf_files) +\
-                 ' --vcf-idxs ' + ','.join([vcf+'.idx' for vcf in vcf_files]) +\
-                 ' --vcf-md5sum-files ' + ','.join([vcf+'.md5' for vcf in vcf_files]) +\
-                 ' --vcf-idx-md5sum-files ' + ','.join([vcf+'.idx.md5' for vcf in vcf_files]) +\
-                 ' --workflow-name BROAD_MUSE_PIPELINE ' +\
-                 ' --study-refname-override icgc_pancancer_vcf ' +\
-                 ' --workflow-version 1.0.0 ' +\
-                 ' --workflow-src-url https://github.com/ucscCancer/pcawg_tools ' +\
-                 ' --workflow-url https://github.com/ucscCancer/pcawg_tools ' +\
-                 ' --skip-validate --skip-upload ' +\
-                 ' --workflow-file-subset ' + workflow_file_subset +\
-                 ' --related-file-subset-uuids ' + ','.join(related_file_subset_uuids) +\
-                 ' --uuid ' + gnos_id +\
-                 ' --outdir ' + output_dir
+    if call in ['muse', 'broad-v3']:
+        command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
+                     ' --key gnos_fake_key '+\
+                     ' --metadata-urls ' + metadata_urls +\
+                     ' --vcfs ' + ','.join(vcf_files) +\
+                     ' --vcf-idxs ' + ','.join([vcf+'.idx' for vcf in vcf_files]) +\
+                     ' --vcf-md5sum-files ' + ','.join([vcf+'.md5' for vcf in vcf_files]) +\
+                     ' --vcf-idx-md5sum-files ' + ','.join([vcf+'.idx.md5' for vcf in vcf_files]) +\
+                     ' --workflow-name BROAD_MUSE_PIPELINE ' +\
+                     ' --study-refname-override icgc_pancancer_vcf ' +\
+                     ' --workflow-version 1.0.0 ' +\
+                     ' --workflow-src-url https://github.com/ucscCancer/pcawg_tools ' +\
+                     ' --workflow-url https://github.com/ucscCancer/pcawg_tools ' +\
+                     ' --skip-validate --skip-upload ' +\
+                     ' --workflow-file-subset ' + workflow_file_subset +\
+                     ' --related-file-subset-uuids ' + ','.join(related_file_subset_uuids) +\
+                     ' --uuid ' + gnos_id +\
+                     ' --outdir ' + output_dir
+    else:
+        command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
+                     ' --key gnos_fake_key '+\
+                     ' --metadata-urls ' + metadata_urls +\
+                     ' --tarballs ' + ','.join(vcf_files) +\
+                     ' --tarball-md5sum-files ' + ','.join([vcf+'.md5' for vcf in vcf_files]) +\
+                     ' --workflow-name BROAD_MUSE_PIPELINE ' +\
+                     ' --study-refname-override icgc_pancancer_vcf ' +\
+                     ' --workflow-version 1.0.0 ' +\
+                     ' --workflow-src-url https://github.com/ucscCancer/pcawg_tools ' +\
+                     ' --workflow-url https://github.com/ucscCancer/pcawg_tools ' +\
+                     ' --skip-validate --skip-upload ' +\
+                     ' --workflow-file-subset ' + workflow_file_subset +\
+                     ' --related-file-subset-uuids ' + ','.join(related_file_subset_uuids) +\
+                     ' --uuid ' + gnos_id +\
+                     ' --outdir ' + output_dir        
+
     return command
 
 
