@@ -443,7 +443,7 @@ def add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_exclud
             filename = os.path.join(analysis.get('gnos_id'), f.get('file_name')+'.gpg')
             missing_files.add(filename)
             missing_file_info = [filename, '', f.get('file_md5sum')]
-            with open(file_info, 'a+') as fh: fh.write('\t'.join(missing_file_info) + '\n')
+            #with open(file_info, 'a+') as fh: fh.write('\t'.join(missing_file_info) + '\n')
         return
     # if ftp has the folder, check first if the files have the information in file_info, if not check if they exist in the ftp
     filename = os.path.join(analysis.get('gnos_id'), 'analysis.'+analysis.get('gnos_id')+'.GNOS.xml.gz.gpg')
@@ -459,7 +459,7 @@ def add_files(analysis, missing_files, annotations, gnos_sample_ids_to_be_exclud
             if not ftp_files: print('\nWarning: FTP did not response for analysis_id: {}'.format(analysis.get('gnos_id')))
             if ftp_files and not filename in ftp_files: missing_files.add(filename)
             missing_file_info = [filename, '', f.get('file_md5sum')]
-            with open(file_info, 'a+') as fh: fh.write('\t'.join(missing_file_info) + '\n')
+            #with open(file_info, 'a+') as fh: fh.write('\t'.join(missing_file_info) + '\n')
     return missing_files
 
 def get_ftp_files(ftp, gnos_id):
