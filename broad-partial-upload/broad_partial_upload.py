@@ -54,22 +54,22 @@ def get_files(donor_id, call, work_dir, aliquot_id):
             for fp in file_name_patterns:
                 logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot)) 
 
-    elif call == 'broad-v3':
+    elif call in ['broad-v3', 'broad']:
         file_name_patterns = set([
                 r'^.+\.germline\.indel\.vcf\.gz$',
-                r'^.+\.germline\.indel\.vcf\.gz\.idx$',
+                r'^.+\.germline\.indel\.vcf\.gz\.tbi$',
                 r'^.+\.somatic\.indel\.vcf\.gz$',
-                r'^.+\.somatic\.indel\.vcf\.gz\.idx$',
+                r'^.+\.somatic\.indel\.vcf\.gz\.tbi$',
                 r'^.+\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz$',
-                r'^.+\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^.+\.broad-dRanger[^_].+\.somatic\.sv\.vcf\.gz\.tbi$',
                 r'^.+\.broad-snowman.+\.somatic\.sv\.vcf\.gz$',
-                r'^.+\.broad-snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^.+\.broad-snowman.+\.somatic\.sv\.vcf\.gz\.tbi$',
                 r'^.+\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz$',
-                r'^.+\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz\.idx$',
+                r'^.+\.broad-dRanger_snowman.+\.somatic\.sv\.vcf\.gz\.tbi$',
                 r'^.+\.germline\.sv\.vcf\.gz$',
-                r'^.+\.germline\.sv\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
+                r'^.+\.germline\.sv\.vcf\.gz\.tbi$',
+                r'^.+\.somatic\.snv_mnv\.vcf\.gz$',
+                r'^.+\.somatic\.snv_mnv\.vcf\.gz\.tbi$'
             ])
         file_dir = 'broad-fix-for-long-running-jobs'
         for f in glob.glob(os.path.join(work_dir, file_dir, aliquot_id+'*')):
@@ -145,9 +145,9 @@ def copy_files(target, source, donor_id, aliquot_id, call):
             filename = os.path.basename(s).replace(donor_id, aliquot_id)
             shutil.copy(s, os.path.join(target, filename))
 
-    elif call=='broad-v3':
+    elif call in ['broad-v3', 'broad']:
         for s in source:
-            filename = os.path.basename(s).replace(donor_id, aliquot_id).replace('DATECODE', '20160401')
+            filename = os.path.basename(s).replace(donor_id, aliquot_id).replace('DATECODE', '20160401').replace('.tbi', '.idx')
             shutil.copy(s, os.path.join(target, filename))
 
     elif call=='broad_tar':
@@ -171,7 +171,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
  
     for dt in generate_analysis_xml:
         call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
-        vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz')) if dt in ['muse', 'broad-v3'] else glob.glob(os.path.join(call_results_dir, aliquot_id+'.broad.intermediate.tar'))
+        vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz')) if dt in ['muse', 'broad-v3', 'broad'] else glob.glob(os.path.join(call_results_dir, aliquot_id+'.broad.intermediate.tar'))
         workflow_file_subset = dt
         gnos_id = row.get(id_mapping(dt))
         related_file_subset_uuids = [row.get('Muse_VCF_UUID'), row.get('Broad_VCF_UUID'), row.get('Broad_TAR_UUID')]
@@ -199,7 +199,8 @@ def id_mapping(vcf):
     vcf_map = {
       "broad-v3": "Broad_VCF_UUID",
       "muse": "Muse_VCF_UUID",
-      "broad_tar": "Broad_TAR_UUID"
+      "broad_tar": "Broad_TAR_UUID",
+      "broad": "Broad_VCF_UUID"
     }   
 
     return vcf_map.get(vcf)
@@ -207,7 +208,7 @@ def id_mapping(vcf):
 
 def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir):
 
-    if call in ['muse', 'broad-v3']:
+    if call in ['muse', 'broad-v3', 'broad']:
         command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
                      ' --key gnos_fake_key '+\
                      ' --metadata-urls ' + metadata_urls +\
@@ -301,9 +302,8 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    # pre-exclude donors when this option is chosen
-    if not include_donor_id_lists:
-        donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
+    # if not include_donor_id_lists:
+    #     donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
 
     with open(vcf_info_file, 'r') as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
