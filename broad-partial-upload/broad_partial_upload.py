@@ -176,9 +176,10 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
         gnos_id = row.get(id_mapping(dt))
         related_file_subset_uuids = [row.get('Muse_VCF_UUID'), row.get('Broad_VCF_UUID'), row.get('Broad_TAR_UUID')]
         related_file_subset_uuids.remove(row.get(id_mapping(dt)))
-        output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc') 
+        output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc')
+        study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
 
-        command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir)
+        command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir, study_ref_name)
 
         process = subprocess.Popen(
             command,
@@ -206,7 +207,7 @@ def id_mapping(vcf):
     return vcf_map.get(vcf)
 
 
-def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir):
+def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir, study_ref_name):
 
     if call in ['muse', 'broad-v3', 'broad']:
         command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
@@ -225,7 +226,8 @@ def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file
                      ' --workflow-file-subset ' + workflow_file_subset +\
                      ' --related-file-subset-uuids ' + ','.join(related_file_subset_uuids) +\
                      ' --uuid ' + gnos_id +\
-                     ' --outdir ' + output_dir
+                     ' --outdir ' + output_dir +\
+                     ' --study-refname-override ' + study_ref_name
     else:
         command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
                      ' --key gnos_fake_key '+\
@@ -241,7 +243,8 @@ def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file
                      ' --workflow-file-subset ' + workflow_file_subset +\
                      ' --related-file-subset-uuids ' + ','.join(related_file_subset_uuids) +\
                      ' --uuid ' + gnos_id +\
-                     ' --outdir ' + output_dir        
+                     ' --outdir ' + output_dir +\
+                     ' --study-refname-override ' + study_ref_name       
 
     return command
 
