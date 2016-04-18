@@ -130,7 +130,11 @@ def read_annotations(annotations, type, file_name):
                 elif row.get('project_code') == 'MELA-AU':
                     donor_unique_id = row.get('project_code')+'::'+row.get('pcawg_submitter_donor_id')
                     if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
-                    annotations[type][donor_unique_id][row.get('pcawg_submitter_specimen_id')] = row.get('dcc_submitter_specimen_id')                    
+                    annotations[type][donor_unique_id][row.get('pcawg_submitter_specimen_id')] = row.get('dcc_submitter_specimen_id') 
+                elif row.get('project_code') == 'OV-AU':
+                    donor_unique_id = row.get('project_code')+'::'+row.get('PCAWG Submitted Donor ID')
+                    if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                    annotations[type][donor_unique_id][row.get('PCAWG Submitted Specimen ID')] = row.get('Correct PCAWG Submitted Specimen ID')                     
                 else:
                     continue
 
@@ -162,7 +166,7 @@ def write_file(flist, fn):
 
 def main(argv=None):
 
-    parser = ArgumentParser(description="Compare the effective xml md5sum among repos",
+    parser = ArgumentParser(description="Metadata fix",
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-f", "--information for gnos entries", dest="fname",
              help="Specify file to update the metadata", required=True)
@@ -194,6 +198,7 @@ def main(argv=None):
     read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
     read_annotations(annotations, 'id_mapping', 'PAEN-AU_id_fixes.tsv')
     read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv')
+    read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv')
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
