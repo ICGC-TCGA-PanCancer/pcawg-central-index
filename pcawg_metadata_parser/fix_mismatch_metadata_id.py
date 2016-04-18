@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 
-#script to calculate and compare the xml md5sum for specific sections such as qc_metrics, bai/bam files
-#between source_gnos_repo and target_gnos_repo
-
-#input file has the format of: 
-#reports/QC_reports/specimens_with_mismatch_effective_xml_md5sum.txt 
-#-o could write to ordered xml files as well
-#-i could specify the comparison results file
-#-u could specify whether use the local cached xml or download the lastest xml for comparison
-
 import re
 import os
 import xmltodict
