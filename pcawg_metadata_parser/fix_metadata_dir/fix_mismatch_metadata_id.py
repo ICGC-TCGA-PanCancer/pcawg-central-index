@@ -70,7 +70,7 @@ def fix_illegal_id(xml_str, id_mapping):
             xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
             xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
             xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)
-            xml_str = re.sub('SM:'+key+' ', 'SM:'+value+' ', xml_str)        
+            # xml_str = re.sub('SM:'+key+' ', 'SM:'+value+' ', xml_str)        
 
     return xml_str
 
@@ -133,7 +133,7 @@ def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
 
 
 def write_file(flist, fn):
-    with open(fn, 'a') as f:
+    with open(fn, 'w') as f:
         header = True  
         for r in flist:
             if header:
@@ -190,6 +190,9 @@ def main(argv=None):
     read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_specimen_id')
     read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_sample_id')
     read_annotations(annotations, 'id_mapping', 'OV-AU_specimen_type_fixes.tsv', 'dcc_specimen_type')
+    read_annotations(annotations, 'id_mapping', 'PAEN-IT_project_code_fixed.tsv', 'dcc_project_code')
+    read_annotations(annotations, 'id_mapping', 'PAEN-AU_project_code_fixed.tsv', 'dcc_project_code')
+    read_annotations(annotations, 'id_mapping', 'ESAD-UK_specimen_type_fixed.tsv', 'dcc_specimen_type')
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
@@ -256,7 +259,7 @@ def main(argv=None):
 
 
             fixed_metadata_list.append(fixed_metadata)
-    write_file(fixed_metadata_list, fixed_dir+'/fixed_metadata_list.txt')        
+    write_file(fixed_metadata_list, fixed_dir+'/'+fname.split('_')[0]+'_fixed_metadata_list.txt')        
 
     return 0
 
