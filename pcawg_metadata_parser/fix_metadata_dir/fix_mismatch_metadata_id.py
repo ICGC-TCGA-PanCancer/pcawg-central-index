@@ -133,7 +133,7 @@ def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
 
 
 def write_file(flist, fn):
-    with open(fn, 'w') as f:
+    with open(fn, 'a') as f:
         header = True  
         for r in flist:
             if header:
@@ -227,7 +227,7 @@ def main(argv=None):
             # download orignal xml 
             xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_original']), fixed_metadata['gnos_id'])
             print fixed_metadata['gnos_id']
-            
+
             if not xml_str: 
                 print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_original'])
                 continue
