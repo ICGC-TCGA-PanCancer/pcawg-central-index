@@ -255,7 +255,7 @@ def main(argv=None):
             else:
                 print('Warning: this should not happen!!!') 
                 continue
-            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, fixed_metadata['dcc_project_code'])
+            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, fname.split('_')[0])
             generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'fixed_all')
 
 
