@@ -186,13 +186,10 @@ def main(argv=None):
     read_annotations(annotations, 'mismatch_metadata', 'specimens_with_mismatch_effective_xml_md5sum.txt')
     # read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
     # read_annotations(annotations, 'id_mapping', 'PAEN-AU_id_fixes.tsv')
-    read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv', 'submitter_specimen_id')
+    # read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv', 'submitter_specimen_id')
     read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_specimen_id')
     read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_sample_id')
-
-    #print annotations['id_mapping']
-
-    #sys.exit(0)
+    read_annotations(annotations, 'id_mapping', 'OV-AU_specimen_type_fixes.tsv', 'dcc_specimen_type')
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
@@ -230,7 +227,7 @@ def main(argv=None):
             # download orignal xml 
             xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_original']), fixed_metadata['gnos_id'])
             print fixed_metadata['gnos_id']
-
+            
             if not xml_str: 
                 print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_original'])
                 continue
