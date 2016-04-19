@@ -63,11 +63,14 @@ def get_formal_repo_name(repo):
     return repo_url_to_repo.get(repo)
 
 def fix_illegal_id(xml_str, id_mapping):
-    for key, value in id_mapping.iteritems():
-        key = key.replace('*', '\*')
-        xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
-        xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
-        xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)        
+    for id_type in ['dcc_project_code', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']:
+        if not id_mapping.get(id_type): continue
+        for key, value in id_mapping.get(id_type).items():
+            key = key.replace('*', '\*')
+            xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
+            xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
+            xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)
+            xml_str = re.sub('SM:'+key+' ', 'SM:'+value+' ', xml_str)        
 
     return xml_str
 
@@ -88,7 +91,7 @@ def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
                 y.write(xml_subtype_str)
 
 
-def read_annotations(annotations, type, file_name):
+def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
     if not os.path.isfile(file_name):
         return
     with open(file_name, 'r') as r:
@@ -119,24 +122,29 @@ def read_annotations(annotations, type, file_name):
             if not annotations.get(type): annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
-                if row.get('project_code') == 'ESAD-UK':
-                    donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
-                    if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
-                    annotations[type][donor_unique_id][row.get('previous_submitter_specimen_id')] = row.get('new_submitter_specimen_id')
-                elif row.get('project_code') == 'PAEN-AU':
-                    donor_unique_id = row.get('submitter_donor_id')
-                    if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
-                    annotations[type][donor_unique_id][row.get('old_submitter_id')] = row.get('new_submitter_id')
-                elif row.get('project_code') == 'MELA-AU':
-                    donor_unique_id = row.get('project_code')+'::'+row.get('pcawg_submitter_donor_id')
-                    if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
-                    annotations[type][donor_unique_id][row.get('pcawg_submitter_specimen_id')] = row.get('dcc_submitter_specimen_id') 
-                elif row.get('project_code') == 'OV-AU':
-                    donor_unique_id = row.get('project_code')+'::'+row.get('PCAWG Submitted Donor ID')
-                    if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
-                    annotations[type][donor_unique_id][row.get('PCAWG Submitted Specimen ID')] = row.get('Correct PCAWG Submitted Specimen ID')                     
-                else:
-                    continue
+                # if row.get('project_code') == 'ESAD-UK':
+                #     donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
+                #     # if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                #     # if not annotations[type].get(donor_unique_id).get(subtype): annotations[type][donor_unique_id][subtype] = OrderedDict()
+                #     # annotations[type][donor_unique_id][subtype][row.get('old_id')] = row.get('new_id')
+                # elif row.get('project_code') == 'PAEN-AU':
+                #     donor_unique_id = row.get('submitter_donor_id')
+                #     # if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                #     # annotations[type][donor_unique_id][row.get('old_submitter_id')] = row.get('new_submitter_id')
+                # elif row.get('project_code') == 'MELA-AU':
+                #     donor_unique_id = row.get('project_code')+'::'+row.get('pcawg_submitter_donor_id')
+                #     if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                #     annotations[type][donor_unique_id][row.get('pcawg_submitter_specimen_id')] = row.get('dcc_submitter_specimen_id') 
+                # elif row.get('project_code') == 'OV-AU':
+                #     donor_unique_id = row.get('project_code')+'::'+row.get('PCAWG Submitted Donor ID')
+                #     if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                #     annotations[type][donor_unique_id][row.get('PCAWG Submitted Specimen ID')] = row.get('Correct PCAWG Submitted Specimen ID')                     
+                # else:
+                #     continue
+                donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
+                if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
+                if not annotations[type].get(donor_unique_id).get(subtype): annotations[type][donor_unique_id][subtype] = OrderedDict()
+                annotations[type][donor_unique_id][subtype][row.get('old_'+subtype)] = row.get('new_'+subtype)
 
         else:
             print('unknown annotation type: {}'.format(type))
@@ -195,10 +203,15 @@ def main(argv=None):
     annotations = {}
     read_annotations(annotations, 'ESAD-UK', 'ESAD-UK_10broken.txt')
     read_annotations(annotations, 'mismatch_metadata', 'specimens_with_mismatch_effective_xml_md5sum.txt')
-    read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
-    read_annotations(annotations, 'id_mapping', 'PAEN-AU_id_fixes.tsv')
-    read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv')
-    read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv')
+    # read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
+    # read_annotations(annotations, 'id_mapping', 'PAEN-AU_id_fixes.tsv')
+    read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv', 'submitter_specimen_id')
+    read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_specimen_id')
+    read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_sample_id')
+
+    print annotations
+
+    sys.exit(0)
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
@@ -207,11 +220,11 @@ def main(argv=None):
             if row.get('entity_type') == 'unaligned_bams': continue
             if not annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
                not annotations.get('mismatch_metadata').get(row.get('gnos_id')): continue
-            if annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-               not row.get('entity_type').endswith('variant_calling') and \
-               not row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
-               not row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
-               not annotations.get('mismatch_metadata').get(row.get('gnos_id')): continue
+            # if annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
+            #    not row.get('entity_type').endswith('variant_calling') and \
+            #    not row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
+            #    not row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
+            #    not annotations.get('mismatch_metadata').get(row.get('gnos_id')): continue
 
             fixed_metadata = OrderedDict()
             fixed_metadata['donor_unique_id'] = row.get('donor_unique_id')
@@ -222,41 +235,41 @@ def main(argv=None):
 
             # has both id and metadata mismatch issues
             if annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-                        not row.get('entity_type').endswith('variant_calling') and \
-                        (row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() or \
-                        row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys()) and \
+                        # not row.get('entity_type').endswith('variant_calling') and \
+                        # (row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() or \
+                        # row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys()) and \
                         annotations.get('mismatch_metadata').get(row.get('gnos_id')):
                 fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
                 fixed_metadata['fixed_type'] = 'fixed_illegal_id_and_mismatch'
 
-            elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-                        row.get('entity_type').endswith('variant_calling') and \
-                        annotations.get('mismatch_metadata').get(row.get('gnos_id')):
-                fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
-                fixed_metadata['fixed_type'] = 'fixed_illegal_id_and_mismatch'
+            # elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
+            #             row.get('entity_type').endswith('variant_calling') and \
+            #             annotations.get('mismatch_metadata').get(row.get('gnos_id')):
+            #     fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
+            #     fixed_metadata['fixed_type'] = 'fixed_illegal_id_and_mismatch'
 
             elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-                        not row.get('entity_type').endswith('variant_calling') and \
-                        (row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() or \
-                        row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys()) and \
+                        # not row.get('entity_type').endswith('variant_calling') and \
+                        # (row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() or \
+                        # row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys()) and \
                         not annotations.get('mismatch_metadata').get(row.get('gnos_id')):
                 fixed_metadata['gnos_repo_download'] = fixed_metadata['gnos_repo_original']
                 fixed_metadata['fixed_type'] = 'fixed_illegal_id'
 
-            elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-                        row.get('entity_type').endswith('variant_calling') and \
-                        not annotations.get('mismatch_metadata').get(row.get('gnos_id')):
-                fixed_metadata['gnos_repo_download'] = fixed_metadata['gnos_repo_original']
-                fixed_metadata['fixed_type'] = 'fixed_illegal_id'
+            # elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
+            #             row.get('entity_type').endswith('variant_calling') and \
+            #             not annotations.get('mismatch_metadata').get(row.get('gnos_id')):
+            #     fixed_metadata['gnos_repo_download'] = fixed_metadata['gnos_repo_original']
+            #     fixed_metadata['fixed_type'] = 'fixed_illegal_id'
  
-            elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-                        not row.get('entity_type').endswith('variant_calling') and \
-                        not row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
-                        not row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
-                        annotations.get('mismatch_metadata').get(row.get('gnos_id')):
-                fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
-                fixed_metadata['fixed_type'] = 'fixed_mismatch'
-                if fixed_metadata['gnos_repo_download'] == fixed_metadata['gnos_repo_original']: continue
+            # elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
+            #             not row.get('entity_type').endswith('variant_calling') and \
+            #             not row.get('submitter_specimen_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
+            #             not row.get('submitter_sample_id') in annotations.get('id_mapping').get(row.get('donor_unique_id')).keys() and \
+            #             annotations.get('mismatch_metadata').get(row.get('gnos_id')):
+            #     fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
+            #     fixed_metadata['fixed_type'] = 'fixed_mismatch'
+            #     if fixed_metadata['gnos_repo_download'] == fixed_metadata['gnos_repo_original']: continue
 
             elif not annotations.get('id_mapping').get(row.get('donor_unique_id')) and annotations.get('mismatch_metadata').get(row.get('gnos_id')):
                 fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
