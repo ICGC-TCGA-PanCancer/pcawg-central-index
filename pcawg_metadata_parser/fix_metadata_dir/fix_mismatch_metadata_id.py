@@ -190,9 +190,9 @@ def main(argv=None):
     read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_specimen_id')
     read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_sample_id')
     read_annotations(annotations, 'id_mapping', 'OV-AU_specimen_type_fixes.tsv', 'dcc_specimen_type')
-    read_annotations(annotations, 'id_mapping', 'PAEN-IT_project_code_fixed.tsv', 'dcc_project_code')
-    read_annotations(annotations, 'id_mapping', 'PAEN-AU_project_code_fixed.tsv', 'dcc_project_code')
-    read_annotations(annotations, 'id_mapping', 'ESAD-UK_specimen_type_fixed.tsv', 'dcc_specimen_type')
+    read_annotations(annotations, 'id_mapping', 'PAEN-IT_project_code_fixes.tsv', 'dcc_project_code')
+    read_annotations(annotations, 'id_mapping', 'PAEN-AU_project_code_fixes.tsv', 'dcc_project_code')
+    read_annotations(annotations, 'id_mapping', 'ESAD-UK_specimen_type_fixes.tsv', 'dcc_specimen_type')
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
