@@ -495,7 +495,15 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
             vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016
             logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
                      .format(vcf_entry.get('workflow_details')['workflow_file_subset'], donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-            
+    
+    elif workflow_name == 'OxoGWorkflow-OxoGFiltering':
+        vcf_entry['vcf_workflow_type'] = 'oxog'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'     
+
+    elif workflow_name == 'OxoGWorkflow-variantbam':
+        vcf_entry['vcf_workflow_type'] = 'minibam'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'    
+
     else:
         vcf_entry['vcf_workflow_type'] = 'Unknown'
         vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016 to avoid code crash when an unknow variant call entry shows up
@@ -727,6 +735,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_dkfz_variant_calling_performed': False,
             'is_embl_variant_calling_performed': False,
             'is_dkfz_embl_variant_calling_performed': False,
+            'is_oxog_variant_calling_performed': False,
+            'is_minibam_variant_calling_performed': False,
             'is_broad_variant_calling_performed': False,
             'broad':{
                 'broad_file_subset_exist': False,
@@ -1626,7 +1636,7 @@ def add_vcf_entry(donor, vcf_entry):
             donor.get('flags')['exists_vcf_file_prefix_mismatch'] = True
     
     # update the flags for sanger, dkfz_embl
-    for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz']:
+    for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz', 'oxog', 'minibam']:
         if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
             donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
             donor.get('flags').get('variant_calling_performed').append(workflow)
