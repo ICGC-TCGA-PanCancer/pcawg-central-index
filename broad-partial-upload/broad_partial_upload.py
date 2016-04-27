@@ -111,7 +111,7 @@ def get_files(donor_id, call, work_dir, aliquot_id):
     return matched_files
 
 
-def create_results_copys(row, create_results_copy, work_dir):
+def create_results_copies(row, create_results_copy, work_dir):
 
     donor_id = row.get('Submitter_donor_ID')
     aliquot_id = row.get('Tumour_WGS_aliquot_IDs')
@@ -313,7 +313,7 @@ def main(argv=None):
         for row in reader:
             if not row.get('Submitter_donor_ID') in include_donor_id_lists: continue
 
-            if create_results_copy: create_results_copys(row, create_results_copy, work_dir)
+            if create_results_copy: create_results_copies(row, create_results_copy, work_dir)
 
             if generate_analysis_xml: generate_analysis_xmls(row, generate_analysis_xml, work_dir)
 
