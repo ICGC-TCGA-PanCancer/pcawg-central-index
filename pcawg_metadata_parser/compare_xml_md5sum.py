@@ -175,7 +175,7 @@ def calculate_xml_md5sum(xml_str, workflow, xml_dir, gnos_id, gnos_repo):
 
 def generate_subreport(fname, subreport_dir):
     for subreport in ['qc_metrics', 'data_file', 'index_file', 'other']:
-        for workflow in ['wgs_bwa', 'rna_seq']:
+        for workflow in ['wgs_bwa', 'rna_seq', 'sanger', 'dkfz_embl', 'broad', 'muse', 'oxog', 'minibam']:
             subreport_name = subreport_dir+'/'+workflow+'_'+subreport+'_mismatch.txt'
             subreport_list = []
             with open(fname, 'r') as s:
