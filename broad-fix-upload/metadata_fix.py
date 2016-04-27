@@ -177,14 +177,14 @@ def download_metadata_files(work_dir, donors_to_be_fixed):
             continue
     return donors_to_be_fixed
 
-def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
+def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_status):
     # donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
     fixed_donors = []
     caller = 'broad'
     for donor in donors_to_be_fixed:
         gnos_analysis_objects = {}
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
-        files = get_files(donor, fixed_file_dir, gnos_entry_dir)
+        files = get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status)
         if not files:
             # donors_to_be_fixed.remove(donor)
             continue
@@ -336,7 +336,7 @@ def copy_file(target, source):
         shutil.copy(s, target)       
 
 
-def get_files(donor, fixed_file_dir, gnos_entry_dir):
+def get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status):
 
     matched_files = []
     tumor_aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
@@ -375,7 +375,8 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir):
         if file_name_patterns:
             for fp in file_name_patterns:
                 logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
-            # sys.exit('Missing expected variant call result file, see log file for details.')
+            if not workflow_result_status:
+                sys.exit('Missing expected variant call result file, see log file for details.')
      
     return matched_files
 
@@ -473,12 +474,15 @@ def main(argv=None):
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
     parser.add_argument("-i", "--include_donor_id_lists", dest="include_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
+    parser.add_argument("-s", "--is the workflow results complete", dest="workflow_result_status", default=True, type=bool,
+             help="Specify whether the workflow results are complete or not", required=False) 
 
     args = parser.parse_args()
     work_dir = args.work_dir
     vcf_info_file = args.vcf_info_file 
     exclude_donor_id_lists = args.exclude_donor_id_lists
     include_donor_id_lists = args.include_donor_id_lists
+    workflow_result_status = args.workflow_result_status
 
     # if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
     # work_dir = sys.argv[1]
@@ -534,7 +538,7 @@ def main(argv=None):
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files...')
-    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir)
+    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_status)
 
     # write the fixed donor informaton 
     write_file(fixed_donors, 'fixed_'+donor_list_file)
