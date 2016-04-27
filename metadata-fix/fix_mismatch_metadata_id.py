@@ -92,6 +92,7 @@ def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
 
 
 def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
+    file_name=os.path.join('annotation_files', file_name)
     if not os.path.isfile(file_name):
         return
     with open(file_name, 'r') as r:
