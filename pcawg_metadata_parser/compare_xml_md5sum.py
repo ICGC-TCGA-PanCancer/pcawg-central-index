@@ -109,8 +109,10 @@ def calculate_xml_md5sum(xml_str, workflow, xml_dir, gnos_id, gnos_repo):
     md5sum.append(hashlib.md5(qc_metrics_xml).hexdigest())
 
     # take out the different file_type section
-    if workflow.endswith('alignment'):
+    if workflow.startswith('wgs_bwa') or workflow.startswith('rna_seq') or workflow.startswith('minibam'):
         file_types = ['.bam', '.bai']
+    elif workflow.startswith('broad') or workflow.startswith('muse'):
+        file_types = ['.gz', '.idx']
     else:
         file_types = ['.gz', '.tbi']
     for file_type in file_types:
