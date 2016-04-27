@@ -874,7 +874,7 @@ es_queries = [
 
 # query 17: get oxog uploads 
 {
-      "name": "oxog_uploads_status",
+      "name": "variant_call_entries_with_broad_oxog_filter_applied",
       "content":{
            "fields":[
                "donor_unique_id"
@@ -919,7 +919,7 @@ es_queries = [
 
 # query 18: get minibam uploads 
 {
-      "name": "minibam_uploads_status",
+      "name": "minibams_extracted_from_variant_regions",
       "content":{
            "fields":[
                "donor_unique_id"
