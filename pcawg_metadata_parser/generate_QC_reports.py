@@ -872,6 +872,97 @@ es_queries = [
      }
 },
 
+# query 17: get oxog uploads 
+{
+      "name": "variant_call_entries_with_broad_oxog_filter_applied",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_oxog_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+# query 18: get minibam uploads 
+{
+      "name": "minibams_extracted_from_variant_regions",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_minibam_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+
 ]
 
 
@@ -951,7 +1042,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_9(report_info, report_info_list, es_json)
 
     if q_index == 11:
-        add_report_info_11(report_info, report_info_list, es_json)
+        add_report_info_14_15(report_info, report_info_list, es_json, 'dkfz_embl')
 
     if q_index == 12:
         annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
@@ -963,15 +1054,23 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 15:
         add_report_info_14_15(report_info, report_info_list, es_json, 'broad')
 
+    if q_index == 17:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'oxog')
+
+    if q_index == 18:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'minibam')
+
     return report_info_list
 
 
 def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
-    report_info['gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')[0]
-    report_info['gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
-    report_info['vcf_workflow_result_version'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_result_version') 
-
-    report_info_list.append(copy.deepcopy(report_info)) 
+    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+    if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(workflow_type+'_variant_calling'):
+        report_info['gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')
+        report_info['gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
+        report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_last_modified')
+        report_info['vcf_workflow_result_version'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_result_version') 
+        report_info_list.append(copy.deepcopy(report_info)) 
     return report_info_list
 
 def add_report_info_12(report_info, report_info_list, es_json, annotations):
@@ -1031,14 +1130,14 @@ def add_report_info_12_aliquot(aliquot, report_info, report_info_list, annotatio
     return report_info_list
 
 
-def add_report_info_11(report_info, report_info_list, es_json):
-    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
-    if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('dkfz_embl_variant_calling'):
-        report_info['gnos_repo'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_repo')
-        report_info['gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id')
-        report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_last_modified')
-        report_info_list.append(copy.deepcopy(report_info))
-    return report_info_list
+# def add_report_info_11(report_info, report_info_list, es_json):
+#     report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+#     if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('dkfz_embl_variant_calling'):
+#         report_info['gnos_repo'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_repo')
+#         report_info['gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id')
+#         report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_last_modified')
+#         report_info_list.append(copy.deepcopy(report_info))
+#     return report_info_list
 
 def add_report_info_9(report_info, report_info_list, es_json):
     report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
