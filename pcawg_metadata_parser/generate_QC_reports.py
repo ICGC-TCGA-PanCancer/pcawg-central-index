@@ -979,12 +979,26 @@ es_queries = [
                        }
                     },
                     {
-                       "terms":{
-                          "flags.is_mar2016_donor":[
-                             "T"
-                          ]
-                       }
-                    }                               
+                      "terms":{
+                        "flags.is_normal_specimen_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "terms":{
+                        "flags.are_all_tumor_specimens_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    # {
+                    #    "terms":{
+                    #       "flags.is_mar2016_donor":[
+                    #          "T"
+                    #       ]
+                    #    }
+                    # }                               
                   ],
                   "must_not": [
                   {
