@@ -412,7 +412,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
                 continue
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
-            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))}, target_cloud)
+            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'), target_cloud)})
             variant_calling.get('files').append(f)
 
         # add the metadata_xml_file_info
