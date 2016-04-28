@@ -269,7 +269,7 @@ def generate_object_id(filename, gnos_id, target_cloud):
         return ''
 
 
-def add_metadata_xml_info(obj, chosen_gnos_repo=None, target_cloud):
+def add_metadata_xml_info(obj, chosen_gnos_repo, target_cloud):
     repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ])
     gnos_id = obj.get('gnos_id')
     ao_state = 'live'
