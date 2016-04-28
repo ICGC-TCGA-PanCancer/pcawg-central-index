@@ -286,7 +286,7 @@ def add_metadata_xml_info(obj, chosen_gnos_repo, target_cloud):
     return metadata_xml_file_info
 
 
-def get_available_repos(obj):
+def get_available_repos(obj, target_cloud):
     repos = obj.get('gnos_repo')
     ret_repos = []
     for r in repos:
@@ -300,7 +300,7 @@ def get_available_repos(obj):
     return ret_repos
 
 
-def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
+def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score, target_cloud):
     aliquot_info = {
         'data_type': 'WGS-BWA-Normal' if 'normal' in aliquot.get('dcc_specimen_type').lower() else 'WGS-BWA-Tumor',
         'oxog_score': oxog_score.get(aliquot.get('aliquot_id')) if oxog_score.get(aliquot.get('aliquot_id')) else None,
@@ -308,7 +308,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
         'submitter_sample_id': aliquot.get('submitter_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
-        'available_repos': get_available_repos(aliquot.get('aligned_bam')),
+        'available_repos': get_available_repos(aliquot.get('aligned_bam'), target_cloud),
         'gnos_repo': [ aliquot.get('aligned_bam').get('gnos_repo')[ \
             get_source_repo_index_pos(aliquot.get('aligned_bam').get('gnos_repo'), chosen_gnos_repo) ] ],
         'gnos_id': aliquot.get('aligned_bam').get('gnos_id'),
@@ -362,7 +362,7 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
             logger.warning('The donor {} has NOT transferred tumor bam.'.format(es_json.get('donor_unique_id'))) 
             return False             
 
-        aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
+        aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score, target_cloud)
         job_json.get('tumors').append(copy.deepcopy(aliquot_info))
 
     # add normal
@@ -374,7 +374,7 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
     if target_cloud in ['aws', 'collab'] and not aliquot.get('aligned_bam').get('gnos_id') in gnos_ids_in_cloud:
         logger.warning('The donor {} has NOT transferred normal bam.'.format(es_json.get('donor_unique_id'))) 
         return False 
-    job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
+    job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score, target_cloud)
 
     return job_json
     
@@ -397,7 +397,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_
 
         variant_calling = {
             'data_type': get_formal_vcf_name(v).capitalize()+'-VCF',          
-            'available_repos': get_available_repos(wgs_tumor_vcf_info),
+            'available_repos': get_available_repos(wgs_tumor_vcf_info, target_cloud),
             'gnos_repo': [ wgs_tumor_vcf_info.get('gnos_repo')[ \
                 get_source_repo_index_pos(wgs_tumor_vcf_info.get('gnos_repo'), chosen_gnos_repo) ] ],
             'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
