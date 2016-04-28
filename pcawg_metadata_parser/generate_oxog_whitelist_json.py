@@ -269,7 +269,7 @@ def generate_object_id(filename, gnos_id, target_cloud):
         return ''
 
 
-def add_metadata_xml_info(obj, chosen_gnos_repo=None):
+def add_metadata_xml_info(obj, chosen_gnos_repo=None, target_cloud):
     repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ])
     gnos_id = obj.get('gnos_id')
     ao_state = 'live'
@@ -290,7 +290,7 @@ def get_available_repos(obj):
     repos = obj.get('gnos_repo')
     ret_repos = []
     for r in repos:
-        metadata_xml_info = add_metadata_xml_info(obj, get_formal_repo_name(r))
+        metadata_xml_info = add_metadata_xml_info(obj, get_formal_repo_name(r), target_cloud)
         ret_repos.append({
               r:{
                   'file_md5sum': metadata_xml_info.get('file_md5sum'),
@@ -335,7 +335,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
         logger.warning('BWA alignment GNOS entry {} has no .bai file'.format(aliquot_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), chosen_gnos_repo)
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), chosen_gnos_repo, target_cloud)
     aliquot_info.get('files').append(metadata_xml_file_info)   
 
     return aliquot_info
@@ -416,7 +416,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_
             variant_calling.get('files').append(f)
 
         # add the metadata_xml_file_info
-        metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, chosen_gnos_repo)
+        metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, chosen_gnos_repo, target_cloud)
 
         variant_calling.get('files').append(metadata_xml_file_info)
 
