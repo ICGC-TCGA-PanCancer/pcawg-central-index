@@ -1035,7 +1035,7 @@ def get_donors_list(es, es_index, es_queries, q_index):
 
     return donors_list 
 
-def create_report_info(donor_unique_id, es_json, q_index):
+def create_report_info(donor_unique_id, es_json, q_index, annotations):
     report_info_list = []
 
     report_info = OrderedDict()
@@ -1043,7 +1043,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
     report_info['submitter_donor_id'] = es_json['submitter_donor_id']
     report_info['dcc_project_code'] = es_json['dcc_project_code']
     
-    annotations = {}
+    # annotations = {}
     if q_index == 0:
         add_report_info_0(report_info, report_info_list, es_json)
 
@@ -1090,7 +1090,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_14_15(report_info, report_info_list, es_json, 'dkfz_embl')
 
     if q_index == 12:
-        annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+        # annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
         add_report_info_12(report_info, report_info_list, es_json, annotations)
 
     if q_index == 14:
@@ -1106,8 +1106,8 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_14_15(report_info, report_info_list, es_json, 'minibam')
 
     if q_index == 19:
-        annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
-        annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
+        # annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
+        # annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
         add_report_info_19(report_info, report_info_list, es_json, annotations)
 
     return report_info_list
@@ -1534,6 +1534,11 @@ def main(argv=None):
     report_name = re.sub(r'\.py$', '', report_name)
     report_dir = init_report_dir(metadata_dir, report_name, repo)
 
+    annotations = {}
+    annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+    annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
+    annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
+
     for q in q_index:
         report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
 
@@ -1545,7 +1550,7 @@ def main(argv=None):
             # get json doc for each donor                 
             es_json = get_donor_json(es, es_index, donor_unique_id)
             
-            report_info_list_donor = create_report_info(donor_unique_id, es_json, q)
+            report_info_list_donor = create_report_info(donor_unique_id, es_json, q, annotations)
 
             report_info_list_full.extend(report_info_list_donor)
 
