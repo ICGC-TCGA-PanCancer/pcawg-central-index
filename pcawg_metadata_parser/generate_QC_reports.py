@@ -1536,8 +1536,8 @@ def main(argv=None):
 
     annotations = {}
     annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
-    annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
-    annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
+    annotations = read_annotations(annotations, 'gender', '../pcawg-operations/lists/donor.all_projects.release20.tsv')
+    annotations = read_annotations(annotations, 'gender_update', '../pcawg-operations/lists/donor.gender_update.release21.tsv')
 
     for q in q_index:
         report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
