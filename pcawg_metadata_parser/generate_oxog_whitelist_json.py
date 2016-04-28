@@ -47,40 +47,6 @@ es_queries = [
                 "dcc_project_code": [icgc_project_code]
               }
             },
-            # {
-            #   "terms": {
-            #     "dcc_project_code": [
-            #         "LIRI-JP",
-            #         "PACA-CA",
-            #         "PRAD-CA",
-            #         "RECA-EU",
-            #         "PAEN-AU",
-            #         "PACA-AU",
-            #         "BOCA-UK",
-            #         "OV-AU",
-            #         "MELA-AU",
-            #         "BRCA-UK",
-            #         "PRAD-UK",
-            #         "CMDI-UK",
-            #         "LINC-JP",
-            #         "ORCA-IN",
-            #         "BTCA-SG",
-            #         "LAML-KR",
-            #         "LICA-FR",
-            #         "CLLE-ES",
-            #         "ESAD-UK"
-            #         # "EOPC-DE"
-            #     ]
-            #   }
-            # },
-            # {
-            #   "terms": {
-            #     "donor_unique_id": [
-            #         "BTCA-SG::BTCA_donor_A153"
-
-            #     ]
-            #   }
-            # },
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -95,11 +61,11 @@ es_queries = [
                 ]
               }
             },
-            {
-              "range":{
-                    "flags.all_tumor_specimen_aliquot_counts":{"lt": 2}
-                }
-            }, 
+            # {
+            #   "range":{
+            #         "flags.all_tumor_specimen_aliquot_counts":{"lt": 2}
+            #     }
+            # }, 
             {
                "terms":{
                   "flags.is_sanger_variant_calling_performed":[
@@ -149,37 +115,37 @@ es_queries = [
             # }
           ],
           "must_not": [
-            {
-              "regexp": {
-                "dcc_project_code": ".*-US"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-US"
+            #   }
+            # },
             # {
             #   "regexp": {
             #     "dcc_project_code": ".*-DE"
             #   }
             # },
-            # {
-            #   "terms": {
-            #     "flags.is_bam_used_by_variant_calling_missing": [
-            #       "T"
-            #     ]
-            #   }
-            # },
-            # {
-            #    "terms":{
-            #       "flags.exists_vcf_file_prefix_mismatch":[
-            #          "T"
-            #       ]
-            #    }
-            # }, 
-            # {
-            #   "terms": {
-            #     "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
-            #       "T"
-            #     ]
-            #   }
-            # },
+            {
+              "terms": {
+                "flags.is_bam_used_by_variant_calling_missing": [
+                  "T"
+                ]
+              }
+            },
+            {
+               "terms":{
+                  "flags.exists_vcf_file_prefix_mismatch":[
+                     "T"
+                  ]
+               }
+            }, 
+            {
+              "terms": {
+                "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
+                  "T"
+                ]
+              }
+            },
             # {
             #   "terms": {
             #     "flags.exists_xml_md5sum_mismatch": [
@@ -216,7 +182,9 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         "https://gtrepo-osdc-icgc.annailabs.com/",
         "https://gtrepo-ebi.annailabs.com/",
         "https://gtrepo-riken.annailabs.com/",
-        "https://gtrepo-etri.annailabs.com/"
+        "https://gtrepo-etri.annailabs.com/",
+        "https://gtrepo-osdc-tcga.annailabs.com/",
+        "https://cghub.ucsc.edu/"
     ]
     if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
         source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
@@ -265,7 +233,8 @@ def generate_md5_size(metadata_xml_file):
     return [xml_md5, xml_size]
 
 
-def generate_object_id(filename, gnos_id):
+def generate_object_id(filename, gnos_id, target_cloud):
+    if target_cloud in ['tcga', 'gtdownload']: return ''
     global id_service_token
     url = 'https://meta.icgc.org/entities'
     # try get request first
@@ -311,7 +280,7 @@ def add_metadata_xml_info(obj, chosen_gnos_repo=None):
         'file_name': gnos_id + '.xml',
         'file_md5sum': generate_md5_size(metadata_xml_file)[0],
         'file_size': generate_md5_size(metadata_xml_file)[1],
-        'object_id': generate_object_id(gnos_id+'.xml', gnos_id)
+        'object_id': generate_object_id(gnos_id+'.xml', gnos_id, target_cloud)
     }
 
     return metadata_xml_file_info
@@ -348,7 +317,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
                 'file_name': aliquot.get('aligned_bam').get('bam_file_name'),
                 'file_md5sum': aliquot.get('aligned_bam').get('bam_file_md5sum'),
                 'file_size': aliquot.get('aligned_bam').get('bam_file_size'),
-                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                       
+                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'), target_cloud)                       
             }
         ]
     }
@@ -359,7 +328,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
             'file_name': aliquot.get('aligned_bam').get('bai_file_name'),
             'file_md5sum': aliquot.get('aligned_bam').get('bai_file_md5sum'),
             'file_size': aliquot.get('aligned_bam').get('bai_file_size'),
-            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                        
+            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'), target_cloud)                        
         }
         aliquot_info.get('files').append(bai_file)
     else:
@@ -372,7 +341,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score):
     return aliquot_info
 
 
-def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score, gnos_ids_in_cloud):
+def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score, gnos_ids_in_cloud, target_cloud):
     if not es_json.get('normal_alignment_status') or not es_json.get('tumor_alignment_status'):
         logger.warning('The donor {} has no normal or tumor alignments.'.format(es_json.get('donor_unique_id')))
         return False
@@ -389,7 +358,7 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
             logger.warning('The donor {} has no aligned_bam.'.format(es_json.get('donor_unique_id'))) 
             return False
 
-        if not aliquot.get('aligned_bam').get('gnos_id') in gnos_ids_in_cloud:
+        if target_cloud in ['aws', 'collab'] and not aliquot.get('aligned_bam').get('gnos_id') in gnos_ids_in_cloud:
             logger.warning('The donor {} has NOT transferred tumor bam.'.format(es_json.get('donor_unique_id'))) 
             return False             
 
@@ -402,7 +371,7 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
         logger.warning('The donor {} has no aligned_bam.'.format(es_json.get('donor_unique_id'))) 
         return False
 
-    if not aliquot.get('aligned_bam').get('gnos_id') in gnos_ids_in_cloud:
+    if target_cloud in ['aws', 'collab'] and not aliquot.get('aligned_bam').get('gnos_id') in gnos_ids_in_cloud:
         logger.warning('The donor {} has NOT transferred normal bam.'.format(es_json.get('donor_unique_id'))) 
         return False 
     job_json['normal'] = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo, oxog_score)
@@ -410,7 +379,7 @@ def add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score,
     return job_json
     
 
-def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_in_cloud):
+def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_in_cloud, target_cloud):
     if not es_json.get('variant_calling_results'): return False
   
     for v in ['sanger', 'dkfz_embl', 'broad', 'muse']:
@@ -422,7 +391,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(get_formal_vcf_name(v))
 
         gnos_id = wgs_tumor_vcf_info.get('gnos_id')
-        if not gnos_id in gnos_ids_in_cloud:
+        if target_cloud in ['aws', 'collab'] and not gnos_id in gnos_ids_in_cloud:
             logger.warning('The donor {} has NOT transferred {}_variant_calling.'.format(es_json.get('donor_unique_id'), v)) 
             return False 
 
@@ -443,7 +412,7 @@ def add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
                 continue
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
-            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
+            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))}, target_cloud)
             variant_calling.get('files').append(f)
 
         # add the metadata_xml_file_info
@@ -663,6 +632,8 @@ def main(argv=None):
         git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json'
     elif target_cloud == 'collab':
         git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*completed-jobs/*.json'
+    elif target_cloud in ['tcga', 'gtdownload']:
+        git_s3_fnames = ''
     else:
         sys.exit('Error: unknown target_cloud!')
     files = glob.glob(git_s3_fnames)
@@ -711,10 +682,10 @@ def main(argv=None):
 
         job_json = create_job_json(es_json)       
 
-        add_success = add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score, gnos_ids_in_cloud)
+        add_success = add_wgs_specimens(es_json, chosen_gnos_repo, jobs_dir, job_json, oxog_score, gnos_ids_in_cloud, target_cloud)
         if not add_success: continue
 
-        add_success = add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_in_cloud)
+        add_success = add_variant_calling(es_json, chosen_gnos_repo, jobs_dir, job_json, gnos_ids_in_cloud, target_cloud)
         if not add_success: continue
 
         write_json(jobs_dir, job_json)

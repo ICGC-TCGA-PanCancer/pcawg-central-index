@@ -44,7 +44,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the transfer jsons from $f...
-		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -x exclude_dkfz_gnos_id.txt -s wgs -v sanger dkfz broad muse
+		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s wgs -v sanger dkfz broad muse
 
 		JOB_NUM=`ls -l $M/reports/s3_transfer_json_$CLOUD/ |grep json|wc -l`
 		Z=0
