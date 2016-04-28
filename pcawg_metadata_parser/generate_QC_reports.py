@@ -1147,7 +1147,7 @@ def add_report_info_19(report_info, report_info_list, es_json, annotations):
                 v = list(gen_dict_extract('gender', es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics')))
                 report_info[vcf+'_gender'] = get_mapping(v[0]) if v else None
                 if report_info.get(vcf+'_gender'): report_info['gender'].add(report_info[vcf+'_gender'])
-    report_info['exist_gender_discrepancy'] = False if not len(report_info['gender']) == 1 else True
+    report_info['exist_gender_discrepancy'] = False if len(report_info['gender']) == 1 else True
     report_info_list.append(copy.deepcopy(report_info))
 
 
@@ -1464,8 +1464,8 @@ def add_report_info_3_aliquot(aliquot, report_info, report_info_list):
 
 def init_report_dir(metadata_dir, report_name, repo):
     report_dir = metadata_dir + '/reports/' + report_name if not repo else metadata_dir + '/reports/' + report_name + '/' + repo
-    if os.path.exists(report_dir): shutil.rmtree(report_dir, ignore_errors=True)  # empty the folder if exists
-    os.makedirs(report_dir)
+    if not os.path.exists(report_dir): os.makedirs(report_dir)  # make the folder if not exists
+    
 
     return report_dir
 
