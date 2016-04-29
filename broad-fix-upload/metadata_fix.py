@@ -581,7 +581,7 @@ def main(argv=None):
     donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
 
     # generate the donors_to_be_fixed list from the files in fixed_files folder
-    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file)
+    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file, workflow_version)
 
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
@@ -598,7 +598,7 @@ def main(argv=None):
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files if needed...')
-    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, allow_partial_workflow_results)
+    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, allow_partial_workflow_results, workflow_name, workflow_version)
 
     # write the fixed donor informaton 
     write_file(fixed_donors, 'fixed_'+donor_list_file)
