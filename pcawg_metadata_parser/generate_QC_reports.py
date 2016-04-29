@@ -829,6 +829,7 @@ es_queries = [
       }
 },
 
+
 # query 16: get missing gnos_entry from mar2016_release 
 {
      "name": "missing_gnos_entry_from_mar2016_release",
@@ -962,6 +963,64 @@ es_queries = [
       }
 },
 
+# query 19: get gender information of pcawg donors
+{
+      "name": "pcawg_donors_gender_info",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },
+                    {
+                      "terms":{
+                        "flags.is_normal_specimen_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "terms":{
+                        "flags.are_all_tumor_specimens_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    # {
+                    #    "terms":{
+                    #       "flags.is_mar2016_donor":[
+                    #          "T"
+                    #       ]
+                    #    }
+                    # }                               
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 
 ]
 
@@ -990,7 +1049,7 @@ def get_donors_list(es, es_index, es_queries, q_index):
 
     return donors_list 
 
-def create_report_info(donor_unique_id, es_json, q_index):
+def create_report_info(donor_unique_id, es_json, q_index, annotations):
     report_info_list = []
 
     report_info = OrderedDict()
@@ -998,7 +1057,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
     report_info['submitter_donor_id'] = es_json['submitter_donor_id']
     report_info['dcc_project_code'] = es_json['dcc_project_code']
     
-    annotations = {}
+    # annotations = {}
     if q_index == 0:
         add_report_info_0(report_info, report_info_list, es_json)
 
@@ -1045,7 +1104,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_14_15(report_info, report_info_list, es_json, 'dkfz_embl')
 
     if q_index == 12:
-        annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+        # annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
         add_report_info_12(report_info, report_info_list, es_json, annotations)
 
     if q_index == 14:
@@ -1060,7 +1119,50 @@ def create_report_info(donor_unique_id, es_json, q_index):
     if q_index == 18:
         add_report_info_14_15(report_info, report_info_list, es_json, 'minibam')
 
+    if q_index == 19:
+        # annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
+        # annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
+        add_report_info_19(report_info, report_info_list, es_json, annotations)
+
     return report_info_list
+
+def get_mapping(source):
+    target = {
+        "XX": "female",
+        "XY": "male",
+        "female": "female",
+        "male": "male"
+    }
+    return target.get(source)
+
+def gen_dict_extract(key, var):
+    if hasattr(var,'iteritems'):
+        for k, v in var.iteritems():
+            if k.startswith(key) and not isinstance(v, dict):
+                yield v
+            if isinstance(v, dict):
+                for result in gen_dict_extract(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    for result in gen_dict_extract(key, d):
+                        yield result
+
+
+def add_report_info_19(report_info, report_info_list, es_json, annotations):
+    report_info['gender'] = set()
+    report_info['dcc_gender'] = annotations.get('gender').get(es_json.get('donor_unique_id')) if annotations.get('gender').get(es_json.get('donor_unique_id')) else None
+    if report_info.get('dcc_gender'): report_info['gender'].add(report_info['dcc_gender']) 
+    for vcf in ['sanger', 'dkfz_embl', 'broad', 'muse']:
+        report_info[vcf+'_gender'] = None
+        if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(vcf+'_variant_calling'):
+            if es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details') and \
+                es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics'):
+                v = list(gen_dict_extract('gender', es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics')))
+                report_info[vcf+'_gender'] = get_mapping(v[0]) if v else None
+                if report_info.get(vcf+'_gender'): report_info['gender'].add(report_info[vcf+'_gender'])
+    report_info['exist_gender_discrepancy'] = False if len(report_info['gender']) == 1 else True
+    report_info_list.append(copy.deepcopy(report_info))
 
 
 def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
@@ -1376,8 +1478,8 @@ def add_report_info_3_aliquot(aliquot, report_info, report_info_list):
 
 def init_report_dir(metadata_dir, report_name, repo):
     report_dir = metadata_dir + '/reports/' + report_name if not repo else metadata_dir + '/reports/' + report_name + '/' + repo
-    if os.path.exists(report_dir): shutil.rmtree(report_dir, ignore_errors=True)  # empty the folder if exists
-    os.makedirs(report_dir)
+    if not os.path.exists(report_dir): os.makedirs(report_dir)  # make the folder if not exists
+    
 
     return report_dir
 
@@ -1395,6 +1497,19 @@ def read_annotations(annotations, type, file_name):
                 if line.startswith('#'): continue
                 if len(line.rstrip()) == 0: continue
                 annotations[type].add(line.rstrip())
+        elif type == 'gender':
+            annotations[type] = {}
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                # if not row.get('study_donor_involved_in') == 'PCAWG': continue
+                if not row.get('project_code') or not row.get('submitted_donor_id'): continue
+                annotations[type][row.get('project_code')+'::'+row.get('submitted_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
+        elif type == 'gender_update':
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                if not row.get('donor_unique_id'): continue
+                annotations['gender'][row.get('donor_unique_id')] = row.get('DCC ICGC21 submitted donor_sex') if row.get('DCC ICGC21 submitted donor_sex') else None
+
         else:
             print('unknown annotation type: {}'.format(type))
     return annotations
@@ -1433,6 +1548,11 @@ def main(argv=None):
     report_name = re.sub(r'\.py$', '', report_name)
     report_dir = init_report_dir(metadata_dir, report_name, repo)
 
+    annotations = {}
+    annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+    annotations = read_annotations(annotations, 'gender', '../pcawg-operations/lists/donor.all_projects.release20.tsv')
+    annotations = read_annotations(annotations, 'gender_update', '../pcawg-operations/lists/donor.gender_update.release21.tsv')
+
     for q in q_index:
         report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
 
@@ -1444,7 +1564,7 @@ def main(argv=None):
             # get json doc for each donor                 
             es_json = get_donor_json(es, es_index, donor_unique_id)
             
-            report_info_list_donor = create_report_info(donor_unique_id, es_json, q)
+            report_info_list_donor = create_report_info(donor_unique_id, es_json, q, annotations)
 
             report_info_list_full.extend(report_info_list_donor)
 
