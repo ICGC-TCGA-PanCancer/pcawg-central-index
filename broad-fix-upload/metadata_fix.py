@@ -433,7 +433,7 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_resu
 def generate_index_files(work_dir, donors_to_be_fixed):
     pass
 
-def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file):
+def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file, workflow_version):
     donors_to_be_fixed = []
     aliquot_ids = set()
     for f in glob.glob(os.path.join(fixed_file_dir, "*.gz")):
@@ -442,18 +442,16 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included,
     with open(vcf_info_file) as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
+            if row.get('vcf_workflow_result_version') and row.get('vcf_workflow_result_version') == workflow_version: continue
+            if donor_ids_to_be_included and not row.get('donor_unique_id') in donor_ids_to_be_included:
+                logger.warning('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
+                continue
+            if donor_ids_to_be_excluded and row.get('donor_unique_id') in donor_ids_to_be_excluded:
+                logger.warning('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
+                continue 
             tumor_aliquot_ids = set(row.get('tumor_aliquot_ids').split('|'))
             miss = tumor_aliquot_ids.difference(aliquot_ids)
             if len(miss) == 0:
-                if donor_ids_to_be_included and not row.get('donor_unique_id') in donor_ids_to_be_included:
-                    logger.warning('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
-                    continue
-                if donor_ids_to_be_excluded and row.get('donor_unique_id') in donor_ids_to_be_excluded:
-                    logger.warning('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
-                    continue 
-                # if 'tcga' in row.get('broad_gnos_repo'):
-                #     logger.warning('The donor: {} is TCGA donor and skip for now'.format(row.get('donor_unique_id')))
-                #     continue 
                 donors_to_be_fixed.append(copy.deepcopy(row))
             elif len(miss) < len(tumor_aliquot_ids): 
                 logger.warning('The donor: {} is likely a multi-tumors donor and missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
