@@ -19,8 +19,8 @@ from random import randint
 import subprocess
 
 
-logger = logging.getLogger('fix metadata')
-ch = logging.StreamHandler()
+# logger = logging.getLogger('fix metadata')
+# ch = logging.StreamHandler()
 
 def download_metadata_xml(gnos_repo, ao_uuid):
     url = gnos_repo + '/cghub/metadata/analysisFull/' + ao_uuid
@@ -62,15 +62,32 @@ def get_formal_repo_name(repo):
 
     return repo_url_to_repo.get(repo)
 
-def fix_illegal_id(xml_str, id_mapping):
-    for id_type in ['dcc_project_code', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']:
+def fix_illegal_id(xml_str, id_mapping, fix_pattern, id_types):
+    for id_type in id_types:
         if not id_mapping.get(id_type): continue
         for key, value in id_mapping.get(id_type).items():
-            key = key.replace('*', '\*')
-            xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
-            xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
-            xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)
-            # xml_str = re.sub('SM:'+key+' ', 'SM:'+value+' ', xml_str)        
+            if fix_pattern == 'whole_string':
+                key = key.replace('*', '\*')
+                xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
+                xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
+                xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)
+
+            elif fix_pattern == 'key_value':
+                if xmltodict.parse(xml_str).get('ResultSet') and \
+                   xmltodict.parse(xml_str).get('ResultSet').get('Result') and \
+                   xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml'):
+                    analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+                    for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
+                        if a.get('TAG') == id_type:
+                            a['VALUE'] = value
+                        elif a.get('TAG') in ['variant_pipeline_input_info', 'variant_pipeline_output_info']:
+                            a['VALUE'] = re.sub('"'+id_type+'":"'+key+'",', '"'+id_type+'":"'+value+'",', a.get('VALUE'))
+
+                else:
+                    print('Could not parse the analysis xml!')
+
+        else:
+            print('Norecognized fix_pattern!'.format(fix_pattern))
 
     return xml_str
 
@@ -92,8 +109,9 @@ def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
 
 
 def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
-    file_name=os.path.join('annotation_files', file_name)
+    # file_name=os.path.join('annotation_files', file_name)
     if not os.path.isfile(file_name):
+        print('The id_fixes_file does not exist!')
         return
     with open(file_name, 'r') as r:
         if type == 'ESAD-UK':
@@ -106,7 +124,7 @@ def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
                 gnos_id = url.split('/')[-1]
                 annotations[type][gnos_id] = gnos_repo
         elif type == 'mismatch_metadata':
-            annotations[type] = {}
+            # annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 annotations[type][row.get('gnos_id')] = {}
@@ -160,41 +178,60 @@ def main(argv=None):
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-f", "--information for gnos entries", dest="fname",
              help="Specify file to update the metadata", required=True)
-    parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir",
+    parser.add_argument("-x", "--id_fixes_file", dest="id_fixes_file", 
+             help="Specify file of id fixes", required=True)
+    parser.add_argument("-m", "--match_pattern", dest="match_pattern", defaut="whole_string",
+             help="Specify pattern of id match [whole_string, key_value]", required=False)
+    parser.add_argument("-p", "--fix_type", dest="fix_type", defaut="id_mapping",
+             help="Specify type of id fixes['id_mapping', 'mismatch_metadata']", required=False) 
+    parser.add_argument("-t", "--id_types", dest="id_types", nargs="*",
+             help="Specify type of id fixes['dcc_project_code', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']", required=False)                 
+    parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir", defaut="fixed_dir",
              help="Specify output folder for the fixed metadata", required=False)
+
 
     args = parser.parse_args()
     fname = args.fname
+    id_fixes_file = args.id_fixes_file
+    fix_pattern = args.fix_pattern
+    fix_type = args.fix_type
+    id_types = args.id_types
     fixed_dir = args.fixed_dir
 
+    id_types = list(id_types) if id_types else ['dcc_project_code', 'submitter_donor_id', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']
 
-    if not fixed_dir: fixed_dir = 'fixed_dir'
-    logger.setLevel(logging.INFO)
-    ch.setLevel(logging.WARN)
+    # if not fixed_dir: fixed_dir = 'fixed_dir'
+    # logger.setLevel(logging.INFO)
+    # ch.setLevel(logging.WARN)
 
-    log_file = re.sub(r'\.py$', '.log', os.path.basename(__file__))
+    # log_file = re.sub(r'\.py$', '.log', os.path.basename(__file__))
 
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.addHandler(ch)
+    # fh = logging.FileHandler(log_file)
+    # fh.setLevel(logging.DEBUG)
+    # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # fh.setFormatter(formatter)
+    # ch.setFormatter(formatter)
+    # logger.addHandler(fh)
+    # logger.addHandler(ch)
 
-    annotations = {}
-    read_annotations(annotations, 'ESAD-UK', 'ESAD-UK_10broken.txt')
-    read_annotations(annotations, 'mismatch_metadata', 'specimens_with_mismatch_effective_xml_md5sum.txt')
+    annotations = {
+        'id_mapping': {},
+        'mismatch_metadata':{}
+    }
+    for id_subtype in id_type:
+        read_annotations(annotations, fix_type, id_fixes_file, id_subtype)
+    # read_annotations(annotations, 'ESAD-UK', 'ESAD-UK_10broken.txt')
+    # read_annotations(annotations, 'mismatch_metadata', 'specimens_with_mismatch_effective_xml_md5sum.txt')
     # read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
     # read_annotations(annotations, 'id_mapping', 'PAEN-AU_id_fixes.tsv')
-    read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv', 'submitter_specimen_id')
-    read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_specimen_id')
-    read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_sample_id')
-    read_annotations(annotations, 'id_mapping', 'OV-AU_specimen_type_fixes.tsv', 'dcc_specimen_type')
-    read_annotations(annotations, 'id_mapping', 'PAEN-IT_project_code_fixes.tsv', 'dcc_project_code')
-    read_annotations(annotations, 'id_mapping', 'PAEN-AU_project_code_fixes.tsv', 'dcc_project_code')
-    read_annotations(annotations, 'id_mapping', 'ESAD-UK_specimen_type_fixes.tsv', 'dcc_specimen_type')
-    read_annotations(annotations, 'id_mapping', 'LIRI-JP_specimen_id_fixes.tsv', 'submitter_specimen_id')
+    # read_annotations(annotations, 'id_mapping', 'MELA-AU_PCAWG-DCC_specimen_id_mapping.tsv', 'submitter_specimen_id')
+    # read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_specimen_id')
+    # read_annotations(annotations, 'id_mapping', 'OV-AU_id_fixes.tsv', 'submitter_sample_id')
+    # read_annotations(annotations, 'id_mapping', 'OV-AU_specimen_type_fixes.tsv', 'dcc_specimen_type')
+    # read_annotations(annotations, 'id_mapping', 'PAEN-IT_project_code_fixes.tsv', 'dcc_project_code')
+    # read_annotations(annotations, 'id_mapping', 'PAEN-AU_project_code_fixes.tsv', 'dcc_project_code')
+    # read_annotations(annotations, 'id_mapping', 'ESAD-UK_specimen_type_fixes.tsv', 'dcc_specimen_type')
+    # read_annotations(annotations, 'id_mapping', 'LIRI-JP_specimen_id_fixes.tsv', 'submitter_specimen_id')
 
     fixed_metadata_list = []
     with open(fname, 'r') as f:
