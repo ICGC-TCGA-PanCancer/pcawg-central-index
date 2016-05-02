@@ -73,21 +73,23 @@ def fix_illegal_id(xml_str, id_mapping, fix_pattern, id_types):
                 xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)
 
             elif fix_pattern == 'key_value':
-                if xmltodict.parse(xml_str).get('ResultSet') and \
-                   xmltodict.parse(xml_str).get('ResultSet').get('Result') and \
-                   xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml'):
-                    analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+                xml_dict = xmltodict.parse(xml_str)
+                if xml_dict.get('ResultSet') and \
+                   xml_dict.get('ResultSet').get('Result') and \
+                   xml_dict.get('ResultSet').get('Result').get('analysis_xml'):
+                    analysis_xml = xml_dict.get('ResultSet').get('Result').get('analysis_xml')
                     for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
                         if a.get('TAG') == id_type:
                             a['VALUE'] = value
                         elif a.get('TAG') in ['variant_pipeline_input_info', 'variant_pipeline_output_info']:
                             a['VALUE'] = re.sub('"'+id_type+'":"'+key+'",', '"'+id_type+'":"'+value+'",', a.get('VALUE'))
-
+                    xml_str = xmltodict.unparse(xml_dict, pretty=True)
+ 
                 else:
                     print('Could not parse the analysis xml!')
 
-        else:
-            print('Norecognized fix_pattern!'.format(fix_pattern))
+            else:
+                print('Norecognized fix_pattern!'.format(fix_pattern))
 
     return xml_str
 
@@ -277,14 +279,14 @@ def main(argv=None):
             generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'orignal')
             if fixed_metadata['fixed_type'] == 'fixed_illegal_id':
                 # fix the illegal ids
-                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(row.get('donor_unique_id')))
+                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(row.get('donor_unique_id')), fix_pattern, id_types)
             elif fixed_metadata['fixed_type'] == 'fixed_illegal_id_and_mismatch':
                 # download from the repo with metadata fixed copy
                 xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
                 if not xml_str: 
                     print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_download'])
                     continue
-                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(row.get('donor_unique_id')))
+                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(row.get('donor_unique_id')), fix_pattern, id_types)
             elif fixed_metadata['fixed_type'] == 'fixed_mismatch':                            
                 # download from the repo with metadata fixed copy
                 xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
