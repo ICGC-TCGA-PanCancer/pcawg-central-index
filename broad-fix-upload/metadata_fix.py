@@ -277,7 +277,7 @@ def create_fixed_gnos_submission(upload_dir, gnos_analysis_object, caller, workf
         if caller == 'broad' and attr.get('TAG') == 'workflow_file_subset':
             attr['VALUE'] = caller+'-'+workflow_version
         elif caller == 'oxog' and attr.get('TAG') == 'variant_workflow_name':
-            old_value = copy.deepcopy(att.get('VALUE'))
+            old_value = copy.deepcopy(attr.get('VALUE'))
             attr['VALUE'] = old_value+'-'+workflow_version
         else:
             pass  # all others, leave it unchanged
