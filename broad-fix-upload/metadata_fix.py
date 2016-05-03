@@ -443,12 +443,14 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included,
     with open(vcf_info_file) as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
-            if row.get('vcf_workflow_result_version') and row.get('vcf_workflow_result_version') == workflow_version: continue
+            if row.get('vcf_workflow_result_version') and row.get('vcf_workflow_result_version') == workflow_version:
+                logger.info('The donor: {} has already been fixed to {}, skip it!'.format(row.get('donor_unique_id'), workflow_version)) 
+                continue
             if donor_ids_to_be_included and not row.get('donor_unique_id') in donor_ids_to_be_included:
-                logger.warning('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
+                logger.info('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
                 continue
             if donor_ids_to_be_excluded and row.get('donor_unique_id') in donor_ids_to_be_excluded:
-                logger.warning('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
+                logger.info('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
                 continue 
             tumor_aliquot_ids = set(row.get('tumor_aliquot_ids').split('|'))
             miss = tumor_aliquot_ids.difference(aliquot_ids)
@@ -458,6 +460,7 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included,
                 logger.warning('The donor: {} is likely a multi-tumors donor and missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
                 continue
             else:
+                logger.warning('The donor: {} is missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
                 continue       
     
     write_file(donors_to_be_fixed, donor_list_file)        
