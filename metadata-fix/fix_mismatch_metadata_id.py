@@ -22,22 +22,43 @@ import subprocess
 # logger = logging.getLogger('fix metadata')
 # ch = logging.StreamHandler()
 
-def download_metadata_xml(gnos_repo, ao_uuid):
-    url = gnos_repo + '/cghub/metadata/analysisFull/' + ao_uuid
+# def download_metadata_xml(gnos_repo, ao_uuid):
+#     url = gnos_repo + '/cghub/metadata/analysisFull/' + ao_uuid
 
-    response = None
+#     response = None
 
-    try:
-        response = requests.get(url, stream=True, timeout=30)
-    except: # download failed, no need to do anything
-        pass
+#     try:
+#         response = requests.get(url, stream=True, timeout=30)
+#     except: # download failed, no need to do anything
+#         pass
 
-    if not response or not response.ok:
-        print('Unable to download {}'.format(url))
+#     if not response or not response.ok:
+#         print('Unable to download {}'.format(url))
+#         return None
+#     else:
+#         metadata_xml_str = response.text
+#         return metadata_xml_str
+
+def download_metadata_xml(gnos_repo, gnos_id, download_dir=None):
+    
+    url = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_id
+
+    command = 'wget ' + url + ' -O ' + gnos_id+'.xml'
+    process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    out, err = process.communicate()
+
+    if process.returncode:
+        # should not exit for just this error, improve it later
         return None
-    else:
-        metadata_xml_str = response.text
-        return metadata_xml_str
+    
+    with open(gnos_id+'.xml', 'r') as f: metadata_xml_str = f.read()
+    os.remove(gnos_id+'.xml')
+    return metadata_xml_str
 
 
 def get_formal_repo_name(repo):
