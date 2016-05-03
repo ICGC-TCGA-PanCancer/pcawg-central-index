@@ -426,7 +426,8 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_resu
             for fp in file_name_patterns:
                 logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
             if not allow_partial_workflow_results:
-                sys.exit('Missing expected variant call result file, see log file for details.')
+                return
+                # sys.exit('Missing expected variant call result file, see log file for details.')
      
     return matched_files
 
