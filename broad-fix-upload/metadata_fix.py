@@ -371,36 +371,36 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_resu
             ])
     elif caller == 'oxog':
         file_name_patterns = set([
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_broad_indel\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_broad_indel\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_broad_SNV\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_broad_SNV\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_dkfz_embl_indel\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_dkfz_embl_indel\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_dkfz_embl_SNV\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_dkfz_embl_SNV\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_sanger_indel\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_sanger_indel\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_sanger_SNV\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_sanger_SNV\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_muse_SNV\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_annotated_muse_SNV\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_sanger_somatic.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_sanger_somatic.+\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_dkfz_embl_somatic.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_dkfz_embl_somatic.+\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_broad_somatic.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\_broad_somatic.+\.vcf\.gz\.tbi$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.gnos_files\.tar$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.call_stats\.txt\.gz\.tar$'
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_indel\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_indel\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_indel\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_muse_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_muse_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_sanger_somatic.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_sanger_somatic.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_dkfz_embl_somatic.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_dkfz_embl_somatic.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_broad_somatic.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_broad_somatic.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.gnos_files\.tar$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.call_stats\.txt\.gz\.tar$'
             ])     
     else:
         sys.exit('Unrecognized workflow_name'.format(caller))       
@@ -593,6 +593,7 @@ def main(argv=None):
     validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_name)
 
     # dectect whether uploads dir exists, stop if exists
+    print('\nDetecting output folders...')
     detect_folder(work_dir, 'uploads')
     if workflow_name == 'broad': detect_folder(work_dir, 'updated_metafiles')
 
