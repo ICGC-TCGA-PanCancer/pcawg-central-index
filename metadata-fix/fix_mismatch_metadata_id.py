@@ -182,7 +182,7 @@ def main(argv=None):
              help="Specify file to update the metadata", required=True)
     parser.add_argument("-x", "--id_fixes_file", dest="id_fixes_file", 
              help="Specify file of id fixes", required=True)
-    parser.add_argument("-m", "--match_pattern", dest="match_pattern", default="whole_string",
+    parser.add_argument("-m", "--fix_pattern", dest="fix_pattern", default="whole_string",
              help="Specify pattern of id match [whole_string, key_value]", required=False)
     parser.add_argument("-p", "--fix_type", dest="fix_type", default="id_mapping",
              help="Specify type of id fixes['id_mapping', 'mismatch_metadata']", required=False) 
