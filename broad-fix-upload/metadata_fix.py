@@ -165,8 +165,8 @@ def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir, caller):
                 #     logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(fixed_file_dir, donor.get('donor_unique_id')))
                 #     sys.exit('Validating working directory failed, please check log for details.') 
                 for f in flist:
-                    if not len(glob.glob(os.path.join(fixed_file_dir, aliquot_id+'.'+flist))) == 1:
-                        logger.error('No fixed file {} detected in: {} for donor: {}'.format(aliquot_id+'.'+flist, fixed_file_dir, donor.get('donor_unique_id')))
+                    if not len(glob.glob(os.path.join(fixed_file_dir, aliquot_id+'.'+f))) == 1:
+                        logger.error('No fixed file {} detected in: {} for donor: {}'.format(aliquot_id+'.'+f, fixed_file_dir, donor.get('donor_unique_id')))
                         sys.exit('Validating working directory failed, please check log for details.')                      
 
 
