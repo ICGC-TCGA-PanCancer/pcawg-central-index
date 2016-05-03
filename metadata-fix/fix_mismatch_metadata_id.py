@@ -110,7 +110,7 @@ def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
                 y.write(xml_subtype_str)
 
 
-def read_annotations(annotations, type, file_name, subtype='dcc_project_code'):
+def read_annotations(annotations, type, file_name, subtype):
     # file_name=os.path.join('annotation_files', file_name)
     if not os.path.isfile(file_name):
         print('The id_fixes_file does not exist!')
@@ -220,8 +220,8 @@ def main(argv=None):
         'id_mapping': {},
         'mismatch_metadata':{}
     }
-    for id_subtype in id_type:
-        read_annotations(annotations, fix_type, id_fixes_file, id_subtype)
+    for id_type in id_types:
+        read_annotations(annotations, fix_type, id_fixes_file, id_type)
     # read_annotations(annotations, 'ESAD-UK', 'ESAD-UK_10broken.txt')
     # read_annotations(annotations, 'mismatch_metadata', 'specimens_with_mismatch_effective_xml_md5sum.txt')
     # read_annotations(annotations, 'id_mapping', 'ESAD-UK_id_fixes.tsv')
