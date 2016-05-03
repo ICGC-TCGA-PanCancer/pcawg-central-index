@@ -182,13 +182,13 @@ def main(argv=None):
              help="Specify file to update the metadata", required=True)
     parser.add_argument("-x", "--id_fixes_file", dest="id_fixes_file", 
              help="Specify file of id fixes", required=True)
-    parser.add_argument("-m", "--match_pattern", dest="match_pattern", defaut="whole_string",
+    parser.add_argument("-m", "--match_pattern", dest="match_pattern", default="whole_string",
              help="Specify pattern of id match [whole_string, key_value]", required=False)
-    parser.add_argument("-p", "--fix_type", dest="fix_type", defaut="id_mapping",
+    parser.add_argument("-p", "--fix_type", dest="fix_type", default="id_mapping",
              help="Specify type of id fixes['id_mapping', 'mismatch_metadata']", required=False) 
     parser.add_argument("-t", "--id_types", dest="id_types", nargs="*",
-             help="Specify type of id fixes['dcc_project_code', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']", required=False)                 
-    parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir", defaut="fixed_dir",
+             help="Specify type of id fixes['dcc_project_code', 'submitter_donor_id', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']", required=False)                 
+    parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir", default="fixed_dir",
              help="Specify output folder for the fixed metadata", required=False)
 
 
