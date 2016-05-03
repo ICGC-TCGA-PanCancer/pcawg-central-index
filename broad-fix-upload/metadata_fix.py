@@ -392,13 +392,13 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_resu
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_broad_somatic.+\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_broad_somatic.+\.vcf\.gz\.tbi$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz\.idx$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.gnos_files\.tar$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.call_stats\.txt\.gz\.tar$'
             ])     
