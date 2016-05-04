@@ -100,7 +100,7 @@ def fix_illegal_id(xml_str, id_mapping, fix_pattern, id_types):
                    xml_dict.get('ResultSet').get('Result').get('analysis_xml'):
                     analysis_xml = xml_dict.get('ResultSet').get('Result').get('analysis_xml')
                     for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
-                        if a.get('TAG') == id_type:
+                        if a.get('TAG') == id_type and a.get('VALUE') == key:
                             a['VALUE'] = value
                         elif a.get('TAG') in ['variant_pipeline_input_info', 'variant_pipeline_output_info']:
                             a['VALUE'] = re.sub('"'+id_type+'":"'+key+'",', '"'+id_type+'":"'+value+'",', a.get('VALUE'))
