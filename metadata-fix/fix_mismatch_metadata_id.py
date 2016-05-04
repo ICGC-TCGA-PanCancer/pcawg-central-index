@@ -104,6 +104,8 @@ def fix_illegal_id(xml_str, id_mapping, fix_pattern, id_types):
                             a['VALUE'] = value
                         elif a.get('TAG') in ['variant_pipeline_input_info', 'variant_pipeline_output_info']:
                             a['VALUE'] = re.sub('"'+id_type+'":"'+key+'",', '"'+id_type+'":"'+value+'",', a.get('VALUE'))
+                        else:
+                            pass
                     xml_str = xmltodict.unparse(xml_dict, pretty=True)
  
                 else:
@@ -167,6 +169,7 @@ def read_annotations(annotations, type, file_name, subtype):
                 donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
                 if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
                 if not annotations[type].get(donor_unique_id).get(subtype): annotations[type][donor_unique_id][subtype] = OrderedDict()
+                if not row.get('old_'+subtype) or not row.get('new_'+subtype): continue
                 annotations[type][donor_unique_id][subtype][row.get('old_'+subtype)] = row.get('new_'+subtype)
 
         else:
