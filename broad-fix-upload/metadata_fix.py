@@ -140,29 +140,40 @@ def get_gnos_analysis_object(f):
 
 
 
-def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir):
+def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir, caller):
     for donor in donors_to_be_fixed:
-        caller = 'broad'
+        # caller = 'broad'
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         if not os.path.isdir(gnos_entry_dir):
             logger.error('Expected GNOS entry does not exist: {}. Please ensure all GNOS entries are downloaded.'.format(gnos_entry_dir))
             sys.exit('Validating working directory failed, please check log for details.')
         if not os.path.isdir(fixed_file_dir):
-            logger.error('Expected folder for BROAD fixed files does not exist: {}'.format(fixed_file_dir))
+            logger.error('Expected folder for {} fixed files does not exist: {}'.format(caller, fixed_file_dir))
             sys.exit('Validating working directory failed, please check log for details.')
         else:
+            if caller == 'broad':
+                flist = ['broad-mutect-v3.*.gz', 'broad-mutect-v3.*.gz.idx']
+            elif caller == 'oxog':
+                flist = ['broad-mutect-v3.*.oxoG.v2.vcf.gz', 'broad-mutect-v3.*.oxoG.v2.vcf.gz.tbi', 'dkfz-snvCalling*.oxoG.v2.vcf.gz', 'dkfz-snvCalling*.oxoG.v2.vcf.gz.tbi', \
+                         'MUSE*.oxoG.v2.vcf.gz', 'MUSE*.oxoG.v2.vcf.gz.tbi', 'svcp*.oxoG.v2.vcf.gz', 'svcp*.oxoG.v2.vcf.gz.tbi']
+            else:
+                sys.exit('Unrecognized workflow_name'.format(caller))
             aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
             for aliquot_id in aliquot_ids:
-                if not os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v3.20160222.somatic.snv_mnv.vcf.gz')) or not \
-                       os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v3.20160222.somatic.snv_mnv.vcf.gz.idx')):
-                    logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(fixed_file_dir, donor.get('donor_unique_id')))
-                    sys.exit('Validating working directory failed, please check log for details.')                     
+                # if not os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v3.20160222.somatic.snv_mnv.vcf.gz')) or not \
+                #        os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v3.20160222.somatic.snv_mnv.vcf.gz.idx')):
+                #     logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(fixed_file_dir, donor.get('donor_unique_id')))
+                #     sys.exit('Validating working directory failed, please check log for details.') 
+                for f in flist:
+                    if not len(glob.glob(os.path.join(fixed_file_dir, aliquot_id+'.'+f))) == 1:
+                        logger.error('No fixed file {} detected in: {} for donor: {}'.format(aliquot_id+'.'+f, fixed_file_dir, donor.get('donor_unique_id')))
+                        sys.exit('Validating working directory failed, please check log for details.')                      
 
 
-def download_metadata_files(work_dir, donors_to_be_fixed):
+def download_metadata_files(work_dir, donors_to_be_fixed, caller):
     donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
     for donor in donors_to_be_fixed_old:
-        caller = 'broad'
+        # caller = 'broad'
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
         if os.path.isdir(gnos_entry_dir): 
             logger.warning('The donor: {} has downloaded files already!'.format(donor.get('donor_unique_id')))
@@ -177,14 +188,14 @@ def download_metadata_files(work_dir, donors_to_be_fixed):
             continue
     return donors_to_be_fixed
 
-def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_status):
+def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, allow_partial_workflow_results, caller, workflow_version):
     # donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
     fixed_donors = []
-    caller = 'broad'
+    # caller = 'broad'
     for donor in donors_to_be_fixed:
         gnos_analysis_objects = {}
         gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
-        files = get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status)
+        files = get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_results, caller)
         if not files:
             # donors_to_be_fixed.remove(donor)
             continue
@@ -202,16 +213,17 @@ def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_s
             upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
         os.makedirs(upload_dir)
 
-        donor.update({'broad_v3_gnos_id': upload_gnos_uuid})
+        donor.update({caller+'-'+workflow_version+'_gnos_id': upload_gnos_uuid})
 
         copy_file(upload_dir, files)
         apply_data_block_patches(gnos_analysis_object, files)
 
-        create_fixed_gnos_submission(upload_dir, gnos_analysis_object) 
+        create_fixed_gnos_submission(upload_dir, gnos_analysis_object, caller, workflow_version) 
 
-        updated_metadata = generate_updated_metadata(donor, work_dir)
-        if not updated_metadata:
-            continue
+        if caller == 'broad':
+            updated_metadata = generate_updated_metadata(donor, work_dir)
+            if not updated_metadata:
+                continue
 
         fixed_donors.append(donor)
 
@@ -257,14 +269,16 @@ def generate_updated_metadata(donor, work_dir):
     return True
     
 
-def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
+def create_fixed_gnos_submission(upload_dir, gnos_analysis_object, caller, workflow_version):
     fixed_analysis_object = copy.deepcopy(gnos_analysis_object) 
 
     attributes = fixed_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
     for attr in attributes:
-        if attr.get('TAG') == 'workflow_file_subset':
-            attr['VALUE'] = 'broad-v3'
-
+        if caller == 'broad' and attr.get('TAG') == 'workflow_file_subset':
+            attr['VALUE'] = caller+'-'+workflow_version
+        elif caller == 'oxog' and attr.get('TAG') == 'variant_workflow_name':
+            old_value = copy.deepcopy(attr.get('VALUE'))
+            attr['VALUE'] = old_value+'-'+workflow_version
         else:
             pass  # all others, leave it unchanged
 
@@ -308,7 +322,7 @@ def apply_data_block_patches(gnos_analysis_object, files):
         else:  # fixed file
             if filename.endswith('vcf.gz'):
                 filetype = 'vcf'
-            elif filename.endswith('gz.idx'):
+            elif filename.endswith('gz.idx') or filename.endswith('gz.tbi'):
                 filetype = 'idx'
             else:
                 logger.warning('Unrecognized file type for file: {}'.format('filename'))
@@ -336,11 +350,9 @@ def copy_file(target, source):
         shutil.copy(s, target)       
 
 
-def get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status):
+def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_results, caller):
 
-    matched_files = []
-    tumor_aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
-    for aliquot in tumor_aliquot_ids:
+    if caller == 'broad':
         file_name_patterns = set([
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz\.idx$',
@@ -357,7 +369,45 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status):
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
             ])
+    elif caller == 'oxog':
+        file_name_patterns = set([
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_indel\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_indel\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_dkfz_embl_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_indel\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_indel\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_sanger_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_muse_SNV\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_muse_SNV\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_sanger_somatic.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_sanger_somatic.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_dkfz_embl_somatic.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_dkfz_embl_somatic.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_broad_somatic.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_broad_somatic.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.broad-mutect-v3.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.dkfz-snvCalling.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.svcp.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.MUSE.+\.somatic\.snv_mnv.+\.vcf\.gz\.tbi$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.gnos_files.*\.tar$',
+                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.call_stats.*\.txt\.gz\.tar$'
+            ])     
+    else:
+        sys.exit('Unrecognized workflow_name'.format(caller))       
 
+    matched_files = []
+    tumor_aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
+    for aliquot in tumor_aliquot_ids:
         for file_dir in (fixed_file_dir, gnos_entry_dir): # match fixed_file dir first
             for f in glob.glob(os.path.join(file_dir, aliquot+'*')):
                 file_name = os.path.basename(f)
@@ -375,15 +425,16 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status):
         if file_name_patterns:
             for fp in file_name_patterns:
                 logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
-            if not workflow_result_status:
-                sys.exit('Missing expected variant call result file, see log file for details.')
+            if not allow_partial_workflow_results:
+                return
+                # sys.exit('Missing expected variant call result file, see log file for details.')
      
     return matched_files
 
 def generate_index_files(work_dir, donors_to_be_fixed):
     pass
 
-def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file):
+def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file, workflow_version):
     donors_to_be_fixed = []
     aliquot_ids = set()
     for f in glob.glob(os.path.join(fixed_file_dir, "*.gz")):
@@ -392,23 +443,24 @@ def get_fix_donor_list (fixed_file_dir, vcf_info_file, donor_ids_to_be_included,
     with open(vcf_info_file) as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
+            if row.get('vcf_workflow_result_version') and row.get('vcf_workflow_result_version') == workflow_version:
+                logger.info('The donor: {} has already been fixed to {}, skip it!'.format(row.get('donor_unique_id'), workflow_version)) 
+                continue
+            if donor_ids_to_be_included and not row.get('donor_unique_id') in donor_ids_to_be_included:
+                logger.info('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
+                continue
+            if donor_ids_to_be_excluded and row.get('donor_unique_id') in donor_ids_to_be_excluded:
+                logger.info('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
+                continue 
             tumor_aliquot_ids = set(row.get('tumor_aliquot_ids').split('|'))
             miss = tumor_aliquot_ids.difference(aliquot_ids)
             if len(miss) == 0:
-                if donor_ids_to_be_included and not row.get('donor_unique_id') in donor_ids_to_be_included:
-                    logger.warning('The donor: {} is not in the donor_ids_to_be_included, skip it!'.format(row.get('donor_unique_id')))
-                    continue
-                if donor_ids_to_be_excluded and row.get('donor_unique_id') in donor_ids_to_be_excluded:
-                    logger.warning('The donor: {} is in the donor_ids_to_be_excluded, skip it!'.format(row.get('donor_unique_id')))
-                    continue 
-                # if 'tcga' in row.get('broad_gnos_repo'):
-                #     logger.warning('The donor: {} is TCGA donor and skip for now'.format(row.get('donor_unique_id')))
-                #     continue 
                 donors_to_be_fixed.append(copy.deepcopy(row))
             elif len(miss) < len(tumor_aliquot_ids): 
                 logger.warning('The donor: {} is likely a multi-tumors donor and missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
                 continue
             else:
+                logger.warning('The donor: {} is missing fixed files for tumor aliquots: {}'.format(row.get('donor_unique_id'), '|'.join(list(miss))))
                 continue       
     
     write_file(donors_to_be_fixed, donor_list_file)        
@@ -468,13 +520,17 @@ def main(argv=None):
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-b", "--work_dir", dest="work_dir",
              help="Directory name containing fixed variant call files", required=True)
-    parser.add_argument("-v", "--vcf_info_file", dest="vcf_info_file",
+    parser.add_argument("-f", "--vcf_info_file", dest="vcf_info_file",
              help="vcf information file", required=False)
     parser.add_argument("-x", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
     parser.add_argument("-i", "--include_donor_id_lists", dest="include_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
-    parser.add_argument("-s", "--is the workflow results complete", dest="workflow_result_status", default=True, type=bool,
+    parser.add_argument("-s", "--allow partial workflow results", dest="allow_partial_workflow_results", default=False, type=bool,
+             help="Specify whether the workflow results are complete or not", required=False) 
+    parser.add_argument("-w", "--workflow name", dest="workflow_name", default='broad', type=str,
+             help="Specify whether the workflow results are complete or not", required=False) 
+    parser.add_argument("-v", "--workflow version", dest="workflow_version", default='v3', type=str,
              help="Specify whether the workflow results are complete or not", required=False) 
 
     args = parser.parse_args()
@@ -482,7 +538,9 @@ def main(argv=None):
     vcf_info_file = args.vcf_info_file 
     exclude_donor_id_lists = args.exclude_donor_id_lists
     include_donor_id_lists = args.include_donor_id_lists
-    workflow_result_status = args.workflow_result_status
+    allow_partial_workflow_results = args.allow_partial_workflow_results
+    workflow_name = args.workflow_name
+    workflow_version = args.workflow_version
 
     # if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
     # work_dir = sys.argv[1]
@@ -493,11 +551,17 @@ def main(argv=None):
         print('\nUsing \'test\' folder as working directory ...')
 
     donor_list_file = work_dir+'_donor_list.txt'
-    fixed_file_dir = 'broad-v3_fixed_files'
+    fixed_file_dir = workflow_name+'-'+workflow_version+'_fixed_files'
 
     if not os.path.isdir(fixed_file_dir): sys.exit('Fixed files are missing!')
 
-    if not vcf_info_file: vcf_info_file = 'broad_successful_uploads.txt'
+    if not vcf_info_file:
+        if workflow_name == 'broad': 
+            vcf_info_file = 'broad_successful_uploads.txt'  
+        elif workflow_name == 'oxog':
+            vcf_info_file = 'variant_call_entries_with_broad_oxog_filter_applied.txt'
+        else:
+            sys.exit('Unrecognized workflow!')
     if not os.path.exists(vcf_info_file): sys.exit('Helper file is missing')
 
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
@@ -521,24 +585,25 @@ def main(argv=None):
     donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
 
     # generate the donors_to_be_fixed list from the files in fixed_files folder
-    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file)
+    donors_to_be_fixed = get_fix_donor_list(fixed_file_dir, vcf_info_file, donor_ids_to_be_included, donor_ids_to_be_excluded, donor_list_file, workflow_version)
 
     # now download data files and metadata xml
     print('\nDownloading data files and metadata XML from GNOS ...')
-    donors_to_be_fixed = download_metadata_files(work_dir, donors_to_be_fixed)
+    donors_to_be_fixed = download_metadata_files(work_dir, donors_to_be_fixed, workflow_name)
 
     print('\nThe number of donors to be fixed is: {}'.format(len(donors_to_be_fixed)))
     # validate working direcotry first
     print('\nValidating working directory...')
-    validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir)
+    validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_name)
 
     # dectect whether uploads dir exists, stop if exists
+    print('\nDetecting output folders...')
     detect_folder(work_dir, 'uploads')
-    detect_folder(work_dir, 'updated_metafiles')
+    if workflow_name == 'broad': detect_folder(work_dir, 'updated_metafiles')
 
     # now process metadata xml fix and merge
-    print('\nPreparing new GNOS submissions and updated related metadata XML files...')
-    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_status)
+    print('\nPreparing new GNOS submissions and updated related metadata XML files if needed...')
+    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, allow_partial_workflow_results, workflow_name, workflow_version)
 
     # write the fixed donor informaton 
     write_file(fixed_donors, 'fixed_'+donor_list_file)

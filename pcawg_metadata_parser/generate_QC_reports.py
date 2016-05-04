@@ -1168,8 +1168,8 @@ def add_report_info_19(report_info, report_info_list, es_json, annotations):
 def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
     report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
     if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(workflow_type+'_variant_calling'):
-        report_info['gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')
-        report_info['gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
+        report_info[workflow_type+'_gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')
+        report_info[workflow_type+'_gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
         report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_last_modified')
         report_info['vcf_workflow_result_version'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_result_version') 
         report_info_list.append(copy.deepcopy(report_info)) 
