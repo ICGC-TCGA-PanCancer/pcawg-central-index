@@ -507,7 +507,7 @@ def main(argv=None):
     ega_dir = ega_dir if ega_dir else '../pcawg-ega-submission'
 
     annotations = {}
-    read_annotations(annotations, 'gender', ega_dir+'/annotation/pcawg_donor_gender.tsv')
+    read_annotations(annotations, 'gender', ega_dir+'/annotation/pcawg_donors_gender_info.txt')
     read_annotations(annotations, 'ega', ega_dir+'/file_info/file_info.tsv')
     read_annotations(annotations, 'project', ega_dir+'/annotation/project_info.tsv')
     read_annotations(annotations, 'xml_encrypted_checksum', ega_dir+'/annotation/pancancer_xml_encrypted_checksum_2016_02_11.tsv')
