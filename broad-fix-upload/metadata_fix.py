@@ -236,7 +236,7 @@ def generate_updated_metadata(donor, work_dir):
         update_field = 'related_file_subset_uuids'
         donor_unique_id = donor.get('donor_unique_id')
         broad_gnos_id = donor.get('broad_v2_gnos_id') if donor.get('broad_v2_gnos_id') else donor.get('broad_gnos_id')
-        broad_v3_gnos_id = donor.get('broad_v3_gnos_id')
+        broad_v3_gnos_id = donor.get('broad-v3_gnos_id')
         if caller == 'muse':
             uuid_set = [broad_v3_gnos_id, donor.get('broad_tar_gnos_id')]
         else:
