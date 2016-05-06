@@ -1154,15 +1154,15 @@ def add_report_info_19(report_info, report_info_list, es_json, annotations):
     report_info['dcc_gender'] = annotations.get('gender').get(es_json.get('donor_unique_id')) if annotations.get('gender').get(es_json.get('donor_unique_id')) else None
     if report_info.get('dcc_gender'): report_info['gender'].add(report_info['dcc_gender'])
     # only use the dcc clinical gender data if donor in the below list
-    if not es_json.get('donor_unique_id') in ['LIRI-JP::RK165', 'LIRI-JP::RK212']: 
-        for vcf in ['sanger', 'dkfz_embl', 'broad', 'muse']:
-            report_info[vcf+'_gender'] = None
+    for vcf in ['sanger', 'dkfz_embl', 'broad', 'muse']:
+        report_info[vcf+'_gender'] = None
+        if not es_json.get('donor_unique_id') in ['LIRI-JP::RK165', 'LIRI-JP::RK212']:
             if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(vcf+'_variant_calling'):
                 if es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details') and \
                     es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics'):
                     v = list(gen_dict_extract('gender', es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics')))
                     report_info[vcf+'_gender'] = get_mapping(v[0]) if v else None
-                    if report_info.get(vcf+'_gender'): report_info['gender'].add(report_info[vcf+'_gender'])
+        if report_info.get(vcf+'_gender'): report_info['gender'].add(report_info[vcf+'_gender'])
     report_info['exist_gender_discrepancy'] = False if len(report_info['gender']) == 1 else True
     report_info_list.append(copy.deepcopy(report_info))
 
