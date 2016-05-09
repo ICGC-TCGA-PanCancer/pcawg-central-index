@@ -353,7 +353,7 @@ def copy_file(target, source):
 def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_results, caller):
 
     if caller == 'broad':
-        file_name_patterns = set([
+        file_name_patterns_set = set([
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.germline\.indel\.vcf\.gz\.idx$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.indel\.vcf\.gz$',
@@ -370,7 +370,7 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_resu
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?).+\.somatic\.snv_mnv\.vcf\.gz\.idx$'
             ])
     elif caller == 'oxog':
-        file_name_patterns = set([
+        file_name_patterns_set = set([
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_indel\.vcf\.gz$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_indel\.vcf\.gz\.tbi$',
                 r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\_annotated_broad_SNV\.vcf\.gz$',
@@ -408,6 +408,7 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir, allow_partial_workflow_resu
     matched_files = []
     tumor_aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
     for aliquot in tumor_aliquot_ids:
+        file_name_patterns = copy.deepcopy(file_name_patterns_set)
         for file_dir in (fixed_file_dir, gnos_entry_dir): # match fixed_file dir first
             for f in glob.glob(os.path.join(file_dir, aliquot+'*')):
                 file_name = os.path.basename(f)
