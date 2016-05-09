@@ -318,7 +318,7 @@ def read_annotations(annotations, type, file_name):
             annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
-                if row.get('exist_gender_discrepancy'): continue
+                if row.get('exist_gender_discrepancy') == 'True': continue
                 annotations[type][row.get('donor_unique_id')] = row.get('gender') if row.get('gender') else None
         elif type == 'ega':
             annotations[type] = set()
@@ -511,6 +511,7 @@ def main(argv=None):
     read_annotations(annotations, 'ega', ega_dir+'/file_info/file_info.tsv')
     read_annotations(annotations, 'project', ega_dir+'/annotation/project_info.tsv')
     read_annotations(annotations, 'xml_encrypted_checksum', ega_dir+'/annotation/pancancer_xml_encrypted_checksum_2016_02_11.tsv')
+
 
     dcc_project_code = args.dcc_project_code
     dcc_project_code = list(dcc_project_code) if dcc_project_code else list(annotations.get('project'))
