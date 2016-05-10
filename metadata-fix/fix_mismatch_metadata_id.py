@@ -325,7 +325,8 @@ def main(argv=None):
 
 
             fixed_metadata_list.append(fixed_metadata)
-    write_file(fixed_metadata_list, fixed_dir+'/'+fname.split('_')[0]+'_fixed_metadata_list.txt')        
+    if fixed_metadata_list:
+        write_file(fixed_metadata_list, fixed_dir+'/'+fname.split('_')[0]+'_fixed_metadata_list.txt')        
 
     return 0
 
