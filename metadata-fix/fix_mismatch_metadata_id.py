@@ -166,7 +166,7 @@ def read_annotations(annotations, type, file_name, subtype):
             if not annotations.get(type): annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
-                donor_unique_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
+                donor_unique_id = row.get('donor_unique_id') if row.get('donor_unique_id') else row.get('project_code')+'::'+row.get('submitter_donor_id')
                 if not annotations[type].get(donor_unique_id): annotations[type][donor_unique_id] = {}
                 if not annotations[type].get(donor_unique_id).get(subtype): annotations[type][donor_unique_id][subtype] = OrderedDict()
                 if not row.get('old_'+subtype) or not row.get('new_'+subtype): continue
@@ -268,29 +268,30 @@ def main(argv=None):
                not annotations.get('mismatch_metadata').get(row.get('gnos_id')): continue
 
             fixed_metadata = OrderedDict()
-            fixed_metadata['donor_unique_id'] = row.get('donor_unique_id')
+            fixed_metadata['donor_unique_id'] = row.get('donor_unique_id') if row.get('donor_unique_id') else row.get('dcc_project_code')+'::'+row.get('submitter_donor_id')
             fixed_metadata['dcc_project_code'] = row.get('dcc_project_code') if row.get('dcc_project_code') else None
             fixed_metadata['aliquot_id'] = row.get('aliquot_id') if row.get('aliquot_id') else None
             fixed_metadata['entity_type'] = row.get('entity_type') if row.get('entity_type') else None
-            fixed_metadata['gnos_id'] = row.get('gnos_id')
-            fixed_metadata['gnos_repo_original'] = get_formal_repo_name(row.get('gnos_repo'))
+            fixed_metadata['gnos_id'] = row.get('gnos_id') if row.get('gnos_id') else row.get('analysis_id')
+            fixed_metadata['gnos_repo_original'] = get_formal_repo_name(row.get('gnos_repo')) if row.get('gnos_repo') else row.get('gnos_server')
+
 
             # has both id and metadata mismatch issues
-            if annotations.get('id_mapping').get(row.get('donor_unique_id')) and annotations.get('mismatch_metadata').get(row.get('gnos_id')):
-                fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
+            if annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')) and annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')):
+                fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')).get('gnos_repo_with_good_copy')
                 fixed_metadata['fixed_type'] = 'fixed_illegal_id_and_mismatch'
 
-            elif annotations.get('id_mapping').get(row.get('donor_unique_id')) and not annotations.get('mismatch_metadata').get(row.get('gnos_id')):
+            elif annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')) and not annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')):
                 fixed_metadata['gnos_repo_download'] = fixed_metadata['gnos_repo_original']
                 fixed_metadata['fixed_type'] = 'fixed_illegal_id'
 
-            elif not annotations.get('id_mapping').get(row.get('donor_unique_id')) and annotations.get('mismatch_metadata').get(row.get('gnos_id')):
-                fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(row.get('gnos_id')).get('gnos_repo_with_good_copy')
+            elif not annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')) and annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')):
+                fixed_metadata['gnos_repo_download'] = annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')).get('gnos_repo_with_good_copy')
                 fixed_metadata['fixed_type'] = 'fixed_mismatch'
                 if fixed_metadata['gnos_repo_download'] == fixed_metadata['gnos_repo_original']: continue
 
             else:
-                print('Warning: {} not any of the above situations!!!'.format(row.get('gnos_id'))) 
+                print('Warning: {} not any of the above situations!!!'.format(fixed_metadata.get('gnos_id'))) 
                 continue
             
             # download orignal xml 
@@ -303,14 +304,14 @@ def main(argv=None):
             generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'orignal')
             if fixed_metadata['fixed_type'] == 'fixed_illegal_id':
                 # fix the illegal ids
-                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(row.get('donor_unique_id')), fix_pattern, id_types)
+                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')), fix_pattern, id_types)
             elif fixed_metadata['fixed_type'] == 'fixed_illegal_id_and_mismatch':
                 # download from the repo with metadata fixed copy
                 xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
                 if not xml_str: 
                     print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_download'])
                     continue
-                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(row.get('donor_unique_id')), fix_pattern, id_types)
+                xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')), fix_pattern, id_types)
             elif fixed_metadata['fixed_type'] == 'fixed_mismatch':                            
                 # download from the repo with metadata fixed copy
                 xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
