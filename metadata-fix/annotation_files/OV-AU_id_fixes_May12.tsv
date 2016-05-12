@@ -1,13 +1,13 @@
-project_code	submitter_donor_id	old_submitter_specimen_id	PCAWG Submitted Specimen Type	old_submitter_sample_id	Matching DCC Submitted Sample ID?	new_submitter_specimen_id	new_submitter_sample_id	aliquot_id
+project_code	submitter_donor_id	old_submitter_specimen_id	old_dcc_specimen_type	old_submitter_sample_id	new_dcc_specimen_type	new_submitter_specimen_id	new_submitter_sample_id	aliquot_id
 OV-AU	AOCS-120	AOCS-120-4-X	Recurrent tumour - other	ICGC-DBDE-20130916-029		AOCS-120-13	AOCS-120-4-X	e9906bc4-c865-4471-834d-7b534d44f912
 OV-AU	AOCS-005	AOCS-005-2-1	Primary tumour - solid tissue	ICGC-DBDE-20130916-004		AOCS-005-1	AOCS-005-2-1	26a7b379-378d-4b8a-bd98-4c8ec6cc0532
 OV-AU	AOCS-113	AOCS-113-2-9	Primary tumour - solid tissue	ICGC-DBDE-20131122-016		AOCS-113-1	AOCS-113-2-9	e0c77933-9886-4916-a47c-4364bc261bd8
 OV-AU	AOCS-168	AOCS-168-2-1	Primary tumour - solid tissue	EXTERN-AOCS-20140414-008		AOCS-168-1	AOCS-168-2-1	a2ecbfd4-e1e7-441a-a862-4e50112c8ba5
 OV-AU	AOCS-163	AOCS-163-2-8	Primary tumour - solid tissue	EXTERN-AOCS-20140227-005		AOCS-163-1	AOCS-163-2-8	72210f6b-6cf2-4875-8ee9-b2f674b11b85
-OV-AU	AOCS-170	AOCS-170-4-9	Recurrent tumour - other	EXTERN-AOCS-20140227-018		AOCS-170-12	AOCS-170-4-9	f05dba68-a8a6-4770-9e4d-62d3a9d70a79
+OV-AU	AOCS-170	AOCS-170-4-9	Recurrent tumour - other	EXTERN-AOCS-20140227-018	Primary tumour - other	AOCS-170-12	AOCS-170-4-9	f05dba68-a8a6-4770-9e4d-62d3a9d70a79
 OV-AU	AOCS-170	AOCS-170-2-1	Primary tumour - solid tissue	EXTERN-AOCS-20140227-017		AOCS-170-1	AOCS-170-2-1	430aa27a-00aa-4ea0-a272-1cdfc40eb0c6
 OV-AU	AOCS-093	AOCS-093-4-X	Recurrent tumour - other	ICGC-DBDE-20131122-002		AOCS-093-13	AOCS-093-4-X	e2ac429e-f1fc-4953-9f32-8c054459caba
-OV-AU	AOCS-093	AOCS-093-10-1	Recurrent tumour - other	EXTERN-AOCS-20140227-001		AOCS-093-12	AOCS-093-10-1	5acf6e27-f823-4cfd-b990-a6b3dc9f34d9
+OV-AU	AOCS-093	AOCS-093-10-1	Recurrent tumour - other	EXTERN-AOCS-20140227-001	Primary tumour - other	AOCS-093-12	AOCS-093-10-1	5acf6e27-f823-4cfd-b990-a6b3dc9f34d9
 OV-AU	AOCS-093	AOCS-093-2-2	Primary tumour - solid tissue	ICGC-DBDE-20131122-001		AOCS-093-1	AOCS-093-2-2	20c0ac5e-6d20-4730-9efa-67509a7241a3
 OV-AU	AOCS-081	AOCS-081-2-5	Primary tumour - solid tissue	ICGC-DBDE-20130916-015		AOCS-081-1	AOCS-081-2-5	acf3338f-5a88-4b90-bf52-882f2f03fc08
 OV-AU	AOCS-086	AOCS-086-2-9	Primary tumour - solid tissue	ICGC-DBLG-20101027-55-TR		AOCS-086-1	AOCS-086-2-9	358984cc-b532-4f00-89f4-dda524469b6d
@@ -22,7 +22,7 @@ OV-AU	AOCS-119	AOCS-119-4-2	Recurrent tumour - other	ICGC-DBDE-20130916-028		AOC
 OV-AU	AOCS-114	AOCS-114-2-1	Primary tumour - solid tissue	ICGC-DBDE-20130916-027		AOCS-114-1	AOCS-114-2-1	79efefa1-a796-40c1-8343-7059156d4fc0
 OV-AU	AOCS-164	AOCS-164-2-0	Primary tumour - solid tissue	EXTERN-AOCS-20140227-006		AOCS-164-1	AOCS-164-2-0	300b4b6b-3ae8-4e6b-a519-9f35501e9b3a
 OV-AU	AOCS-169	AOCS-169-2-4	Primary tumour - solid tissue	EXTERN-AOCS-20140414-009		AOCS-169-1	AOCS-169-2-4	40907495-8070-439a-b640-4a7b650484a9
-OV-AU	AOCS-171	AOCS-171-4-1	Recurrent tumour - other	EXTERN-AOCS-20140227-015		AOCS-171-12	AOCS-171-4-1	ac7039b7-5a28-4e5c-b59e-eedf03505536
+OV-AU	AOCS-171	AOCS-171-4-1	Recurrent tumour - other	EXTERN-AOCS-20140227-015	Primary tumour - other	AOCS-171-12	AOCS-171-4-1	ac7039b7-5a28-4e5c-b59e-eedf03505536
 OV-AU	AOCS-171	AOCS-171-2-4	Primary tumour - solid tissue	EXTERN-AOCS-20140227-014		AOCS-171-1	AOCS-171-2-4	15c0fde7-d2b9-434d-81be-196d49244f8d
 OV-AU	AOCS-001	AOCS-001-2-0	Primary tumour - solid tissue	ICGC-DBDE-20130916-001		AOCS-001-1	AOCS-001-2-0	73de2d86-5a98-4fcf-a96d-c8a8fe8c053b
 OV-AU	AOCS-001	AOCS-001-2-0	Primary tumour - solid tissue	ICGC-DBLG-20100225-06-TR		AOCS-001-1	AOCS-001-2-0	8246b8ae-32b2-4d86-ac22-aa6c989c79b7
