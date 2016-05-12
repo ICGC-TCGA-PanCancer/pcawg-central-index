@@ -110,13 +110,13 @@ es_queries = [
                         #     ]
                         #   }
                         # },
-                        # {
-                        #   "terms": {
-                        #     "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
-                        #       "T"
-                        #     ]
-                        #   }
-                        # },
+                        {
+                          "terms": {
+                            "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
+                              "T"
+                            ]
+                          }
+                        },
                         # {
                         #    "terms":{
                         #       "flags.exists_xml_md5sum_mismatch":[

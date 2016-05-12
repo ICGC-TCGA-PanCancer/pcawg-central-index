@@ -792,6 +792,12 @@
                "is_dkfz_embl_variant_calling_performed":{
                   "type":"boolean"
                },
+               "is_oxog_variant_calling_performed":{
+                  "type":"boolean"
+               },
+               "is_minibam_variant_calling_performed":{
+                  "type":"boolean"
+               },
                "is_broad_variant_calling_performed":{
                   "type":"boolean"
                },

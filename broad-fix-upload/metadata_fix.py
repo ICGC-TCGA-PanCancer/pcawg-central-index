@@ -97,7 +97,7 @@ def download_datafiles(gnos_id, gnos_repo, download_dir):
     gnos_key = get_gnos_key(gnos_repo)
     for i in range(5):
         command =   'cd {} && '.format(download_dir) + \
-                    'gtdownload -c ' + gnos_key + ' -k 10 ' + url
+                    'gtdownload -c ' + gnos_key + ' -k 4 ' + url
 
         process = subprocess.Popen(
                 command,
@@ -131,7 +131,11 @@ def generate_md5(fname):
 
 def get_gnos_analysis_object(f):
     with open (f, 'r') as x: xml_str = x.read()
-    analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+    if xmltodict.parse(xml_str).get('ResultSet') and xmltodict.parse(xml_str).get('ResultSet').get('Result') and xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml'):
+        analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
+    else:
+        logger.error('Could not parse the file: {}'.format(f))
+        return 
     return analysis_xml
 
 
@@ -149,8 +153,8 @@ def validate_work_dir(work_dir, donors_to_be_fixed, fixed_file_dir):
         else:
             aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
             for aliquot_id in aliquot_ids:
-                if not os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz')) or not \
-                       os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v2.20151112.somatic.snv_mnv.vcf.gz.idx')):
+                if not os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v3.20160222.somatic.snv_mnv.vcf.gz')) or not \
+                       os.path.exists(os.path.join(fixed_file_dir, aliquot_id+'.broad-mutect-v3.20160222.somatic.snv_mnv.vcf.gz.idx')):
                     logger.error('No BROAD fixed files detected in: {} for donor: {}'.format(fixed_file_dir, donor.get('donor_unique_id')))
                     sys.exit('Validating working directory failed, please check log for details.')                     
 
@@ -173,10 +177,23 @@ def download_metadata_files(work_dir, donors_to_be_fixed):
             continue
     return donors_to_be_fixed
 
-def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
+def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_status):
+    # donors_to_be_fixed_old = copy.deepcopy(donors_to_be_fixed)
+    fixed_donors = []
     caller = 'broad'
     for donor in donors_to_be_fixed:
         gnos_analysis_objects = {}
+        gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
+        files = get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status)
+        if not files:
+            # donors_to_be_fixed.remove(donor)
+            continue
+
+        xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
+        gnos_analysis_object = get_gnos_analysis_object(xml_file)
+        if not gnos_analysis_object:
+            # donors_to_be_fixed.remove(donor)
+            continue  
 
         upload_gnos_uuid = generate_uuid()
         upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
@@ -185,20 +202,20 @@ def metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir):
             upload_dir = os.path.join(work_dir, 'uploads', get_formal_repo_name(donor.get(caller + '_gnos_repo')), upload_gnos_uuid)
         os.makedirs(upload_dir)
 
-        donor.update({'broad_v2_gnos_id': upload_gnos_uuid})
+        donor.update({'broad_v3_gnos_id': upload_gnos_uuid})
 
-        gnos_entry_dir = os.path.join(work_dir, 'downloads', donor.get(caller + '_gnos_id'))
-        xml_file = os.path.join(gnos_entry_dir, donor.get(caller + '_gnos_id') + '.xml')
-
-        gnos_analysis_object = get_gnos_analysis_object(xml_file)
-        files = get_files(donor, fixed_file_dir, gnos_entry_dir)
         copy_file(upload_dir, files)
         apply_data_block_patches(gnos_analysis_object, files)
 
         create_fixed_gnos_submission(upload_dir, gnos_analysis_object) 
 
-        generate_updated_metadata(donor, work_dir)
-    return donors_to_be_fixed
+        updated_metadata = generate_updated_metadata(donor, work_dir)
+        if not updated_metadata:
+            continue
+
+        fixed_donors.append(donor)
+
+    return fixed_donors
 
 def generate_updated_metadata(donor, work_dir):
     for caller in ['muse', 'broad_tar']:
@@ -206,21 +223,25 @@ def generate_updated_metadata(donor, work_dir):
         gnos_repo = donor.get(caller+'_gnos_repo')
         update_field = 'related_file_subset_uuids'
         donor_unique_id = donor.get('donor_unique_id')
-        broad_gnos_id = donor.get('broad_gnos_id')
-        broad_v2_gnos_id = donor.get('broad_v2_gnos_id')
+        broad_gnos_id = donor.get('broad_v2_gnos_id') if donor.get('broad_v2_gnos_id') else donor.get('broad_gnos_id')
+        broad_v3_gnos_id = donor.get('broad_v3_gnos_id')
+        if caller == 'muse':
+            uuid_set = [broad_v3_gnos_id, donor.get('broad_tar_gnos_id')]
+        else:
+            uuid_set = [broad_v3_gnos_id, donor.get('muse_gnos_id')]
 
         xml_str = download_metadata_xml(gnos_id, gnos_repo)
         gnos_analysis = xmltodict.parse(xml_str).get('ResultSet').get('Result')
         if not gnos_analysis.get('analysis_id') == gnos_id:
             logger.warning('donor: {} has wrong gnos entry {} at repo: {}'.format(donor_unique_id, gnos_id, gnos_repo))
-            return None
+            return False
         analysis_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get('analysis_xml')
         for a in analysis_xml['ANALYSIS_SET']['ANALYSIS']['ANALYSIS_ATTRIBUTES']['ANALYSIS_ATTRIBUTE']:
             if a['TAG'] == update_field:
-                uuid_set = set(a['VALUE'].split(','))
-                uuid_set.remove(broad_gnos_id)
-                uuid_set.add(broad_v2_gnos_id)
-                a['VALUE'] = ','.join(list(uuid_set))
+                # uuid_set = set(a['VALUE'].split(','))
+                # uuid_set.remove(broad_gnos_id)
+                # uuid_set.add(broad_v3_gnos_id)
+                a['VALUE'] = ','.join(uuid_set)
                 logger.info('donor: {} update the {} for {}_variant_calling with gnos_id: {} at gnos_repo: {}'.format(donor_unique_id, update_field, caller, gnos_id, gnos_repo))
 
         # analysis_xml = {'analysis_xml': analysis_xml}
@@ -232,6 +253,8 @@ def generate_updated_metadata(donor, work_dir):
             os.makedirs(updated_metafiles_dir)
         with open(updated_metafiles_dir+'/analysis.xml', 'w') as y:
             y.write(analysis_xml_str)
+
+    return True
     
 
 def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
@@ -240,7 +263,7 @@ def create_fixed_gnos_submission(upload_dir, gnos_analysis_object):
     attributes = fixed_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
     for attr in attributes:
         if attr.get('TAG') == 'workflow_file_subset':
-            attr['VALUE'] = 'broad-v2'
+            attr['VALUE'] = 'broad-v3'
 
         else:
             pass  # all others, leave it unchanged
@@ -313,7 +336,7 @@ def copy_file(target, source):
         shutil.copy(s, target)       
 
 
-def get_files(donor, fixed_file_dir, gnos_entry_dir):
+def get_files(donor, fixed_file_dir, gnos_entry_dir, workflow_result_status):
 
     matched_files = []
     tumor_aliquot_ids = donor.get('tumor_aliquot_ids').split('|')
@@ -351,8 +374,9 @@ def get_files(donor, fixed_file_dir, gnos_entry_dir):
         # print len(matched_files)
         if file_name_patterns:
             for fp in file_name_patterns:
-                logger.error('Missing expected variant call result file with pattern: {}'.format(fp))
-            sys.exit('Missing expected variant call result file, see log file for details.')
+                logger.error('Missing expected variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
+            if not workflow_result_status:
+                sys.exit('Missing expected variant call result file, see log file for details.')
      
     return matched_files
 
@@ -444,30 +468,36 @@ def main(argv=None):
              formatter_class=RawDescriptionHelpFormatter)
     parser.add_argument("-b", "--work_dir", dest="work_dir",
              help="Directory name containing fixed variant call files", required=True)
+    parser.add_argument("-v", "--vcf_info_file", dest="vcf_info_file",
+             help="vcf information file", required=False)
     parser.add_argument("-x", "--exclude_donor_id_lists", dest="exclude_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
     parser.add_argument("-i", "--include_donor_id_lists", dest="include_donor_id_lists", 
              help="File(s) containing DONOR IDs to be excluded, use filename pattern to specify the file(s)", required=False)
+    parser.add_argument("-s", "--is the workflow results complete", dest="workflow_result_status", default=True, type=bool,
+             help="Specify whether the workflow results are complete or not", required=False) 
 
     args = parser.parse_args()
-    work_dir = args.work_dir 
+    work_dir = args.work_dir
+    vcf_info_file = args.vcf_info_file 
     exclude_donor_id_lists = args.exclude_donor_id_lists
     include_donor_id_lists = args.include_donor_id_lists
+    workflow_result_status = args.workflow_result_status
 
     # if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
     # work_dir = sys.argv[1]
     if not os.path.isdir(work_dir): os.makedirs(work_dir+'/downloads')
     # work_dir = os.path.abspath(work_dir)
 
-    if work_dir == 'test':
+    if 'test' in work_dir:
         print('\nUsing \'test\' folder as working directory ...')
 
     donor_list_file = work_dir+'_donor_list.txt'
-    fixed_file_dir = 'broad_fixed_files'
+    fixed_file_dir = 'broad-v3_fixed_files'
 
     if not os.path.isdir(fixed_file_dir): sys.exit('Fixed files are missing!')
 
-    vcf_info_file = 'broad_successful_uploads.txt'
+    if not vcf_info_file: vcf_info_file = 'broad_successful_uploads.txt'
     if not os.path.exists(vcf_info_file): sys.exit('Helper file is missing')
 
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
@@ -508,10 +538,10 @@ def main(argv=None):
 
     # now process metadata xml fix and merge
     print('\nPreparing new GNOS submissions and updated related metadata XML files...')
-    donors_to_be_fixed = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir)
+    fixed_donors = metadata_fix(work_dir, donors_to_be_fixed, fixed_file_dir, workflow_result_status)
 
     # write the fixed donor informaton 
-    write_file(donors_to_be_fixed, 'fixed_'+donor_list_file)
+    write_file(fixed_donors, 'fixed_'+donor_list_file)
     if not os.path.exists('fixed_'+donor_list_file): sys.exit('Fixed donor list file is missing!')
     
     print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
