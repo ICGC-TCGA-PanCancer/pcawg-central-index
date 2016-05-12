@@ -264,8 +264,6 @@ def main(argv=None):
         reader = csv.DictReader(f, delimiter='\t')
         for row in reader:
             if row.get('entity_type') and row.get('entity_type') == 'unaligned_bams': continue
-            if not annotations.get('id_mapping').get(row.get('donor_unique_id')) and \
-               not annotations.get('mismatch_metadata').get(row.get('gnos_id')): continue
 
             fixed_metadata = OrderedDict()
             fixed_metadata['donor_unique_id'] = row.get('donor_unique_id') if row.get('donor_unique_id') else row.get('dcc_project_code')+'::'+row.get('submitter_donor_id')
@@ -275,6 +273,8 @@ def main(argv=None):
             fixed_metadata['gnos_id'] = row.get('gnos_id') if row.get('gnos_id') else row.get('analysis_id')
             fixed_metadata['gnos_repo_original'] = get_formal_repo_name(row.get('gnos_repo')) if row.get('gnos_repo') else row.get('gnos_server')
 
+            if not annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')) and \
+               not annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')): continue
 
             # has both id and metadata mismatch issues
             if annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')) and annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')):
