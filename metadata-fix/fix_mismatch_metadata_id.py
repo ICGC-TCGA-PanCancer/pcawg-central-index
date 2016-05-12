@@ -92,8 +92,9 @@ def fix_illegal_id(xml_str, id_mapping, fix_pattern, id_types):
                 xml_str = re.sub('>'+key+'<', '>'+value+'<', xml_str)
                 xml_str = re.sub(' '+key+' ', ' '+value+' ', xml_str)
                 xml_str = re.sub('"'+key+'"', '"'+value+'"', xml_str)
-                xml_str = re.sub(' '+key+'.', ' '+value+'.', xml_str)
                 xml_str = re.sub(' '+key+'<', ' '+value+'<', xml_str)
+                xml_str = re.sub(' '+key+'.', ' '+value+'.', xml_str)
+
 
             elif fix_pattern == 'key_value':
                 xml_dict = xmltodict.parse(xml_str)
