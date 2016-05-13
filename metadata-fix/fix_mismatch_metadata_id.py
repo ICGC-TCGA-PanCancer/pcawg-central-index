@@ -274,7 +274,7 @@ def main(argv=None):
             fixed_metadata['aliquot_id'] = row.get('aliquot_id') if row.get('aliquot_id') else None
             fixed_metadata['entity_type'] = row.get('entity_type') if row.get('entity_type') else None
             fixed_metadata['gnos_id'] = row.get('gnos_id') if row.get('gnos_id') else row.get('analysis_id')
-            fixed_metadata['gnos_repo_original'] = get_formal_repo_name(row.get('gnos_repo')) if row.get('gnos_repo') else row.get('gnos_server')
+            fixed_metadata['gnos_repo_original'] = get_formal_repo_name(row.get('gnos_repo').rstrip('/')+'/') if row.get('gnos_repo') else row.get('gnos_server')
 
             if not annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')) and \
                not annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')): continue
