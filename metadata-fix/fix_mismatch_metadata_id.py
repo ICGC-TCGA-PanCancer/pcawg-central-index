@@ -301,7 +301,7 @@ def main(argv=None):
             xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_original']), fixed_metadata['gnos_id'])
             print fixed_metadata['gnos_id']
 
-            if not xml_str: 
+            if not xmltodict.parse(xml_str).get('ResultSet') or not xmltodict.parse(xml_str).get('ResultSet').get('Result'): 
                 print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_original'])
                 continue
             generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'orignal')
@@ -311,15 +311,15 @@ def main(argv=None):
             elif fixed_metadata['fixed_type'] == 'fixed_illegal_id_and_mismatch':
                 # download from the repo with metadata fixed copy
                 xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
-                if not xml_str: 
-                    print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_download'])
+                if not xmltodict.parse(xml_str).get('ResultSet') or not xmltodict.parse(xml_str).get('ResultSet').get('Result'): 
+                    print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_original'])
                     continue
                 xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')), fix_pattern, id_types)
             elif fixed_metadata['fixed_type'] == 'fixed_mismatch':                            
                 # download from the repo with metadata fixed copy
                 xml_str = download_metadata_xml(get_formal_repo_name(fixed_metadata['gnos_repo_download']), fixed_metadata['gnos_id'])
-                if not xml_str: 
-                    print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_download'])
+                if not xmltodict.parse(xml_str).get('ResultSet') or not xmltodict.parse(xml_str).get('ResultSet').get('Result'): 
+                    print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_original'])
                     continue
             else:
                 print('Warning: this should not happen!!!') 
