@@ -194,7 +194,7 @@ def find_cached_metadata_xml(gnos_id):
     return data
 
 
-def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations):
+def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations, force):
     
     for w in workflow:
         print('\nCollecting the GNOS xmls for workflow: {} of project: {}'.format(get_mapping(w), project))
@@ -212,7 +212,7 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 if not get_mapping(entry_type) == w: continue
                 
                 gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
-                if not os.path.exists(gnos_xml_gz_file):
+                if not os.path.exists(gnos_xml_gz_file) or force:
                     latest_xml_str = download_metadata_xml(gnos_id)
                     latest_effective_xml_md5sum = effective_xml_md5sum(latest_xml_str)
                     cached_xml_str = find_cached_metadata_xml(gnos_id)
@@ -497,7 +497,10 @@ def main(argv=None):
     parser.add_argument("-s", "--sequence_type", dest="seq", nargs="*",
              help="List sequence_type types[wgs, rna-seq]", required=False)
     parser.add_argument("-w", "--workflow", dest="workflow", nargs="*",
-             help="List workflow types[bwa, sanger, dkfz, broad, muse, tophat2, star]", required=False)    
+             help="List workflow types[bwa, sanger, dkfz, broad, muse, tophat2, star]", required=False)
+
+    parser.add_argument("-f", "--force", dest="force", action="store_false", default=False,
+             help="Do not regenerate the sample/xml files if already exists", required=False)       
 
 
 
@@ -525,10 +528,11 @@ def main(argv=None):
     unstage_type = args.unstage_type
     seq = args.seq
     workflow = args.workflow
+    force = args.force 
 
     unstage_type = list(unstage_type) if unstage_type else []
     seq= list(seq) if seq else [] 
-    workflow = list(workflow) if workflow else []   
+    workflow = list(workflow) if workflow else []  
 
     donor_id_to_be_incuded = generate_id_list(include_donor_id_lists)
     donor_id_to_be_excluded = generate_id_list(exclude_donor_id_lists)
@@ -588,7 +592,7 @@ def main(argv=None):
             collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations)
 
         if workflow:
-            collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations)
+            collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations, force)
 
 
     return 0
