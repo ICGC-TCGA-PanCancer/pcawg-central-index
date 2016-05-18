@@ -1196,6 +1196,54 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
 
     check_bwa_duplicates(donor, train2_freeze_bams)
 
+    reshape_minibam(donor)
+
+def reshape_minibam(donor):
+    if not donor.get('variant_calling_results'): return
+    if not donor.get('normal_alignment_status') or not donor.get('tumor_alignment_status'): return
+    if not donor.get('normal_alignment_status').get('aligned_bam'): return
+    if not donor.get('variant_calling_results').get('minibam_variant_calling'): return
+    minibam_info = donor.get('variant_calling_results').get('minibam_variant_calling')
+    # add minibam to normal
+    wgs_normal_alignment = donor.get('normal_alignment_status').get('aligned_bam')
+    donor.get('normal_alignment_status')['minibam'] = create_minibam(wgs_normal_alignment, minibam_info)
+    # add minibam to tumour
+    for aliquot in donor.get('tumor_alignment_status'):
+        wgs_tumor_alignment = aliquot.get('aligned_bam')
+        aliquot['minibam'] = create_minibam(wgs_tumor_alignment, minibam_info)
+
+    return donor
+
+
+
+def create_minibam(alignment, minibam_info):
+    minibam = {
+        "gnos_id": minibam_info['gnos_id'],
+        "effective_xml_md5sum": minibam_info['effective_xml_md5sum'],
+        "gnos_last_modified": minibam_info['last_modified'],
+        "gnos_repo": minibam_info['gnos_repo'],
+        "is_santa_cruz_entry": minibam_info['is_santa_cruz_entry'],
+        "is_aug2015_entry": minibam_info['is_aug2015_entry'],
+        "is_oct2015_entry": minibam_info['is_oct2015_entry'],
+        "is_mar2016_entry": minibam_info['is_mar2016_entry'],
+        "is_s3_transfer_scheduled": minibam_info['is_s3_transfer_scheduled'],
+        "is_s3_transfer_completed": minibam_info['is_s3_transfer_completed']
+    },
+    minibam_files = minibam_info.get('files')
+    if not minibam_files:
+        logger.warning('The minibam with gnos_id {} is missing files.'.format(minibam.get('gnos_id')))
+        return
+    for ftype in ['bam', 'bai']:
+        for f in minibam_files:            
+            if not f.get('file_name').replace('_minibam', '') == alignment.get(ftype+'_file_name'): continue
+            for feature in ['name', 'size', 'md5sum']:
+                minibam[ftype+'_file_'+feature] = f.get('file_'+feature) if f.get('file_'+feature) else None
+        for feature in ['name', 'size', 'md5sum']:
+            if not minibam.get(ftype+'_file_'+feature):
+                logger.warning('The minibam with gnos_id: {} is missing {} data for file {}.'.format(minibam.get('gnos_id'), feature, alignment.get(ftype+'_file_name')))
+    
+    return minibam
+
 
 def reorganize_dkfz_embl_calls(vcf_entries):
     if not vcf_entries: return
