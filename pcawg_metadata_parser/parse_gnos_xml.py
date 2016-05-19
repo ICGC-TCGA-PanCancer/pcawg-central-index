@@ -1217,7 +1217,7 @@ def reshape_minibam(donor):
 
 
 def create_minibam(alignment, minibam_info):
-    minibam = {
+    minibam_entry = {
         "gnos_id": minibam_info['gnos_id'],
         "effective_xml_md5sum": minibam_info['effective_xml_md5sum'],
         "gnos_last_modified": minibam_info['gnos_last_modified'],
@@ -1231,18 +1231,18 @@ def create_minibam(alignment, minibam_info):
     },
     minibam_files = minibam_info.get('files')
     if not minibam_files:
-        logger.warning('The minibam with gnos_id {} is missing files.'.format(minibam.get('gnos_id')))
+        logger.warning('The minibam with gnos_id {} is missing files.'.format(minibam_entry.get('gnos_id')))
         return
     for ftype in ['bam', 'bai']:
         for f in minibam_files:            
             if not f.get('file_name').replace('_minibam', '') == alignment.get(ftype+'_file_name'): continue
             for feature in ['name', 'size', 'md5sum']:
-                minibam[ftype+'_file_'+feature] = f.get('file_'+feature) if f.get('file_'+feature) else None
+                minibam_entry[ftype+'_file_'+feature] = f.get('file_'+feature) if f.get('file_'+feature) else None
         for feature in ['name', 'size', 'md5sum']:
-            if not minibam.get(ftype+'_file_'+feature):
-                logger.warning('The minibam with gnos_id: {} is missing {} data for file {}.'.format(minibam.get('gnos_id'), feature, alignment.get(ftype+'_file_name')))
+            if not minibam_entry.get(ftype+'_file_'+feature):
+                logger.warning('The minibam with gnos_id: {} is missing {} data for file {}.'.format(minibam_entry.get('gnos_id'), feature, alignment.get(ftype+'_file_name')))
     
-    return minibam
+    return minibam_entry
 
 
 def reorganize_dkfz_embl_calls(vcf_entries):
