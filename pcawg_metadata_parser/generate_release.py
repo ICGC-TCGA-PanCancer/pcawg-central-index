@@ -154,6 +154,7 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
         previous_release+'_donor': True if es_json.get('flags').get('is_'+previous_release+'_donor') else False,
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
         'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
+        'star_rating': es_json['star_rating'] if es_json.get('star_rating') else None,
         'wgs': {
             'normal_specimen': {},
             'tumor_specimens': []
@@ -181,8 +182,8 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
-        'oxog_score': annotations.get('oxog_score').get(aliquot.get('aliquot_id')) if annotations.get('oxog_score').get(aliquot.get('aliquot_id')) else None,
-        'ContEST': annotations.get('ContEST').get(aliquot.get('aliquot_id')) if annotations.get('ContEST').get(aliquot.get('aliquot_id')) else None,
+        'oxog_score': aliquot.get('oxog_score') if aliquot.get('oxog_score') else None,
+        'ContEST': aliquot.get('ContEST') if aliquot.get('ContEST') else None,
         'is_'+previous_release+'_entry': aliquot.get(bam_type).get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
         'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
         #'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
@@ -389,7 +390,7 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf, annotations):
-    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq']
+    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'star_rating']
     specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
@@ -459,11 +460,11 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
     if not alignment:
         logger.info('Donor: {}::{} has no {} {} at {} specimen'.format(pilot_tsv.get('dcc_project_code'), pilot_tsv.get('submitter_donor_id'), sequence_type, workflow_type, specimen_type))
     elif 'normal' in specimen_type and 'wgs' in sequence_type:
-        if not alignment.get(workflow_type): continue
-        generate_alignment(aliquot_field, gnos_field, alignment.get(workflow_type), pilot_tsv, specimen_type, sequence_type, workflow_type)
+        if alignment.get(workflow_type):
+            generate_alignment(aliquot_field, gnos_field, alignment.get(workflow_type), pilot_tsv, specimen_type, sequence_type, workflow_type)
     elif 'normal' in specimen_type and 'rna_seq' in sequence_type:
-        if not alignment.get(workflow_type.replace('_alignment', '')): continue
-        generate_alignment(aliquot_field, gnos_field, alignment.get(workflow_type.replace('_alignment', '')), pilot_tsv, specimen_type, sequence_type, workflow_type)
+        if alignment.get(workflow_type.replace('_alignment', '')):
+            generate_alignment(aliquot_field, gnos_field, alignment.get(workflow_type.replace('_alignment', '')), pilot_tsv, specimen_type, sequence_type, workflow_type)
     elif 'tumor' in specimen_type and 'wgs' in sequence_type:
         for specimen in alignment:
             if not specimen.get(workflow_type): continue
