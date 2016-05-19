@@ -1220,7 +1220,7 @@ def create_minibam(alignment, minibam_info):
     minibam = {
         "gnos_id": minibam_info['gnos_id'],
         "effective_xml_md5sum": minibam_info['effective_xml_md5sum'],
-        "gnos_last_modified": minibam_info['last_modified'],
+        "gnos_last_modified": minibam_info['gnos_last_modified'],
         "gnos_repo": minibam_info['gnos_repo'],
         "is_santa_cruz_entry": minibam_info['is_santa_cruz_entry'],
         "is_aug2015_entry": minibam_info['is_aug2015_entry'],
