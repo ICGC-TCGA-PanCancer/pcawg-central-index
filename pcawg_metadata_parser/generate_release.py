@@ -335,7 +335,8 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_i
             alignment_info = {}
             for workflow_type in aliquot.keys():
                 data_type = 'rna_seq_normal_'+workflow_type
-                alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
+                bam_type = 'aligned_bam'
+                alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations, bam_type)
 
             reorganized_donor.get('rna_seq')[specimen_type + '_specimen'] = alignment_info
         else:
@@ -345,7 +346,8 @@ def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_i
                 alignment_info = {}
                 for workflow_type in aliquot.keys():
                     data_type = 'rna_seq_tumor_'+workflow_type
-                    alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
+                    bam_type = 'aligned_bam'
+                    alignment_info[workflow_type] = create_alignment(es_json, aliquot.get(workflow_type), data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations, bam_type)
                 reorganized_donor.get('rna_seq')[specimen_type + '_specimens'].append(copy.deepcopy(alignment_info)) 
             reorganized_donor['tumor_rna_seq_specimen_count'] = tumor_rna_seq_specimen_count
 
