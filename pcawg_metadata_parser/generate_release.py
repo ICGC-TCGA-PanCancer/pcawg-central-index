@@ -185,10 +185,8 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'oxog_score': aliquot.get('oxog_score') if aliquot.get('oxog_score') else None,
         'ContEST': aliquot.get('ContEST') if aliquot.get('ContEST') else None,
         'is_'+previous_release+'_entry': aliquot.get(bam_type).get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
-        'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
-        #'gnos_repo': filter_liri_jp(es_json.get('dcc_project_code'), \
-        #    aliquot.get('aligned_bam').get('gnos_repo'), \
-        #    data_type, aliquot.get('aliquot_id')),
+        # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
+        'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
         'gnos_id': aliquot.get(bam_type).get('gnos_id'),
         'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified')[-1],
         'files': []
@@ -314,14 +312,13 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
     return reorganized_donor
 
 
-def filter_liri_jp(project, gnos_repo, data_type, aliquot_id):
-    if not project == 'LIRI-JP' or 'rna_seq' in data_type:
+def filter_osdc_icgc(gnos_repo, data_type, bam_type):
+    if not bam_type == 'aligned_bam' and not data_type == 'wgs':
         return gnos_repo
-    elif "https://gtrepo-riken.annailabs.com/" in gnos_repo:
-        return ["https://gtrepo-riken.annailabs.com/"]
+    if "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
+        return gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
     else:
-        print "This should never happen: alignment for LIRI-JP is not available at Riken repo. Alignment type: {}, aliquot_id: {}".format(data_type, aliquot_id)
-        return [ gnos_repo[0] ]  # return the first one, not an entirely proper solution but gets us going
+        return gnos_repo  # return the whole list of repos if osdc-icgc is not in repos
 
 
 def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
@@ -435,7 +432,7 @@ def generate_variant_calling_info(pilot_tsv, variant_calling, vcf, annotations):
                 if annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')) and annotations.get('deprecated_gnos_id').get(pilot_tsv.get('donor_unique_id')).get(v) else None
         for specimen in variant_calling:
             if specimen.get(get_key_map(v)):
-                pilot_tsv[get_key_map(v)+'_repo'] = specimen.get(get_key_map(v)).get('gnos_repo')
+                pilot_tsv[get_key_map(v)+'_repo'] = [specimen.get(get_key_map(v)).get('gnos_repo')]
                 pilot_tsv[get_key_map(v)+'_gnos_id'] = specimen.get(get_key_map(v)).get('gnos_id')
                 pilot_tsv[get_key_map(v)+'_file_name_prefix'].append(specimen.get(get_key_map(v)).get('aliquot_id'))
                 pilot_tsv['is_'+previous_release+'_'+get_key_map(v)] = specimen.get(get_key_map(v)).get('is_'+previous_release+'_entry')
@@ -484,7 +481,8 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
 def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen_type, sequence_type, workflow_type):
     if not alignment: return 
     for d in aliquot_field:
-        if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] and sequence_type == 'rna_seq' or sequence_type == 'wgs':
+        # if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] and sequence_type == 'rna_seq' or sequence_type == 'wgs':
+        if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
     if specimen_type == 'tumor' and sequence_type == 'wgs':
         pilot_tsv[specimen_type+'_'+sequence_type+'_oxog_score'].append(alignment.get('oxog_score'))
