@@ -313,7 +313,7 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
 
 
 def filter_osdc_icgc(gnos_repo, data_type, bam_type):
-    if not bam_type == 'aligned_bam' and not data_type == 'wgs':
+    if not bam_type == 'aligned_bam' and 'wgs' in data_type:
         return gnos_repo
     if "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
         return gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
