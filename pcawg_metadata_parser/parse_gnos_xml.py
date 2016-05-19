@@ -555,6 +555,8 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "aliquot_id": gnos_analysis.get('aliquot_id'),
         "use_cntl": analysis_attrib.get('use_cntl'),
         "total_lanes": analysis_attrib.get('total_lanes'),
+        "oxog_score": annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) if annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) else None,
+        "ContEST": annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) if annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) else None,
 
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
@@ -753,6 +755,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'exists_vcf_file_prefix_mismatch': False,
             'is_bam_used_by_variant_calling_missing': False,
             'qc_score': None,
+            'star_rating': None,
             'exists_xml_md5sum_mismatch': False
         },
         'normal_specimen': {},
@@ -782,6 +785,13 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
         donor.get('flags')['qc_score'] = annotations.get('qc_donor_prioritization').get(donor_unique_id)
     else:
         logger.warning('No qc prioritization score for donor: {}'.format(donor_unique_id))
+
+    if not annotations.get('star_rating'):
+        logger.warning('Missing star_rating annotation')
+    elif annotations.get('star_rating').get(donor_unique_id) is not None:
+        donor.get('flags')['star_rating'] = annotations.get('star_rating').get(donor_unique_id)
+    else:
+        logger.warning('No star_rating for donor: {}'.format(donor_unique_id))
 
     return donor
 
@@ -933,6 +943,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
     read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
     read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/broad_qc_metrics.tsv')
+    read_annotations(annotations, 'star_rating', '../pcawg-operations/lists/star_rating.tsv')
 
 
     # hard-code the file name for now    
@@ -1939,7 +1950,9 @@ def create_aggregated_bam_info_dict(bam):
             "is_s3_transfer_completed": bam['is_s3_transfer_completed']
          },
          "bam_with_unmappable_reads": {},
-         "unaligned_bams": {}
+         "unaligned_bams": {},
+         "oxog_score": bam['oxog_score'],
+         "ContEST": bam['ContEST']
     }
     
     return aggregated_bam_info_dict
