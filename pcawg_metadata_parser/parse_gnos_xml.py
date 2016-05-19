@@ -931,7 +931,8 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
-
+    read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
+    read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/broad_qc_metrics.tsv')
 
 
     # hard-code the file name for now    
@@ -1110,6 +1111,28 @@ def read_annotations(annotations, type, file_name):
                     annotations[type]['specimen'].add(row.get('dcc_project_code')+'::'+row.get('submitter_specimen_id'))
                     annotations[type]['sample'].add(row.get('dcc_project_code')+'::'+row.get('submitter_sample_id'))
 
+            elif type in ['oxog_score', 'ContEST']:
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('aliquot_GUUID'): continue
+                    if type == 'oxog_score' and not row.get('picard_oxoQ'): 
+                        logger.warning('aliquot: {} has no oxog_score'.format(row.get('aliquot_GUUID')))
+                        continue
+                    if type == 'ContEST' and not row.get('contamination_percentage_whole_genome_no_array_value'): 
+                        logger.warning('aliquot: {} has no ContEST'.format(row.get('aliquot_GUUID')))
+                        continue
+                    annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ') if type=='oxog_score' else row.get('contamination_percentage_whole_genome_no_array_value')
+
+            elif type == 'star_rating':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('donor_unique_id'): continue
+                    if not row.get('star_rating'): 
+                        logger.warning('donor:{} has no star_rating.'.format(row.get('donor_unique_id')))
+                    annotations[type][row.get('donor_unique_id')] = row.get('star_rating')
+
 
             else:
                 logger.warning('unknown annotation type: {}'.format(type))
@@ -1228,7 +1251,7 @@ def create_minibam(alignment, minibam_info):
         "is_mar2016_entry": minibam_info['is_mar2016_entry'],
         "is_s3_transfer_scheduled": minibam_info['is_s3_transfer_scheduled'],
         "is_s3_transfer_completed": minibam_info['is_s3_transfer_completed']
-    },
+    }
     minibam_files = minibam_info.get('files')
     if not minibam_files:
         logger.warning('The minibam with gnos_id {} is missing files.'.format(minibam_entry.get('gnos_id')))
