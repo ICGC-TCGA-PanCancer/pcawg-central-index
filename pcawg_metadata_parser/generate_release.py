@@ -22,7 +22,7 @@ import csv
 
 logger = logging.getLogger('generate PCAWG data release')
 ch = logging.StreamHandler()
-previous_release = 'oct2015'
+previous_release = 'mar2016'
 
 es_queries = [
   # query 0: donors_sanger_vcf_without_missing_bams 
@@ -96,20 +96,20 @@ es_queries = [
                       #   }
                       # ],
                       "must_not": [
-                        # {
-                        #   "terms": {
-                        #     "flags.is_bam_used_by_variant_calling_missing": [
-                        #       "T"
-                        #     ]
-                        #   }
-                        # },
-                        # {
-                        #   "terms": {
-                        #     "flags.exists_vcf_file_prefix_mismatch": [
-                        #       "T"
-                        #     ]
-                        #   }
-                        # },
+                        {
+                          "terms": {
+                            "flags.is_bam_used_by_variant_calling_missing": [
+                              "T"
+                            ]
+                          }
+                        },
+                        {
+                          "terms": {
+                            "flags.exists_vcf_file_prefix_mismatch": [
+                              "T"
+                            ]
+                          }
+                        },
                         {
                           "terms": {
                             "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
@@ -700,8 +700,8 @@ def main(argv=None):
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/sanger_deprecated_gnos_id.160310.tsv')   
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/dkfz_embl_deprecated_gnos_id.160310.tsv')
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/broad_deprecated_gnos_id.160310.tsv')
-    read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
-    read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/broad_qc_metrics.tsv')
+    # read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
+    # read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/broad_qc_metrics.tsv')
 
     # get json doc for each donor and reorganize it
     header = True 
