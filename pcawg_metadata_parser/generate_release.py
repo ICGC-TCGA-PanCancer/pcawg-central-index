@@ -188,7 +188,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
         'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
         'gnos_id': aliquot.get(bam_type).get('gnos_id'),
-        'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified')[-1],
+        'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified'),
         'files': []
     }
     # add the file info if exist
@@ -313,12 +313,11 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
 
 
 def filter_osdc_icgc(gnos_repo, data_type, bam_type):
-    if not bam_type == 'aligned_bam' and 'wgs' in data_type:
+    if not bam_type == 'aligned_bam' or not 'wgs' in data_type:
         return gnos_repo
     if "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
-        return gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
-    else:
-        return gnos_repo  # return the whole list of repos if osdc-icgc is not in repos
+        gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
+    return gnos_repo  # return the whole list of repos if osdc-icgc is not in repos
 
 
 def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
