@@ -181,9 +181,6 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'icgc_sample_id': aliquot.get('icgc_sample_id'),
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
-        'oxog_score': aliquot.get('oxog_score') if aliquot.get('oxog_score') else None,
-        'ContEST': aliquot.get('ContEST') if aliquot.get('ContEST') else None,
-        'Stars': es_json['Stars'] if es_json.get('Stars') else None,
         'is_'+previous_release+'_entry': aliquot.get(bam_type).get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
         # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
         'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
@@ -191,6 +188,10 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified'),
         'files': []
     }
+    if 'wgs_tumor' in data_type and 'aligned_bam' in bam_type:
+        for qc_metric in ['oxog_score', 'ContEST', 'Stars']:
+            alignment[qc_metric] = aliquot.get(qc_metric) if aliquot.get(qc_metric) else None
+
     # add the file info if exist
     for ftype in ['bam', 'bai']:
         if aliquot.get(bam_type).get(ftype+'_file_name'):
@@ -444,7 +445,7 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
     for d in aliquot_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+d): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = []
-    if specimen_type == 'tumor' and sequence_type == 'wgs':
+    if specimen_type == 'tumor' and sequence_type == 'wgs' and workflow_type == 'bwa_alignment':
         for qc_metric in ['oxog_score', 'ContEST', 'Stars']:
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+qc_metric] = []
 
@@ -484,7 +485,7 @@ def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen
         # if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] and sequence_type == 'rna_seq' or sequence_type == 'wgs':
         if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
-    if specimen_type == 'tumor' and sequence_type == 'wgs':
+    if specimen_type == 'tumor' and sequence_type == 'wgs' and workflow_type == 'bwa_alignment':
         for qc_metric in ['oxog_score', 'ContEST', 'Stars']:
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+qc_metric].append(alignment.get(qc_metric))   
     for d in gnos_field:
