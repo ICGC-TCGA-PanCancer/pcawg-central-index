@@ -1022,6 +1022,49 @@ es_queries = [
       }
 },
 
+# query 20: get missing gnos_entry from may2016_release 
+{
+     "name": "missing_gnos_entry_from_may2016_release",
+     "content":{
+         "fields": ["donor_unique_id"],
+         "filter":{
+             "bool": {
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_may2016_donor":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      },
+                  {
+                    "terms": {
+                      "flags.is_donor_blacklisted": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+             }
+         },
+         "size": 10000
+     }
+},
+
 ]
 
 
@@ -1086,6 +1129,10 @@ def create_report_info(donor_unique_id, es_json, q_index, annotations):
 
     if q_index == 16:
         flag = 'is_mar2016_entry' 
+        add_report_info_4_10(report_info, report_info_list, es_json, flag)
+
+    if q_index == 20:
+        flag = 'is_may2016_entry' 
         add_report_info_4_10(report_info, report_info_list, es_json, flag)
 
     if q_index == 5:
@@ -1351,7 +1398,7 @@ def add_report_info_4_10(report_info, report_info_list, es_json, flag):
 
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
-        for workflow in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+        for workflow in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar', 'minibam']:
             if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get(flag):
                 report_info['gnos_id'] =  vcf.get(workflow+'_variant_calling').get('gnos_id')
                 report_info_list.append(copy.deepcopy(report_info))
