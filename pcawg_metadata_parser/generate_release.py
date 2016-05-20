@@ -511,20 +511,22 @@ def generate_id_list(id_lists):
 def generate_simple_release_tsv(release_donor_json, simple_release_tsv, vcf):
     simple_release = OrderedDict()
     simple_release['donor_unique_id'] = release_donor_json.get('donor_unique_id')
-    if release_donor_json.get('wgs') and release_donor_json.get('wgs').get('normal_specimen') and \
-        release_donor_json.get('wgs').get('normal_specimen').get('bwa_alignment'):
-        entry = release_donor_json.get('wgs').get('normal_specimen').get('bwa_alignment')
-        simple_release['gnos_id'] = entry.get('gnos_id')
-        simple_release['entry_type'] = 'normal_wgs_bwa_bam'
-        simple_release_tsv.append(copy.deepcopy(simple_release))
+    if release_donor_json.get('wgs') and release_donor_json.get('wgs').get('normal_specimen'):
+        for bam_type in ['bwa_alignment', 'minibam']:
+            if release_donor_json.get('wgs').get('normal_specimen').get(bam_type):
+                entry = release_donor_json.get('wgs').get('normal_specimen').get(bam_type)
+                simple_release['gnos_id'] = entry.get('gnos_id')
+                simple_release['entry_type'] = 'normal_wgs_'+bam_type
+                simple_release_tsv.append(copy.deepcopy(simple_release))
 
     if release_donor_json.get('wgs') and release_donor_json.get('wgs').get('tumor_specimens'):
         for aliquot in release_donor_json.get('wgs').get('tumor_specimens'):
-            if aliquot.get('bwa_alignment'):
-                entry = aliquot.get('bwa_alignment')
-                simple_release['gnos_id'] = entry.get('gnos_id')
-                simple_release['entry_type'] = 'tumor_wgs_bwa_bam'
-                simple_release_tsv.append(copy.deepcopy(simple_release))
+            for bam_type in ['bwa_alignment', 'minibam']:
+                if aliquot.get(bam_type):
+                    entry = aliquot.get(bam_type)
+                    simple_release['gnos_id'] = entry.get('gnos_id')
+                    simple_release['entry_type'] = 'tumor_wgs_'+bam_type
+                    simple_release_tsv.append(copy.deepcopy(simple_release))
             for v in vcf:
                 if aliquot.get(get_key_map(v)):
                     entry = aliquot.get(get_key_map(v))
