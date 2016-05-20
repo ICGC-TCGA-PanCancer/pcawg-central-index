@@ -154,7 +154,6 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
         previous_release+'_donor': True if es_json.get('flags').get('is_'+previous_release+'_donor') else False,
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
         'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
-        'star_rating': es_json['star_rating'] if es_json.get('star_rating') else None,
         'wgs': {
             'normal_specimen': {},
             'tumor_specimens': []
@@ -184,6 +183,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'aliquot_id': aliquot.get('aliquot_id'),
         'oxog_score': aliquot.get('oxog_score') if aliquot.get('oxog_score') else None,
         'ContEST': aliquot.get('ContEST') if aliquot.get('ContEST') else None,
+        'Stars': es_json['Stars'] if es_json.get('Stars') else None,
         'is_'+previous_release+'_entry': aliquot.get(bam_type).get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
         # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
         'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
@@ -388,7 +388,7 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf, annotations):
-    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'star_rating']
+    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq']
     specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
@@ -445,8 +445,9 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+d): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] = []
     if specimen_type == 'tumor' and sequence_type == 'wgs':
-        pilot_tsv[specimen_type+'_'+sequence_type+'_oxog_score'] = []
-        pilot_tsv[specimen_type+'_'+sequence_type+'_ContEST'] = []
+        for qc_metric in ['oxog_score', 'ContEST', 'Stars']:
+            pilot_tsv[specimen_type+'_'+sequence_type+'_'+qc_metric] = []
+
     for d in gnos_field:
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = []
@@ -484,8 +485,8 @@ def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen
         if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
     if specimen_type == 'tumor' and sequence_type == 'wgs':
-        pilot_tsv[specimen_type+'_'+sequence_type+'_oxog_score'].append(alignment.get('oxog_score'))
-        pilot_tsv[specimen_type+'_'+sequence_type+'_ContEST'].append(alignment.get('ContEST'))    
+        for qc_metric in ['oxog_score', 'ContEST', 'Stars']:
+            pilot_tsv[specimen_type+'_'+sequence_type+'_'+qc_metric].append(alignment.get(qc_metric))   
     for d in gnos_field:
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d].append(alignment.get(d))
     pilot_tsv.get('is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type).append(alignment.get('is_'+previous_release+'_entry'))
@@ -574,25 +575,25 @@ def read_annotations(annotations, type, file_name):
                     if not row.get(vcf+'_variant_calling_deprecated_gnos_id'): continue
                     annotations[type][donor_unique_id][vcf]=row.get(vcf+'_variant_calling_deprecated_gnos_id') 
 
-        elif type == 'oxog_score':
-            annotations[type] = {}
-            reader = csv.DictReader(r, delimiter='\t')
-            for row in reader:
-                if not row.get('aliquot_GUUID'): continue
-                if not row.get('picard_oxoQ'): 
-                    logger.warning('aliquot: {} has no oxog_score'.format(row.get('aliquot_GUUID')))
-                    continue
-                annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ')
+        # elif type == 'oxog_score':
+        #     annotations[type] = {}
+        #     reader = csv.DictReader(r, delimiter='\t')
+        #     for row in reader:
+        #         if not row.get('aliquot_GUUID'): continue
+        #         if not row.get('picard_oxoQ'): 
+        #             logger.warning('aliquot: {} has no oxog_score'.format(row.get('aliquot_GUUID')))
+        #             continue
+        #         annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ')
 
-        elif type == 'ContEST':
-            annotations[type] = {}
-            reader = csv.DictReader(r, delimiter='\t')
-            for row in reader:
-                if not row.get('aliquot_GUUID'): continue
-                if not row.get('contamination_percentage_whole_genome_no_array_value'): 
-                    logger.warning('aliquot: {} has no ContEST'.format(row.get('aliquot_GUUID')))
-                    continue
-                annotations[type][row.get('aliquot_GUUID')] = row.get('contamination_percentage_whole_genome_no_array_value')
+        # elif type == 'ContEST':
+        #     annotations[type] = {}
+        #     reader = csv.DictReader(r, delimiter='\t')
+        #     for row in reader:
+        #         if not row.get('aliquot_GUUID'): continue
+        #         if not row.get('contamination_percentage_whole_genome_no_array_value'): 
+        #             logger.warning('aliquot: {} has no ContEST'.format(row.get('aliquot_GUUID')))
+        #             continue
+        #         annotations[type][row.get('aliquot_GUUID')] = row.get('contamination_percentage_whole_genome_no_array_value')
 
         else:
             print('unknown annotation type: {}'.format(type))

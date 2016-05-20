@@ -557,6 +557,7 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "total_lanes": analysis_attrib.get('total_lanes'),
         "oxog_score": annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) if annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) else None,
         "ContEST": annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) if annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) else None,
+        "Stars": annotations.get('Stars').get(gnos_analysis.get('aliquot_id')) if annotations.get('Stars').get(gnos_analysis.get('aliquot_id')) else None,
 
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
@@ -755,7 +756,6 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'exists_vcf_file_prefix_mismatch': False,
             'is_bam_used_by_variant_calling_missing': False,
             'qc_score': None,
-            'star_rating': None,
             'exists_xml_md5sum_mismatch': False
         },
         'normal_specimen': {},
@@ -785,13 +785,6 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
         donor.get('flags')['qc_score'] = annotations.get('qc_donor_prioritization').get(donor_unique_id)
     else:
         logger.warning('No qc prioritization score for donor: {}'.format(donor_unique_id))
-
-    if not annotations.get('star_rating'):
-        logger.warning('Missing star_rating annotation')
-    elif annotations.get('star_rating').get(donor_unique_id) is not None:
-        donor.get('flags')['star_rating'] = annotations.get('star_rating').get(donor_unique_id)
-    else:
-        logger.warning('No star_rating for donor: {}'.format(donor_unique_id))
 
     return donor
 
@@ -943,7 +936,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
     read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
     read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/broad_qc_metrics.tsv')
-    read_annotations(annotations, 'star_rating', '../pcawg-operations/lists/star_rating.tsv')
+    read_annotations(annotations, 'Stars', '../pcawg-operations/lists/quality_control_info/PAWG_QC_Summary_of_Measures.tsv')
 
 
     # hard-code the file name for now    
@@ -1135,14 +1128,15 @@ def read_annotations(annotations, type, file_name):
                         continue
                     annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ') if type=='oxog_score' else row.get('contamination_percentage_whole_genome_no_array_value')
 
-            elif type == 'star_rating':
+            elif type == 'Stars':
                 annotations[type] = {}
                 reader = csv.DictReader(r, delimiter='\t')
                 for row in reader:
-                    if not row.get('donor_unique_id'): continue
-                    if not row.get('star_rating'): 
-                        logger.warning('donor:{} has no star_rating.'.format(row.get('donor_unique_id')))
-                    annotations[type][row.get('donor_unique_id')] = row.get('star_rating')
+                    if not row.get('Tumour WGS aliquot ID'): continue
+                    if row.get('Stars') == 'NA':  
+                        logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour WGS aliquot ID')))
+                        continue
+                    annotations[type][row.get('Tumour WGS aliquot ID')] = row.get('Stars')
 
 
             else:
