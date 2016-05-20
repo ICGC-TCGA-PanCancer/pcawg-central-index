@@ -1946,7 +1946,8 @@ def create_aggregated_bam_info_dict(bam):
          "bam_with_unmappable_reads": {},
          "unaligned_bams": {},
          "oxog_score": bam['oxog_score'],
-         "ContEST": bam['ContEST']
+         "ContEST": bam['ContEST'],
+         "Stars": bam['Stars']
     }
     
     return aggregated_bam_info_dict
