@@ -142,13 +142,6 @@ es_queries = [
                   "T"
                 ]
               }
-            },
-            {
-              "terms": {
-                "flags.is_donor_blacklisted": [
-                  "T"
-                ]
-              }
             }
           ]
         }
