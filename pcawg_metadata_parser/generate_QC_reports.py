@@ -1616,7 +1616,7 @@ def main(argv=None):
             report_info_list_full.extend(report_info_list_donor)
 
         # do diff for santa_cruz missing only
-        if q in [4, 10, 13, 16]:
+        if q in [4, 10, 13, 16, 20]:
             if q==4:
                 release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' 
             elif q==10:
@@ -1625,6 +1625,8 @@ def main(argv=None):
                 release_tsv = '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv'
             elif q==16:
                 release_tsv = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
+            elif q==20:
+                release_tsv = '../pcawg-operations/data_releases/may2016/release_may2016_entry.tsv'
             else:
                 print('No entry for this query!')
             # generate the set of gnos_id
