@@ -350,7 +350,10 @@ def get_donor_json(es, es_index, donor_unique_id):
         }
     }
     response = es.search(index=es_index, body=es_query_donor)
+    if not response['hits'].get('hits'):
+        return None
     es_json = response['hits']['hits'][0]['_source']
+
     return es_json
 
 
@@ -496,7 +499,9 @@ def generate_id_list(id_lists):
         files = glob.glob(id_lists)
         for fname in files:
             with open(fname) as f:
-                for d in f: ids_list.add(d.rstrip())
+                for d in f: 
+                    if d.startswith('#'): continue
+                    ids_list.add(d.rstrip())
 
     return ids_list
 
@@ -628,7 +633,6 @@ def main(argv=None):
     include_gnos_id_lists = args.include_gnos_id_lists
 
     vcf = args.vcf
-
     vcf = list(vcf) if vcf else []   
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
@@ -658,25 +662,12 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
+    annotations = {}
+    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/sanger_deprecated_gnos_id.160310.tsv')   
+    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/dkfz_embl_deprecated_gnos_id.160310.tsv')
+    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/broad_deprecated_gnos_id.160310.tsv')
+
     if not os.path.exists(metadata_dir+'/reports/'): os.makedirs(metadata_dir+'/reports/')
-
-    donor_fh = open(metadata_dir+'/reports/'+release_name+'.jsonl', 'w')
-    pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.tsv', 'w')  
-    simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.tsv', 'w')
-
-    # pre-exclude donors when this option is chosen
-    donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
-
-	# get the list of donors
-    # only process the gnos entries when this option is chosen
-    donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
-    if not donor_ids_to_be_included:  
-        donors_list = get_donors_list(es, es_index, es_queries)
-    else:
-        donors_list = donor_ids_to_be_included
-
-    # exclude the donors if they were specified on the exclude_donor_id_lists
-    donors_list.difference_update(donor_ids_to_be_excluded)
 
     # exclude the entries with gnos_ids in gnos_ids_to_be_excluded when this option is chosen
     gnos_ids_to_be_excluded = generate_id_list(exclude_gnos_id_lists)
@@ -690,80 +681,102 @@ def main(argv=None):
     # remove the gnos_ids_to_be_excluded from gnos_ids_to_be_included
     gnos_ids_to_be_included.difference_update(gnos_ids_to_be_excluded)
 
-    donors_list = sorted(donors_list)  
-    simple_release_tsv = []
+    # get the list of donors to be excluded from the release: blacklist donors
+    if not exclude_donor_id_lists:
+        donor_ids_to_be_excluded = generate_id_list('../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')
+    else:    
+        donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
 
-    annotations = {}
-    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/sanger_deprecated_gnos_id.160310.tsv')   
-    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/dkfz_embl_deprecated_gnos_id.160310.tsv')
-    read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/broad_deprecated_gnos_id.160310.tsv')
-    # read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/broad_qc_metrics.tsv')
-    # read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/broad_qc_metrics.tsv')
+    # get the list of donors to be included in the release
+    if not include_donor_id_lists:  
+        donor_ids_to_be_included = get_donors_list(es, es_index, es_queries)
+    else:
+        donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
 
-    # get json doc for each donor and reorganize it
-    header = True 
-    for donor_unique_id in donors_list:    
-        es_json = get_donor_json(es, es_index, donor_unique_id)
-        
-        reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
+    # exclude the donors if they were specified on the exclude_donor_id_lists
+    donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
 
-        # push to Elasticsearch
-        es_summary.index(index=es_index_summary, doc_type='donor', id=reorganized_donor['donor_unique_id'], body=json.loads(json.dumps(reorganized_donor, default=set_default)), timeout=90 )
+    for dtype in ['release', 'blacklist']:
+        if dtype == 'release':
+            donor_fh = open(metadata_dir+'/reports/'+release_name+'.jsonl', 'w') 
+            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.tsv', 'w') 
+            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.tsv', 'w') 
+            donors_list = donor_ids_to_be_included
+        else:
+            donor_fh = open(metadata_dir+'/reports/'+release_name+'.blacklist.jsonl', 'w')
+            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.blacklist.tsv', 'w')
+            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.blacklist.tsv', 'w')
+            donors_list = donor_ids_to_be_excluded
 
-        donor_fh.write(json.dumps(reorganized_donor, default=set_default) + '\n')
+        donors_list = sorted(donors_list)  
+        simple_release_tsv = []        
+        # get json doc for each donor and reorganize it
+        header = True 
+        for donor_unique_id in donors_list:    
+            es_json = get_donor_json(es, es_index, donor_unique_id)
 
-        # generate simple tsv from reorganized donor
-        simple_release_tsv = generate_simple_release_tsv(reorganized_donor, simple_release_tsv, vcf)
+            if not es_json: continue
+            
+            reorganized_donor = create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
 
-        # generate json for tsv file from reorganized donor
-        pilot_tsv_json = generate_tsv_file(reorganized_donor, vcf, annotations)
-        # write to the tsv file
-        if header:
-            pilot_tsv_fh.write('\t'.join(pilot_tsv_json.keys()) + '\n')
-            header = False 
-        line = []
-        for p in pilot_tsv_json.keys():
-            if isinstance(pilot_tsv_json.get(p), list):
-                field = []
-                for q in pilot_tsv_json.get(p):
-                    if isinstance(q, list):
-                        field.append('|'.join(q))
-                    elif q is None:
-                        field.append('')
-                    else:
-                        field.append(str(q))
-                line.append(','.join(field))
+            # push to Elasticsearch
+            if dtype == 'release':
+                es_summary.index(index=es_index_summary, doc_type='donor', id=reorganized_donor['donor_unique_id'], body=json.loads(json.dumps(reorganized_donor, default=set_default)), timeout=90 )
 
-            elif pilot_tsv_json.get(p) is None:
-                line.append('')
-            else:
-                line.append(str(pilot_tsv_json.get(p)))
+            donor_fh.write(json.dumps(reorganized_donor, default=set_default) + '\n')
 
-        pilot_tsv_fh.write('\t'.join(line) + '\n')
-        
-    pilot_tsv_fh.close()
+            # generate simple tsv from reorganized donor
+            simple_release_tsv = generate_simple_release_tsv(reorganized_donor, simple_release_tsv, vcf)
 
-    donor_fh.close()
+            # generate json for tsv file from reorganized donor
+            pilot_tsv_json = generate_tsv_file(reorganized_donor, vcf, annotations)
+            # write to the tsv file
+            if header:
+                pilot_tsv_fh.write('\t'.join(pilot_tsv_json.keys()) + '\n')
+                header = False 
+            line = []
+            for p in pilot_tsv_json.keys():
+                if isinstance(pilot_tsv_json.get(p), list):
+                    field = []
+                    for q in pilot_tsv_json.get(p):
+                        if isinstance(q, list):
+                            field.append('|'.join(q))
+                        elif q is None:
+                            field.append('')
+                        else:
+                            field.append(str(q))
+                    line.append(','.join(field))
 
-    header = True  
-    for r in simple_release_tsv:
-        if header:
-            simple_tsv_fh.write('\t'.join(r.keys()) + '\n')
-            header = False 
-        # make the list of output from dict
-        line = []
-        for p in r.keys():
-            if isinstance(r.get(p), list):
-                line.append('|'.join(r.get(p)))
-            elif isinstance(r.get(p), set):
-                line.append('|'.join(list(r.get(p))))
-            elif r.get(p) is None:
-                line.append('')
-            else:
-                line.append(str(r.get(p)))
-        simple_tsv_fh.write('\t'.join(line) + '\n') 
-        
-    simple_tsv_fh.close() 
+                elif pilot_tsv_json.get(p) is None:
+                    line.append('')
+                else:
+                    line.append(str(pilot_tsv_json.get(p)))
+
+            pilot_tsv_fh.write('\t'.join(line) + '\n')
+            
+        pilot_tsv_fh.close()
+
+        donor_fh.close()
+
+        header = True 
+        for r in simple_release_tsv:
+            if header:
+                simple_tsv_fh.write('\t'.join(r.keys()) + '\n')
+                header = False 
+            # make the list of output from dict
+            line = []
+            for p in r.keys():
+                if isinstance(r.get(p), list):
+                    line.append('|'.join(r.get(p)))
+                elif isinstance(r.get(p), set):
+                    line.append('|'.join(list(r.get(p))))
+                elif r.get(p) is None:
+                    line.append('')
+                else:
+                    line.append(str(r.get(p)))
+            simple_tsv_fh.write('\t'.join(line) + '\n') 
+            
+        simple_tsv_fh.close() 
 
     return 0
 
