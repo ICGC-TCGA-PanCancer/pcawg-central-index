@@ -587,7 +587,7 @@ def main(argv=None):
     oxog_scores = args.oxog_scores
 
     if not oxog_scores:
-        oxog_scores = '../pcawg-operations/lists/broad_qc_metrics.tsv'
+        oxog_scores = '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv'
 
     if not os.path.isdir(metadata_dir):  # TODO: should add more directory name check to make sure it's right
         sys.exit('Error: specified metadata directory does not exist!')
