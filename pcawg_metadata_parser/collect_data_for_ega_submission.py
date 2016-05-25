@@ -571,8 +571,8 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    pcawg_sample_sheet = '../pcawg-operations/lists/pcawg_sample_sheet.tsv'
-    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
+    pcawg_sample_sheet = '../pcawg-operations/lists/sample_sheet/pcawg_sample_sheet.tsv'
+    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/may2016/release_mayq2016_entry.tsv'
     file_info = ega_dir+'/file_info/file_info_missing.tsv'
 
 
