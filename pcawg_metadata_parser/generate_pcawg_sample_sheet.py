@@ -160,6 +160,8 @@ def get_donor_json(es, es_index, donor_unique_id):
         }
     }
     response = es.search(index=es_index, body=es_query_donor)
+    if not response['hits'].get('hits'):
+        return None
 
     es_json = response['hits']['hits'][0]['_source']
  
@@ -170,9 +172,9 @@ def get_donors_list(es, es_index, es_queries):
     q_index = 0
     response = es.search(index=es_index, body=es_queries[q_index])
     
-    donors_list = []
+    donors_list = set()
     for p in response['hits']['hits']:
-    	donors_list.append(p.get('fields').get('donor_unique_id')[0])
+    	donors_list.add(p.get('fields').get('donor_unique_id')[0])
 
     return donors_list 
 
@@ -183,6 +185,18 @@ def set_default(obj):
     if isinstance(obj, set):
         return list(obj)
     raise TypeError
+
+def generate_id_list(id_lists):
+    ids_list = set()
+    if id_lists:
+        files = glob.glob(id_lists)
+        for fname in files:
+            with open(fname) as f:
+                for d in f: 
+                    if d.startswith('#'): continue
+                    ids_list.add(d.rstrip())
+
+    return ids_list
 
 
 def main(argv=None):
@@ -208,40 +222,46 @@ def main(argv=None):
 
     es = Elasticsearch([es_host])
 
-    #PCAWG_specimen_fh = open(metadata_dir+'/reports/pcawg_sample_sheet.jsonl', 'w')
+    # get the list of donors to be excluded from the release: blacklist donors
+    donor_ids_to_be_excluded = generate_id_list('../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')
 
-    PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')
-    
-    # read the tsv fields file and write to the pilot donor tsv file
-    tsv_fields = [ "donor_unique_id", "submitter_donor_id", "icgc_donor_id",
-        "dcc_project_code", "aliquot_id", "submitter_specimen_id", "icgc_specimen_id",
-        "submitter_sample_id", "icgc_sample_id", "dcc_specimen_type", "library_strategy" 
-    ]
-    PCAWG_specimen_tsv_fh.write('\t'.join(tsv_fields) + '\n')
+    # get the list of donors to be included in the release 
+    donor_ids_to_be_included = get_donors_list(es, es_index, es_queries)
 
-	# get the full list of donors in PCAWG
-    donors_list = get_donors_list(es, es_index, es_queries)
-    
-    # get json doc for each donor and reorganize it 
-    for donor_unique_id in donors_list:     
-        
-    	es_json = get_donor_json(es, es_index, donor_unique_id)
-        
-        specimen_info_list = create_specimen_info(donor_unique_id, es_json)
-        
-        for specimen in specimen_info_list: 
-            #PCAWG_specimen_fh.write(json.dumps(specimen, default=set_default) + '\n')
-            # write to the tsv file
-            for p in specimen.keys():
-                if isinstance(specimen.get(p), set):
-                    PCAWG_specimen_tsv_fh.write('|'.join(list(specimen.get(p))) + '\t')
-                else:
-                    PCAWG_specimen_tsv_fh.write(str(specimen.get(p)) + '\t')
-            PCAWG_specimen_tsv_fh.write('\n')
-        
-    PCAWG_specimen_tsv_fh.close()
+    # exclude the donors if they were specified on the donor_ids_to_be_excluded
+    donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
 
-    #PCAWG_specimen_fh.close()
+    for dtype in ['release', 'blacklist']:
+        if dtype == 'release':
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')
+            donors_list = donor_ids_to_be_included
+        else:
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.blacklisted_donors.tsv', 'w')
+            donors_list = donor_ids_to_be_excluded
+
+        donors_list = sorted(donors_list)
+
+        header = True
+        # get json doc for each donor and reorganize it 
+        for donor_unique_id in donors_list:
+            es_json = get_donor_json(es, es_index, donor_unique_id)
+            if not es_json: continue
+            specimen_info_list = create_specimen_info(donor_unique_id, es_json)
+
+            for specimen in specimen_info_list: 
+                # write to the tsv file
+                if header:
+                    PCAWG_specimen_tsv_fh.write('\t'.join(specimen.keys()) + '\n')
+                    header = False
+                line = []
+                for p in specimen.keys():
+                    if isinstance(specimen.get(p), set):
+                        line.append('|'.join(list(specimen.get(p))))
+                    else:
+                        line.append(str(specimen.get(p)))
+                PCAWG_specimen_tsv_fh.write('\t'.join(line)+'\n')
+            
+        PCAWG_specimen_tsv_fh.close()
 
     return 0
 
