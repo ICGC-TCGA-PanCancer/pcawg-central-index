@@ -368,7 +368,9 @@ def generate_id_list(id_lists):
         files = glob.glob(id_lists)
         for fname in files:
             with open(fname) as f:
-                for d in f: ids_list.add(d.rstrip())
+                for d in f:
+                    if d.startswith('#'): continue 
+                    ids_list.add(d.rstrip())
 
     return ids_list
 
