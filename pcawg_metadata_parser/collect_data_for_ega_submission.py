@@ -263,8 +263,8 @@ def get_md5(fname, use_shell=None):
 
 def get_mapping(source):
     workflow = {
-       "normal_wgs_bwa_bam": "bwa",
-       "tumor_wgs_bwa_bam": "bwa",
+       "normal_wgs_bwa_alignment": "bwa",
+       "tumor_wgs_bwa_alignment": "bwa",
        "sanger_variant_calling": "sanger",
        "dkfz_embl_variant_calling": "dkfz",
        "broad_variant_calling": "broad",
