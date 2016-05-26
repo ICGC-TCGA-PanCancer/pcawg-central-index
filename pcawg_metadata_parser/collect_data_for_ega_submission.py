@@ -501,7 +501,7 @@ def main(argv=None):
     parser.add_argument("-w", "--workflow", dest="workflow", nargs="*",
              help="List workflow types[bwa, sanger, dkfz, broad, muse, tophat2, star]", required=False)
 
-    parser.add_argument("-f", "--force", dest="force", action="store_true", default=True,
+    parser.add_argument("-f", "--force", dest="force", action="store_true", 
              help="Allow to regenerate the sample/xml files even if already exists", required=False)       
 
 
