@@ -212,7 +212,7 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                 if not get_mapping(entry_type) == w: continue
                 
                 gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
-                if not os.path.exists(gnos_xml_gz_file) or force:
+                if not os.path.exists(gnos_xml_gz_file+'.processed') or force:
                     latest_xml_str = download_metadata_xml(gnos_id)
                     latest_effective_xml_md5sum = effective_xml_md5sum(latest_xml_str)
                     cached_xml_str = find_cached_metadata_xml(gnos_id)
