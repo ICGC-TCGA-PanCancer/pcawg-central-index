@@ -178,7 +178,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
         'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
         'gnos_id': aliquot.get(bam_type).get('gnos_id'),
-        'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified'),
+        'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified')[-1],
         'files': []
     }
     if 'wgs_tumor' in data_type and 'aligned_bam' in bam_type:
