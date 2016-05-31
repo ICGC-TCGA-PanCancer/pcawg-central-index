@@ -149,6 +149,8 @@ def effective_xml_md5sum(xml_str):
     xml_str = re.sub(r'<refassem_short_name>.+?</refassem_short_name>', '<refassem_short_name></refassem_short_name>', xml_str)
 
     xml_str = re.sub(r'<STUDY_REF .+?/>', '<STUDY_REF/>', xml_str)
+    xml_str = re.sub(r'</STUDY_REF>', '', xml_str)
+    xml_str = re.sub(r'<STUDY_REF .+?>', '<STUDY_REF/>', xml_str)
     xml_str = re.sub(r'<ANALYSIS_SET .+?>', '<ANALYSIS_SET>', xml_str)
     xml_str = re.sub(r'<ANALYSIS .+?>', '<ANALYSIS>', xml_str)
     xml_str = re.sub(r'<EXPERIMENT_SET .+?>', '<EXPERIMENT_SET>', xml_str)
@@ -221,7 +223,6 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
                         click.echo('Warning: BSC gnos xml has different effective md5sum with the cached xml for gnos_id: %s' % gnos_id, err=True)
                         continue
                     
-                    # gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
                     with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
                 xml_gz_md5sum = get_md5(gnos_xml_gz_file, False)
                 gnos_xml = OrderedDict()
@@ -234,6 +235,81 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
             if not os.path.isdir(out_dir): os.makedirs(out_dir)  
             staged_files = os.path.join(out_dir, project+'.'+w+'.tsv')
             write_tsv_file(gnos_xml_sheet, staged_files)
+
+def get_analysis_info(receipt_file, gnos_id):
+    analysis_info = OrderedDict()
+    analysis_info['filename'] = gnos_id+'/analysis.'+gnos_id+'.GNOS.xml.gz.gpg'
+    analysis_info['analysis_alias'] = gnos_id
+    with open(receipt_file, 'r') as x: receipt_xml = x.read()
+    receipt_obj = xmltodict.parse(receipt_xml)
+    analysis_info['analysis_accession'] = receipt_obj.get('RECEIPT').get('ANALYSIS').get('@accession')
+    return analysis_info
+
+
+def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, ega_dir, pcawg_sample_sheet, pcawg_gnos_id_sheet, update_type, annotations):
+    for u in update_type:
+        if u in ['wgs', 'rna-seq']:
+            print('\nUpdating the Sample Data for sequence_type: {} of project: {}'.format(u, dcc_project_code))
+        elif u in ['bwa', 'sanger', 'dkfz', 'broad', 'muse', 'tophat2', 'star']:
+            print('\nUpdating the GNOS xmls for workflow: {} of project: {}'.format(get_mapping(u), project))
+            gnos_xml_dir = os.path.join(ega_dir, project, get_mapping(u), 'GNOS_xml')
+            analysis_dir = os.path.join(ega_dir, project, get_mapping(u), 'analysis')
+
+            gnos_xml_sheet = []
+            to_purge_analysis_list = []
+            to_update_analysis_list = []
+            for f in glob.glob(os.path.join(analysis_dir, 'analysis.*.receipt-*.xml')):
+                file_name = os.path.basename(f)
+                gnos_id = file_name.split('.')[1]
+                if not gnos_id in annotations.get('gnos_id'): 
+                    # the donor propably was blacklisted
+                    click.echo('INFO: ingested gnos xml has been purged in gnos for gnos_id: %s' % gnos_id, err=True)
+                    # generate the to_purge_analysis_list with filename gnos_id, EGAZ_id
+                    to_purge_analysis = get_analysis_info(f, gnos_id)
+                    to_purge_analysis_list.append(copy.deepcopy(to_purge_analysis))
+                    continue
+
+                # check the ingested *.xml.gz file content modified or not
+                # calculate the effective xml md5sum for latest local cached xml
+                cached_xml_str = find_cached_metadata_xml(gnos_id)
+                cached_effective_xml_md5sum = effective_xml_md5sum(cached_xml_str)
+                # calculate the effective xml md5sum for EGA ingested xml.gz file
+                gnos_xml_gz_file = os.path.join(gnos_xml_dir, 'analysis.'+gnos_id+'.GNOS.xml.gz')
+                with gzip.open (gnos_xml_gz_file, 'rb') as x: xml_str = x.read()
+                ingested_effective_xml_md5sum = effective_xml_md5sum(xml_str)
+
+                if not ingested_effective_xml_md5sum == cached_effective_xml_md5sum: 
+                    # need to update the gnos xml in GIT
+                    click.echo('INFO: ingested gnos xml has different effective md5sum with the cached xml for gnos_id: %s' % gnos_id, err=True)
+                    with gzip.open(gnos_xml_gz_file, 'wb') as n:  n.write(cached_xml_str.encode('utf8'))
+                    # generate the to_update_analysis_list with filename, gnos_id, EGAZ_id
+                    to_update_analysis = get_analysis_info(f, gnos_id)
+                    to_update_analysis_list.append(copy.deepcopy(to_update_analysis))
+
+                xml_gz_md5sum = get_md5(gnos_xml_gz_file, False)
+                gnos_xml = OrderedDict()
+                gnos_xml['filename'] = gnos_id+'/analysis.'+gnos_id+'.GNOS.xml.gz.gpg'
+                gnos_xml['checksum'] = None
+                gnos_xml['unencrypted_checksum'] = xml_gz_md5sum
+                gnos_xml_sheet.append(copy.deepcopy(gnos_xml))
+
+            if gnos_xml_sheet:
+                out_dir = os.path.join(ega_dir, 'file_info', 'GNOS_xml_file_info')
+                if not os.path.isdir(out_dir): os.makedirs(out_dir)  
+                write_tsv_file(gnos_xml_sheet, os.path.join(out_dir, project+'.'+u+'.tsv'))
+
+            if to_purge_analysis_list:
+                out_dir = os.path.join(ega_dir, 'file_info', 'to_purge_GNOS_xml_file_info')
+                if not os.path.isdir(out_dir): os.makedirs(out_dir)  
+                write_tsv_file(to_purge_analysis_list, os.path.join(out_dir, project+'.'+u+'.tsv'))                 
+
+            if to_update_analysis_list:
+                out_dir = os.path.join(ega_dir, 'file_info', 'to_update_GNOS_xml_file_info')
+                if not os.path.isdir(out_dir): os.makedirs(out_dir)  
+                write_tsv_file(to_update_analysis_list, os.path.join(out_dir, project+'.'+u+'.tsv')) 
+
+        else:
+            print('\nUnrecognized update_type: {} for project: {}'.format(u, project))
 
 
 def get_md5(fname, use_shell=None):
@@ -314,29 +390,32 @@ def read_annotations(annotations, type, file_name):
         if annotations.get(type): # reset annotation if exists
             del annotations[type]               
         
+        reader = csv.DictReader(r, delimiter='\t')
         if type == 'gender':
             annotations[type] = {}
-            reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 if row.get('exist_gender_discrepancy') == 'True': continue
                 annotations[type][row.get('donor_unique_id')] = row.get('gender') if row.get('gender') else None
         elif type == 'ega':
             annotations[type] = set()
-            reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 if row.get('checksum') and row.get('unencrypted_checksum'):
                     annotations[type].add(row.get('filename'))
         elif type == 'project':
             annotations[type] = set()
-            reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 annotations[type].add(row.get('dcc_project_code'))
         elif type == 'xml_encrypted_checksum':
             annotations[type] = {}
-            reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
                 if row.get('path') and row.get('encrypted MD5'):
                     annotations[type][row.get('path')] = row.get('encrypted MD5')
+
+        elif type == 'gnos_id':
+            annotations[type] = set()
+            for row in reader:
+                annotations[type].add(row.get('gnos_id'))
+
 
         else:
             logger.warning('unknown annotation type: {}'.format(type))
@@ -477,8 +556,6 @@ def main(argv=None):
 
     parser = ArgumentParser(description="Transfer Jobs Json Generator",
              formatter_class=RawDescriptionHelpFormatter)
-    parser.add_argument("-m", "--metadata_dir", dest="metadata_dir",
-             help="Directory containing metadata manifest files", required=True)
     parser.add_argument("-p", "--dcc_project_code", dest="dcc_project_code", nargs="*",
              help="Specify dcc_project_code for EGA submission", required=False)
     parser.add_argument("-r", "--specify ega directory", dest="ega_dir",
@@ -502,20 +579,27 @@ def main(argv=None):
              help="List workflow types[bwa, sanger, dkfz, broad, muse, tophat2, star]", required=False)
 
     parser.add_argument("-f", "--force", dest="force", action="store_true", 
-             help="Allow to regenerate the sample/xml files even if already exists", required=False)       
+             help="Allow to regenerate the sample/xml files even if already exists", required=False)
+
+    parser.add_argument("-n", "--update_type", dest="update_type", nargs="*",
+             help="List update types[wgs, rna-seq, bwa, sanger, dkfz, broad, muse, tophat2, star]", required=False)       
 
 
 
     args = parser.parse_args()
-    metadata_dir = args.metadata_dir
     ega_dir = args.ega_dir
     ega_dir = ega_dir if ega_dir else '../pcawg-ega-submission'
+
+    pcawg_sample_sheet = '../pcawg-operations/lists/sample_sheet/pcawg_sample_sheet.tsv'
+    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/may2016/pcawg_summary_entry.2016-05-25.tsv'
+    file_info = ega_dir+'/file_info/file_info_missing.tsv'
 
     annotations = {}
     read_annotations(annotations, 'gender', ega_dir+'/annotation/pcawg_donors_gender_info.txt')
     read_annotations(annotations, 'ega', ega_dir+'/file_info/file_info.tsv')
     read_annotations(annotations, 'project', ega_dir+'/annotation/project_info.tsv')
     read_annotations(annotations, 'xml_encrypted_checksum', ega_dir+'/annotation/pancancer_xml_encrypted_checksum_2016_02_11.tsv')
+    read_annotations(annotations, 'gnos_id', pcawg_gnos_id_sheet)
 
 
     dcc_project_code = args.dcc_project_code
@@ -531,10 +615,12 @@ def main(argv=None):
     seq = args.seq
     workflow = args.workflow
     force = args.force 
+    update_type = args.update_type
 
     unstage_type = list(unstage_type) if unstage_type else []
     seq= list(seq) if seq else [] 
     workflow = list(workflow) if workflow else []  
+    update_type = list(update_type) if update_type else []
 
     donor_id_to_be_incuded = generate_id_list(include_donor_id_lists)
     donor_id_to_be_excluded = generate_id_list(exclude_donor_id_lists)
@@ -573,11 +659,6 @@ def main(argv=None):
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    pcawg_sample_sheet = '../pcawg-operations/lists/sample_sheet/pcawg_sample_sheet.tsv'
-    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/may2016/release_may2016_entry.tsv'
-    file_info = ega_dir+'/file_info/file_info_missing.tsv'
-
-
     for project in dcc_project_code:
         donors_list = get_donors_list(es, es_index, project)
         donors_list.difference_update(donor_id_to_be_excluded)
@@ -596,6 +677,8 @@ def main(argv=None):
         if workflow:
             collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_gnos_id_sheet, workflow, annotations, force)
 
+        if update_type:
+            update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, ega_dir, pcawg_sample_sheet, pcawg_gnos_id_sheet, update_type, annotations)
 
     return 0
 
