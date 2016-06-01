@@ -97,8 +97,11 @@ def create_report_info(donor_unique_id, es_json, report, seq, vcf):
     if vcf:
         add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf)
 
-    if seq and 'rna_seq' in seq:
+    if seq and 'rna_seq' in seq and not gnos_entity_info['dcc_project_code'].endswith('-US'):
         add_rna_seq_gnos_entity(report, gnos_entity_info, es_json)
+
+    if seq and 'rna_seq' in seq and gnos_entity_info['dcc_project_code'].endswith('-US'):
+        add_rna_seq_gnos_entity_1(report, gnos_entity_info, es_json)
 
     return report
 
@@ -181,6 +184,21 @@ def add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf):
                     report['gnos_objects_to_delete_from_osdc_icgc'].append(copy.deepcopy(gnos_entity_info))
 
     return report
+
+def add_rna_seq_gnos_entity_1(report, gnos_entity_info, es_json):
+    # scan the bam_files for all the indexed rna-seq bams
+    for b in es_json.get('bam_files'):
+        if not b.get('bam_type') == 'RNA-Seq aligned BAM': continue
+        if not get_formal_repo_name('cghub') in b.get('gnos_repo'): continue
+        gnos_entity_info['library_strategy'] = b.get('library_strategy')
+        gnos_entity_info['aliquot_id'] = b.get('aliquot_id')
+        gnos_entity_info['submitter_specimen_id'] = b.get('submitter_specimen_id')
+        gnos_entity_info['submitter_sample_id'] = b.get('submitter_sample_id')
+        gnos_entity_info['dcc_specimen_type'] = b.get('dcc_specimen_type')
+        gnos_entity_info['entity_type'] = b.get('alignment').get('workflow_name')
+        gnos_entity_info['gnos_id'] = b.get('gnos_id')
+        gnos_entity_info['gnos_repo'] = b.get('gnos_repo')
+        report['gnos_objects_to_sync_from_cghub_into_osdc-tcga'].append(copy.deepcopy(gnos_entity_info))
 
 
 def add_rna_seq_gnos_entity(report, gnos_entity_info, es_json):
