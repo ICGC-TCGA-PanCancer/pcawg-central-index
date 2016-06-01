@@ -45,11 +45,11 @@ es_queries = [
                             ]
                           }
                         },
-                        {
-                          "regexp": { 
-                             "dcc_project_code": ".*-US"
-                            }
-                        }   
+                        # {
+                        #   "regexp": { 
+                        #      "dcc_project_code": ".*-US"
+                        #     }
+                        # }   
                       ]
                     }
                 },
@@ -66,7 +66,8 @@ def create_report(es, es_index, es_queries, report_dir, seq, vcf):
         'gnos_objects_to_sync_from_others_into_bsc',
         'gnos_objects_to_sync_from_bsc_into_ebi',
         'gnos_objects_to_delete_from_osdc_icgc',
-        'gnos_objects_to_sync_from_osdc_icgc_into_ebi'
+        'gnos_objects_to_sync_from_osdc_icgc_into_ebi',
+        'gnos_objects_to_sync_from_cghub_into_osdc-tcga'
     ]
 
     for r in subreport:
@@ -102,14 +103,20 @@ def create_report_info(donor_unique_id, es_json, report, seq, vcf):
     return report
 
 def add_subreport_info(report, analysis, gnos_entity_info):
-    if not get_formal_repo_name('bsc') in analysis.get('gnos_repo'):    
-        report['gnos_objects_to_sync_from_others_into_bsc'].append(copy.deepcopy(gnos_entity_info))
-    if get_formal_repo_name('bsc') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo'))==1:
-        report['gnos_objects_to_sync_from_bsc_into_ebi'].append(copy.deepcopy(gnos_entity_info))
-    if get_formal_repo_name('osdc-icgc') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo')) > 1:
-        report['gnos_objects_to_delete_from_osdc_icgc'].append(copy.deepcopy(gnos_entity_info))        
-    if get_formal_repo_name('osdc-icgc') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo')) == 1:
-        report['gnos_objects_to_sync_from_osdc_icgc_into_ebi'].append(copy.deepcopy(gnos_entity_info)) 
+    if not gnos_entity_info['dcc_project_code'].endswith('-US'):
+        if not get_formal_repo_name('bsc') in analysis.get('gnos_repo'):    
+            report['gnos_objects_to_sync_from_others_into_bsc'].append(copy.deepcopy(gnos_entity_info))
+        if get_formal_repo_name('bsc') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo'))==1:
+            report['gnos_objects_to_sync_from_bsc_into_ebi'].append(copy.deepcopy(gnos_entity_info))
+        if get_formal_repo_name('osdc-icgc') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo')) > 1:
+            report['gnos_objects_to_delete_from_osdc_icgc'].append(copy.deepcopy(gnos_entity_info))        
+        if get_formal_repo_name('osdc-icgc') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo')) == 1:
+            report['gnos_objects_to_sync_from_osdc_icgc_into_ebi'].append(copy.deepcopy(gnos_entity_info))
+    elif  gnos_entity_info['dcc_project_code'].endswith('-US'):
+        if get_formal_repo_name('cghub') in analysis.get('gnos_repo') and len(analysis.get('gnos_repo'))==1:
+            report['gnos_objects_to_sync_from_cghub_into_osdc-tcga'].append(copy.deepcopy(gnos_entity_info))
+    else: 
+        pass
     return report
 
 def add_wgs_gnos_entity(report, gnos_entity_info, es_json):
@@ -166,8 +173,8 @@ def add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf):
 
     if es_json.get('vcf_files'):
         for v in es_json.get('vcf_files'):
-            if get_formal_repo_name('osdc-icgc') in v.get('gnos_repo'): 
-                if v.get('vcf_workflow_type') in ['sanger', 'broad'] and v.get('vcf_workflow_result_version') in ['v1' ,'v2']:
+            if v.get('vcf_workflow_type') in ['sanger', 'broad'] and v.get('vcf_workflow_result_version') in ['v1' ,'v2']:
+                if get_formal_repo_name('osdc-icgc') in v.get('gnos_repo'): 
                     gnos_entity_info['entity_type'] = v.get('vcf_workflow_type')+'_variant_calling'+'-'+v.get('vcf_workflow_result_version')
                     gnos_entity_info['gnos_id'] = v.get('gnos_id')
                     gnos_entity_info['gnos_repo'] = v.get('gnos_repo')
