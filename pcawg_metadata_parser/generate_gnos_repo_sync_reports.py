@@ -136,10 +136,10 @@ def add_wgs_gnos_entity(report, gnos_entity_info, es_json):
 
 def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, report):
     gnos_entity_info['library_strategy'] = 'WGS'
-    gnos_entity_info['aliquot_id'] = aliquot.get('aliquot_id')
-    gnos_entity_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
-    gnos_entity_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
-    gnos_entity_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
+    # gnos_entity_info['aliquot_id'] = aliquot.get('aliquot_id')
+    # gnos_entity_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
+    # gnos_entity_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
+    # gnos_entity_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
 
     for bam_type in ['aligned_bam', 'bam_with_unmappable_reads', 'minibam']:
         if aliquot.get(bam_type):
@@ -162,10 +162,10 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, report):
 def add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf):
     if es_json.get('variant_calling_results'):
         gnos_entity_info['library_strategy'] = 'WGS'
-        gnos_entity_info['aliquot_id'] = None
-        gnos_entity_info['submitter_specimen_id'] = None
-        gnos_entity_info['submitter_sample_id'] = None
-        gnos_entity_info['dcc_specimen_type'] = None
+        # gnos_entity_info['aliquot_id'] = None
+        # gnos_entity_info['submitter_specimen_id'] = None
+        # gnos_entity_info['submitter_sample_id'] = None
+        # gnos_entity_info['dcc_specimen_type'] = None
         for vcf_type in [v+'_variant_calling' for v in vcf]:
             if es_json.get('variant_calling_results').get(vcf_type) and not es_json.get('variant_calling_results').get(vcf_type).get('is_stub'):
                 analysis = es_json.get('variant_calling_results').get(vcf_type)
@@ -191,10 +191,10 @@ def add_rna_seq_gnos_entity_1(report, gnos_entity_info, es_json):
         if not b.get('bam_type') == 'RNA-Seq aligned BAM': continue
         if not get_formal_repo_name('cghub') in b.get('gnos_repo'): continue
         gnos_entity_info['library_strategy'] = b.get('library_strategy')
-        gnos_entity_info['aliquot_id'] = b.get('aliquot_id')
-        gnos_entity_info['submitter_specimen_id'] = b.get('submitter_specimen_id')
-        gnos_entity_info['submitter_sample_id'] = b.get('submitter_sample_id')
-        gnos_entity_info['dcc_specimen_type'] = b.get('dcc_specimen_type')
+        # gnos_entity_info['aliquot_id'] = b.get('aliquot_id')
+        # gnos_entity_info['submitter_specimen_id'] = b.get('submitter_specimen_id')
+        # gnos_entity_info['submitter_sample_id'] = b.get('submitter_sample_id')
+        # gnos_entity_info['dcc_specimen_type'] = b.get('dcc_specimen_type')
         gnos_entity_info['entity_type'] = b.get('alignment').get('workflow_name')
         gnos_entity_info['gnos_id'] = b.get('gnos_id')
         gnos_entity_info['gnos_repo'] = b.get('gnos_repo')
@@ -218,15 +218,15 @@ def add_rna_seq_gnos_entity(report, gnos_entity_info, es_json):
 
 def add_rna_seq_aliquot_gnos_entity(aliquot, gnos_entity_info, report):
     gnos_entity_info['library_strategy'] = 'RNA-Seq'
-    gnos_entity_info['aliquot_id'] = set()
-    gnos_entity_info['submitter_specimen_id'] = set()
-    gnos_entity_info['submitter_sample_id'] = set()
-    gnos_entity_info['dcc_specimen_type'] = set()
-    for workflow_type in aliquot.keys():
-        gnos_entity_info['aliquot_id'].add(aliquot.get(workflow_type).get('aliquot_id'))
-        gnos_entity_info['submitter_specimen_id'].add(aliquot.get(workflow_type).get('submitter_specimen_id'))
-        gnos_entity_info['submitter_sample_id'].add(aliquot.get(workflow_type).get('submitter_sample_id'))
-        gnos_entity_info['dcc_specimen_type'].add(aliquot.get(workflow_type).get('dcc_specimen_type'))
+    # gnos_entity_info['aliquot_id'] = set()
+    # gnos_entity_info['submitter_specimen_id'] = set()
+    # gnos_entity_info['submitter_sample_id'] = set()
+    # gnos_entity_info['dcc_specimen_type'] = set()
+    # for workflow_type in aliquot.keys():
+    #     gnos_entity_info['aliquot_id'].add(aliquot.get(workflow_type).get('aliquot_id'))
+    #     gnos_entity_info['submitter_specimen_id'].add(aliquot.get(workflow_type).get('submitter_specimen_id'))
+    #     gnos_entity_info['submitter_sample_id'].add(aliquot.get(workflow_type).get('submitter_sample_id'))
+    #     gnos_entity_info['dcc_specimen_type'].add(aliquot.get(workflow_type).get('dcc_specimen_type'))
 
     for workflow_type in aliquot.keys():
         gnos_entity_info['entity_type'] = workflow_type
