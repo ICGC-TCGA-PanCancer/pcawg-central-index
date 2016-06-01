@@ -139,6 +139,14 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, report):
             gnos_entity_info['gnos_repo'] = analysis.get('gnos_repo')
             add_subreport_info(report, analysis, gnos_entity_info)        
 
+    if aliquot.get('unaligned_bams'):
+        for b in aliquot.get('unaligned_bams'):
+            if get_formal_repo_name('osdc-icgc') in b.get('gnos_repo'):
+                gnos_entity_info['entity_type'] = "unaligned_bams"
+                gnos_entity_info['gnos_id'] = b.get('gnos_id')
+                gnos_entity_info['gnos_repo'] = b.get('gnos_repo')
+                report['gnos_objects_to_delete_from_osdc_icgc'].append(copy.deepcopy(gnos_entity_info))
+
     return report
 
 def add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf):
@@ -149,12 +157,21 @@ def add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf):
         gnos_entity_info['submitter_sample_id'] = None
         gnos_entity_info['dcc_specimen_type'] = None
         for vcf_type in [v+'_variant_calling' for v in vcf]:
-            if es_json.get('variant_calling_results').get(vcf_type):
-                gnos_entity_info['entity_type'] = vcf_type
+            if es_json.get('variant_calling_results').get(vcf_type) and not es_json.get('variant_calling_results').get(vcf_type).get('is_stub'):
                 analysis = es_json.get('variant_calling_results').get(vcf_type)
+                gnos_entity_info['entity_type'] = vcf_type+'-'+analysis.get('vcf_workflow_result_version')
                 gnos_entity_info['gnos_id'] = analysis.get('gnos_id')
                 gnos_entity_info['gnos_repo'] = analysis.get('gnos_repo')
                 add_subreport_info(report, analysis, gnos_entity_info)
+
+    if es_json.get('vcf_files'):
+        for v in es_json.get('vcf_files'):
+            if get_formal_repo_name('osdc-icgc') in v.get('gnos_repo'): 
+                if v.get('vcf_workflow_type') in ['sanger', 'broad'] and v.get('vcf_workflow_result_version') in ['v1' ,'v2']:
+                    gnos_entity_info['entity_type'] = v.get('vcf_workflow_type')+'_variant_calling'+'-'+v.get('vcf_workflow_result_version')
+                    gnos_entity_info['gnos_id'] = v.get('gnos_id')
+                    gnos_entity_info['gnos_repo'] = v.get('gnos_repo')
+                    report['gnos_objects_to_delete_from_osdc_icgc'].append(copy.deepcopy(gnos_entity_info))
 
     return report
 
@@ -287,7 +304,7 @@ def main(argv=None):
     parser.add_argument("-s", "--sequence_type", dest="seq", nargs="*",
              help="List sequence_type types [wgs, rna_seq]", required=False)
     parser.add_argument("-v", "--variant_calling", dest="vcf", nargs="*",
-             help="List variant_calling types [sanger, dkfz, broad, muse, broad_tar]", required=False) 
+             help="List variant_calling types [sanger, dkfz_embl, broad, muse, broad_tar]", required=False) 
 
     args = parser.parse_args()
     metadata_dir = args.metadata_dir  # this dir contains gnos manifest files, will also host all reports
