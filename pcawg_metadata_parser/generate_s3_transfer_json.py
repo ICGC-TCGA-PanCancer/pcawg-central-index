@@ -26,7 +26,7 @@ import requests
 id_service_token = os.environ.get('ICGC_TOKEN')
 icgc_project_code = os.environ.get('ICGC_PROJECT_CODE')
 
-logger = logging.getLogger('s3 transfer json generator')
+logger = logging.getLogger('Transfer json generator')
 ch = logging.StreamHandler()
 
 es_queries = [
@@ -62,7 +62,7 @@ es_queries = [
             },
             {
               "terms":{
-                "flags.is_mar2016_donor":[
+                "flags.is_may2016_donor":[
                   "T"
                 ]
               }
@@ -79,11 +79,11 @@ es_queries = [
             # }
           ],
           "must_not": [
-            {
-              "regexp": {
-                "dcc_project_code": ".*-US"
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-US"
+            #   }
+            # },
             # {
             #   "regexp": {
             #     "dcc_project_code": ".*-DE"
@@ -146,7 +146,9 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         "https://gtrepo-riken.annailabs.com/",
         "https://gtrepo-etri.annailabs.com/",
         "https://gtrepo-bsc.annailabs.com/",
-        "https://gtrepo-dkfz.annailabs.com/"
+        "https://gtrepo-dkfz.annailabs.com/",
+        "https://gtrepo-osdc-tcga.annailabs.com/",
+        "https://cghub.ucsc.edu/"
     ]
     if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
         source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
@@ -156,7 +158,7 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         except:
             pass
 
-    logger.warning('Source repo not allowed to be transferred to S3')
+    logger.warning('Source repo not allowed to be transferred')
     return None
 
 
@@ -614,6 +616,8 @@ def main(argv=None):
         git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
     elif target_cloud == 'collab':
         git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
+    elif target_cloud == 'tcga':
+        git_s3_fnames = '../tcga_transfer_ops/tcga-transfer-jobs*/*/*.json'
     else:
         sys.exit('Error: unknown target_cloud!')
     files = glob.glob(git_s3_fnames)

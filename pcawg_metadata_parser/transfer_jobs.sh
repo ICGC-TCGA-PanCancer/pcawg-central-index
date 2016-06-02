@@ -32,6 +32,12 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		git pull
 		cd $DIR
 
+		echo update tcga-transfer-operations git submodule
+		cd ../tcga_transfer_ops/
+		git checkout master
+		git pull
+		cd $DIR
+
 		echo update oxog-ops git submodule
 		cd ../oxog-ops/
 		git checkout master
@@ -57,20 +63,28 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
-			else
+			else if [ "$CLOUD" == "aws" ]; then
 				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
+			else
+				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../tcga-transfer-operations/tcga-transfer-jobs-bwa/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../tcga-transfer-operations/tcga-transfer-jobs-vcf-v1/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../tcga-transfer-operations/tcga-transfer-jobs-vcf-v1/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../tcga-transfer-operations/tcga-transfer-jobs-vcf-v3/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../tcga-transfer-operations/tcga-transfer-jobs-vcf-v3/backlog-jobs/.				
 			fi
 			rm -rf ${M}/reports/s3_transfer_json_$CLOUD
 	        
 	        echo check the job into git
 	        if [ "$CLOUD" == "collab" ]; then
 		        cd ../ceph_transfer_ops
-		    else
+		    else if [ "$CLOUD" == "aws" ]; then
 		    	cd ../s3-transfer-operations
+		    else
+		    	cd ../tcga-transfer-operations
 		    fi
 	        git checkout master
 	        git reset --hard origin/master
