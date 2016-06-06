@@ -479,7 +479,8 @@ def generate_alignment(aliquot_field, gnos_field, alignment, pilot_tsv, specimen
     if not alignment: return 
     for d in aliquot_field:
         # if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d] and sequence_type == 'rna_seq' or sequence_type == 'wgs':
-        if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
+        #if not alignment.get(d) in pilot_tsv[specimen_type+'_'+sequence_type+'_'+d]:
+        if sequence_type == 'rna_seq' and workflow_type == 'tophat_alignment' or sequence_type == 'wgs' and workflow_type == 'bwa_alignment':
             pilot_tsv[specimen_type+'_'+sequence_type+'_'+d].append(alignment.get(d)) 
     if specimen_type == 'tumor' and sequence_type == 'wgs' and workflow_type == 'bwa_alignment':
         for qc_metric in ['oxog_score', 'ContEST', 'Stars']:
