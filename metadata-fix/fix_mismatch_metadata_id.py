@@ -169,16 +169,18 @@ def read_annotations(annotations, type, file_name, subtype):
             if not annotations.get(type): annotations[type] = {}
             reader = csv.DictReader(r, delimiter='\t')
             for row in reader:
+                if not row.get('old_'+subtype) or not row.get('new_'+subtype): continue
                 if row.get('aliquot_id'): 
                     object_id = row.get('aliquot_id')
-                elif row.get('donor_unique_id'):
-                    object_id = row.get('donor_unique_id')
-                else:
-                    object_id = row.get('project_code')+'::'+row.get('submitter_donor_id')
-                if not annotations[type].get(object_id): annotations[type][object_id] = {}
-                if not annotations[type].get(object_id).get(subtype): annotations[type][object_id][subtype] = OrderedDict()
-                if not row.get('old_'+subtype) or not row.get('new_'+subtype): continue
-                annotations[type][object_id][subtype][row.get('old_'+subtype)] = row.get('new_'+subtype)
+                    if not annotations[type].get(object_id): annotations[type][object_id] = {}
+                    if not annotations[type].get(object_id).get(subtype): annotations[type][object_id][subtype] = OrderedDict()
+                    annotations[type][object_id][subtype][row.get('old_'+subtype)] = row.get('new_'+subtype)
+
+                if row.get('donor_unique_id') or (row.get('project_code') and row.get('submitter_donor_id')):
+                    object_id = row.get('donor_unique_id') if row.get('donor_unique_id') else row.get('project_code')+'::'+row.get('submitter_donor_id')
+                    if not annotations[type].get(object_id): annotations[type][object_id] = {}
+                    if not annotations[type].get(object_id).get(subtype): annotations[type][object_id][subtype] = OrderedDict()
+                    annotations[type][object_id][subtype][row.get('old_'+subtype)] = row.get('new_'+subtype)
 
         else:
             print('unknown annotation type: {}'.format(type))
@@ -280,7 +282,13 @@ def main(argv=None):
             fixed_metadata['entity_type'] = row.get('entity_type') if row.get('entity_type') else None
             fixed_metadata['gnos_id'] = row.get('gnos_id') if row.get('gnos_id') else row.get('analysis_id')
             fixed_metadata['gnos_repo_original'] = get_formal_repo_name(row.get('gnos_repo').rstrip('/')+'/') if row.get('gnos_repo') else row.get('gnos_server')
-            fixed_metadata['object_id'] = fixed_metadata['aliquot_id'] if fixed_metadata.get('aliquot_id') else fixed_metadata['donor_unique_id']
+
+            if annotations.get('id_mapping').get(fixed_metadata.get('aliquot_id')):
+                fixed_metadata['object_id'] = fixed_metadata.get('aliquot_id')
+            elif annotations.get('id_mapping').get(fixed_metadata.get('donor_unique_id')):
+                fixed_metadata['object_id'] = fixed_metadata.get('donor_unique_id')
+            else:
+                fixed_metadata['object_id'] = None
 
             if not annotations.get('id_mapping').get(fixed_metadata.get('object_id')) and \
                not annotations.get('mismatch_metadata').get(fixed_metadata.get('gnos_id')): continue
