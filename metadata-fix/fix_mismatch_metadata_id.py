@@ -216,6 +216,8 @@ def main(argv=None):
              help="Specify file to update the metadata", required=True)
     parser.add_argument("-x", "--id_fixes_file", dest="id_fixes_file", 
              help="Specify file of id fixes", required=True)
+    parser.add_argument("-d", "--dcc_project_code", dest="project_code", 
+             help="Specify project_code for fixes", required=True)
     parser.add_argument("-m", "--fix_pattern", dest="fix_pattern", default="whole_string",
              help="Specify pattern of id match [whole_string, key_value]", required=False)
     parser.add_argument("-p", "--fix_type", dest="fix_type", default="id_mapping",
@@ -229,6 +231,7 @@ def main(argv=None):
     args = parser.parse_args()
     fname = args.fname
     id_fixes_file = args.id_fixes_file
+    project_code = args.project_code
     fix_pattern = args.fix_pattern
     fix_type = args.fix_type
     id_types = args.id_types
@@ -338,13 +341,13 @@ def main(argv=None):
             else:
                 print('Warning: this should not happen!!!') 
                 continue
-            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, fname.split('_')[0])
+            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, project_code)
             generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'fixed_all')
 
 
             fixed_metadata_list.append(fixed_metadata)
     if fixed_metadata_list:
-        write_file(fixed_metadata_list, fixed_dir+'/'+fname.split('_')[0]+'_fixed_metadata_list.txt')        
+        write_file(fixed_metadata_list, fixed_dir+'/'+project_code+'_fixed_metadata_list.txt')        
 
     return 0
 
