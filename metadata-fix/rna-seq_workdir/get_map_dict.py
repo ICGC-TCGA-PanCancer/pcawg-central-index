@@ -171,7 +171,7 @@ with open(fname, 'r') as f:
                for l in ['old', 'new']:
                    id_fix[l+'_'+t] = None
            id_fix['old_study'] = 'icgc_pancancer'
-           id_fix['new_study'] = 'PCAWG2.0'
+           id_fix['new_study'] = 'PCAWG 2.0'
            id_fix['old_dcc_specimen_type'] = 'Primary Tumour - solid tissue'
            id_fix['new_dcc_specimen_type'] = 'Primary tumour - solid tissue'
            id_fix['old_submitter_sample_id'] = 'b3b3a27c-ee9a-42af-a6d1-9af5970a98b9'
