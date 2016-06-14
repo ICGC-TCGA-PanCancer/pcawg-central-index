@@ -1,53 +1,47 @@
 aliquot_id	study	dcc_project_code	dcc_specimen_type	submitter_donor_id	submitter_sample_id	submitter_specimen_id
-4333d96a-4361-419b-bb9e-12c50df99907	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	654	654-02-7TR	654-02-7TR
 3e309eb7-30a3-4001-b077-00959819385b	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	356	356-01-4TR	356-01-4TR
 a71caee0-00bb-498d-a3d2-28ebc550d48e	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	192	192-01-7TR	192-01-7TR
 09056c40-1848-4ce9-b4b3-6f21e5e09b59	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-097	AOCS-097-2-3|09056c40-1848-4ce9-b4b3-6f21e5e09b59	AOCS-097-2-3|AOCS-097-1
 905db509-c554-440a-a507-67a9486dee09	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-160	AOCS-160-2-X|905db509-c554-440a-a507-67a9486dee09	AOCS-160-2-X|AOCS-160-1
 14febba7-4b40-41cf-8d82-024539f54349	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	125	125-01-4TR	125-01-4TR
-53c19904-8698-4eb5-8a80-3c5604dbc109	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0143|APGI-2598	53c19904-8698-4eb5-8a80-3c5604dbc109|8035570	8035570|missing
+53c19904-8698-4eb5-8a80-3c5604dbc109	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0143|APGI-2598	8035570	8035570
 4e42ee9b-1609-4d0c-a6f3-e2d691be51d6	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-092	4e42ee9b-1609-4d0c-a6f3-e2d691be51d6|AOCS-092-2-X	AOCS-092-2-X|AOCS-092-1
 1388dd7f-7c42-46c4-b649-6eccba303875	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	9	009-0026-03TR	009-0026-03TR
-fb0609f5-8453-43d1-88ea-4883b0ac4d01	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0227|APGI-3211	fb0609f5-8453-43d1-88ea-4883b0ac4d01|8068589	8068589|missing
+fb0609f5-8453-43d1-88ea-4883b0ac4d01	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0227|APGI-3211	8068589	8068589
 e8e3bbfa-c684-4a2d-a5f8-0af3d231a666	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	177	177-01-10TR	177-01-10TR
-3c79747b-3bd0-4dbe-b3ef-eb89678f0e9b	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-088	3c79747b-3bd0-4dbe-b3ef-eb89678f0e9b|AOCS-088-4-1	AOCS-088-4-1|AOCS-088-13
 358984cc-b532-4f00-89f4-dda524469b6d	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-086	AOCS-086-2-9|358984cc-b532-4f00-89f4-dda524469b6d	AOCS-086-2-9|AOCS-086-1
 e0c77933-9886-4916-a47c-4364bc261bd8	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-113	e0c77933-9886-4916-a47c-4364bc261bd8|AOCS-113-2-9	AOCS-113-1|AOCS-113-2-9
 45c2497a-49d4-49a3-9112-8a8e311bbbf0	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	745	745-02-3TR	745-02-3TR
 14fe1014-6e3a-4e94-983a-948140cd2d0d	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-034	14fe1014-6e3a-4e94-983a-948140cd2d0d|AOCS-034-2-4	AOCS-034-1|AOCS-034-2-4
 c97d55de-95b9-4342-a31f-1f1c727c2e21	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-161	AOCS-161-2-2|c97d55de-95b9-4342-a31f-1f1c727c2e21	AOCS-161-1|AOCS-161-2-2
-94227dbf-3e10-4ff0-b677-be67a98324be	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0354|APGI-1980	94227dbf-3e10-4ff0-b677-be67a98324be|8066552	8066552|missing
+94227dbf-3e10-4ff0-b677-be67a98324be	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0354|APGI-1980	8066552	8066552
 ee4c6831-2e56-4651-b141-551a29692eb6	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-091	ee4c6831-2e56-4651-b141-551a29692eb6|AOCS-091-2-7	AOCS-091-2-7|AOCS-091-1
 39ebe3ae-e775-4fd3-9147-e22b6ab1fdf7	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	151	151-02-9TR	151-02-9TR
 e9906bc4-c865-4471-834d-7b534d44f912	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-120	AOCS-120-4-X|e9906bc4-c865-4471-834d-7b534d44f912	AOCS-120-13|AOCS-120-4-X
-41ea1ee0-8c27-4807-93ca-4684d8b80cf3	icgc_pancancer	PACA-AU	Primary tumour	APGI-3474|ICGC_0412	41ea1ee0-8c27-4807-93ca-4684d8b80cf3|8066866	8066866|missing
-7336c543-1c87-4f1e-8382-78c0b67d369c	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0391|APGI-2153	7336c543-1c87-4f1e-8382-78c0b67d369c|8067177	8067177|missing
+41ea1ee0-8c27-4807-93ca-4684d8b80cf3	icgc_pancancer	PACA-AU	Primary tumour	APGI-3474|ICGC_0412	8066866	8066866
+7336c543-1c87-4f1e-8382-78c0b67d369c	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0391|APGI-2153	8067177	8067177
 bffe28e9-6f41-4102-ad8c-2eec568c5261	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-064	AOCS-064-4-7|bffe28e9-6f41-4102-ad8c-2eec568c5261	AOCS-064-4-7|AOCS-064-13
 b8386379-4357-4c22-9be7-810006e74aa6	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-088	AOCS-088-2-4|b8386379-4357-4c22-9be7-810006e74aa6	AOCS-088-2-4|AOCS-088-1
 e857c210-43ff-4537-bce9-6f01aa9fffdc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	16	016-0040-03TR	016-0040-03TR
 2c0fcb6f-6a39-4366-b226-b39a994b94de	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-075	AOCS-075-2-4|2c0fcb6f-6a39-4366-b226-b39a994b94de	AOCS-075-2-4|AOCS-075-1
 04ce29cd-04fc-4cb4-9790-48dbbd25eb53	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	804	804-01-2TR	804-01-2TR
-0ce4a372-c91b-43e5-96e5-f42751699a50	icgc_pancancer	PACA-AU	Primary tumour	APGI-2302|ICGC_0066	8031682|0ce4a372-c91b-43e5-96e5-f42751699a50	8031682|missing
+0ce4a372-c91b-43e5-96e5-f42751699a50	icgc_pancancer	PACA-AU	Primary tumour	APGI-2302|ICGC_0066	8031682	8031682
 e2feaf60-86b8-4329-85e3-4e4f229ba271	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-128	AOCS-128-2-4|e2feaf60-86b8-4329-85e3-4e4f229ba271	AOCS-128-1|AOCS-128-2-4
 3f5e0677-bdc6-4d28-bf1f-c0449fb2cb15	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-107	AOCS-107-2-8|3f5e0677-bdc6-4d28-bf1f-c0449fb2cb15	AOCS-107-2-8|AOCS-107-1
-39178b5c-3a32-4e85-a2ca-a4e06097718a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	783	783-01-14TR	783-01-14TR
 5043705a-634e-4074-9f30-d568663fdddd	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	82	082-02-2TR	082-02-2TR
 f9b54343-442e-4f4c-a8b6-c3644588fce4	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-158	AOCS-158-2-X|f9b54343-442e-4f4c-a8b6-c3644588fce4	AOCS-158-2-X|AOCS-158-1
-f0038047-e182-4b3a-b330-d28fc8d0a968	icgc_pancancer	PACA-AU	Primary tumour	APGI-3279|ICGC_0326	f0038047-e182-4b3a-b330-d28fc8d0a968|8058509	8058509|missing
-d0e69707-5303-46f7-8967-c360df1c9c5d	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	128	128-02-7TR	128-02-7TR
+f0038047-e182-4b3a-b330-d28fc8d0a968	icgc_pancancer	PACA-AU	Primary tumour	APGI-3279|ICGC_0326	8058509	8058509
 32aaa5f6-3f9c-411a-9316-c5583b9c25be	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-109	AOCS-109-2-3|32aaa5f6-3f9c-411a-9316-c5583b9c25be	AOCS-109-2-3|AOCS-109-1
-62f673a5-a31a-4fb5-9e9e-0ee95ba0a377	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0150|APGI-2715	62f673a5-a31a-4fb5-9e9e-0ee95ba0a377|8066038	8066038|missing
-dcf64460-46b0-4911-964f-35192194a0cb	icgc_pancancer	PACA-AU	Primary tumour	APGI-2622|ICGC_0146	dcf64460-46b0-4911-964f-35192194a0cb|8043985	8043985|missing
+62f673a5-a31a-4fb5-9e9e-0ee95ba0a377	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0150|APGI-2715	8066038	8066038
+dcf64460-46b0-4911-964f-35192194a0cb	icgc_pancancer	PACA-AU	Primary tumour	APGI-2622|ICGC_0146	8043985	8043985
 f66b0a93-98e4-4d2e-b400-f1523eda9f49	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	30	030-0066-02TR	030-0066-02TR
 e0cdf354-1f10-4055-8d8f-6f3b9b7c6f44	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	618	618-1503-05TR	618-1503-05TR
 d3cc0e8f-4fc4-4937-8e40-78bd4cbeb50f	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-142	d3cc0e8f-4fc4-4937-8e40-78bd4cbeb50f|AOCS-142-4-9	AOCS-142-13|AOCS-142-4-9
-2de3f53f-c59f-415c-a404-87d0c934ddea	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0303|APGI-3290	2de3f53f-c59f-415c-a404-87d0c934ddea|8058185	8058185|missing
-6e763361-46bf-45f1-ba95-f120258a37d3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-064	6e763361-46bf-45f1-ba95-f120258a37d3|AOCS-064-2-X	AOCS-064-1|AOCS-064-2-X
+2de3f53f-c59f-415c-a404-87d0c934ddea	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0303|APGI-3290	8058185	8058185
 a2ecbfd4-e1e7-441a-a862-4e50112c8ba5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-168	AOCS-168-2-1|a2ecbfd4-e1e7-441a-a862-4e50112c8ba5	AOCS-168-2-1|AOCS-168-1
-fecacab2-ccf7-4c94-8dcd-fd319a3e630a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	684	684-02-3TR	684-02-3TR
 f88cba2a-57ba-4279-be97-613d3f5b7930	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-078	AOCS-078-2-2|f88cba2a-57ba-4279-be97-613d3f5b7930	AOCS-078-2-2|AOCS-078-1
 74786896-f6a8-48bf-9ae0-1d1fe2c8a15f	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-060	AOCS-060-2-9|74786896-f6a8-48bf-9ae0-1d1fe2c8a15f	AOCS-060-2-9|AOCS-060-1
-b0b8a1e4-b23a-4b5a-b6ef-d621cb29a972	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0153|APGI-2755	b0b8a1e4-b23a-4b5a-b6ef-d621cb29a972|8044426	8044426|missing
+b0b8a1e4-b23a-4b5a-b6ef-d621cb29a972	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0153|APGI-2755	8044426	8044426
 522c4f50-fd4a-48bb-8da8-63f85fa79a19	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-090	522c4f50-fd4a-48bb-8da8-63f85fa79a19|AOCS-090-2-4	AOCS-090-1|AOCS-090-2-4
 c2cd7db7-5930-4cba-9d3b-dd03c101dee6	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-059	c2cd7db7-5930-4cba-9d3b-dd03c101dee6|AOCS-059-2-1	AOCS-059-1|AOCS-059-2-1
 029ee1b9-9193-4e9d-92cc-85797470b498	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-061	AOCS-061-2-1|029ee1b9-9193-4e9d-92cc-85797470b498	AOCS-061-2-1|AOCS-061-1
@@ -57,201 +51,172 @@ aa52f8a5-8acf-461e-9546-c141f902c34e	icgc_pancancer	CLLE-ES	Primary tumour - blo
 a73ffca7-6eb8-474a-87ca-da8b42ba8599	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0075|APGI-1971	8014189|a73ffca7-6eb8-474a-87ca-da8b42ba8599	8014189|missing
 06fd33a6-36c7-4adf-bd24-cae5fa860c85	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-139	06fd33a6-36c7-4adf-bd24-cae5fa860c85|AOCS-139-26-6MD	AOCS-139-26-6MD|AOCS-139-4
 c5091a05-88c2-48e5-9680-17c02d27f796	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-138	c5091a05-88c2-48e5-9680-17c02d27f796|AOCS-138-4-3	AOCS-138-13|AOCS-138-4-3
-20675a45-3e6c-4bf4-b1fc-21f36631a5e8	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0037|APGI-2106	8015261|20675a45-3e6c-4bf4-b1fc-21f36631a5e8	8015261|missing
-164efdb6-cd50-487f-9552-1a8c63b3575f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0207|APGI-2272	164efdb6-cd50-487f-9552-1a8c63b3575f|8031706	8031706|missing
-055c60ea-e164-4167-9c29-cfd0d31241f4	icgc_pancancer	PACA-AU	Primary tumour	APGI-2001|ICGC_0020	8067543|055c60ea-e164-4167-9c29-cfd0d31241f4	8067543|missing
-8f9862fc-e3cd-4d26-a755-f21b7093f286	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0417|APGI-3535	8067239|8f9862fc-e3cd-4d26-a755-f21b7093f286	8067239|missing
-3d5eeded-6ad9-4b38-85f0-50d48d409488	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	56	056-0117-05TR	056-0117-05TR
-21f1e001-bf11-417f-a9cf-1d2af2366bbd	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	677	677-07-02TR	677-07-02TR
+20675a45-3e6c-4bf4-b1fc-21f36631a5e8	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0037|APGI-2106	8015261	8015261
+164efdb6-cd50-487f-9552-1a8c63b3575f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0207|APGI-2272	8031706	8031706
+055c60ea-e164-4167-9c29-cfd0d31241f4	icgc_pancancer	PACA-AU	Primary tumour	APGI-2001|ICGC_0020	8067543	8067543
+8f9862fc-e3cd-4d26-a755-f21b7093f286	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0417|APGI-3535	8067239	8067239
 f72b280c-e0d0-4b08-bfe3-cd868a2f1b4c	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-162	AOCS-162-2-5|f72b280c-e0d0-4b08-bfe3-cd868a2f1b4c	AOCS-162-1|AOCS-162-2-5
-ab2914b6-51e1-4b75-ac7b-a9f06675d4fc	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0053|APGI-2158	8064560|ab2914b6-51e1-4b75-ac7b-a9f06675d4fc	8064560|missing
-836d456b-7b0e-4b62-bc4b-d13763b405d7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0392|APGI-2341	8067181|836d456b-7b0e-4b62-bc4b-d13763b405d7	8067181|missing
-d9ac9f0d-f2a6-4232-9d59-2ff9a1220023	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	90	090-02-3TR	090-02-3TR
+ab2914b6-51e1-4b75-ac7b-a9f06675d4fc	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0053|APGI-2158	8064560	8064560
 df2d703d-bf00-41b2-8ce0-48a0c7dafdac	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-084	AOCS-084-2-3|df2d703d-bf00-41b2-8ce0-48a0c7dafdac	AOCS-084-2-3|AOCS-084-1
 af0dd9f2-ad0c-4682-a713-00622f3fcbc8	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-090	af0dd9f2-ad0c-4682-a713-00622f3fcbc8|AOCS-090-4-1	AOCS-090-13|AOCS-090-4-1
-984904e7-7009-4ed3-9a7a-3008aaeba415	icgc_pancancer	PACA-AU	Primary tumour	APGI-3783|ICGC_0526	8069454|984904e7-7009-4ed3-9a7a-3008aaeba415	8069454|missing
-1137e8fd-fbc1-4de5-b9e8-f2b38eef7408	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	145	145-01-2TR	145-01-2TR
+984904e7-7009-4ed3-9a7a-3008aaeba415	icgc_pancancer	PACA-AU	Primary tumour	APGI-3783|ICGC_0526	8069454	8069454
 e2ac429e-f1fc-4953-9f32-8c054459caba	icgc_pancancer	OV-AU	Recurrent tumour - other|Primary tumour - other	AOCS-093	AOCS-093-4-X|e2ac429e-f1fc-4953-9f32-8c054459caba	AOCS-093-13|AOCS-093-4-X
 d2b399f3-b10b-44ee-b141-4d746b67fd93	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	577	577-01-5TR	577-01-5TR
 c54a3568-f14d-453c-bc34-9b0b0644182d	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	c54a3568-f14d-453c-bc34-9b0b0644182d|AOCS-167-29-7-MD	AOCS-167-4|AOCS-167-29-7-MD
-f2b0f1d8-8714-40c8-bccc-1df3bf3e19f1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2991|ICGC_0395	8066854|f2b0f1d8-8714-40c8-bccc-1df3bf3e19f1	8066854|missing
-55574048-cb99-4ff8-b3c2-320e67882940	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	64	064-0128-08TR	064-0128-08TR
-0cdec231-ad58-489d-88a0-95a2a77f1ea4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0338|APGI-3060	8064636|0cdec231-ad58-489d-88a0-95a2a77f1ea4	8064636|missing
+f2b0f1d8-8714-40c8-bccc-1df3bf3e19f1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2991|ICGC_0395	8066854	8066854
+55574048-cb99-4ff8-b3c2-320e67882940	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	64	064-0128-08TR	064-0128-08TR
+0cdec231-ad58-489d-88a0-95a2a77f1ea4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0338|APGI-3060	8064636	8064636
 71fcbcaf-48a8-411c-a3be-fe1599c27e44	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-065	71fcbcaf-48a8-411c-a3be-fe1599c27e44|AOCS-065-2-2	AOCS-065-1|AOCS-065-2-2
-cf20938c-a9ad-49a8-af88-e3ecb9d40112	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	371	371-01-10TR	371-01-10TR
 65537c4d-ad30-4211-b819-094621c316f4	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	AOCS-167-27-X-MD|65537c4d-ad30-4211-b819-094621c316f4	AOCS-167-27-X-MD|AOCS-167-16
-2fcba31b-4cc0-45c2-bbd3-29538b9b5a7b	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	63	063-0127-02TR	063-0127-02TR
 8d6b2993-255b-4ddb-a324-3d0d7daa87df	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-117	8d6b2993-255b-4ddb-a324-3d0d7daa87df|AOCS-117-4-7	AOCS-117-13|AOCS-117-4-7
 97ae23fe-4252-402e-808b-f8d52691e0a5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-108	97ae23fe-4252-402e-808b-f8d52691e0a5|AOCS-108-2-0	AOCS-108-1|AOCS-108-2-0
 1da5bae0-4074-4afb-9dc9-a2995b25a34b	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-105	AOCS-105-2-2|1da5bae0-4074-4afb-9dc9-a2995b25a34b	AOCS-105-1|AOCS-105-2-2
 26514a38-7c8b-4afa-9814-e129c58a9120	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-080	26514a38-7c8b-4afa-9814-e129c58a9120|AOCS-080-2-2	AOCS-080-1|AOCS-080-2-2
 6f8357f0-5f56-4d6e-80f3-3acffc6580c3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-096	AOCS-096-2-0|6f8357f0-5f56-4d6e-80f3-3acffc6580c3	AOCS-096-1|AOCS-096-2-0
-62979323-f23d-4b62-ba15-061327b7ff56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0296|APGI-2977	62979323-f23d-4b62-ba15-061327b7ff56|8057715	8057715|missing
-dc2b2e3d-889b-4175-9199-1c909c505b5f	icgc_pancancer	PACA-AU	Primary tumour	APGI-1955|ICGC_0007	8012195|dc2b2e3d-889b-4175-9199-1c909c505b5f	8012195|missing
+62979323-f23d-4b62-ba15-061327b7ff56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0296|APGI-2977	8057715	8057715
+dc2b2e3d-889b-4175-9199-1c909c505b5f	icgc_pancancer	PACA-AU	Primary tumour	APGI-1955|ICGC_0007	8012195	8012195
 b2db3232-3f41-4c07-bc44-58f20264ed82	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	176	176-01-3TR	176-01-3TR
 92cd91ac-1fb0-4572-852c-ff7d687dc1f2	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	523	523-02-6TR	523-02-6TR
 e926900e-2cba-45c0-88f1-b0f22688efca	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	5	005-0015-02TR	005-0015-02TR
 a367cb8b-ce7a-4cde-b568-ea223d732bd2	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-055	AOCS-055-2-0|a367cb8b-ce7a-4cde-b568-ea223d732bd2	AOCS-055-2-0|AOCS-055-1
-908c0356-5985-44b4-887c-6902ea45e4e6	icgc_pancancer	PACA-AU	Primary tumour	APGI-2920|ICGC_0201	8057483|908c0356-5985-44b4-887c-6902ea45e4e6	8057483|missing
+908c0356-5985-44b4-887c-6902ea45e4e6	icgc_pancancer	PACA-AU	Primary tumour	APGI-2920|ICGC_0201	8057483	8057483
 79efefa1-a796-40c1-8343-7059156d4fc0	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-114	AOCS-114-2-1|79efefa1-a796-40c1-8343-7059156d4fc0	AOCS-114-2-1|AOCS-114-1
 87325eeb-033e-4173-b1bb-19ed50bc3184	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	2	002-0010-05TR	002-0010-05TR
 ac7039b7-5a28-4e5c-b59e-eedf03505536	icgc_pancancer	OV-AU	Recurrent tumour - other|Primary tumour - other	AOCS-171	AOCS-171-4-1|ac7039b7-5a28-4e5c-b59e-eedf03505536	AOCS-171-4-1|AOCS-171-12
 5acf6e27-f823-4cfd-b990-a6b3dc9f34d9	icgc_pancancer	OV-AU	Recurrent tumour - other|Primary tumour - other	AOCS-093	5acf6e27-f823-4cfd-b990-a6b3dc9f34d9|AOCS-093-10-1	AOCS-093-12|AOCS-093-10-1
-7ba285c2-79a8-4b83-97f7-a4520a4630bf	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0109|APGI-2259	8031147|7ba285c2-79a8-4b83-97f7-a4520a4630bf	8031147|missing
-94a8e647-e53b-4060-81d9-2599c19a05c9	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0134|APGI-2523	94a8e647-e53b-4060-81d9-2599c19a05c9|8034254	8034254|missing
+7ba285c2-79a8-4b83-97f7-a4520a4630bf	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0109|APGI-2259	8031147	8031147
+94a8e647-e53b-4060-81d9-2599c19a05c9	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0134|APGI-2523	8034254	8034254
 6e46fc2a-48c1-4bc7-a685-16ef47b41234	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-094	AOCS-094-2-5|6e46fc2a-48c1-4bc7-a685-16ef47b41234	AOCS-094-2-5|AOCS-094-1
-8027afbd-234f-4911-b193-880741f216d4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0009|APGI-1959	8012323|8027afbd-234f-4911-b193-880741f216d4	8012323|missing
-2e96fc4f-7bbb-4d2c-b93e-82aabab6a096	icgc_pancancer	PACA-AU	Primary tumour	APGI-2945|ICGC_0223	2e96fc4f-7bbb-4d2c-b93e-82aabab6a096|8057485	8057485|missing
-22397ef7-bdef-4b4c-9c68-8185eebc8443	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0185|APGI-2822	8057678|22397ef7-bdef-4b4c-9c68-8185eebc8443	8057678|missing
-0e7b12f6-daff-40b3-92ee-48836bc309a4	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	39	039-0076-05TR	039-0076-05TR
-0f671165-5790-47bc-9793-9f63ffc36e42	icgc_pancancer	PACA-AU	Primary tumour	APGI-2179|ICGC_0054	8016488|0f671165-5790-47bc-9793-9f63ffc36e42	8016488|missing
+8027afbd-234f-4911-b193-880741f216d4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0009|APGI-1959	8012323	8012323
+2e96fc4f-7bbb-4d2c-b93e-82aabab6a096	icgc_pancancer	PACA-AU	Primary tumour	APGI-2945|ICGC_0223	8057485	8057485
+22397ef7-bdef-4b4c-9c68-8185eebc8443	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0185|APGI-2822	8057678	8057678
 79ec059a-9b5d-42fe-a61c-6c5e267f5d6f	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	393	393-01-7TR	393-01-7TR
-6c71de3e-501d-440a-a123-5d7302ff6cb8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2911|ICGC_0199	6c71de3e-501d-440a-a123-5d7302ff6cb8|8057480	8057480|missing
-6e37162e-0026-4e3d-96af-db5b502ed2b0	icgc_pancancer	PACA-AU	Primary tumour	APGI-3044|ICGC_0300	8058345|6e37162e-0026-4e3d-96af-db5b502ed2b0	8058345|missing
+6c71de3e-501d-440a-a123-5d7302ff6cb8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2911|ICGC_0199	8057480	8057480
+6e37162e-0026-4e3d-96af-db5b502ed2b0	icgc_pancancer	PACA-AU	Primary tumour	APGI-3044|ICGC_0300	8058345	8058345
 9f9022d2-1d21-4514-8899-eca45bff1127	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	1	001-0002-09TR	001-0002-09TR
 a134fe1c-59f3-48fe-b9b3-2dd7ed875801	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-139	AOCS-139-7-7WT|a134fe1c-59f3-48fe-b9b3-2dd7ed875801	AOCS-139-16|AOCS-139-7-7WT
 b9ed4a1d-5c0b-40ae-af5a-2d7a812661f5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-116	b9ed4a1d-5c0b-40ae-af5a-2d7a812661f5|AOCS-116-2-7	AOCS-116-1|AOCS-116-2-7
 65830cc0-0506-40ce-b5fb-fda3f1a1c75c	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-057	65830cc0-0506-40ce-b5fb-fda3f1a1c75c|AOCS-057-2-6	AOCS-057-1|AOCS-057-2-6
 d1f29a0e-ea3c-4684-9e40-e0e2f2d03fcf	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-153	AOCS-153-2-6|d1f29a0e-ea3c-4684-9e40-e0e2f2d03fcf	AOCS-153-1|AOCS-153-2-6
-66e2be75-d219-44b7-9f2b-9d494f92883d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	25	025-0059-02TR	025-0059-02TR
-baecf0b1-419c-497b-8e47-f9053f823c58	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0214|APGI-2938	baecf0b1-419c-497b-8e47-f9053f823c58|8051980	8051980|missing
+baecf0b1-419c-497b-8e47-f9053f823c58	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0214|APGI-2938	8051980	8051980
 40907495-8070-439a-b640-4a7b650484a9	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-169	AOCS-169-2-4|40907495-8070-439a-b640-4a7b650484a9	AOCS-169-2-4|AOCS-169-1
 dfaad76b-8c3e-4e09-a27f-c8b24e9cd8d2	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-063	dfaad76b-8c3e-4e09-a27f-c8b24e9cd8d2|AOCS-063-2-7	AOCS-063-1|AOCS-063-2-7
-2dff3b89-7583-45ed-869a-cfc8fa39e262	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0048|APGI-2146	8014743|2dff3b89-7583-45ed-869a-cfc8fa39e262	8014743|missing
-3dcf9da2-82c5-4668-b97b-d2e4b94820cc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	318	318-01-3TR	318-01-3TR
-8cc3cdb2-8dde-40b0-9b3e-3accae7d057a	icgc_pancancer	PACA-AU	Primary tumour	APGI-3541|ICGC_0419	8067244|8cc3cdb2-8dde-40b0-9b3e-3accae7d057a	8067244|missing
-dcdc31de-6cb8-4f41-a3a0-ad1b487709cc	icgc_pancancer	PACA-AU	Primary tumour	APGI-2344|ICGC_0393	8067184|dcdc31de-6cb8-4f41-a3a0-ad1b487709cc	8067184|missing
-c54061e7-22da-4c1c-a465-4022e4996876	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0224|APGI-2984	8057491|c54061e7-22da-4c1c-a465-4022e4996876	8057491|missing
+2dff3b89-7583-45ed-869a-cfc8fa39e262	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0048|APGI-2146	8014743	8014743
+8cc3cdb2-8dde-40b0-9b3e-3accae7d057a	icgc_pancancer	PACA-AU	Primary tumour	APGI-3541|ICGC_0419	8067244	8067244
+dcdc31de-6cb8-4f41-a3a0-ad1b487709cc	icgc_pancancer	PACA-AU	Primary tumour	APGI-2344|ICGC_0393	8067184	8067184
+c54061e7-22da-4c1c-a465-4022e4996876	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0224|APGI-2984	8057491	8057491
 73de2d86-5a98-4fcf-a96d-c8a8fe8c053b	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-001	73de2d86-5a98-4fcf-a96d-c8a8fe8c053b|AOCS-001-2-0	AOCS-001-1|AOCS-001-2-0
 c58dcf0f-d29b-4fdc-910a-b5b8101a25fb	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	c58dcf0f-d29b-4fdc-910a-b5b8101a25fb|AOCS-167-29-7-WT	AOCS-167-4|AOCS-167-29-7-WT
-c1620b77-c739-4136-a26c-de1342c11ba7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0215|APGI-2946	c1620b77-c739-4136-a26c-de1342c11ba7|8052601	8052601|missing
+c1620b77-c739-4136-a26c-de1342c11ba7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0215|APGI-2946	8052601	8052601
+0f671165-5790-47bc-9793-9f63ffc36e42	icgc_pancancer	PACA-AU	Primary tumour	APGI-2179|ICGC_0054	8016488	8016488
 1e176d9d-dba9-4d41-946e-05b7f35eba64	PCAWG 2.0|icgc_pancancer	CESC-US	Primary Tumour - solid tissue|Primary tumour - solid tissue	0809ba8b-4ab6-4f43-934c-c1ccbc014a7e	b3b3a27c-ee9a-42af-a6d1-9af5970a98b9|1e176d9d-dba9-4d41-946e-05b7f35eba64	5f613800-55df-497f-a544-5b12cb9446ce
 f6c44d41-7dcd-4907-9c4d-b71cc4b4db62	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	473	473-02-4TR	473-02-4TR
-f00283b2-98da-4a61-a733-2727c1306145	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	166	166-01-6TR	166-01-6TR
-fa7c64af-5121-4a59-88a1-fe62dc6e5030	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0055|APGI-2185	fa7c64af-5121-4a59-88a1-fe62dc6e5030|8016500	8016500|missing
+fa7c64af-5121-4a59-88a1-fe62dc6e5030	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0055|APGI-2185	8016500	8016500
 26a7b379-378d-4b8a-bd98-4c8ec6cc0532	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-005	AOCS-005-2-1|26a7b379-378d-4b8a-bd98-4c8ec6cc0532	AOCS-005-2-1|AOCS-005-1
-fcac0682-8936-4e6a-8a24-8f7d7a2ad24a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	12	012-04-1TR	012-04-1TR
 07587f76-8362-4a4a-a0bc-4c7aca6490ec	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-159	07587f76-8362-4a4a-a0bc-4c7aca6490ec|AOCS-159-2-2	AOCS-159-1|AOCS-159-2-2
 ebe9c796-c862-4b5a-8897-3eac9869f15d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	723	723-03-3TR	723-03-3TR
 faf37543-57bb-404b-be67-71890bc04a76	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	795	795-01-5TR	795-01-5TR
 d6aab8b1-8b8b-443f-b2bc-1539c59efe42	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-058	d6aab8b1-8b8b-443f-b2bc-1539c59efe42|AOCS-058-2-9	AOCS-058-2-9|AOCS-058-1
-30465ec8-21e1-45f6-932a-e67c453fbc93	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0115|APGI-2285	8031670|30465ec8-21e1-45f6-932a-e67c453fbc93	8031670|missing
+30465ec8-21e1-45f6-932a-e67c453fbc93	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0115|APGI-2285	8031670	8031670
 d7098b7c-3032-481e-b0c8-1b3567319e89	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-106	d7098b7c-3032-481e-b0c8-1b3567319e89|AOCS-106-2-5	AOCS-106-1|AOCS-106-2-5
 912b7bb5-612b-46f3-b8d3-fc43d685ff62	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-077	912b7bb5-612b-46f3-b8d3-fc43d685ff62|AOCS-077-2-X	AOCS-077-1|AOCS-077-2-X
 689b89a0-a058-44f9-8bca-0b8cb6f6b697	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-150	AOCS-150-10-7|689b89a0-a058-44f9-8bca-0b8cb6f6b697	AOCS-150-14|AOCS-150-10-7
 6c501a50-4523-4288-ad4f-502125510149	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	278	278-01-8TR	278-01-8TR
 3065cd43-45be-4c87-95ca-f41486d110be	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	372	372-01-11TR	372-01-11TR
-b5994859-993d-4e4e-b48b-e7c1d37f2f56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0124|APGI-2318	8068064|b5994859-993d-4e4e-b48b-e7c1d37f2f56	8068064|missing
+b5994859-993d-4e4e-b48b-e7c1d37f2f56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0124|APGI-2318	8068064	8068064
 300b4b6b-3ae8-4e6b-a519-9f35501e9b3a	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-164	AOCS-164-2-0|300b4b6b-3ae8-4e6b-a519-9f35501e9b3a	AOCS-164-2-0|AOCS-164-1
-24c8eb3b-2d0f-4c27-beba-0837a11bbf72	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	358	358-01-3TR	358-01-3TR
 d6c2379e-d885-45e4-8a73-88513f37ffd1	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	435	435-01-8TR	435-01-8TR
 a9c65f91-c4bf-4753-9c73-23c250ff9c08	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	761	761-01-3TR	761-01-3TR
-553e71f7-3c4a-4f58-b953-1c6ee8422f02	icgc_pancancer	PACA-AU	Primary tumour	APGI-2591|ICGC_0139	8057445|553e71f7-3c4a-4f58-b953-1c6ee8422f02	8057445|missing
-0cd4fe69-f9bc-4581-8190-b5fab01fcfb3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-104	AOCS-104-2-X|0cd4fe69-f9bc-4581-8190-b5fab01fcfb3	AOCS-104-2-X|AOCS-104-1
-df42453a-9ce2-495c-b750-363ab3032f3a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0205|APGI-2270	df42453a-9ce2-495c-b750-363ab3032f3a|8031558	8031558|missing
-72034d15-4d8f-4b45-b375-7e5ddb1a71c1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2896|ICGC_0192	8067844|72034d15-4d8f-4b45-b375-7e5ddb1a71c1	8067844|missing
-2a1378de-a59c-4510-947c-3a5a31e01679	icgc_pancancer	PACA-AU	Primary tumour	APGI-3306|ICGC_0406	2a1378de-a59c-4510-947c-3a5a31e01679|8067212	8067212|missing
-78437fcf-ceb7-4d74-9491-da2f68f57181	icgc_pancancer	PACA-AU	Primary tumour	APGI-2023|ICGC_0021	78437fcf-ceb7-4d74-9491-da2f68f57181|8015111	8015111|missing
+553e71f7-3c4a-4f58-b953-1c6ee8422f02	icgc_pancancer	PACA-AU	Primary tumour	APGI-2591|ICGC_0139	8057445	8057445
+df42453a-9ce2-495c-b750-363ab3032f3a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0205|APGI-2270	8031558	8031558
+72034d15-4d8f-4b45-b375-7e5ddb1a71c1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2896|ICGC_0192	8067844	8067844
+2a1378de-a59c-4510-947c-3a5a31e01679	icgc_pancancer	PACA-AU	Primary tumour	APGI-3306|ICGC_0406	8067212	8067212
+78437fcf-ceb7-4d74-9491-da2f68f57181	icgc_pancancer	PACA-AU	Primary tumour	APGI-2023|ICGC_0021	8015111	8015111
 9da27735-ffd2-47b7-9ccb-14cebd689495	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-065	9da27735-ffd2-47b7-9ccb-14cebd689495|AOCS-065-4-X	AOCS-065-13|AOCS-065-4-X
 77968712-a6c4-4db4-83ec-d686a71b13fa	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-112	AOCS-112-2-6|77968712-a6c4-4db4-83ec-d686a71b13fa	AOCS-112-2-6|AOCS-112-1
 30bbd740-0982-4c32-b720-cde8cbe7497c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	343	343-03-7TR	343-03-7TR
-fd36ea47-276b-419e-93cf-f4d3d075d581	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	181	181-01-4TR	181-01-4TR
 ac93cb14-6604-4581-af7e-6059736e7172	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	749	749-02-12TR	749-02-12TR
 9eb0abf2-cac5-45a3-b3f3-75de94e7ead8	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-139	9eb0abf2-cac5-45a3-b3f3-75de94e7ead8|AOCS-139-2-9	AOCS-139-1|AOCS-139-2-9
 d5cc62c3-610a-4499-9c13-e7267379b154	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	44	044-0095-01TR	044-0095-01TR
-f525d94f-1925-4384-813a-9be9c166feb9	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	122	122-06-02TR	122-06-02TR
-9e7b3c36-4a48-40f9-aae4-91c7223c360a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	4	004-0012-06TR	004-0012-06TR
-8642fd8e-6e77-4f4b-baec-1163db337dee	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0103|APGI-2215	8642fd8e-6e77-4f4b-baec-1163db337dee|8031076	8031076|missing
+8642fd8e-6e77-4f4b-baec-1163db337dee	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0103|APGI-2215	8031076	8031076
 ca0859bb-1bb1-4c16-b5aa-39d535d75525	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	306	306-01-5TR	306-01-5TR
-4022489b-0f47-490f-96c3-e3eb67d0eb09	icgc_pancancer	PACA-AU	Primary tumour	APGI-2781|ICGC_0169	4022489b-0f47-490f-96c3-e3eb67d0eb09|8044596	8044596|missing
+4022489b-0f47-490f-96c3-e3eb67d0eb09	icgc_pancancer	PACA-AU	Primary tumour	APGI-2781|ICGC_0169	8044596	8044596
 57c0133c-6423-46ba-b38d-7435d3c420c5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-076	57c0133c-6423-46ba-b38d-7435d3c420c5|AOCS-076-2-7	AOCS-076-2-7|AOCS-076-1
 0c0660d1-2d98-442a-95f0-593fbceafae8	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-167	0c0660d1-2d98-442a-95f0-593fbceafae8|AOCS-167-4-6	AOCS-167-13|AOCS-167-4-6
 dde84079-d7ea-4e61-8563-9f38488bb38b	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-139	AOCS-139-24-9WT|dde84079-d7ea-4e61-8563-9f38488bb38b	AOCS-139-17|AOCS-139-24-9WT
-f18a05f2-60fd-4076-9b8b-e8b438e66c21	icgc_pancancer	PACA-AU	Primary tumour	APGI-3752|ICGC_0503	8068966|f18a05f2-60fd-4076-9b8b-e8b438e66c21	8068966|missing
+f18a05f2-60fd-4076-9b8b-e8b438e66c21	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0503|APGI-3752	8068966	8068966
 24985377-300c-4ccb-942c-226e38123b13	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-092	AOCS-092-4-7|24985377-300c-4ccb-942c-226e38123b13	AOCS-092-13|AOCS-092-4-7
-f3ead589-7559-40f1-b7de-9a5bb62931a6	icgc_pancancer	PACA-AU	Primary tumour	APGI-3758|ICGC_0518	8069122|f3ead589-7559-40f1-b7de-9a5bb62931a6	8069122|missing
-118bee6a-65a2-441f-a621-45a56606b7a3	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	137	137-03-4TR	137-03-4TR
+f3ead589-7559-40f1-b7de-9a5bb62931a6	icgc_pancancer	PACA-AU	Primary tumour	APGI-3758|ICGC_0518	8069122	8069122
 e565362c-6ef0-4005-a78b-d418325d5b1a	icgc_pancancer	PACA-AU	Cell line derived from xenograft	APGI-2179|ICGC_0054	e565362c-6ef0-4005-a78b-d418325d5b1a|8044183	8044183|missing
 faada44a-329e-4726-b5fe-678f3abca323	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-157	AOCS-157-2-7|faada44a-329e-4726-b5fe-678f3abca323	AOCS-157-1|AOCS-157-2-7
-1ac40a6c-056b-419f-9a24-bcd24d66e678	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0420|APGI-3550	8067247|1ac40a6c-056b-419f-9a24-bcd24d66e678	8067247|missing
-8e0f1747-19c3-4d31-b9ab-6288594c306d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0026|APGI-2041	8e0f1747-19c3-4d31-b9ab-6288594c306d|8014827	8014827|missing
-2227701b-3051-4a6d-bf9c-32b0f6f24c64	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0087|APGI-2133	2227701b-3051-4a6d-bf9c-32b0f6f24c64|8057443	8057443|missing
+8e0f1747-19c3-4d31-b9ab-6288594c306d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0026|APGI-2041	8014827	8014827
+2227701b-3051-4a6d-bf9c-32b0f6f24c64	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0087|APGI-2133	8057443	8057443
 41365ece-eec5-4e26-ac81-c6fbc254e754	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-085	AOCS-085-2-6|41365ece-eec5-4e26-ac81-c6fbc254e754	AOCS-085-1|AOCS-085-2-6
 8fbc3624-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK182	8fbc3624-ddb8-11e4-ad8f-5ed8e2d07381|RK182_Cancer	RK182_C01
-0654e7d3-932a-49f4-8ec9-d722fc62dca5	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	308	308-01-3TR	308-01-3TR
 6024cbd5-40a5-4e6f-86cc-b430a8784957	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-034	AOCS-034-4-1|6024cbd5-40a5-4e6f-86cc-b430a8784957	AOCS-034-4-1|AOCS-034-13
 206a7d2e-6f03-4f41-87b4-2660896f478f	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	157	157-01-3TR	157-01-3TR
-3edcf32e-076a-456f-9858-3276687fba90	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8067283|3edcf32e-076a-456f-9858-3276687fba90	8067283|missing
-77ded327-2c26-46de-afda-ef24ca25e8ac	icgc_pancancer	PACA-AU	Primary tumour	APGI-2928|ICGC_0315	8049225|77ded327-2c26-46de-afda-ef24ca25e8ac	8049225|missing
+3edcf32e-076a-456f-9858-3276687fba90	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8067283	8067283
+77ded327-2c26-46de-afda-ef24ca25e8ac	icgc_pancancer	PACA-AU	Primary tumour	APGI-2928|ICGC_0315	8049225	8049225
 a4d107e6-4e56-49e9-8ec8-0903e6f00418	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-155	a4d107e6-4e56-49e9-8ec8-0903e6f00418|AOCS-155-4-9	AOCS-155-13|AOCS-155-4-9
 5ad0e307-eab1-4b09-b662-d4301c753a99	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	442	442-02-4TR	442-02-4TR
-cb5a8b68-8405-46c1-a534-b1f18009fc8f	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	23	023-0056-02TR	023-0056-02TR
 b8fa6b9f-53dd-494d-845f-d2e7541d057c	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-095	AOCS-095-2-8|b8fa6b9f-53dd-494d-845f-d2e7541d057c	AOCS-095-1|AOCS-095-2-8
 44cc1379-e982-4b0d-b2b1-52a0eac6eb20	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-141	44cc1379-e982-4b0d-b2b1-52a0eac6eb20|AOCS-141-10-8	AOCS-141-14|AOCS-141-10-8
 430aa27a-00aa-4ea0-a272-1cdfc40eb0c6	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-170	AOCS-170-2-1|430aa27a-00aa-4ea0-a272-1cdfc40eb0c6	AOCS-170-1|AOCS-170-2-1
-f17ef020-0b95-405e-bef3-d4821f2af1dc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	138	138-03-3TR	138-03-3TR
-41eee6a7-806d-4c77-b236-eeb60a8cf183	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0313|APGI-3281	41eee6a7-806d-4c77-b236-eeb60a8cf183|8067940	8067940|missing
-8f518277-f131-48e9-9494-33beec0caac7	icgc_pancancer	PACA-AU	Primary tumour	APGI-2157|ICGC_0052	8f518277-f131-48e9-9494-33beec0caac7|8015860	8015860|missing
+41eee6a7-806d-4c77-b236-eeb60a8cf183	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0313|APGI-3281	8067940	8067940
+8f518277-f131-48e9-9494-33beec0caac7	icgc_pancancer	PACA-AU	Primary tumour	APGI-2157|ICGC_0052	8015860	8015860
 01deb3b4-7229-40b1-a567-b1cb80e556eb	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-150	AOCS-150-4-5|01deb3b4-7229-40b1-a567-b1cb80e556eb	AOCS-150-4-5|AOCS-150-13
-ea84deee-d0be-49e7-b451-9d0c3d6361fb	icgc_pancancer	PACA-AU	Primary tumour	APGI-3746|ICGC_0502	8069317|ea84deee-d0be-49e7-b451-9d0c3d6361fb	8069317|missing
-03897743-2cc0-4af4-adc6-1054cec2c2e0	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0304|APGI-2925	03897743-2cc0-4af4-adc6-1054cec2c2e0|8058331	8058331|missing
+ea84deee-d0be-49e7-b451-9d0c3d6361fb	icgc_pancancer	PACA-AU	Primary tumour	APGI-3746|ICGC_0502	8069317	8069317
+03897743-2cc0-4af4-adc6-1054cec2c2e0	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0304|APGI-2925	8058331	8058331
 73dc0427-548d-49c4-ac22-bd127db791a3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-115	73dc0427-548d-49c4-ac22-bd127db791a3|AOCS-115-2-4	AOCS-115-1|AOCS-115-2-4
-4c5b9676-ed06-4bb8-8112-236974be9145	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8031111|4c5b9676-ed06-4bb8-8112-236974be9145	8031111|missing
-b661cc40-81cf-4b40-a7a7-ce62eaea39cf	icgc_pancancer	PACA-AU	Primary tumour	APGI-2052|ICGC_0033	8015141|b661cc40-81cf-4b40-a7a7-ce62eaea39cf	8015141|missing
-9bcccf5d-dcdd-4ff3-a8df-72c16cfd3f4f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0295|APGI-2970	8058337|9bcccf5d-dcdd-4ff3-a8df-72c16cfd3f4f	8058337|missing
-7a61be06-1917-46ad-9af1-f7058f5b0b52	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0025|APGI-2040	7a61be06-1917-46ad-9af1-f7058f5b0b52|8012209	8012209|missing
+4c5b9676-ed06-4bb8-8112-236974be9145	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8031111	8031111
+b661cc40-81cf-4b40-a7a7-ce62eaea39cf	icgc_pancancer	PACA-AU	Primary tumour	APGI-2052|ICGC_0033	8015141	8015141
+9bcccf5d-dcdd-4ff3-a8df-72c16cfd3f4f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0295|APGI-2970	8058337	8058337
+7a61be06-1917-46ad-9af1-f7058f5b0b52	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0025|APGI-2040	8012209	8012209
 7a646a1f-761d-4ba0-9070-1c22b79ff86c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	832	832-01-4TR	832-01-4TR
 cf1625b4-f30b-487f-8e2c-2866af730c7f	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-119	cf1625b4-f30b-487f-8e2c-2866af730c7f|AOCS-119-4-2	AOCS-119-13|AOCS-119-4-2
-d626a136-dcb2-4fdc-a364-c3858cf5173a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0206|APGI-2271	8031546|d626a136-dcb2-4fdc-a364-c3858cf5173a	8031546|missing
+d626a136-dcb2-4fdc-a364-c3858cf5173a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0206|APGI-2271	8031546	8031546
 94451df0-4a05-4d0a-a0af-f22fd3cc9c38	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-086	94451df0-4a05-4d0a-a0af-f22fd3cc9c38|AOCS-086-4-6	AOCS-086-4-6|AOCS-086-13
-f7873b4a-1cb9-41cb-a4bd-8ee8e7efd23f	icgc_pancancer	PACA-AU	Primary tumour	APGI-3771|ICGC_0522	8069206|f7873b4a-1cb9-41cb-a4bd-8ee8e7efd23f	8069206|missing
-d0301d39-d465-40c3-80f3-e842258ffdb7	icgc_pancancer	PACA-AU	Primary tumour	APGI-3770|ICGC_0521	8069444|d0301d39-d465-40c3-80f3-e842258ffdb7	8069444|missing
+f7873b4a-1cb9-41cb-a4bd-8ee8e7efd23f	icgc_pancancer	PACA-AU	Primary tumour	APGI-3771|ICGC_0522	8069206	8069206
+d0301d39-d465-40c3-80f3-e842258ffdb7	icgc_pancancer	PACA-AU	Primary tumour	APGI-3770|ICGC_0521	8069444	8069444
 ecb7d3fc-7c3f-40f3-afac-22abf56cf21c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	283	283-04-02TR	283-04-02TR
 70c76dd2-e52f-4caa-9e73-0c730f8e408a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	386	386-01-10TR	386-01-10TR
 b29a0619-b8c8-47f3-8447-0f69f62ca8c3	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-134	AOCS-134-4-2|b29a0619-b8c8-47f3-8447-0f69f62ca8c3	AOCS-134-13|AOCS-134-4-2
-745a2093-2dc7-41d2-aff2-7201e3a20e1d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	84	084-05-02TR	084-05-02TR
-c400332b-7ef2-4891-8070-413cb48a7e9c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	282	282-01-17TR	282-01-17TR
-128ec04c-6514-4eb9-aa2e-79da6949b9a8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2992|ICGC_0235	128ec04c-6514-4eb9-aa2e-79da6949b9a8|8050941	8050941|missing
+128ec04c-6514-4eb9-aa2e-79da6949b9a8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2992|ICGC_0235	8050941	8050941
 c38294af-7b80-470a-99eb-523f3fafbbaa	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-166	AOCS-166-2-6|c38294af-7b80-470a-99eb-523f3fafbbaa	AOCS-166-1|AOCS-166-2-6
-d398a0c1-d873-49c1-b657-0c1d7121f3aa	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0006|APGI-1953	d398a0c1-d873-49c1-b657-0c1d7121f3aa|8052609	8052609|missing
-cb9731cc-5116-4869-a806-ff6d659758b8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2156|ICGC_0051	cb9731cc-5116-4869-a806-ff6d659758b8|8015281	8015281|missing
+d398a0c1-d873-49c1-b657-0c1d7121f3aa	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0006|APGI-1953	8052609	8052609
+cb9731cc-5116-4869-a806-ff6d659758b8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2156|ICGC_0051	8015281	8015281
 8fbc42a4-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK182	RK182_Liver|8fbc42a4-ddb8-11e4-ad8f-5ed8e2d07381	RK182_L01
 7faf8f25-328c-469f-8d16-f7344c7fd4ef	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-004	AOCS-004-2-9|7faf8f25-328c-469f-8d16-f7344c7fd4ef	AOCS-004-1|AOCS-004-2-9
 a4dc573b-e856-40b9-a3ab-c8f7cc7c3960	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	a4dc573b-e856-40b9-a3ab-c8f7cc7c3960|AOCS-167-27-X-WT	AOCS-167-16|AOCS-167-27-X-WT
 89343264-c6f3-45db-8252-0818e4ac4b3d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	594	594-01-3TR	594-01-3TR
-91d33d66-caf7-4672-909f-1e09a343b02d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	15	015-0038-05TR	015-0038-05TR
 05fbfc38-89ed-45e1-9d15-244820a6a089	icgc_pancancer	OV-AU	Recurrent tumour - solid tissue	AOCS-094	AOCS-094-4-2|05fbfc38-89ed-45e1-9d15-244820a6a089	AOCS-094-4-2|AOCS-094-2
-ab72ea11-da2d-48a2-9fc2-157d080a67b1	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0149|APGI-2712	8044438|ab72ea11-da2d-48a2-9fc2-157d080a67b1	8044438|missing
+ab72ea11-da2d-48a2-9fc2-157d080a67b1	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0149|APGI-2712	8044438	8044438
 f05dba68-a8a6-4770-9e4d-62d3a9d70a79	icgc_pancancer	OV-AU	Recurrent tumour - other|Primary tumour - other	AOCS-170	AOCS-170-4-9|f05dba68-a8a6-4770-9e4d-62d3a9d70a79	AOCS-170-12|AOCS-170-4-9
 7617b0fc-5d98-46f1-af3c-28a8ab6f8c9d	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-079	7617b0fc-5d98-46f1-af3c-28a8ab6f8c9d|AOCS-079-2-5	AOCS-079-1|AOCS-079-2-5
-953ffa20-1de2-45f2-b5ba-7b0f672ee7fb	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0144|APGI-2603	8057446|953ffa20-1de2-45f2-b5ba-7b0f672ee7fb	8057446|missing
+953ffa20-1de2-45f2-b5ba-7b0f672ee7fb	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0144|APGI-2603	8057446	8057446
 52c2389d-71f1-4193-bea7-a8487b0dca6a	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-139	52c2389d-71f1-4193-bea7-a8487b0dca6a|AOCS-139-26-6WT	AOCS-139-4|AOCS-139-26-6WT
-e9a72d9c-b6d5-494f-93c8-75cbc675c19b	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0321|APGI-3072	e9a72d9c-b6d5-494f-93c8-75cbc675c19b|8061179	8061179|missing
-791091bf-1f86-409d-b44c-b6c79275f5db	icgc_pancancer	PACA-AU	Primary tumour	APGI-3152|ICGC_0309	791091bf-1f86-409d-b44c-b6c79275f5db|8058340	8058340|missing
-e91ca177-f115-4726-a5bf-1927fc0a7e77	icgc_pancancer	PACA-AU	Primary tumour	APGI-2199|ICGC_0059	8030342|e91ca177-f115-4726-a5bf-1927fc0a7e77	8030342|missing
-9259d1fc-34cb-4049-a8e8-54fbd681d506	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	367	367-01-8TR	367-01-8TR
+e9a72d9c-b6d5-494f-93c8-75cbc675c19b	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0321|APGI-3072	8061179	8061179
+791091bf-1f86-409d-b44c-b6c79275f5db	icgc_pancancer	PACA-AU	Primary tumour	APGI-3152|ICGC_0309	8058340	8058340
+e91ca177-f115-4726-a5bf-1927fc0a7e77	icgc_pancancer	PACA-AU	Primary tumour	APGI-2199|ICGC_0059	8030342	8030342
 13706cce-630d-42b7-aa2d-ef0b270f6d33	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-083	13706cce-630d-42b7-aa2d-ef0b270f6d33|AOCS-083-2-0	AOCS-083-2-0|AOCS-083-1
-9dad134e-d56d-4184-a572-1b5c20745bfc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	564	564-02-8TR	564-02-8TR
-cc6baf87-b93e-4648-9584-262daa8bcc21	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0141|APGI-2596	cc6baf87-b93e-4648-9584-262daa8bcc21|8043973	8043973|missing
-8e9904fe-7408-4968-ae4a-f21dbb1c1b3e	icgc_pancancer	PACA-AU	Primary tumour	APGI-2827|ICGC_0188	8044984|8e9904fe-7408-4968-ae4a-f21dbb1c1b3e	8044984|missing
-70d5ce3c-3325-47c5-a660-a7da72135d7a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0140|APGI-2592	8035557|70d5ce3c-3325-47c5-a660-a7da72135d7a	8035557|missing
-38c3b55f-15e5-4074-8358-b4ca85a5a7fe	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0063|APGI-2219	38c3b55f-15e5-4074-8358-b4ca85a5a7fe|8030355	8030355|missing
-acf3338f-5a88-4b90-bf52-882f2f03fc08	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-081	AOCS-081-2-5|acf3338f-5a88-4b90-bf52-882f2f03fc08	AOCS-081-1|AOCS-081-2-5
+cc6baf87-b93e-4648-9584-262daa8bcc21	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0141|APGI-2596	8043973	8043973
+8e9904fe-7408-4968-ae4a-f21dbb1c1b3e	icgc_pancancer	PACA-AU	Primary tumour	APGI-2827|ICGC_0188	8044984	8044984
+70d5ce3c-3325-47c5-a660-a7da72135d7a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0140|APGI-2592	8035557	8035557
+38c3b55f-15e5-4074-8358-b4ca85a5a7fe	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0063|APGI-2219	8030355	8030355
+acf3338f-5a88-4b90-bf52-882f2f03fc08	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-081	acf3338f-5a88-4b90-bf52-882f2f03fc08|AOCS-081-2-5	AOCS-081-1|AOCS-081-2-5
 c02d7082-de9b-4d72-b457-f1da55aadad8	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-095	AOCS-095-4-5|c02d7082-de9b-4d72-b457-f1da55aadad8	AOCS-095-4-5|AOCS-095-13
 72210f6b-6cf2-4875-8ee9-b2f674b11b85	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-163	72210f6b-6cf2-4875-8ee9-b2f674b11b85|AOCS-163-2-8	AOCS-163-1|AOCS-163-2-8
-5e5e48f8-8ddc-452a-85c4-15119480415a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0114|APGI-2278	5e5e48f8-8ddc-452a-85c4-15119480415a|8044093	8044093|missing
+5e5e48f8-8ddc-452a-85c4-15119480415a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0114|APGI-2278	8044093	8044093
 17bc0ea3-bf27-4d72-9bdf-af10477d30ef	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-111	17bc0ea3-bf27-4d72-9bdf-af10477d30ef|AOCS-111-2-3	AOCS-111-1|AOCS-111-2-3
 15c0fde7-d2b9-434d-81be-196d49244f8d	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-171	AOCS-171-2-4|15c0fde7-d2b9-434d-81be-196d49244f8d	AOCS-171-1|AOCS-171-2-4
-8d00c444-2d06-4834-adc0-26afd8c8b63c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	294	294-01-6TR	294-01-6TR
-a0281cb0-5e22-419d-8e98-5ec7af192c99	icgc_pancancer	PACA-AU	Primary tumour	APGI-3513|ICGC_0415	a0281cb0-5e22-419d-8e98-5ec7af192c99|8067234	8067234|missing
+a0281cb0-5e22-419d-8e98-5ec7af192c99	icgc_pancancer	PACA-AU	Primary tumour	APGI-3513|ICGC_0415	8067234	8067234
 e56cec49-2b8c-418f-ab94-48589b29980f	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-165	AOCS-165-2-3|e56cec49-2b8c-418f-ab94-48589b29980f	AOCS-165-2-3|AOCS-165-1
-c48421b1-511c-4967-b2d7-30659effa5a5	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	10	010-0028-06TR	010-0028-06TR
-9e412214-549b-4fed-88e5-d7850c20a757	icgc_pancancer	PACA-AU	Primary tumour	APGI-3768|ICGC_0507	8069062|9e412214-549b-4fed-88e5-d7850c20a757	8069062|missing
+9e412214-549b-4fed-88e5-d7850c20a757	icgc_pancancer	PACA-AU	Primary tumour	APGI-3768|ICGC_0507	8069062	8069062
 e4ede3a5-8455-40ce-9a2b-1d6b6c7d94be	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-139	AOCS-139-7-7MD|e4ede3a5-8455-40ce-9a2b-1d6b6c7d94be	AOCS-139-7-7MD|AOCS-139-16
 40be5cea-dfcf-4842-81a0-bc0a1ca3c602	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	26	026-0061-02TR	026-0061-02TR
 3317d3ef-26ce-47f5-80eb-df8fc0100b57	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	776	776-01-5TR	776-01-5TR
 c2ffc029-cab1-4014-b372-327f9271d882	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	115	115-1917-02TR	115-1917-02TR
-26fb2688-efb2-45a1-82ca-14a163a7c144	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0365|APGI-3493	8066554|26fb2688-efb2-45a1-82ca-14a163a7c144	8066554|missing
+26fb2688-efb2-45a1-82ca-14a163a7c144	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0365|APGI-3493	8066554	8066554
 c7af70cd-5ff5-4d9b-9d14-8ae244b7e617	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	296	296-04-7TR	296-04-7TR
 861c68b0-8578-4fdc-9423-f6dc856ffe48	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0135|APGI-2525	861c68b0-8578-4fdc-9423-f6dc856ffe48|8057444	8057444|missing
 ddad39f9-0c10-4c9a-bbb4-53a3bf79b474	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	290	290-1950-02TR	290-1950-02TR
@@ -259,12 +224,11 @@ f86bc33e-a3a6-4c4d-a535-f2233409906d	icgc_pancancer	OV-AU	Metastatic tumour - me
 72e75aa6-315d-41dc-a7ea-ff5a20d507a5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-056	AOCS-056-2-3|72e75aa6-315d-41dc-a7ea-ff5a20d507a5	AOCS-056-2-3|AOCS-056-1
 c32b6576-54fc-44e6-accd-6d49e16a42f0	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	32	032-0069-02TR	032-0069-02TR
 93195d2f-5ec5-4f62-8eca-d0d63eff2c96	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	48	048-0089-02TR	048-0089-02TR
-d0ff40b5-64ef-4f6a-8c7e-d398248d162f	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	342	342-01-4TR	342-01-4TR
-8e5f3908-6fb0-495d-9a01-6e3fcd063eca	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0105|APGI-2221	8031087|8e5f3908-6fb0-495d-9a01-6e3fcd063eca	8031087|missing
+8e5f3908-6fb0-495d-9a01-6e3fcd063eca	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0105|APGI-2221	8031087	8031087
 b7b99c23-fd12-475a-9397-c760e875f441	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-091	b7b99c23-fd12-475a-9397-c760e875f441|AOCS-091-4-4	AOCS-091-13|AOCS-091-4-4
-37b97ecc-786c-451b-910b-eebedf5a365f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0031|APGI-2049	37b97ecc-786c-451b-910b-eebedf5a365f|8014809	8014809|missing
+37b97ecc-786c-451b-910b-eebedf5a365f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0031|APGI-2049	8014809	8014809
 7e5aa3e6-d4ff-4446-853e-4d78759918a5	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	3	003-0005-08TR	003-0005-08TR
-78029317-b987-4292-abfe-fe6a1036c805	icgc_pancancer	PACA-AU	Primary tumour	APGI-2136|ICGC_0088	8032819|78029317-b987-4292-abfe-fe6a1036c805	8032819|missing
-f2c1cdc9-fb9e-4def-974c-21d6122eb08a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0312|APGI-3198	8058334|f2c1cdc9-fb9e-4def-974c-21d6122eb08a	8058334|missing
-cc221879-6a22-4127-a863-84f09cd3317d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0061|APGI-2207	8030034|cc221879-6a22-4127-a863-84f09cd3317d	8030034|missing
-b22c13e7-1ab8-48b1-8a35-64f7c82fe755	icgc_pancancer	PACA-AU	Primary tumour	APGI-2353|ICGC_0067	b22c13e7-1ab8-48b1-8a35-64f7c82fe755|8033612	8033612|missing
+78029317-b987-4292-abfe-fe6a1036c805	icgc_pancancer	PACA-AU	Primary tumour	APGI-2136|ICGC_0088	8032819	8032819
+f2c1cdc9-fb9e-4def-974c-21d6122eb08a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0312|APGI-3198	8058334	8058334
+cc221879-6a22-4127-a863-84f09cd3317d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0061|APGI-2207	8030034	8030034
+b22c13e7-1ab8-48b1-8a35-64f7c82fe755	icgc_pancancer	PACA-AU	Primary tumour	APGI-2353|ICGC_0067	8033612	8033612

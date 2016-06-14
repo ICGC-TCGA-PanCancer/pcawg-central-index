@@ -84,8 +84,8 @@ with open(fname, 'r') as f:
                  id_fix['old_submitter_sample_id']=s
                  id_fix['old_submitter_specimen_id']=aliquot_dict[r.get('aliquot_id')][r.get('submitter_donor_id')][s]
          id_fixes_list.append(copy.deepcopy(id_fix))       
- 
-util.write_file(id_fixes_list, util.id_fixes_dir+'/OV-AU_id_fixes.txt')
+if id_fixes_list: 
+    util.write_file(id_fixes_list, util.id_fixes_dir+'/OV-AU_id_fixes.txt')
 
 id_fixes_list = []
 with open(fname, 'r') as f:
@@ -103,7 +103,10 @@ with open(fname, 'r') as f:
          for s in donors:
              if 'ICGC' in s:
                  id_fix['new_submitter_donor_id']=s
-                 samples.remove(r.get('aliquot_id'))
+                 try:
+                     samples.remove(r.get('aliquot_id'))
+                 except:
+                     pass
                  id_fix['new_submitter_sample_id']=samples[0]
                  id_fix['new_submitter_specimen_id']=aliquot_dict[r.get('aliquot_id')][s][id_fix.get('new_submitter_sample_id')] if aliquot_dict[r.get('aliquot_id')][s].get(id_fix.get('new_submitter_sample_id')) else 'missing' 
              else:
@@ -111,8 +114,8 @@ with open(fname, 'r') as f:
                  id_fix['old_submitter_sample_id']=r.get('aliquot_id')
                  id_fix['old_submitter_specimen_id']='missing'
          id_fixes_list.append(copy.deepcopy(id_fix))
-
-util.write_file(id_fixes_list, util.id_fixes_dir+'/PACA-AU_id_fixes.txt')
+if id_fixes_list:
+    util.write_file(id_fixes_list, util.id_fixes_dir+'/PACA-AU_id_fixes.txt')
 
 
 id_fixes_list = []
@@ -133,8 +136,8 @@ with open(fname, 'r') as f:
              else:
                  id_fix['old_dcc_specimen_type']=s
          id_fixes_list.append(copy.deepcopy(id_fix))
-
-util.write_file(id_fixes_list, util.id_fixes_dir+'/CLLE-ES_id_fixes.txt') 
+if id_fixes_list:
+    util.write_file(id_fixes_list, util.id_fixes_dir+'/CLLE-ES_id_fixes.txt') 
 
 
 id_fixes_list = []
@@ -155,8 +158,8 @@ with open(fname, 'r') as f:
                else:
                    id_fix['old_submitter_sample_id']=s
            id_fixes_list.append(copy.deepcopy(id_fix))
-   
-util.write_file(id_fixes_list, util.id_fixes_dir+'/LIRI-JP_id_fixes.txt')
+if id_fixes_list:   
+    util.write_file(id_fixes_list, util.id_fixes_dir+'/LIRI-JP_id_fixes.txt')
 
 
 id_fixes_list = []
@@ -178,7 +181,8 @@ with open(fname, 'r') as f:
            id_fix['new_submitter_sample_id'] = '1e176d9d-dba9-4d41-946e-05b7f35eba64'
            id_fixes_list.append(copy.deepcopy(id_fix))
    
-util.write_file(id_fixes_list, util.id_fixes_dir+'/CESC-US_id_fixes.txt')
+if id_fixes_list:   
+    util.write_file(id_fixes_list, util.id_fixes_dir+'/CESC-US_id_fixes.txt')
 
 
 
@@ -195,4 +199,5 @@ with open(fname, 'r') as f:
          id_fix['new_dcc_specimen_type'] = 'Metastatic tumour - metastasis to distant location'
          id_fixes_list.append(copy.deepcopy(id_fix))
  
-util.write_file(id_fixes_list, util.id_fixes_dir+'/SKCM-US_id_fixes.txt')
+if id_fixes_list:   
+    util.write_file(id_fixes_list, util.id_fixes_dir+'/SKCM-US_id_fixes.txt')
