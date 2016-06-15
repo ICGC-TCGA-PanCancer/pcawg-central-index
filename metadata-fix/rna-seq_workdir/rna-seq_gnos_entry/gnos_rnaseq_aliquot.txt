@@ -14,7 +14,7 @@ ee9b786d-1dd9-4ea9-a968-bd8e0c878956	PCAWG 2.0	SARC-US	Primary tumour - solid ti
 7bbe4637-394e-42c0-af7d-6184c3f48916	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	2d29a4ac-98e7-4663-9dd6-5681bc32ac2e	7bbe4637-394e-42c0-af7d-6184c3f48916	8318a9a4-e78e-4db8-97c7-2cc733d0c512
 e3ae13f4-b823-42a0-acd2-e52114229327	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0004	C0004RA	C0004RA
 2b768c1c-c655-47e0-96f2-05bcd8daa73a	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	9b84d013-713b-4571-888c-12863fdd4a52	2b768c1c-c655-47e0-96f2-05bcd8daa73a	45cc1d31-9b81-4268-b83a-5d4c740bd2b6
-4333d96a-4361-419b-bb9e-12c50df99907	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	654	654-02-7TR	654-02-7TR
+4333d96a-4361-419b-bb9e-12c50df99907	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	654	654-02-7TR	654-02-7TR
 92fed6cd-4439-4c1f-af25-97ed083b9499	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	5c9a6c40-982e-45c7-98d3-aeb6cad16986	92fed6cd-4439-4c1f-af25-97ed083b9499	dddc5575-d88f-4f4e-b591-96f11403184b
 529b7dd2-075c-4e93-b8c8-6990d3297c30	PCAWG 2.0	OV-US	Primary tumour - solid tissue	4eac2c98-86d2-4ee6-a1d3-157d013c78dc	529b7dd2-075c-4e93-b8c8-6990d3297c30	77ab9685-021c-4d99-8980-79bec534828e
 3e309eb7-30a3-4001-b077-00959819385b	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	356	356-01-4TR	356-01-4TR
@@ -31,7 +31,7 @@ aa8c0f65-3813-4e27-b605-ddb5859738f2	icgc_pancancer	RECA-EU	Normal - tissue adja
 14febba7-4b40-41cf-8d82-024539f54349	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	125	125-01-4TR	125-01-4TR
 4bd8334d-58db-4ca1-8b22-f961d0843d44	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4147081	tumor_4147081_RNA	tumor_4147081
 8dc89366-a78f-4e41-983f-13dfbbe782a2	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	422a46b2-a67c-4a7e-923f-9b651ced96f8	8dc89366-a78f-4e41-983f-13dfbbe782a2	8a0b8a54-d4f7-4911-a692-6731d089eba2
-53c19904-8698-4eb5-8a80-3c5604dbc109	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0143|APGI-2598	8035570	8035570
+53c19904-8698-4eb5-8a80-3c5604dbc109	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0143|APGI-2598	53c19904-8698-4eb5-8a80-3c5604dbc109|8035570	8035570|missing
 7e6e755a-5503-4729-a3f4-249183687647	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	b7d6621c-8bce-4a01-8588-9d7761d9372b	7e6e755a-5503-4729-a3f4-249183687647	a0b2ff38-e6bf-4f27-98ab-5cf924b0e236
 6664cd57-c4c9-4374-8d4e-b13c0f7d2fd9	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4160100	tumor_4160100_RNA	tumor_4160100
 d29e5a15-6ad2-41f9-b4e8-5c4b0f3fda9e	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	5613f5f6-086d-470b-8f77-6dcb7f8625b7	d29e5a15-6ad2-41f9-b4e8-5c4b0f3fda9e	c01952d4-ae81-48e2-8818-0e438e66b516
@@ -64,7 +64,7 @@ cd4dcef1-40d4-48ac-8e59-a1bb010fab9b	dkfz_pancancer	MALY-DE	Primary tumour - lym
 e58ff573-4094-4624-a060-9c2954f36de7	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	9ae5101b-6031-4ab1-bfca-198c41af3184	e58ff573-4094-4624-a060-9c2954f36de7	027dedd3-bd53-420e-b7f2-eb5b8c26bcdc
 78ed13d4-1578-46b8-81fa-b4395643691d	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	b5e2cbda-bbfa-4ef8-a9c4-cb978bef9b23	78ed13d4-1578-46b8-81fa-b4395643691d	1220e8b3-e16e-454e-bc49-60f49f9fe090
 61f2a72b-a643-4c06-bdeb-ce77d4ce9bc1	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	613aa3e8-a70b-45a9-9c08-0c2346c8bf00	61f2a72b-a643-4c06-bdeb-ce77d4ce9bc1	f675116a-bfec-47ae-ac24-9b61dd3cc6c1
-fb0609f5-8453-43d1-88ea-4883b0ac4d01	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0227|APGI-3211	8068589	8068589
+fb0609f5-8453-43d1-88ea-4883b0ac4d01	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0227|APGI-3211	fb0609f5-8453-43d1-88ea-4883b0ac4d01|8068589	8068589|missing
 2ee1e0d0-79f9-4e02-be27-773ee4b88320	PCAWG 2.0	READ-US	Primary tumour - solid tissue	9af35239-ffb9-4d4f-889e-f743da271eef	2ee1e0d0-79f9-4e02-be27-773ee4b88320	03b40342-3cce-4a45-b2ec-8855aeb85100
 e8e3bbfa-c684-4a2d-a5f8-0af3d231a666	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	177	177-01-10TR	177-01-10TR
 0564eb46-23d2-4502-86b6-ff6a22b76bea	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4150895	tumor_4150895_RNA	tumor_4150895
@@ -79,7 +79,7 @@ d3642776-8fd7-4cdd-b94a-1d558b5ac69d	PCAWG 2.0	LUSC-US	Primary tumour - solid ti
 fcb43e1a-3b34-4ff1-8d3e-849fbf901877	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	5d2f1a0f-a01b-48c2-b749-1ca710aa2bb4	fcb43e1a-3b34-4ff1-8d3e-849fbf901877	26189cf5-ae49-44cf-842b-35a3063ab93c
 df814665-e6f0-4bf4-9d1b-5d4d2b529b33	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4182393	tumor_4182393_RNA	tumor_4182393
 927d20e2-da09-42ca-a70c-2b203a8297a6	PCAWG 2.0	LGG-US	Primary tumour - solid tissue	84569c1a-6baa-4380-ae3c-707df1be4618	927d20e2-da09-42ca-a70c-2b203a8297a6	1ee9478b-84a5-4ffd-8499-f2e02a3a21d7
-3c79747b-3bd0-4dbe-b3ef-eb89678f0e9b	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-088	AOCS-088-4-1	AOCS-088-13
+3c79747b-3bd0-4dbe-b3ef-eb89678f0e9b	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-088	3c79747b-3bd0-4dbe-b3ef-eb89678f0e9b|AOCS-088-4-1	AOCS-088-4-1|AOCS-088-13
 358984cc-b532-4f00-89f4-dda524469b6d	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-086	AOCS-086-2-9|358984cc-b532-4f00-89f4-dda524469b6d	AOCS-086-2-9|AOCS-086-1
 e0c77933-9886-4916-a47c-4364bc261bd8	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-113	e0c77933-9886-4916-a47c-4364bc261bd8|AOCS-113-2-9	AOCS-113-1|AOCS-113-2-9
 594f57f1-a1a9-4a3d-ae9e-fa601a29c917	PCAWG 2.0	DLBC-US	Primary tumour - solid tissue	0e9fcccc-0630-408d-a121-2c6413824cb7	594f57f1-a1a9-4a3d-ae9e-fa601a29c917	a1dacfbb-042b-496e-94a4-046dc04e27b5
@@ -94,8 +94,9 @@ c34a63cc-746b-4502-a1ff-d7bece07b679	PCAWG 2.0	LGG-US	Primary tumour - solid tis
 e6e94309-7a4e-4fd3-a91a-1e1ac5ae2ac3	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	e4245fff-1281-40e5-87b4-4e42a18a3a63	e6e94309-7a4e-4fd3-a91a-1e1ac5ae2ac3	21b630be-466d-46a3-801a-7eb593bdddb6
 123725b8-4f66-4b97-9726-e0c70300d38e	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	0dca98b0-f43e-45b6-9a02-00092c78678c	123725b8-4f66-4b97-9726-e0c70300d38e	b7542984-1410-45e6-b936-8333ff902eb4
 14fe1014-6e3a-4e94-983a-948140cd2d0d	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-034	14fe1014-6e3a-4e94-983a-948140cd2d0d|AOCS-034-2-4	AOCS-034-1|AOCS-034-2-4
+ff0461fe-4c5f-476c-aade-de30a5c12a15	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0069	C0069RT	C0069RT
 c97d55de-95b9-4342-a31f-1f1c727c2e21	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-161	AOCS-161-2-2|c97d55de-95b9-4342-a31f-1f1c727c2e21	AOCS-161-1|AOCS-161-2-2
-94227dbf-3e10-4ff0-b677-be67a98324be	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0354|APGI-1980	8066552	8066552
+94227dbf-3e10-4ff0-b677-be67a98324be	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0354|APGI-1980	94227dbf-3e10-4ff0-b677-be67a98324be|8066552	8066552|missing
 ee4c6831-2e56-4651-b141-551a29692eb6	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-091	ee4c6831-2e56-4651-b141-551a29692eb6|AOCS-091-2-7	AOCS-091-2-7|AOCS-091-1
 6c9c6dcc-d1cc-4d33-8555-ecb4ed8f7826	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	05fbd98c-28bd-41bc-ae60-16ac0c16c723	6c9c6dcc-d1cc-4d33-8555-ecb4ed8f7826	e8bd9dcb-a9c7-4361-9724-24922a5e613b
 88e9cdc4-bcf1-49e9-8965-7dc6b3688585	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	a8614c49-c7f1-4de9-bd2f-4764b094d604	88e9cdc4-bcf1-49e9-8965-7dc6b3688585	b5b941e3-f828-4091-b9b1-6b38d1493847
@@ -108,14 +109,14 @@ e5452386-f28c-450f-b13b-4b1ef4713fa1	PCAWG 2.0	CESC-US	Primary tumour - solid ti
 e9878313-30bf-4db5-b343-57a867d58441	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	c9b92f8f-4599-47d1-9d12-31e42166a091	e9878313-30bf-4db5-b343-57a867d58441	197053e3-848f-4d62-aefb-a8e0faa23967
 066228ca-f6f5-4ee2-a038-cf23d3752ff0	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	257dc623-41e1-4fa3-859c-c787db10bd60	066228ca-f6f5-4ee2-a038-cf23d3752ff0	f8495459-caf7-47ca-9b6a-7fe11ff1ba11
 dc557907-3bd3-44a1-84ca-164382709b81	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	9f5c0a43-d222-484a-9249-d288387dd7a1	dc557907-3bd3-44a1-84ca-164382709b81	4057d69a-52ef-451b-bd74-6436919970c9
-41ea1ee0-8c27-4807-93ca-4684d8b80cf3	icgc_pancancer	PACA-AU	Primary tumour	APGI-3474|ICGC_0412	8066866	8066866
+41ea1ee0-8c27-4807-93ca-4684d8b80cf3	icgc_pancancer	PACA-AU	Primary tumour	APGI-3474|ICGC_0412	41ea1ee0-8c27-4807-93ca-4684d8b80cf3|8066866	8066866|missing
 3960601B-C341-45FB-8A8C-EC244EE719AC	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	f45210d3-9e66-4f5e-bef1-5ee5547cc893	3960601B-C341-45FB-8A8C-EC244EE719AC	fb635f1d-5ee1-4e58-86ea-b1aada2de4ba
 adfbf8b6-405d-4887-b363-d130e20b70ef	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	e6b72c24-1607-43b9-8b8a-7bf83eea5895	adfbf8b6-405d-4887-b363-d130e20b70ef	33918a59-c2b0-435e-ba63-8a39da191712
 db25f81c-7bb8-4b74-b305-5e7b432197cb	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4149246	tumor_4149246_RNA	tumor_4149246
 8fba32f2-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK083	RK083_Cancer	RK083_C01
 479832a0-16c1-4a0d-a3d2-8475a47ba01b	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0135	C0135RT	C0135RT
 34864a18-2c95-4cbd-9f73-405a38f6d37e	PCAWG 2.0	KICH-US	Normal - tissue adjacent to primary	03f3dd32-e1d1-485b-a968-3f55798f4d46	34864a18-2c95-4cbd-9f73-405a38f6d37e	7413ddde-761f-43eb-82fe-ec2a63f963d0
-7336c543-1c87-4f1e-8382-78c0b67d369c	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0391|APGI-2153	8067177	8067177
+7336c543-1c87-4f1e-8382-78c0b67d369c	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0391|APGI-2153	7336c543-1c87-4f1e-8382-78c0b67d369c|8067177	8067177|missing
 1cc55d09-ac11-4cd5-a970-879d884ba666	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	fb83f7d7-2182-4fb7-8e3e-8ad7f1feac72	1cc55d09-ac11-4cd5-a970-879d884ba666	7bc433ed-7908-4297-aa5a-e033924bced1
 b98567ce-e2ea-4fb5-b13b-82b9da1ff9f0	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	05924106-07f6-44ca-ba15-7452b8a657e4	b98567ce-e2ea-4fb5-b13b-82b9da1ff9f0	d42a66cd-bc74-477f-a924-1b3a303bfa16
 bffe28e9-6f41-4102-ad8c-2eec568c5261	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-064	AOCS-064-4-7|bffe28e9-6f41-4102-ad8c-2eec568c5261	AOCS-064-4-7|AOCS-064-13
@@ -150,7 +151,7 @@ ceb8591f-6ef7-46f2-b140-12d27652ccfc	PCAWG 2.0	COAD-US	Primary tumour - solid ti
 8fb78bec-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK012	RK012_Liver	RK012_L01
 8fbbe6f6-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK147	RK147_Cancer	RK147_C01
 2e83ed1e-fbff-4729-8dfa-c070aa13c78e	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	9dff11cd-0784-4a60-9c77-43f8957d3dfa	2e83ed1e-fbff-4729-8dfa-c070aa13c78e	609d3070-4b64-42ee-b071-42be33df7600
-0ce4a372-c91b-43e5-96e5-f42751699a50	icgc_pancancer	PACA-AU	Primary tumour	APGI-2302|ICGC_0066	8031682	8031682
+0ce4a372-c91b-43e5-96e5-f42751699a50	icgc_pancancer	PACA-AU	Primary tumour	APGI-2302|ICGC_0066	8031682|0ce4a372-c91b-43e5-96e5-f42751699a50	8031682|missing
 62dd11c2-2271-45e7-b753-d0f0d79fdf23	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	eb2dbb4f-66b6-4525-8323-431970f7a64e	62dd11c2-2271-45e7-b753-d0f0d79fdf23	ea7fb858-c17b-40d4-9a22-cbd9da614b65
 e2feaf60-86b8-4329-85e3-4e4f229ba271	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-128	AOCS-128-2-4|e2feaf60-86b8-4329-85e3-4e4f229ba271	AOCS-128-1|AOCS-128-2-4
 3c499f07-67e2-4032-a0b5-b9edd90035f7	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	556fcbc8-172a-4af1-8822-ae036e8d68e8	3c499f07-67e2-4032-a0b5-b9edd90035f7	cf23846d-a7d2-40a9-8b51-49a27967d101
@@ -170,7 +171,7 @@ c60df680-5bd6-48cc-a112-985f73d9092c	PCAWG 2.0	UCEC-US	Primary tumour - solid ti
 d534dba4-b034-4451-9886-d66cdb7c7ef7	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	a40beabe-496e-4324-a1d1-5a7d8b002aab	d534dba4-b034-4451-9886-d66cdb7c7ef7	2697d1de-3d7e-4bd6-9ede-7516bd10a701
 d019d7d9-481f-4fec-a10b-dc2978a1d710	icgc_pancancer	ESAD-UK	Primary tumour - solid tissue	OCCAMS-QE-095	LP6005690-DNA_B03	OC-QE-095-S-T1
 8fbaeb7a-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK107	RK107_Cancer	RK107_C01
-39178b5c-3a32-4e85-a2ca-a4e06097718a	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	783	783-01-14TR	783-01-14TR
+39178b5c-3a32-4e85-a2ca-a4e06097718a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	783	783-01-14TR	783-01-14TR
 8fbcbc02-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK226	RK226_Cancer	RK226_C01
 9e31746d-e221-4acf-875d-47f54df73f5d	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	3608bfbb-2a92-4ec2-a330-bf4790a8b65c	9e31746d-e221-4acf-875d-47f54df73f5d	8acaf190-5a0d-440c-9c9a-b9eabdf661be
 51257d94-f973-4dfd-93d7-72ec4013def7	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	9aa36ac2-8418-4109-a3c1-63ca8742baab	51257d94-f973-4dfd-93d7-72ec4013def7	7bcf54b6-3ffa-4014-92c6-51a7099e6f02
@@ -181,7 +182,7 @@ d019d7d9-481f-4fec-a10b-dc2978a1d710	icgc_pancancer	ESAD-UK	Primary tumour - sol
 8fb9932e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK061	RK061_Cancer	RK061_C01
 0832a83c-30d8-4a09-b676-74d546a8380a	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4145177	tumor_4145177_RNA	tumor_4145177
 fae0aab4-41f6-4315-af1c-6d82c1106157	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	925ae8ff-3200-4564-be76-94db0984b027	fae0aab4-41f6-4315-af1c-6d82c1106157	4ddc37d4-35b8-4a5d-bbf1-6dbf0548852b
-433b49ba-949b-4914-985a-be19b3b32502	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	1557183c-aedd-4df6-b98a-3654667f7b69	433b49ba-949b-4914-985a-be19b3b32502	a09a99f9-33e3-45d5-bfc2-f57ce149a527
+fc9d94ae-01bb-44e1-8057-ace2084eefc6	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0044	C0044RT	C0044RT
 8fb7a4ba-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK014	RK014_Liver	RK014_L01
 8fb8f84c-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK051	RK051_Cancer	RK051_C01
 BEDFA47C-8383-4AAF-A609-F96850B414A2	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	8d54a2ed-03f1-4a23-bdd2-f3395f5d3716	BEDFA47C-8383-4AAF-A609-F96850B414A2	9ed0332e-c846-4091-bf6e-0c5bf55b9f1a
@@ -206,14 +207,14 @@ bd558781-2e3b-4fb0-aeb8-a8cefbf3272d	PCAWG 2.0	UCEC-US	Primary tumour - solid ti
 f2d1056f-1329-44e4-8269-0e7dde93d64a	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	c931f3bd-74c5-4ebd-bc0f-c7c6becd25ab	f2d1056f-1329-44e4-8269-0e7dde93d64a	7af6d7a5-b550-42d9-983a-241ec76fd7f4
 cbd18c2a-4544-4a90-904e-533c3f776f32	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	b60f22ac-a659-4f33-b01d-820e86a9a5c9	cbd18c2a-4544-4a90-904e-533c3f776f32	684c6894-fd49-4934-8962-9628ece734fb
 4d605da9-57c9-4041-bb4c-af8e4e4eb918	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	2ed3296a-5b10-40d8-8af4-90dc031657cd	4d605da9-57c9-4041-bb4c-af8e4e4eb918	2d970196-beee-4783-90a1-e313a789dd92
-f0038047-e182-4b3a-b330-d28fc8d0a968	icgc_pancancer	PACA-AU	Primary tumour	APGI-3279|ICGC_0326	8058509	8058509
+f0038047-e182-4b3a-b330-d28fc8d0a968	icgc_pancancer	PACA-AU	Primary tumour	APGI-3279|ICGC_0326	f0038047-e182-4b3a-b330-d28fc8d0a968|8058509	8058509|missing
 8fb92c54-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK054	RK054_Cancer	RK054_C01
-d0e69707-5303-46f7-8967-c360df1c9c5d	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	128	128-02-7TR	128-02-7TR
+d0e69707-5303-46f7-8967-c360df1c9c5d	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	128	128-02-7TR	128-02-7TR
 1e7b2ed2-be35-4cce-a613-9c8203c49ebb	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	eb59cf69-1997-41b9-bf69-69ad7da292a1	1e7b2ed2-be35-4cce-a613-9c8203c49ebb	f5fc27d9-4949-43e9-b358-78cb69d87a3c
 32aaa5f6-3f9c-411a-9316-c5583b9c25be	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-109	AOCS-109-2-3|32aaa5f6-3f9c-411a-9316-c5583b9c25be	AOCS-109-2-3|AOCS-109-1
-62f673a5-a31a-4fb5-9e9e-0ee95ba0a377	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0150|APGI-2715	8066038	8066038
+62f673a5-a31a-4fb5-9e9e-0ee95ba0a377	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0150|APGI-2715	62f673a5-a31a-4fb5-9e9e-0ee95ba0a377|8066038	8066038|missing
 8fb8244e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK026	RK026_Liver	RK026_L01
-dcf64460-46b0-4911-964f-35192194a0cb	icgc_pancancer	PACA-AU	Primary tumour	APGI-2622|ICGC_0146	8043985	8043985
+dcf64460-46b0-4911-964f-35192194a0cb	icgc_pancancer	PACA-AU	Primary tumour	APGI-2622|ICGC_0146	dcf64460-46b0-4911-964f-35192194a0cb|8043985	8043985|missing
 de485b7d-cd88-4889-aff4-e290027f26bb	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	5c22c8d6-5805-455c-8e1c-e6b8006738e4	de485b7d-cd88-4889-aff4-e290027f26bb	ca213835-efc5-4216-a762-a6b320b516bf
 19f0564c-19e3-4e32-8362-750fc676f576	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	4e4faf51-2cbf-4910-a093-186660e4a19b	19f0564c-19e3-4e32-8362-750fc676f576	450dfcb0-f059-4427-9a72-ea51dc48956e
 45838f02-4479-4834-a7af-3355565ff44f	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-063	AOCS-063-2-7	AOCS-063-1
@@ -263,15 +264,15 @@ a4de3863-03d5-44b0-b711-87aadcb29008	PCAWG 2.0	CESC-US	Primary tumour - solid ti
 58d4d6ea-cb30-47f9-87ff-d2dec6e3385e	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	04e9a63a-d742-488c-8564-bf9d79aa2091	58d4d6ea-cb30-47f9-87ff-d2dec6e3385e	2bba3faa-8d55-4aec-863d-aae1cea6feab
 e1522cf2-53d1-485b-bf05-0f06194da23e	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	300fff5a-0f61-402d-b845-3938ba7b1294	e1522cf2-53d1-485b-bf05-0f06194da23e	346253c0-8e8b-459b-a6d5-03da9586578f
 61c8278b-4c06-4563-b1ac-97cceec76ca4	PCAWG 2.0	BRCA-US	Normal - tissue adjacent to primary	0bc5744c-5fa3-45bb-87d0-70a02068b392	61c8278b-4c06-4563-b1ac-97cceec76ca4	a3d00f8e-39c2-4e35-bc2f-df9184b35670
-2de3f53f-c59f-415c-a404-87d0c934ddea	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0303|APGI-3290	8058185	8058185
+2de3f53f-c59f-415c-a404-87d0c934ddea	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0303|APGI-3290	2de3f53f-c59f-415c-a404-87d0c934ddea|8058185	8058185|missing
 07a2f856-d7d1-4a25-a5e1-30c5606216bb	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0067	C0067RT	C0067RT
 7c13660b-9b17-4aa3-a5cc-270130fceae2	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0140	C0140RT	C0140RT
-6e763361-46bf-45f1-ba95-f120258a37d3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-064	AOCS-064-2-X	AOCS-064-1
+6e763361-46bf-45f1-ba95-f120258a37d3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-064	6e763361-46bf-45f1-ba95-f120258a37d3|AOCS-064-2-X	AOCS-064-1|AOCS-064-2-X
 8fbd6896-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK312	RK312_Liver	RK312_L01
 497fcc98-1eeb-4696-88eb-22fc99627695	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	352768f9-3ce1-419c-beef-6515c78f5d7a	497fcc98-1eeb-4696-88eb-22fc99627695	2ed6bbb4-c2fb-42bf-a0b6-8687a73b3b7b
 a2ecbfd4-e1e7-441a-a862-4e50112c8ba5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-168	AOCS-168-2-1|a2ecbfd4-e1e7-441a-a862-4e50112c8ba5	AOCS-168-2-1|AOCS-168-1
 ad46ed65-3cc2-4956-9d90-3e1edca24417	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	08da7c4c-3067-4bcf-9d7a-78566df72e69	ad46ed65-3cc2-4956-9d90-3e1edca24417	270be245-2239-4e96-a917-79cca40868ba
-fecacab2-ccf7-4c94-8dcd-fd319a3e630a	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	684	684-02-3TR	684-02-3TR
+fecacab2-ccf7-4c94-8dcd-fd319a3e630a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	684	684-02-3TR	684-02-3TR
 f88cba2a-57ba-4279-be97-613d3f5b7930	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-078	AOCS-078-2-2|f88cba2a-57ba-4279-be97-613d3f5b7930	AOCS-078-2-2|AOCS-078-1
 bf7a15fb-0afe-49c9-ae7b-f5fc9f47531f	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0028	C0028RT	C0028RT
 afac17a3-d4bc-4fbd-bc8e-0847dffe8dd2	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	2a971e32-b0e7-4a3f-8c40-62d69c0307d8	afac17a3-d4bc-4fbd-bc8e-0847dffe8dd2	8aba8350-b5ee-4ca2-bc99-5c7922a886c4
@@ -285,7 +286,7 @@ f4fccaa6-cd8c-4e5a-a7a8-beb63cf7b109	PCAWG 2.0	OV-US	Primary tumour - solid tiss
 23d7ce5f-3da1-4613-9607-d64ab3798c53	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	790266bc-c252-43f4-85d1-1b06ee529cf8	23d7ce5f-3da1-4613-9607-d64ab3798c53	615fdee9-637e-45c6-8909-36b9201a8eb7
 a7ba7d79-2b00-4472-9840-2acf2e96e34c	PCAWG 2.0	READ-US	Primary tumour - solid tissue	0cb21fb0-520f-4105-99ec-697a335115b5	a7ba7d79-2b00-4472-9840-2acf2e96e34c	37bb8ce7-6c55-4237-a7ad-adc42e6ff6a8
 bfad522f-6130-424d-8497-99cac9714966	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	e16ca88f-488b-40f0-9169-e5a62482a2ff	bfad522f-6130-424d-8497-99cac9714966	27a64f32-69c5-4c49-86b4-c8fc923cae08
-b0b8a1e4-b23a-4b5a-b6ef-d621cb29a972	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0153|APGI-2755	8044426	8044426
+b0b8a1e4-b23a-4b5a-b6ef-d621cb29a972	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0153|APGI-2755	b0b8a1e4-b23a-4b5a-b6ef-d621cb29a972|8044426	8044426|missing
 522c4f50-fd4a-48bb-8da8-63f85fa79a19	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-090	522c4f50-fd4a-48bb-8da8-63f85fa79a19|AOCS-090-2-4	AOCS-090-1|AOCS-090-2-4
 9ae89964-9ff2-4d38-ade0-03581b3f7ae6	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	781acafa-a58b-4180-bbca-c5b675d51b17	9ae89964-9ff2-4d38-ade0-03581b3f7ae6	233c6672-a850-48e0-99fd-024cf1a76b4c
 92962fd5-2a14-4e63-ae3f-97cdb83934ab	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	dca004bf-9c14-45a1-b186-ab3759f6c7fe	92962fd5-2a14-4e63-ae3f-97cdb83934ab	a2dd99bf-3a02-42cd-9aa8-80a018584ee6
@@ -352,13 +353,13 @@ db848332-4ee8-4f22-b6c9-b2634bd35918	PCAWG 2.0	LIHC-US	Primary tumour - solid ti
 b402a10c-196b-46d1-a05f-a7f211cd603d	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4146289	tumor_4146289_RNA	tumor_4146289
 c5091a05-88c2-48e5-9680-17c02d27f796	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-138	c5091a05-88c2-48e5-9680-17c02d27f796|AOCS-138-4-3	AOCS-138-13|AOCS-138-4-3
 9a76d668-932a-47cd-a8c0-5840641e1aea	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	b913d254-8307-4b8a-8313-d978e32bb38f	9a76d668-932a-47cd-a8c0-5840641e1aea	09215e83-edac-472d-b849-9225c532358c
-20675a45-3e6c-4bf4-b1fc-21f36631a5e8	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0037|APGI-2106	8015261	8015261
+20675a45-3e6c-4bf4-b1fc-21f36631a5e8	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0037|APGI-2106	8015261|20675a45-3e6c-4bf4-b1fc-21f36631a5e8	8015261|missing
 e62793b0-8fb2-4c91-9f64-c0eae21571a7	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	95e6d327-9ab7-45de-9527-f5634b3995c3	e62793b0-8fb2-4c91-9f64-c0eae21571a7	a43f90b7-4a6c-423c-82de-ad2c330ae0fb
 f97f68be-6838-455c-91bf-7549543a82c3	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	27b05b15-a44b-45ed-a6e3-e7d1ca488ea9	f97f68be-6838-455c-91bf-7549543a82c3	5a9087b1-d001-4fcc-b061-f59e7026e711
-164efdb6-cd50-487f-9552-1a8c63b3575f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0207|APGI-2272	8031706	8031706
+164efdb6-cd50-487f-9552-1a8c63b3575f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0207|APGI-2272	164efdb6-cd50-487f-9552-1a8c63b3575f|8031706	8031706|missing
 bd51f90a-ec67-4a7d-87bf-9d85acd65d51	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	324bcba2-f6a4-45a6-807c-215bdffcca21	bd51f90a-ec67-4a7d-87bf-9d85acd65d51	7fd5702e-2d7b-4b79-b2d8-5ca4ca33cf65
-055c60ea-e164-4167-9c29-cfd0d31241f4	icgc_pancancer	PACA-AU	Primary tumour	APGI-2001|ICGC_0020	8067543	8067543
-8f9862fc-e3cd-4d26-a755-f21b7093f286	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0417|APGI-3535	8067239	8067239
+055c60ea-e164-4167-9c29-cfd0d31241f4	icgc_pancancer	PACA-AU	Primary tumour	APGI-2001|ICGC_0020	8067543|055c60ea-e164-4167-9c29-cfd0d31241f4	8067543|missing
+8f9862fc-e3cd-4d26-a755-f21b7093f286	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0417|APGI-3535	8067239|8f9862fc-e3cd-4d26-a755-f21b7093f286	8067239|missing
 d6aae541-9dec-4055-bfd6-51ebbdcbf7a2	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	f0787165-6f58-4d67-b510-928eea2c4882	d6aae541-9dec-4055-bfd6-51ebbdcbf7a2	710eae35-a21d-4939-8414-d2af4ea02fdd
 59f9f604-e7db-46e1-8c36-8c489aa03066	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-077	AOCS-077-2-X	AOCS-077-1
 7250c569-720a-49e4-a53e-20abfe9073dc	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	af1086cc-b330-4ad6-ae1c-3b5c7259949a	7250c569-720a-49e4-a53e-20abfe9073dc	b8355e52-d7a7-4711-bba7-bc4d201741f2
@@ -376,7 +377,7 @@ d4d86182-64cd-4b99-91ee-b41b57de112f	PCAWG 2.0	KICH-US	Primary tumour - solid ti
 c3df7b7c-64a2-4925-a8c0-2e4c6dc82aff	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	d5efcde2-21e6-4071-9aa4-3c5688a45b3f	c3df7b7c-64a2-4925-a8c0-2e4c6dc82aff	4e6bbc3c-bb9e-46c0-8b22-60f9725db516
 b85afc27-442d-490e-a133-369e2b70946a	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4120403	tumor_4120403_RNA	tumor_4120403
 8f18a62f-3364-47b4-8fbd-87c9da0d530b	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4133263	tumor_4133263_RNA	tumor_4133263
-3d5eeded-6ad9-4b38-85f0-50d48d409488	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	56	056-0117-05TR	056-0117-05TR
+3d5eeded-6ad9-4b38-85f0-50d48d409488	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	56	056-0117-05TR	056-0117-05TR
 8fbaf796-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK107	RK107_Liver	RK107_L01
 d6d7412b-5ec2-413e-a85d-7f765c67afa3	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	7fee9d6f-c0ea-43c2-89c2-66d965a077a8	d6d7412b-5ec2-413e-a85d-7f765c67afa3	ead6792b-4e52-4c28-891c-6d8696873a13
 a4cb04f5-91b3-40ba-8005-b1df46d6b555	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	e4fc0909-f284-4471-866d-d8967b6adcbc	a4cb04f5-91b3-40ba-8005-b1df46d6b555	58bfe278-a80f-4722-b286-4d966214d244
@@ -386,7 +387,7 @@ b8536238-f3a3-4421-a513-c73cf6827157	PCAWG 2.0	LAML-US	Primary tumour - blood de
 8d4e842c-af11-4abb-9ac8-17ddc52dbcb4	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	c3cba26e-38c2-4569-afd6-6b045e604808	8d4e842c-af11-4abb-9ac8-17ddc52dbcb4	0538efde-935d-4571-a200-b181ab622447
 918d3450-e0f9-4151-92f7-727af8893fba	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4189998	tumor_4189998_RNA	tumor_4189998
 35823279-1561-41c4-93d0-a0146d2f6172	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	088c2e4e-fc4e-4252-84ed-e3ca2c401958	35823279-1561-41c4-93d0-a0146d2f6172	84d08806-f569-4ded-99ad-a1749de7018a
-21f1e001-bf11-417f-a9cf-1d2af2366bbd	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	677	677-07-02TR	677-07-02TR
+21f1e001-bf11-417f-a9cf-1d2af2366bbd	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	677	677-07-02TR	677-07-02TR
 e042ea6d-3204-41a7-9811-25f4ac0c3558	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	a824b3bd-34d5-4cc1-a92f-f9d6ac0f1814	e042ea6d-3204-41a7-9811-25f4ac0c3558	8867f07e-0993-4c9a-96df-18e24801ba80
 ef37a73c-e0a0-4ff6-83a3-6befcdcb51c6	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	9435447e-d65f-408b-863b-6576b1d652dd	ef37a73c-e0a0-4ff6-83a3-6befcdcb51c6	06b3e3ca-24b9-4e19-9e59-b51cc6d6735b
 8fba715e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK098	RK098_Cancer	RK098_C01
@@ -397,16 +398,16 @@ d4ea098a-2a30-4643-aa8d-27eb678a42ef	dkfz_pancancer	MALY-DE	Primary tumour - lym
 40024e0a-a264-4dd8-9138-9a468b9c12ca	PCAWG 2.0	DLBC-US	Primary tumour - solid tissue	1f971af1-6772-4fe6-8d35-bbe527a037fe	40024e0a-a264-4dd8-9138-9a468b9c12ca	738a6fd7-d8e1-4fc3-9f73-ad6c9b67da2a
 6a2cafbb-2824-4727-b950-0c2bdcf26358	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	bd48fa5e-0152-46f0-a4fa-8cf723ff2dcd	6a2cafbb-2824-4727-b950-0c2bdcf26358	b7fc877d-6055-4a28-bbdf-50ce7236b7bf
 f72b280c-e0d0-4b08-bfe3-cd868a2f1b4c	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-162	AOCS-162-2-5|f72b280c-e0d0-4b08-bfe3-cd868a2f1b4c	AOCS-162-1|AOCS-162-2-5
-ab2914b6-51e1-4b75-ac7b-a9f06675d4fc	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0053|APGI-2158	8064560	8064560
+ab2914b6-51e1-4b75-ac7b-a9f06675d4fc	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0053|APGI-2158	8064560|ab2914b6-51e1-4b75-ac7b-a9f06675d4fc	8064560|missing
 d5e3a3be-c4d9-41de-a39c-ae7aad3f3826	PCAWG 2.0	LIHC-US	Normal - tissue adjacent to primary	7dd3bda9-3a0a-46fa-b052-a6d24b847804	d5e3a3be-c4d9-41de-a39c-ae7aad3f3826	723a470f-6855-409a-aad4-d6b933313239
 0193b5b0-83d2-4237-83f6-76e3eac240d1	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4184094	tumor_4184094_RNA	tumor_4184094
 0775fdb1-bfd4-4b32-85cc-54d96ec4e42e	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0047	C0047RT	C0047RT
-836d456b-7b0e-4b62-bc4b-d13763b405d7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0392	8067181	8067181
+836d456b-7b0e-4b62-bc4b-d13763b405d7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0392|APGI-2341	8067181|836d456b-7b0e-4b62-bc4b-d13763b405d7	8067181|missing
 8fb9f454-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK073	RK073_Liver	RK073_L01
 680b6b06-1331-4060-adb3-c44e862895b0	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	02979422-5149-4750-ad5f-483e0bec6ac5	680b6b06-1331-4060-adb3-c44e862895b0	f35e66ec-7aa5-477c-abf7-07c35c90f7de
 4c836837-6cd5-4ecc-9f6e-440d194694e8	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4175837	tumor_4175837_RNA	tumor_4175837
 9cde3009-e59c-4a08-bd85-e3f5ab521d41	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	d39df936-4bc6-404d-9e1d-f6416cc5a34c	9cde3009-e59c-4a08-bd85-e3f5ab521d41	acbbc556-4e4e-4ebc-b408-55d69720a87d
-d9ac9f0d-f2a6-4232-9d59-2ff9a1220023	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	90	090-02-3TR	090-02-3TR
+d9ac9f0d-f2a6-4232-9d59-2ff9a1220023	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	90	090-02-3TR	090-02-3TR
 6b3bb1d6-f04f-4bba-ad55-1f122843170c	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4142605	tumor_4142605_RNA	tumor_4142605
 23a1c2b7-3ff3-40b2-b0c9-468a8b6fcd7d	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	98a639c2-d615-4dc1-98f0-298752b69b09	23a1c2b7-3ff3-40b2-b0c9-468a8b6fcd7d	e8cd0d5d-2af6-444f-b8b9-05b1874edae2
 bef39107-9255-44d5-9bfe-c8318bb69e3d	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4135099	tumor_4135099_RNA	tumor_4135099
@@ -448,10 +449,10 @@ b854167d-42a2-4144-92ee-0229536d4cea	PCAWG 2.0	THCA-US	Primary tumour - solid ti
 c30a6cac-b8c1-490a-b897-bbf35dcf0cbc	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	151f07f5-1529-4fcd-912c-e55b2ff8abef	c30a6cac-b8c1-490a-b897-bbf35dcf0cbc	24992be3-78d6-4193-acf3-f0a5ac959bb6
 ad1457f5-c6e3-4493-a216-284a49983e4f	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0027	C0027RT	C0027RT
 4d7fa11a-aac0-479b-8202-8ff8c9c1a5e3	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	0c151271-2cf9-43f4-9e9b-fe927de43131	4d7fa11a-aac0-479b-8202-8ff8c9c1a5e3	863393ed-42bb-4232-93f4-2b5759d9822c
-984904e7-7009-4ed3-9a7a-3008aaeba415	icgc_pancancer	PACA-AU	Primary tumour	APGI-3783|ICGC_0526	8069454	8069454
+984904e7-7009-4ed3-9a7a-3008aaeba415	icgc_pancancer	PACA-AU	Primary tumour	APGI-3783|ICGC_0526	8069454|984904e7-7009-4ed3-9a7a-3008aaeba415	8069454|missing
 2522bd3d-f6b3-45df-b68f-577ffbf3a819	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	75113445-d2d6-44a0-866c-c9175e6d214b	2522bd3d-f6b3-45df-b68f-577ffbf3a819	ace39ef3-1b5e-4ad2-a20d-62957e524281
 d1f387cd-23ed-4345-94f2-4b75c4dcb99e	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0132	C0132RT	C0132RT
-1137e8fd-fbc1-4de5-b9e8-f2b38eef7408	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	145	145-01-2TR	145-01-2TR
+1137e8fd-fbc1-4de5-b9e8-f2b38eef7408	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	145	145-01-2TR	145-01-2TR
 9e904de0-3768-4867-913a-1a95aef31105	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	b809c2f2-185c-496a-a1d4-589294443a1d	9e904de0-3768-4867-913a-1a95aef31105	07c08e8f-4dca-42e4-9954-c62c32fed225
 b8ecfb28-27d0-4ad4-b73c-cc21be41af31	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	5d54c742-5a8e-4c40-8d62-95e75e210ab8	b8ecfb28-27d0-4ad4-b73c-cc21be41af31	2cd62676-762c-461d-b111-1f81e7cd5877
 6abdede0-96f9-4739-a623-376c783a56ae	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	fb79c491-7b01-42ae-8369-8364e442e31b	6abdede0-96f9-4739-a623-376c783a56ae	a0863fa6-515c-44fa-825f-f9e243f945f1
@@ -472,7 +473,7 @@ dca3aac8-2cc3-41fb-b030-0b0084ca6217	PCAWG 2.0	SKCM-US	Metastatic tumour - metas
 edd006f4-1914-48b6-84d9-420a09dd82d1	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	14c65927-b9dd-4ef6-9917-db7bc431ff2f	edd006f4-1914-48b6-84d9-420a09dd82d1	59b0b757-7d08-4b3e-9974-fd02747d3665
 b9e35423-81e4-4ffe-b08a-4bb93b3cf976	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	dfd30f94-19e3-4838-95df-14a3763419af	b9e35423-81e4-4ffe-b08a-4bb93b3cf976	cdf4ab19-f243-4efc-a5dc-8253cbe48845
 bd33fafa-9922-4efe-9e1d-c8d8f6b8e7cc	PCAWG 2.0	READ-US	Primary tumour - solid tissue	10290e91-9784-4f94-8daa-b5d9a8b0efb9	bd33fafa-9922-4efe-9e1d-c8d8f6b8e7cc	effca0f1-e81d-47cd-8287-392a2b6ab786
-6f40b26e-12d6-4728-bd96-4477e27fa94e	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4139696	tumor_4139696_RNA	tumor_4139696
+8fba5818-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK092	RK092_Cancer	RK092_C01
 84fb7b6d-d38e-41b5-86e4-bb66266da91b	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	0c50a2c2-1d4c-45ca-9127-f96d4db18daf	84fb7b6d-d38e-41b5-86e4-bb66266da91b	593736e0-1bed-4eaf-bac9-e90620554f1d
 828ca7f9-a315-4f02-a485-347d9a881404	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4120157	tumor_4120157_RNA	tumor_4120157
 4c7b95b0-1d87-4fd9-82b8-2a51a3d0e242	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	590fdb76-20ef-4f95-9783-7d80e7a25e5a	4c7b95b0-1d87-4fd9-82b8-2a51a3d0e242	9963da13-6ea7-48a3-a3de-1c6a38f977b9
@@ -506,14 +507,14 @@ e67b3b01-fdd5-49de-8829-84298c131a5f	PCAWG 2.0	PRAD-US	Primary tumour - solid ti
 d170e848-cdad-494c-b23c-ac16634412e4	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0091	C0091RT	C0091RT
 c54a3568-f14d-453c-bc34-9b0b0644182d	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	c54a3568-f14d-453c-bc34-9b0b0644182d|AOCS-167-29-7-MD	AOCS-167-4|AOCS-167-29-7-MD
 8fb95684-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK055	RK055_Liver	RK055_L01
-f2b0f1d8-8714-40c8-bccc-1df3bf3e19f1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2991|ICGC_0395	8066854	8066854
+f2b0f1d8-8714-40c8-bccc-1df3bf3e19f1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2991|ICGC_0395	8066854|f2b0f1d8-8714-40c8-bccc-1df3bf3e19f1	8066854|missing
 098ef6ce-5605-407d-90ca-e5ce9c27878f	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	ce28f65d-4ae8-4e63-815f-5b8d4389e092	098ef6ce-5605-407d-90ca-e5ce9c27878f	13e26ccd-bedd-468b-94ad-eb1c56ad5ffe
-55574048-cb99-4ff8-b3c2-320e67882940	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	64	064-0128-08TR	064-0128-08TR
+55574048-cb99-4ff8-b3c2-320e67882940	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	64	064-0128-08TR	064-0128-08TR
 2c5d86e0-2e3d-4259-97e9-023df54c8c56	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	748e38b1-2ead-4a0a-8881-d640617b856b	2c5d86e0-2e3d-4259-97e9-023df54c8c56	902e2dd8-81e5-4949-a57b-92b3efd86c63
 ca71ca96-cbb7-4eab-9487-251dda34e107	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	1f601832-eee3-48fb-acf5-80c4a454f26e	ca71ca96-cbb7-4eab-9487-251dda34e107	7f791228-dd77-4ab0-8227-d784a4c7fea1
 d4dd1ab8-7b9f-44a3-a1c2-d24586aed660	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4174905	tumor_4174905_RNA	tumor_4174905
 ea55c131-97f8-49cc-a445-87523ce1f075	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	368e23f0-e573-4547-bf5a-14080baf737b	ea55c131-97f8-49cc-a445-87523ce1f075	3e30dbd1-10bf-4450-8d19-6f44d3284e02
-0cdec231-ad58-489d-88a0-95a2a77f1ea4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0338|APGI-3060	8064636	8064636
+0cdec231-ad58-489d-88a0-95a2a77f1ea4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0338|APGI-3060	8064636|0cdec231-ad58-489d-88a0-95a2a77f1ea4	8064636|missing
 fe39a1a6-f141-4501-849b-19929c7c25de	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4170686	tumor_4170686_RNA	tumor_4170686
 bca48aa6-25bc-49e4-8bb5-edf38362b4a8	PCAWG 2.0	OV-US	Primary tumour - solid tissue	7dcc809b-e33a-4453-b92a-c00786f48cb0	bca48aa6-25bc-49e4-8bb5-edf38362b4a8	fa79b363-380e-48ae-bb82-db395085353c
 8fbc0fe6-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK159	RK159_Liver	RK159_L01
@@ -535,13 +536,13 @@ b0688dd8-0d35-4717-a406-78568db1ca2b	dkfz_pancancer	MALY-DE	Primary tumour - lym
 a3173b33-aa16-48a2-b733-0345aad49755	PCAWG 2.0	OV-US	Primary tumour - solid tissue	2b14123b-8fcd-402c-9399-4e7c47f20252	a3173b33-aa16-48a2-b733-0345aad49755	bbfed693-79e1-4dc7-896e-15b98fc7dbac
 e563cfb5-6904-45c6-acbb-ac96bfb9770b	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	a081da6f-51f3-4555-a6b8-736f8c6cda39	e563cfb5-6904-45c6-acbb-ac96bfb9770b	9846d8f3-5b22-48e9-b972-a0fe9f509fb4
 8fbc730a-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK194	RK194_Liver	RK194_L01
-cf20938c-a9ad-49a8-af88-e3ecb9d40112	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	371	371-01-10TR	371-01-10TR
+cf20938c-a9ad-49a8-af88-e3ecb9d40112	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	371	371-01-10TR	371-01-10TR
 e4d3986d-f3bd-44c2-a850-b72571bf0215	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	f87c6dcc-1a9e-4df5-962c-1f946e2611f8	e4d3986d-f3bd-44c2-a850-b72571bf0215	bfc99c6d-7791-4037-9c74-a74be68e616a
 65537c4d-ad30-4211-b819-094621c316f4	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	AOCS-167-27-X-MD|65537c4d-ad30-4211-b819-094621c316f4	AOCS-167-27-X-MD|AOCS-167-16
 ac44efb2-7079-49a7-8bc6-285ae009ad89	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	2b865f8c-539f-4cb2-8f08-41709e9511e5	ac44efb2-7079-49a7-8bc6-285ae009ad89	ed22cb10-ebde-4019-9b6d-e19ab573ca94
 f107ba9e-f52a-4a6b-b659-8dabf17c9120	PCAWG 2.0	LGG-US	Primary tumour - solid tissue	dc5bdd21-b23f-400e-bbe2-4c98a517fc9e	f107ba9e-f52a-4a6b-b659-8dabf17c9120	57fae3bd-b822-4855-a4a1-afdcc20f6071
 1a2a7cd4-e8cb-4333-b5bd-990a37041df1	PCAWG 2.0	KICH-US	Normal - tissue adjacent to primary	955d428c-8fe8-456b-b86d-65ea6c2a1b18	1a2a7cd4-e8cb-4333-b5bd-990a37041df1	4d704013-a663-4756-8a1f-c6043097a68b
-2fcba31b-4cc0-45c2-bbd3-29538b9b5a7b	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	63	063-0127-02TR	063-0127-02TR
+2fcba31b-4cc0-45c2-bbd3-29538b9b5a7b	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	63	063-0127-02TR	063-0127-02TR
 0c9fe532-3920-4a59-b348-65b184c0eff4	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	b43e41af-1d82-4b5f-b8f1-add0510e6b86	0c9fe532-3920-4a59-b348-65b184c0eff4	685fa2ea-3dff-450a-8ea6-e97dfe9000a4
 4c91a673-ed50-41b5-8261-50c9b8716aa2	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	87ac0ad4-8c9d-409e-9a86-1d201d01769d	4c91a673-ed50-41b5-8261-50c9b8716aa2	a633a5ca-c207-45be-8903-93527de31c22
 8fb9871c-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK058	RK058_Liver	RK058_L01
@@ -573,7 +574,7 @@ f9533750-9b2f-44a2-8b4e-941fe0c53acb	PCAWG 2.0	UCEC-US	Primary tumour - solid ti
 38e26122-c473-41c1-afb0-cd3b9096e9f4	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	96457ebf-ae88-41f4-97e5-cdc3163418aa	38e26122-c473-41c1-afb0-cd3b9096e9f4	93a3fc8a-1b50-4da3-9dbb-cf9f582fc22e
 89dda3b6-2905-4577-9b74-965fb7f77c98	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	3d2aa654-1b5f-4eb4-a1c2-af31f5760069	89dda3b6-2905-4577-9b74-965fb7f77c98	4b202550-9744-4c6c-ad17-97f764ea3f18
 1bfffce2-551a-4d94-b774-de4cf7e15af5	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4145528	tumor_4145528_RNA	tumor_4145528
-62979323-f23d-4b62-ba15-061327b7ff56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0296|APGI-2977	8057715	8057715
+62979323-f23d-4b62-ba15-061327b7ff56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0296|APGI-2977	62979323-f23d-4b62-ba15-061327b7ff56|8057715	8057715|missing
 520ac0a0-a49f-4990-8a49-dfe312361e30	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	b045f24b-f822-4df9-9ffa-47308edcec8c	520ac0a0-a49f-4990-8a49-dfe312361e30	417cff62-b034-4197-9cfd-e640d55f3094
 afe0fbfe-18e0-4b80-a44c-7abe3c7e5c93	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	790ff5db-b7f3-4946-aaed-305f66b1dd6a	afe0fbfe-18e0-4b80-a44c-7abe3c7e5c93	dce6cac3-6c76-4574-b7a8-c7083b12f22e
 a85c9f19-51f0-4d2e-af2e-865e752d112a	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4133511	tumor_4133511_RNA	tumor_4133511
@@ -596,7 +597,7 @@ feb1dc41-7013-4d2a-8b69-45830c456f7d	dkfz_pancancer	MALY-DE	Primary tumour - lym
 56a705f4-fd28-44ff-8a3c-85bc4300c760	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	e17a6048-7a72-42c0-ad3f-97cbff02bc9f	56a705f4-fd28-44ff-8a3c-85bc4300c760	b89a4d5d-ee24-4052-b454-b67169328737
 2bdc2df0-2a92-4a82-9833-4023e745ed21	icgc_pancancer	CLLE-ES	peripheral blood	477	477-02-10TR	477-02-10TR
 e03cb807-3698-434e-8145-6f1620bfd1b4	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	739deed4-d1dc-458f-bd0f-1e24d2bfd305	e03cb807-3698-434e-8145-6f1620bfd1b4	a59051e9-5155-4073-a4d6-c9a8c54ad118
-dc2b2e3d-889b-4175-9199-1c909c505b5f	icgc_pancancer	PACA-AU	Primary tumour	APGI-1955|ICGC_0007	8012195	8012195
+dc2b2e3d-889b-4175-9199-1c909c505b5f	icgc_pancancer	PACA-AU	Primary tumour	APGI-1955|ICGC_0007	8012195|dc2b2e3d-889b-4175-9199-1c909c505b5f	8012195|missing
 b2db3232-3f41-4c07-bc44-58f20264ed82	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	176	176-01-3TR	176-01-3TR
 388d1827-6c75-4f70-801e-ee49b73357a3	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0063	C0063RT	C0063RT
 3af60b03-66c3-48a1-a42b-1e05fdb529c4	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	8785012f-f73e-4d68-87cf-1d804af32782	3af60b03-66c3-48a1-a42b-1e05fdb529c4	79fc9ed3-4e96-4c0e-869e-1756cbdabb39
@@ -619,7 +620,7 @@ B290727B-23ED-4E73-9071-CF2C06671430	PCAWG 2.0	BLCA-US	Primary tumour - solid ti
 70a93713-e154-46c8-9360-b873c63f0f05	PCAWG 2.0	PRAD-US	Primary tumour - solid tissue	11fb5853-8eeb-4ad8-825d-3eaaf3fa08d6	70a93713-e154-46c8-9360-b873c63f0f05	aeef0836-305c-465c-a9ca-6c1825353ae7
 b3abef48-47a1-4b82-988d-80052aaa0a0c	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	eb14339d-fefa-46c3-99a6-55268384361a	b3abef48-47a1-4b82-988d-80052aaa0a0c	a9ce5c16-9d28-4211-bac5-d1f6106f22fa
 a367cb8b-ce7a-4cde-b568-ea223d732bd2	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-055	AOCS-055-2-0|a367cb8b-ce7a-4cde-b568-ea223d732bd2	AOCS-055-2-0|AOCS-055-1
-908c0356-5985-44b4-887c-6902ea45e4e6	icgc_pancancer	PACA-AU	Primary tumour	APGI-2920|ICGC_0201	8057483	8057483
+908c0356-5985-44b4-887c-6902ea45e4e6	icgc_pancancer	PACA-AU	Primary tumour	APGI-2920|ICGC_0201	8057483|908c0356-5985-44b4-887c-6902ea45e4e6	8057483|missing
 24f42719-6ad5-48fb-b27d-5812c3447b46	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	0ff6364a-e6f4-47ca-a7e7-14705bf0a8df	24f42719-6ad5-48fb-b27d-5812c3447b46	1cf84c3e-e7e2-43a6-b9af-e0042312f02f
 79efefa1-a796-40c1-8343-7059156d4fc0	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-114	AOCS-114-2-1|79efefa1-a796-40c1-8343-7059156d4fc0	AOCS-114-2-1|AOCS-114-1
 98b2b18a-004d-459c-8aba-499d06897910	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	38a8b734-9acc-42f9-b5b7-e51b0dfc6504	98b2b18a-004d-459c-8aba-499d06897910	8b5c7e4d-a220-4499-9e38-7deacc1776a2
@@ -631,7 +632,7 @@ d5965538-4255-4877-88a8-9a71b5cea58c	PCAWG 2.0	KICH-US	Primary tumour - solid ti
 fd4eb5ce-47b3-4c31-b9c5-ca08b3f580db	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	872092b3-d31e-44d7-bd03-e29f52f8ab5a	fd4eb5ce-47b3-4c31-b9c5-ca08b3f580db	614e4163-7da8-4f77-a58d-405b004be3e0
 a137e804-ed82-4ad8-b25e-f9dcb71331bb	PCAWG 2.0	LUAD-US	Normal - tissue adjacent to primary	a1e65587-24c1-4b41-92a7-4e1f15fffd78	a137e804-ed82-4ad8-b25e-f9dcb71331bb	67bf333d-f746-497f-b6b1-f241e93dc467
 8453bed2-371f-47f4-b1aa-b29552f4571c	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	4c325ee1-9b8e-45d4-a0a7-e47ec1eac402	8453bed2-371f-47f4-b1aa-b29552f4571c	3d38f604-e571-422d-b645-bf73a0348243
-8fba5818-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK092	RK092_Cancer	RK092_C01
+6f40b26e-12d6-4728-bd96-4477e27fa94e	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4139696	tumor_4139696_RNA	tumor_4139696
 ca1e32b0-7daf-403e-a3b2-7cfd3948cedf	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	9aa8c2b4-db32-4899-bf0c-d578cb175e90	ca1e32b0-7daf-403e-a3b2-7cfd3948cedf	d1a7a58f-7a35-4a94-a337-051ae56ded00
 58b577ba-2193-4bfc-9363-c10652306ce6	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	a512701f-88bb-4b05-8c94-fd285b9dd13e	58b577ba-2193-4bfc-9363-c10652306ce6	f1064663-1462-4901-8bf7-9f50da5ee7b1
 8fbcf83e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK272	RK272_Liver	RK272_L01
@@ -655,9 +656,9 @@ c67df408-b68f-43e3-91c9-b81b0d822895	icgc_pancancer	RECA-EU	Primary tumour - sol
 5acf6e27-f823-4cfd-b990-a6b3dc9f34d9	icgc_pancancer	OV-AU	Recurrent tumour - other|Primary tumour - other	AOCS-093	5acf6e27-f823-4cfd-b990-a6b3dc9f34d9|AOCS-093-10-1	AOCS-093-12|AOCS-093-10-1
 14830a14-5495-4425-b6ef-78ccffafe03c	PCAWG 2.0	PRAD-US	Primary tumour - solid tissue	4fe004e5-49f9-4336-a690-6ebad512c813	14830a14-5495-4425-b6ef-78ccffafe03c	57ed8a64-46f9-4e1f-8550-cef121a6bbc6
 0a5d5dd8-9391-424e-905e-6359845a153d	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	dc6ceece-efaa-4b9d-9e12-d35863d7a902	0a5d5dd8-9391-424e-905e-6359845a153d	014ad75e-86d2-423f-b9d3-84657d459a28
-7ba285c2-79a8-4b83-97f7-a4520a4630bf	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0109|APGI-2259	8031147	8031147
+7ba285c2-79a8-4b83-97f7-a4520a4630bf	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0109|APGI-2259	8031147|7ba285c2-79a8-4b83-97f7-a4520a4630bf	8031147|missing
 8fbc5adc-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK184	RK184_Liver	RK184_L01
-94a8e647-e53b-4060-81d9-2599c19a05c9	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0134|APGI-2523	8034254	8034254
+94a8e647-e53b-4060-81d9-2599c19a05c9	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0134|APGI-2523	94a8e647-e53b-4060-81d9-2599c19a05c9|8034254	8034254|missing
 575f9b1e-4952-488a-bbdd-ac98c1f68382	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	8c1dd7f7-b74a-4fa2-b6a7-86f0348d2567	575f9b1e-4952-488a-bbdd-ac98c1f68382	6cd6d1f4-d8e4-47f9-812f-eb7fec925f8d
 dbb41988-5836-4c9d-ac69-74aae8be3010	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4131257	tumor_4131257_RNA	tumor_4131257
 2b6b5499-a092-4fb6-a670-ad599db4f2cb	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	d8eac750-9daf-4465-b672-9e31fd369057	2b6b5499-a092-4fb6-a670-ad599db4f2cb	2bb3c2ab-e9b9-4a12-916a-a9d3105a4d60
@@ -668,15 +669,15 @@ ec79139b-a1a8-4c38-9db6-b8570fb49a88	PCAWG 2.0	SKCM-US	Metastatic tumour - metas
 8835ae28-831e-49da-a046-a1a43b626a4e	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	31c96e35-5e2f-429c-b12a-7bc5a497a300	8835ae28-831e-49da-a046-a1a43b626a4e	da010683-c537-478f-8f95-e606b05dbc5c
 6e46fc2a-48c1-4bc7-a685-16ef47b41234	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-094	AOCS-094-2-5|6e46fc2a-48c1-4bc7-a685-16ef47b41234	AOCS-094-2-5|AOCS-094-1
 8b425d92-11e6-4dce-914e-5a2f00603719	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	35496e4e-598f-4ffc-b11e-8edaeb676079	8b425d92-11e6-4dce-914e-5a2f00603719	df817250-9a2c-42e8-ad90-0d9e13fe37b3
-8027afbd-234f-4911-b193-880741f216d4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0009|APGI-1959	8012323	8012323
+8027afbd-234f-4911-b193-880741f216d4	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0009|APGI-1959	8012323|8027afbd-234f-4911-b193-880741f216d4	8012323|missing
 b5e61a38-2067-473e-8eb3-0d8c259b7e67	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	585e6487-b0a3-4828-8a06-46bee01dff74	b5e61a38-2067-473e-8eb3-0d8c259b7e67	dd32ef9a-246b-47c9-a0e3-60a110e9047c
 8fbd5c5c-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK312	RK312_Cancer	RK312_C01
-2e96fc4f-7bbb-4d2c-b93e-82aabab6a096	icgc_pancancer	PACA-AU	Primary tumour	APGI-2945|ICGC_0223	8057485	8057485
-22397ef7-bdef-4b4c-9c68-8185eebc8443	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0185|APGI-2822	8057678	8057678
+2e96fc4f-7bbb-4d2c-b93e-82aabab6a096	icgc_pancancer	PACA-AU	Primary tumour	APGI-2945|ICGC_0223	2e96fc4f-7bbb-4d2c-b93e-82aabab6a096|8057485	8057485|missing
+22397ef7-bdef-4b4c-9c68-8185eebc8443	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0185|APGI-2822	8057678|22397ef7-bdef-4b4c-9c68-8185eebc8443	8057678|missing
 6ce3e9cc-0ce0-4649-8a8c-8096a14cd578	PCAWG 2.0	STAD-US	Normal - tissue adjacent to primary	af1086cc-b330-4ad6-ae1c-3b5c7259949a	6ce3e9cc-0ce0-4649-8a8c-8096a14cd578	b10685a3-ab84-440a-8eb1-ac6f974ff1a7
 edda9023-a8d9-45dc-af21-5bba663967e4	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	05506f4c-e701-4a9d-ae06-97f066aade43	edda9023-a8d9-45dc-af21-5bba663967e4	b2905a3f-810b-4e74-af5c-42d513d91746
-0e7b12f6-daff-40b3-92ee-48836bc309a4	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	39	039-0076-05TR	039-0076-05TR
-8fbc28fa-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK166	RK166_Liver	RK166_L01
+0e7b12f6-daff-40b3-92ee-48836bc309a4	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	39	039-0076-05TR	039-0076-05TR
+0f671165-5790-47bc-9793-9f63ffc36e42	icgc_pancancer	PACA-AU	Primary tumour	APGI-2179|ICGC_0054	8016488|0f671165-5790-47bc-9793-9f63ffc36e42	8016488|missing
 79ec059a-9b5d-42fe-a61c-6c5e267f5d6f	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	393	393-01-7TR	393-01-7TR
 8fbb5d58-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK130	RK130_Liver	RK130_L01
 342c8af0-63af-4201-99f6-97986a78d997	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	90a8d2cb-1f31-45f9-8575-eed3cb9a7798	342c8af0-63af-4201-99f6-97986a78d997	08c3093d-4100-4bfc-92fc-a11f1393868f
@@ -688,8 +689,8 @@ edda9023-a8d9-45dc-af21-5bba663967e4	PCAWG 2.0	BRCA-US	Primary tumour - solid ti
 8c0903ee-2ea8-4ba8-8d86-6c3aa0ce3cf3	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0083	C0083RT	C0083RT
 e59deb12-6554-4a53-80ee-ebebe64e851c	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	a9d8f797-8a53-4be5-b957-0f1f6d080390	e59deb12-6554-4a53-80ee-ebebe64e851c	4ca4149a-e952-4a25-9163-8d4c15b09a62
 d357734e-3f6c-46a8-890c-996d01a21ee1	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	53d9a130-4a3a-4491-85cd-9a44415a1632	d357734e-3f6c-46a8-890c-996d01a21ee1	74856e66-109f-4a68-a496-8fa66729fe1f
-6c71de3e-501d-440a-a123-5d7302ff6cb8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2911|ICGC_0199	8057480	8057480
-6e37162e-0026-4e3d-96af-db5b502ed2b0	icgc_pancancer	PACA-AU	Primary tumour	APGI-3044|ICGC_0300	8058345	8058345
+6c71de3e-501d-440a-a123-5d7302ff6cb8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2911|ICGC_0199	6c71de3e-501d-440a-a123-5d7302ff6cb8|8057480	8057480|missing
+6e37162e-0026-4e3d-96af-db5b502ed2b0	icgc_pancancer	PACA-AU	Primary tumour	APGI-3044|ICGC_0300	8058345|6e37162e-0026-4e3d-96af-db5b502ed2b0	8058345|missing
 f2a51101-e624-4b5f-970b-6ffe66a768e1	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	ea3a524b-6ee3-4904-8924-29fcaa20985c	f2a51101-e624-4b5f-970b-6ffe66a768e1	910cd9b0-5bbe-47e5-8f4c-a6e8aa580281
 2b483617-1fc6-4809-b15c-d48d687ca3b8	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	94817e78-78f5-4556-9394-610df65605e2	2b483617-1fc6-4809-b15c-d48d687ca3b8	48fa5b7d-e488-4743-a7ce-aceb9945f00b
 2654e816-aab9-4945-ba62-3d6181985463	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4105746	tumor_4105746_RNA	tumor_4105746
@@ -719,8 +720,8 @@ d1f29a0e-ea3c-4684-9e40-e0e2f2d03fcf	icgc_pancancer	OV-AU	Primary tumour - solid
 8fb81814-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK026	RK026_Cancer	RK026_C01
 c0c714ac-aa74-4702-8c3b-704f6e549276	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	93ed7a2b-b0cb-4a84-871f-5c34a0b6a640	c0c714ac-aa74-4702-8c3b-704f6e549276	86c6a232-f5ab-47cd-b91b-4cad6aa1d0f1
 d28cd72f-27c3-4bea-bfc1-233461270a0b	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	5116e3b4-2bac-40f5-8046-b9c1783faaa5	d28cd72f-27c3-4bea-bfc1-233461270a0b	1eb2a255-6edd-4adb-b52d-99dcec590c5d
-66e2be75-d219-44b7-9f2b-9d494f92883d	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	25	025-0059-02TR	025-0059-02TR
-baecf0b1-419c-497b-8e47-f9053f823c58	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0214|APGI-2938	8051980	8051980
+66e2be75-d219-44b7-9f2b-9d494f92883d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	25	025-0059-02TR	025-0059-02TR
+baecf0b1-419c-497b-8e47-f9053f823c58	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0214|APGI-2938	baecf0b1-419c-497b-8e47-f9053f823c58|8051980	8051980|missing
 5b5148db-10dd-453f-baef-a5aa4d887ca1	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0115	C0115RT	C0115RT
 df706c43-0d65-49aa-9277-3e43bc7aa35d	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	577847b9-f9b6-4954-868f-3d5ab2b4f694	df706c43-0d65-49aa-9277-3e43bc7aa35d	5c1b955d-9d60-4975-a1e6-c4d531e79190
 8fb731e2-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK004	RK004_Cancer	RK004_C01
@@ -740,7 +741,7 @@ b2c0ddb9-05e7-4c15-bd32-08b61ed24374	icgc_pancancer	RECA-EU	Primary tumour - sol
 8fb9dbea-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK069	RK069_Liver	RK069_L01
 733eaed2-1df1-4832-bc6a-a401b1021795	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	9aabcbd7-a26a-49b1-abf1-02c0dc3adcf2	733eaed2-1df1-4832-bc6a-a401b1021795	e9938c51-8fc6-4ed0-9201-e51c0e943d1f
 cc748956-075e-4433-9640-274ee42bdba8	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	501c987e-d1eb-48a9-89eb-72a5062c90b4	cc748956-075e-4433-9640-274ee42bdba8	ee0d4640-5609-430e-8b80-3058a3f313a8
-2dff3b89-7583-45ed-869a-cfc8fa39e262	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0048|APGI-2146	8014743	8014743
+2dff3b89-7583-45ed-869a-cfc8fa39e262	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0048|APGI-2146	8014743|2dff3b89-7583-45ed-869a-cfc8fa39e262	8014743|missing
 2a016a06-5097-49b5-85b2-8ea5291fed23	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	1ee543d5-b8c0-4f79-8373-6bb6319f2ee2	2a016a06-5097-49b5-85b2-8ea5291fed23	75e00dd8-0ad9-4447-9407-0ab6ac0a7173
 1fe98b05-6803-4803-83cd-a59e794b956e	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	e9f4f373-37a5-48ad-a1a0-b0d47820111a	1fe98b05-6803-4803-83cd-a59e794b956e	0c12ea89-eeb4-4865-91eb-10cf75884c21
 c808f209-8527-4105-819b-610508d9d3b3	PCAWG 2.0	BLCA-US	Normal - tissue adjacent to primary	556fcbc8-172a-4af1-8822-ae036e8d68e8	c808f209-8527-4105-819b-610508d9d3b3	2a834a44-9490-4c60-b587-ebe890c3fb0a
@@ -754,10 +755,10 @@ c808f209-8527-4105-819b-610508d9d3b3	PCAWG 2.0	BLCA-US	Normal - tissue adjacent 
 670eab31-e873-4404-bbff-1b427e7b80c1	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	566792ae-f853-4a47-856d-f02cdcfcb18a	670eab31-e873-4404-bbff-1b427e7b80c1	0d2e50fa-daef-45a3-97b2-5d71ab03cfbf
 e53f26c4-eb37-4a21-823e-98000f26309d	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	457cca7c-a8b4-414e-a3c0-7fccf0ee2034	e53f26c4-eb37-4a21-823e-98000f26309d	9bfbc85e-86e0-4ac5-9304-84b1eb32b9cc
 8aa9969f-458c-401f-84a7-5cf76c68f790	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	11ab53c8-6366-4bc9-b60d-23e6ed2d1cae	8aa9969f-458c-401f-84a7-5cf76c68f790	d3280297-5674-4ae6-ab57-8d820543901e
-3dcf9da2-82c5-4668-b97b-d2e4b94820cc	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	318	318-01-3TR	318-01-3TR
-8cc3cdb2-8dde-40b0-9b3e-3accae7d057a	icgc_pancancer	PACA-AU	Primary tumour	APGI-3541|ICGC_0419	8067244	8067244
+3dcf9da2-82c5-4668-b97b-d2e4b94820cc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	318	318-01-3TR	318-01-3TR
+8cc3cdb2-8dde-40b0-9b3e-3accae7d057a	icgc_pancancer	PACA-AU	Primary tumour	APGI-3541|ICGC_0419	8067244|8cc3cdb2-8dde-40b0-9b3e-3accae7d057a	8067244|missing
 8fb8e8e8-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK050	RK050_Liver	RK050_L01
-8fb7e470-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK023	RK023_Cancer	RK023_C
+90c36d60-f8f2-4bf6-9f01-fc02e19dde5d	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	03f3dd32-e1d1-485b-a968-3f55798f4d46	90c36d60-f8f2-4bf6-9f01-fc02e19dde5d	59703768-8be1-47a7-8c7d-d794c0936019
 8fb7d804-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK020	RK020_Liver	RK020_L01
 44a2e59d-3084-49eb-9516-aac67072ff12	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	a65ec434-9ae0-453f-b440-08bf25558fd1	44a2e59d-3084-49eb-9516-aac67072ff12	4d6a2d9e-ec25-4040-a696-2d8d5d5c392e
 d763ccd4-4a11-4e84-b0a6-1b42da020ce4	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	359f12f9-5c41-48a4-85bc-fd7e307bf7d8	d763ccd4-4a11-4e84-b0a6-1b42da020ce4	bf055644-7bca-43b6-8f5a-e21c42f7cf88
@@ -766,12 +767,12 @@ d763ccd4-4a11-4e84-b0a6-1b42da020ce4	PCAWG 2.0	BRCA-US	Primary tumour - solid ti
 990bcb1f-7269-4020-8ea5-8ba338b390b8	PCAWG 2.0	OV-US	Primary tumour - solid tissue	62379be5-13f0-474b-94d3-6f944ec4ee96	990bcb1f-7269-4020-8ea5-8ba338b390b8	411b4c26-fcc4-438a-8731-d0cf5dd6c74f
 98056d94-9c31-4cf7-9b0f-5ebe06be01bd	PCAWG 2.0	LUAD-US	Normal - tissue adjacent to primary	21fb46f9-4bbb-441c-af19-a687e9138344	98056d94-9c31-4cf7-9b0f-5ebe06be01bd	d9548fe4-5631-473a-82cd-1b089b638963
 69f6df2f-7cd7-4477-b464-1fd06bd1e9c8	PCAWG 2.0	LGG-US	Primary tumour - solid tissue	648252da-dd86-48d1-ae75-4257e3142b0b	69f6df2f-7cd7-4477-b464-1fd06bd1e9c8	7bbfbdd1-4cb9-479c-8152-924d79e112f2
-dcdc31de-6cb8-4f41-a3a0-ad1b487709cc	icgc_pancancer	PACA-AU	Primary tumour	APGI-2344|ICGC_0393	8067184	8067184
+dcdc31de-6cb8-4f41-a3a0-ad1b487709cc	icgc_pancancer	PACA-AU	Primary tumour	APGI-2344|ICGC_0393	8067184|dcdc31de-6cb8-4f41-a3a0-ad1b487709cc	8067184|missing
 010d78d6-f2fa-4112-8ebc-c41082e6ddcc	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	d7641ca1-a062-4dd2-9414-447af7311a84	010d78d6-f2fa-4112-8ebc-c41082e6ddcc	617df1e0-b075-4610-b6d5-8850786fea70
 deeb2238-8ed6-4651-8b63-428c76914c94	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	16e69011-c295-479f-b521-86e66fba498d	deeb2238-8ed6-4651-8b63-428c76914c94	4c34ecb0-9351-4a55-9ff5-2062b7cb391a
 19c97e3d-f5af-4301-92f4-be8ac9e27427	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	dfa15fbe-bb14-40ce-afc6-70694112e3e2	19c97e3d-f5af-4301-92f4-be8ac9e27427	bf225dc1-4309-4304-849e-cbcc23c8442c
 bf3c3e52-0191-4714-a7fc-3c9ca9ff3332	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4199714	tumor_4199714_RNA	tumor_4199714
-c54061e7-22da-4c1c-a465-4022e4996876	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0224|APGI-2984	8057491	8057491
+c54061e7-22da-4c1c-a465-4022e4996876	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0224|APGI-2984	8057491|c54061e7-22da-4c1c-a465-4022e4996876	8057491|missing
 1d43f7a5-43ac-4861-b4a7-7bfce13ac2c5	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	b06cdf61-61c9-4035-a55d-1ef21dc21069	1d43f7a5-43ac-4861-b4a7-7bfce13ac2c5	bd6b7cbe-57b6-45b9-96f6-4d39b8303407
 b337121c-9821-4644-820e-b8c477f6c38a	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	737b35e1-d668-4fce-9b6e-76946c7952b6	b337121c-9821-4644-820e-b8c477f6c38a	96881d37-7a3e-4910-b897-19453118fe7c
 d10f0cee-d755-43cc-8d3d-8974cea0defb	PCAWG 2.0	OV-US	Primary tumour - solid tissue	15556b28-c6bd-455a-87b6-4b7b3e33d0e4	d10f0cee-d755-43cc-8d3d-8974cea0defb	c0091bb4-1079-4254-ad42-42ac1ddd7f1e
@@ -783,10 +784,10 @@ b9abfec0-4322-4f49-aa99-c30d8e81ed49	icgc_pancancer	RECA-EU	Primary tumour - sol
 c58dcf0f-d29b-4fdc-910a-b5b8101a25fb	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-167	c58dcf0f-d29b-4fdc-910a-b5b8101a25fb|AOCS-167-29-7-WT	AOCS-167-4|AOCS-167-29-7-WT
 81689324-2986-49f6-bef6-f5a525ca36c2	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	d2f2560c-ec80-4fea-9474-c47a2e85ea95	81689324-2986-49f6-bef6-f5a525ca36c2	4f5e142f-d936-469d-abaa-37baf6f045af
 75525e48-2c6d-4b74-b22b-3d2dcd7fde74	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0015	C0015RT	C0015RT
-c1620b77-c739-4136-a26c-de1342c11ba7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0215|APGI-2946	8052601	8052601
+c1620b77-c739-4136-a26c-de1342c11ba7	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0215|APGI-2946	c1620b77-c739-4136-a26c-de1342c11ba7|8052601	8052601|missing
 517d2fa2-c95a-454d-b53e-5f4806a4eef3	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	5338d435-68fb-4f0d-a3e6-c843f703f75f	517d2fa2-c95a-454d-b53e-5f4806a4eef3	a30b3254-3963-48d1-9710-7c3cac0b1993
 47964b92-bd93-45b1-97c9-194da4c9dccb	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	490eabca-4575-4bd6-9604-6b6e23d069ce	47964b92-bd93-45b1-97c9-194da4c9dccb	9f5ad422-c94d-4914-b6f0-071596ecb589
-0f671165-5790-47bc-9793-9f63ffc36e42	icgc_pancancer	PACA-AU	Primary tumour	APGI-2179|ICGC_0054	8016488	8016488
+8fbc28fa-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK166	RK166_Liver	RK166_L01
 47456c73-1469-4f31-a44a-66f115087f25	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	4075717b-2240-4842-a00a-0c4dbcb910c4	47456c73-1469-4f31-a44a-66f115087f25	be0a6a2b-a306-4ac6-8bf8-ea6af16eaa5a
 79471a1c-279b-4ae6-a5b9-7cca5fd73184	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0097	C0097RT	C0097RT
 b147bdcd-f5b6-41be-bca4-3ef7efcb9ec6	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	713190ed-c6c1-4695-814b-85ca9b95e6a0	b147bdcd-f5b6-41be-bca4-3ef7efcb9ec6	e0601d4f-a1df-4f29-baba-f8a67556a822
@@ -801,7 +802,7 @@ f6c44d41-7dcd-4907-9c4d-b71cc4b4db62	icgc_pancancer	CLLE-ES	peripheral blood|Pri
 c2711074-5019-4c8f-a5d7-7bf4654f5647	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	028e99e9-5b9a-4954-bb6e-6d4709a3cea8	c2711074-5019-4c8f-a5d7-7bf4654f5647	9622c370-68d0-48da-a7e0-5eb4765b6f27
 f659e8f2-3d29-4170-bd40-84e54c70fcd4	PCAWG 2.0	PRAD-US	Primary tumour - solid tissue	be5411dc-3caa-4b25-9b94-ce463e8e52b4	f659e8f2-3d29-4170-bd40-84e54c70fcd4	3c42eb4b-db63-4f81-8d28-a439e932c716
 00055bad-54b7-4898-a9ae-3dd8036e62d3	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	2b865f8c-539f-4cb2-8f08-41709e9511e5	00055bad-54b7-4898-a9ae-3dd8036e62d3	ed22cb10-ebde-4019-9b6d-e19ab573ca94
-f00283b2-98da-4a61-a733-2727c1306145	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	166	166-01-6TR	166-01-6TR
+f00283b2-98da-4a61-a733-2727c1306145	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	166	166-01-6TR	166-01-6TR
 8fbd370e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK309	RK309_Cancer	RK309_C01
 a7fa7e33-58e4-4463-b697-61a9c58bf9e1	PCAWG 2.0	READ-US	Primary tumour - solid tissue	830fd359-abd4-4c99-89e4-2d6bb9ce5637	a7fa7e33-58e4-4463-b697-61a9c58bf9e1	ce252c3d-5cf3-46bc-a181-3714d1c65e4e
 b4a82c9e-4b14-42ed-8d33-6494ec475827	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	659668e8-f0d9-4ff2-bbc8-9246f2ef49ab	b4a82c9e-4b14-42ed-8d33-6494ec475827	afec3b25-c3f7-4e48-8fb0-6fb4dd581081
@@ -811,7 +812,7 @@ a9adeaab-6a0e-407f-8cb9-f401786235f6	dkfz_pancancer	MALY-DE	Primary tumour - lym
 c55d0f65-fa13-4bb5-a556-2bd78bac2ccf	PCAWG 2.0	SKCM-US	Primary tumour - solid tissue	fa099993-ef30-4eff-a8fb-aa41b5ea671a	c55d0f65-fa13-4bb5-a556-2bd78bac2ccf	8288b632-9e64-401c-8f45-f268367f40e4
 f5fd50fd-4787-4415-bef8-2bddfd1e4e79	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0117	C0117RA	C0117RA
 9D3DFA06-4C69-49A8-93C2-EE54AAB7B2D8	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	a09d0be0-fd41-4b30-b488-9a9f2abef8e7	9D3DFA06-4C69-49A8-93C2-EE54AAB7B2D8	11671156-4bbf-4a3c-b074-7d6c27ee4fee
-fa7c64af-5121-4a59-88a1-fe62dc6e5030	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0055|APGI-2185	8016500	8016500
+fa7c64af-5121-4a59-88a1-fe62dc6e5030	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0055|APGI-2185	fa7c64af-5121-4a59-88a1-fe62dc6e5030|8016500	8016500|missing
 26a7b379-378d-4b8a-bd98-4c8ec6cc0532	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-005	AOCS-005-2-1|26a7b379-378d-4b8a-bd98-4c8ec6cc0532	AOCS-005-2-1|AOCS-005-1
 8fb6eaac-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK001	RK001_Liver	RK001_L01
 d9d35aa6-5185-4da7-b794-6f0b07242b61	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	a6e960af-3ca5-42fb-b546-451c2583282d	d9d35aa6-5185-4da7-b794-6f0b07242b61	605b6dd3-552b-403c-98d9-c8b441b37a90
@@ -821,7 +822,7 @@ d9d35aa6-5185-4da7-b794-6f0b07242b61	PCAWG 2.0	KIRP-US	Primary tumour - solid ti
 27e89ada-fc8b-484f-8570-c26af5434438	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	ce8612ab-3149-4a6a-b424-29c0c21c9b8b	27e89ada-fc8b-484f-8570-c26af5434438	d8f165af-1df5-4876-abf8-7596e52a3bc3
 9c1d30c4-c8f0-4ca7-bec7-243f81b7680a	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	ff1407c6-9174-4bae-a19b-d34ca71b898c	9c1d30c4-c8f0-4ca7-bec7-243f81b7680a	d664f620-cfee-4700-b00e-68b65387883c
 82a1c742-2d97-4c7a-bf1d-ca0233c60b6c	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	33e989b9-fac4-47d8-b429-269044ac772a	82a1c742-2d97-4c7a-bf1d-ca0233c60b6c	56dd63cb-cf0a-48c3-bccc-c5094f8d8ac0
-fcac0682-8936-4e6a-8a24-8f7d7a2ad24a	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	12	012-04-1TR	012-04-1TR
+fcac0682-8936-4e6a-8a24-8f7d7a2ad24a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	12	012-04-1TR	012-04-1TR
 58e94be5-2da2-4a96-944a-060f20216572	PCAWG 2.0	BRCA-US	Normal - tissue adjacent to primary	b97bf89a-7a85-4eef-ae7e-f787aead1f0a	58e94be5-2da2-4a96-944a-060f20216572	a6916373-70f1-434c-910a-407609815556
 81388e39-1fc8-47bd-b49b-946bc979996d	PCAWG 2.0	PRAD-US	Primary tumour - solid tissue	e2b33861-2247-413f-b2e5-9be3b604666c	81388e39-1fc8-47bd-b49b-946bc979996d	848c2c7b-918e-4a09-bad9-3b3d59bbc101
 7559d95d-0a25-497d-a5c9-e07dd95d80e8	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	d80f601b-1064-4ff0-9c51-7f6afb22d1f5	7559d95d-0a25-497d-a5c9-e07dd95d80e8	341ea198-c8a2-4675-8077-2c450e9925e1
@@ -862,7 +863,7 @@ a8b63750-fd87-4129-98e8-54e778671520	PCAWG 2.0	SKCM-US	Metastatic tumour - metas
 4b83a535-a64b-4f13-8c74-c38a0877b6c4	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0039	C0039RT	C0039RT
 22e154de-0e3b-443b-8420-48d68d6c1ce4	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	096b4f32-10c1-4737-a0dd-cae04c54ee33	22e154de-0e3b-443b-8420-48d68d6c1ce4	52f538ef-b05d-4c76-9976-ce6d49158016
 ea85c76f-5334-495d-9615-d3f503c0d088	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	8da3103e-3e6c-4176-a583-d5fe5e60601e	ea85c76f-5334-495d-9615-d3f503c0d088	3a30326b-7523-4565-9a7e-0f7b5536b1ca
-30465ec8-21e1-45f6-932a-e67c453fbc93	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0115|APGI-2285	8031670	8031670
+30465ec8-21e1-45f6-932a-e67c453fbc93	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0115|APGI-2285	8031670|30465ec8-21e1-45f6-932a-e67c453fbc93	8031670|missing
 697dfcbf-0c6b-4cae-b851-d46dd6be42c9	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	8cf54607-01ce-42b0-9bd9-8627edd9f3b7	697dfcbf-0c6b-4cae-b851-d46dd6be42c9	3bea8456-da16-4691-a260-5c94a83e2860
 d7098b7c-3032-481e-b0c8-1b3567319e89	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-106	d7098b7c-3032-481e-b0c8-1b3567319e89|AOCS-106-2-5	AOCS-106-1|AOCS-106-2-5
 7c23f39f-6b3f-41d8-bb17-c35788b2b060	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	3fea3f02-2db3-44e0-984e-c61130d92c9b	7c23f39f-6b3f-41d8-bb17-c35788b2b060	96bb672c-48fb-4aae-9fa5-7ceaf98e5348
@@ -892,11 +893,11 @@ d2b612ea-bc88-4b16-971d-6f0141bed0b9	PCAWG 2.0	LIHC-US	Primary tumour - solid ti
 ab48f18b-485b-4258-9940-b8b536bd2d04	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	0f3c4f8f-0766-46b0-81b4-18ca4f6ea20a	ab48f18b-485b-4258-9940-b8b536bd2d04	81431ed0-d762-4131-895b-852b2f78786d
 e637db43-508a-4a37-92e4-eea96b35b65b	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	784de7ac-8424-42eb-83d4-a1bebaa42b97	e637db43-508a-4a37-92e4-eea96b35b65b	289f5433-4834-401f-9361-efc8e883e630
 e8fb125c-3249-44f4-9bc7-5cd086011d89	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	6dfd47d2-831a-4386-9051-f78199a16bb5	e8fb125c-3249-44f4-9bc7-5cd086011d89	c4c061cd-e926-400b-b18c-b47c234337ca
-b5994859-993d-4e4e-b48b-e7c1d37f2f56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0124|APGI-2318	8068064	8068064
+b5994859-993d-4e4e-b48b-e7c1d37f2f56	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0124|APGI-2318	8068064|b5994859-993d-4e4e-b48b-e7c1d37f2f56	8068064|missing
 300b4b6b-3ae8-4e6b-a519-9f35501e9b3a	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-164	AOCS-164-2-0|300b4b6b-3ae8-4e6b-a519-9f35501e9b3a	AOCS-164-2-0|AOCS-164-1
 a1022e37-586a-4c6a-a754-01709bad7a43	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	0df573ee-28f0-4244-b434-09e6ca59fbf0	a1022e37-586a-4c6a-a754-01709bad7a43	b0410cd6-693d-41d6-9dad-d1b1c30bf5cb
 cd799c12-6a2b-4f7a-af72-f4bd7f69f6c7	PCAWG 2.0	OV-US	Primary tumour - solid tissue	0f530b3e-5b6d-4892-9ebd-9138d76fdca7	cd799c12-6a2b-4f7a-af72-f4bd7f69f6c7	22b7e0e2-334c-419c-a243-358ba22e479a
-24c8eb3b-2d0f-4c27-beba-0837a11bbf72	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	358	358-01-3TR	358-01-3TR
+24c8eb3b-2d0f-4c27-beba-0837a11bbf72	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	358	358-01-3TR	358-01-3TR
 d777ced1-c519-4281-b0c0-9e9188303e87	PCAWG 2.0	LUAD-US	Normal - tissue adjacent to primary	f063ddbb-1668-40df-9ec2-b0a23ca2c389	d777ced1-c519-4281-b0c0-9e9188303e87	0e0ff02a-dd07-487b-bd81-fa2a001977fb
 da9b7c51-c544-4ead-93c9-39b334b6bef2	PCAWG 2.0	BLCA-US	Normal - tissue adjacent to primary	419deaac-ea45-4bdd-9fa0-b5cd8429b44f	da9b7c51-c544-4ead-93c9-39b334b6bef2	df346965-b972-445d-9aac-35605b908f4d
 afac7352-d5be-4b87-baf0-0d22e761872b	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	6fd72426-f6c8-47ca-a500-d5d3600b9b15	afac7352-d5be-4b87-baf0-0d22e761872b	060717ad-f034-46fa-8e9b-94a9422e4666
@@ -909,20 +910,20 @@ d6c2379e-d885-45e4-8a73-88513f37ffd1	icgc_pancancer	CLLE-ES	peripheral blood|Pri
 84d56a0b-6ee1-4fe7-9491-d8815af1d6f5	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	6c28f086-6a25-40b6-93eb-bba0014acda6	84d56a0b-6ee1-4fe7-9491-d8815af1d6f5	19521291-90a2-4865-9d3f-25973130d22e
 a9c65f91-c4bf-4753-9c73-23c250ff9c08	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	761	761-01-3TR	761-01-3TR
 fb95eda8-c954-4e54-88c2-1f95c7047c53	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4128852	tumor_4128852_RNA	tumor_4128852
-553e71f7-3c4a-4f58-b953-1c6ee8422f02	icgc_pancancer	PACA-AU	Primary tumour	APGI-2591|ICGC_0139	8057445	8057445
+553e71f7-3c4a-4f58-b953-1c6ee8422f02	icgc_pancancer	PACA-AU	Primary tumour	APGI-2591|ICGC_0139	8057445|553e71f7-3c4a-4f58-b953-1c6ee8422f02	8057445|missing
 8fbb0402-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK108	RK108_Cancer	RK108_C01
 56b8e364-3475-4d2d-91ba-a007239c1310	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0141	C0141RT	C0141RT
 02528092-3a7a-4ddf-8801-e47a48fdeafe	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	c350b53b-3c27-4b9e-8b57-d7b6a1205a1f	02528092-3a7a-4ddf-8801-e47a48fdeafe	482153fb-e69d-4748-9cf4-e281ec141518
-0cd4fe69-f9bc-4581-8190-b5fab01fcfb3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-104	AOCS-104-2-X	AOCS-104-1
+0cd4fe69-f9bc-4581-8190-b5fab01fcfb3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-104	AOCS-104-2-X|0cd4fe69-f9bc-4581-8190-b5fab01fcfb3	AOCS-104-2-X|AOCS-104-1
 6f748364-2a6a-4fd4-af87-3de643719577	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	bf15f7ad-9d92-473b-91d1-f24aa373ab97	6f748364-2a6a-4fd4-af87-3de643719577	42208ba8-f465-4d62-9ed9-5dbfaa525913
 e88bcf68-e904-4511-92f6-01cbd0da62de	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	74f31744-0aed-4633-beec-4e203315f0b7	e88bcf68-e904-4511-92f6-01cbd0da62de	eb11d414-2f0e-44a1-843c-ecacc7212e91
 312ea080-3831-453d-aa8c-e466192c8309	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	797a71ee-372d-41e5-aeee-5ab3c4661110	312ea080-3831-453d-aa8c-e466192c8309	6ed52558-8039-4658-a245-78a29968ce2f
 225e5809-a311-4477-9e82-8e64a322eaff	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4198542	tumor_4198542_RNA	tumor_4198542
 4e337ef1-00c6-4cc5-8e87-3f88c6eb3c5c	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4166706	tumor_4166706_RNA	tumor_4166706
 ae7db93b-6fce-4d2f-9740-3eb6c0af7458	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0110	C0110RT	C0110RT
-df42453a-9ce2-495c-b750-363ab3032f3a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0205|APGI-2270	8031558	8031558
+df42453a-9ce2-495c-b750-363ab3032f3a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0205|APGI-2270	df42453a-9ce2-495c-b750-363ab3032f3a|8031558	8031558|missing
 8fbadf72-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK106	RK106_Liver	RK106_L01
-72034d15-4d8f-4b45-b375-7e5ddb1a71c1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2896|ICGC_0192	8067844	8067844
+72034d15-4d8f-4b45-b375-7e5ddb1a71c1	icgc_pancancer	PACA-AU	Primary tumour	APGI-2896|ICGC_0192	8067844|72034d15-4d8f-4b45-b375-7e5ddb1a71c1	8067844|missing
 8fbcd44e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK269	RK269_Cancer	RK269_C01
 8fb8dcc2-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK050	RK050_Cancer	RK050_C
 ccdfd8a3-2bc7-474c-b80d-96e8741fe8bc	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	283776cd-32e8-4a79-bed1-1411c9d3a9e0	ccdfd8a3-2bc7-474c-b80d-96e8741fe8bc	4e5fdd56-c807-4493-a331-359577c31514
@@ -932,8 +933,8 @@ cbac425d-f2b1-4b13-ad67-e73fa46600d2	icgc_pancancer	RECA-EU	Primary tumour - sol
 43abe272-41cb-4b54-b6f6-50a27c670e46	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	7b9947d5-e86b-4006-8890-ea5209584a88	43abe272-41cb-4b54-b6f6-50a27c670e46	53d0521f-10d6-4f70-9277-d99025a6b963
 6f4db564-2c2a-439d-8568-07e6b2a76fc8	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0133	C0133RT	C0133RT
 612ef912-5a28-4c11-8703-3376f51afef5	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	74139255-a635-4c87-814d-3dd04ed630a8	612ef912-5a28-4c11-8703-3376f51afef5	5e92a5d5-77a4-401a-ade3-e01c95302ec0
-2a1378de-a59c-4510-947c-3a5a31e01679	icgc_pancancer	PACA-AU	Primary tumour	APGI-3306|ICGC_0406	8067212	8067212
-78437fcf-ceb7-4d74-9491-da2f68f57181	icgc_pancancer	PACA-AU	Primary tumour	APGI-2023|ICGC_0021	8015111	8015111
+2a1378de-a59c-4510-947c-3a5a31e01679	icgc_pancancer	PACA-AU	Primary tumour	APGI-3306|ICGC_0406	2a1378de-a59c-4510-947c-3a5a31e01679|8067212	8067212|missing
+78437fcf-ceb7-4d74-9491-da2f68f57181	icgc_pancancer	PACA-AU	Primary tumour	APGI-2023|ICGC_0021	78437fcf-ceb7-4d74-9491-da2f68f57181|8015111	8015111|missing
 9a505286-4aa4-4f56-b71e-ceddde413e52	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	75a53bff-bf0f-4ad8-9b8e-14a27914d4f2	9a505286-4aa4-4f56-b71e-ceddde413e52	16223531-33c3-4d2c-8715-fa9899cee168
 fbf2f1c0-fb91-4548-8653-68021e6541f9	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	b1c4579c-72fa-4974-830c-b6a81ace45f4	fbf2f1c0-fb91-4548-8653-68021e6541f9	e8013962-7049-4596-aa49-e6403f608d98
 2e8967ca-349f-49b3-b760-a71c473dae07	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0059	C0059RT	C0059RT
@@ -957,7 +958,7 @@ e92d3c82-1aea-48da-97fd-bf6325d5c51b	PCAWG 2.0	BLCA-US	Normal - tissue adjacent 
 11b81a6e-be33-4bc8-8b91-1034c67a3ed8	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	667eb7f6-1d36-49bb-9d7b-c9d167b64619	11b81a6e-be33-4bc8-8b91-1034c67a3ed8	5f75f169-6835-4b42-af77-ab64cbfb5ef3
 310820cc-fc05-45c6-8f04-a44db0828686	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	ddf69ed9-4c53-48b8-9f01-495bd60c3425	310820cc-fc05-45c6-8f04-a44db0828686	a657afdb-5322-454f-8dd7-8397291401c5
 0ee0c708-77c4-4ac3-be13-0d08e6444003	PCAWG 2.0	OV-US	Primary tumour - solid tissue	f5033d52-ec36-4e67-88d8-b6d898b81b2f	0ee0c708-77c4-4ac3-be13-0d08e6444003	2179798c-4fd4-4434-b1d5-1453f6054fa2
-fd36ea47-276b-419e-93cf-f4d3d075d581	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	181	181-01-4TR	181-01-4TR
+fd36ea47-276b-419e-93cf-f4d3d075d581	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	181	181-01-4TR	181-01-4TR
 ac93cb14-6604-4581-af7e-6059736e7172	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	749	749-02-12TR	749-02-12TR
 983c0163-4593-449d-8a78-de334ef20903	icgc_pancancer	PACA-AU	Mouse xenograft derived from tumour	ICGC_0054	983c0163-4593-449d-8a78-de334ef20903	missing
 b3801610-6fb1-40b7-8c08-0de07484ce45	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	0da5ee6c-d012-4a57-9992-9d74937aaa5f	b3801610-6fb1-40b7-8c08-0de07484ce45	f854db6b-57cb-4da7-9252-b2ade22c2675
@@ -973,10 +974,10 @@ d5cc62c3-610a-4499-9c13-e7267379b154	icgc_pancancer	CLLE-ES	peripheral blood|Pri
 6feb0fe5-21ea-4766-a3ad-7f839ac46cef	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0068	C0068RA	C0068RA
 09c248f8-cdd7-4c13-9085-26c56544bcf7	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	045c13ef-3db7-4adf-b0a3-23338f0479f3	09c248f8-cdd7-4c13-9085-26c56544bcf7	14423610-4958-43f4-9a75-1a61c1293024
 95365098-d660-415e-843d-3726e8821022	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	fcecafa8-8b8b-4ae6-81bc-73acf05b211a	95365098-d660-415e-843d-3726e8821022	6f6c9f00-d6e5-452f-ba04-f77b146b780b
-f525d94f-1925-4384-813a-9be9c166feb9	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	122	122-06-02TR	122-06-02TR
+f525d94f-1925-4384-813a-9be9c166feb9	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	122	122-06-02TR	122-06-02TR
 13e20aec-d506-4fa0-a6e1-121e76dcedc4	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	c4d1e105-28b7-48df-abef-fbe09782fdb2	13e20aec-d506-4fa0-a6e1-121e76dcedc4	38c83b40-fba4-48d4-ad6e-93768cb6139f
 8fb8953c-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK036	RK036_Liver	RK036_L01
-9e7b3c36-4a48-40f9-aae4-91c7223c360a	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	4	004-0012-06TR	004-0012-06TR
+9e7b3c36-4a48-40f9-aae4-91c7223c360a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	4	004-0012-06TR	004-0012-06TR
 31c9c8be-6cde-4db6-b9fd-6173b41bedc8	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	56403463-1727-4c23-a709-de5f168c4073	31c9c8be-6cde-4db6-b9fd-6173b41bedc8	97fa4d8b-1c05-41a6-97c4-0b27dc70eb4c
 6947a02f-c72d-4463-99ed-a4973a62027f	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0016	C0016RT	C0016RT
 5462aaff-d060-4ba7-9ab5-0e6977accb91	PCAWG 2.0	BRCA-US	Normal - tissue adjacent to primary	f6e1ec78-5ad9-4879-9b7e-262d17b166ad	5462aaff-d060-4ba7-9ab5-0e6977accb91	3196c5f3-9227-4a9d-b87a-3e1f680a768c
@@ -985,7 +986,7 @@ f525d94f-1925-4384-813a-9be9c166feb9	icgc_pancancer	CLLE-ES	Primary tumour - blo
 1cd76b6a-a698-46cd-9594-decc4ebf24e4	PCAWG 2.0	LGG-US	Recurrent tumour - solid tissue	70939245-41e0-4845-a473-5fef719b9828	1cd76b6a-a698-46cd-9594-decc4ebf24e4	2cd2f7dc-6d09-4593-aff6-89c3a8500ec9
 f4cfc17b-c464-48f2-83ee-359a35c7bc43	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	9c9b53e5-cdbe-4510-a839-4a3b5039681b	f4cfc17b-c464-48f2-83ee-359a35c7bc43	a6bbee06-44bf-446a-8d21-550aa6e71960
 bada678f-4670-489f-a158-efe386f5bdf5	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0018	C0018RT	C0018RT
-8642fd8e-6e77-4f4b-baec-1163db337dee	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0103|APGI-2215	8031076	8031076
+8642fd8e-6e77-4f4b-baec-1163db337dee	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0103|APGI-2215	8642fd8e-6e77-4f4b-baec-1163db337dee|8031076	8031076|missing
 34149234-2d6a-46ac-b7e0-52787cf2c49a	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	bad34c92-1e64-4187-a0b4-061105fd13ba	34149234-2d6a-46ac-b7e0-52787cf2c49a	83e4dfb0-f240-476b-bc25-f9f52c960af5
 ff555cad-2ab4-425b-83b5-c56ac20905a8	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	b46d88e9-8477-4900-8da9-5e7dbded0653	ff555cad-2ab4-425b-83b5-c56ac20905a8	ce24fe0a-5c4d-4fbe-a02c-76345eaa2892
 ca0859bb-1bb1-4c16-b5aa-39d535d75525	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	306	306-01-5TR	306-01-5TR
@@ -999,7 +1000,7 @@ efc2a8d3-1ef2-4719-b60d-bd752edda684	PCAWG 2.0	KICH-US	Primary tumour - solid ti
 539545e6-7309-4431-85bf-101159542bdb	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	9a874b64-d0d6-416e-97bc-e9071ed0b16b	539545e6-7309-4431-85bf-101159542bdb	23327c39-2e21-4604-9eba-15884ae356fc
 07a4d275-d7bb-4aee-ae7e-b056a8785643	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	267ff78b-bceb-466e-8582-c560fe227ff0	07a4d275-d7bb-4aee-ae7e-b056a8785643	8262bf2a-f944-4101-8e43-51658b580747
 5abbe55f-1baf-4052-9139-fedb902cc513	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0052	C0052RT	C0052RT
-4022489b-0f47-490f-96c3-e3eb67d0eb09	icgc_pancancer	PACA-AU	Primary tumour	APGI-2781|ICGC_0169	8044596	8044596
+4022489b-0f47-490f-96c3-e3eb67d0eb09	icgc_pancancer	PACA-AU	Primary tumour	APGI-2781|ICGC_0169	4022489b-0f47-490f-96c3-e3eb67d0eb09|8044596	8044596|missing
 57c0133c-6423-46ba-b38d-7435d3c420c5	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-076	57c0133c-6423-46ba-b38d-7435d3c420c5|AOCS-076-2-7	AOCS-076-2-7|AOCS-076-1
 efeb8cc0-54e8-472b-82d2-f725175ad083	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0107	C0107RT	C0107RT
 29739602-d94f-4341-849e-a5b8a4c342eb	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	bbdaa931-e922-49be-bfbf-fa0c2ae27d7a	29739602-d94f-4341-849e-a5b8a4c342eb	b4f9b73b-94db-4e0f-af55-cf0583318a4a
@@ -1022,24 +1023,24 @@ fac9101c-a974-4415-9eac-d2d433d02b13	PCAWG 2.0	BRCA-US	Primary tumour - solid ti
 92462e76-eed1-4eab-8c38-4cf9897be417	PCAWG 2.0	LIHC-US	Normal - tissue adjacent to primary	17833039-0d7e-47f0-90e6-8cabae94c124	92462e76-eed1-4eab-8c38-4cf9897be417	50d807b1-a8cb-4299-a597-0d3f8dd98692
 6a45204a-96c6-4617-a4cc-27f71c05170b	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	ff9def3d-17e5-4ef6-b74e-933f11ed6f00	6a45204a-96c6-4617-a4cc-27f71c05170b	98a8d751-4efd-442e-a242-0fe399c2586f
 dde84079-d7ea-4e61-8563-9f38488bb38b	icgc_pancancer	OV-AU	Metastatic tumour - metastasis to distant location	AOCS-139	AOCS-139-24-9WT|dde84079-d7ea-4e61-8563-9f38488bb38b	AOCS-139-17|AOCS-139-24-9WT
-f18a05f2-60fd-4076-9b8b-e8b438e66c21	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0503|APGI-3752	8068966	8068966
+f18a05f2-60fd-4076-9b8b-e8b438e66c21	icgc_pancancer	PACA-AU	Primary tumour	APGI-3752|ICGC_0503	8068966|f18a05f2-60fd-4076-9b8b-e8b438e66c21	8068966|missing
 24985377-300c-4ccb-942c-226e38123b13	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-092	AOCS-092-4-7|24985377-300c-4ccb-942c-226e38123b13	AOCS-092-13|AOCS-092-4-7
-f3ead589-7559-40f1-b7de-9a5bb62931a6	icgc_pancancer	PACA-AU	Primary tumour	APGI-3758|ICGC_0518	8069122	8069122
+f3ead589-7559-40f1-b7de-9a5bb62931a6	icgc_pancancer	PACA-AU	Primary tumour	APGI-3758|ICGC_0518	8069122|f3ead589-7559-40f1-b7de-9a5bb62931a6	8069122|missing
 9d2ed56f-8ccb-4f63-9bee-a32ebca221f0	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	8f3f6f7c-4b50-467e-a6e8-d836735913f6	9d2ed56f-8ccb-4f63-9bee-a32ebca221f0	fb5c61d6-717e-4798-8306-86eb196d5609
-118bee6a-65a2-441f-a621-45a56606b7a3	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	137	137-03-4TR	137-03-4TR
+118bee6a-65a2-441f-a621-45a56606b7a3	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	137	137-03-4TR	137-03-4TR
 e1adae95-dfa9-4279-8fc1-2f899f432360	PCAWG 2.0	LUAD-US	Normal - tissue adjacent to primary	028e99e9-5b9a-4954-bb6e-6d4709a3cea8	e1adae95-dfa9-4279-8fc1-2f899f432360	e8e0e53a-4009-4141-ba6f-eed35fcaad7b
 a6a4630e-3d28-4a38-8c9f-29fc0c7b380a	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	00bca18c-b3d4-45a3-8f19-034cc40449a4	a6a4630e-3d28-4a38-8c9f-29fc0c7b380a	cbad0c55-915a-4f65-b040-57111ead3bde
 e565362c-6ef0-4005-a78b-d418325d5b1a	icgc_pancancer	PACA-AU	Cell line derived from xenograft	APGI-2179|ICGC_0054	e565362c-6ef0-4005-a78b-d418325d5b1a|8044183	8044183|missing
 365edca8-a3eb-4e98-9243-90b121b7222c	PCAWG 2.0	KICH-US	Normal - tissue adjacent to primary	8c9e1f60-1838-4aa4-a667-c1cef7dddbdf	365edca8-a3eb-4e98-9243-90b121b7222c	12fae79a-bbbe-48cf-a6cd-d2ab745cf176
 3ae6f6d4-ae90-4572-9bd5-ed8700570b96	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	762dea8a-5b41-4058-979a-b7876ed13d7e	3ae6f6d4-ae90-4572-9bd5-ed8700570b96	9ded6605-39a3-4c0f-ad2e-7f6863960dbe
 faada44a-329e-4726-b5fe-678f3abca323	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-157	AOCS-157-2-7|faada44a-329e-4726-b5fe-678f3abca323	AOCS-157-1|AOCS-157-2-7
-1ac40a6c-056b-419f-9a24-bcd24d66e678	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0420	8067247	8067247
+1ac40a6c-056b-419f-9a24-bcd24d66e678	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0420|APGI-3550	8067247|1ac40a6c-056b-419f-9a24-bcd24d66e678	8067247|missing
 fd2f5ac4-4119-491b-bcc6-7cd5d70922b9	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	9da334ed-314c-4445-ba29-ffd9bb42403c	fd2f5ac4-4119-491b-bcc6-7cd5d70922b9	0b96a41e-6a0c-4fc6-8f21-8e5f992ce5d1
 4e768aec-1f77-4ce4-ae4d-aa2bfd66fdc5	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	64bb5550-2735-4401-a0db-58ec1020a32d	4e768aec-1f77-4ce4-ae4d-aa2bfd66fdc5	be567c0a-3833-45d7-b846-d229a8e16e16
 9ba93f5f-1c6f-490b-a917-daae74bcc7fa	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	bd75d8ee-916b-4abc-bf33-bce6a4217076	9ba93f5f-1c6f-490b-a917-daae74bcc7fa	f87efb5e-24f5-4d2b-b6b3-987bbda30e03
 533707b4-6a23-4bd2-93db-12581927267c	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4110378	tumor_4110378_RNA	tumor_4110378
 9c32363e-4a72-4673-a518-74ade77dbdbb	icgc_pancancer	ESAD-UK	Primary tumour - solid tissue	OCCAMS-AH-131	LP6005409-DNA_D02	OC-AH-131-E-T5
-8e0f1747-19c3-4d31-b9ab-6288594c306d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0026|APGI-2041	8014827	8014827
+8e0f1747-19c3-4d31-b9ab-6288594c306d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0026|APGI-2041	8e0f1747-19c3-4d31-b9ab-6288594c306d|8014827	8014827|missing
 d10ce5a7-da57-407f-8ec8-6efd0072cf28	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	d5eedfb5-4fa3-4a1e-ad0d-ea550b22a5ba	d10ce5a7-da57-407f-8ec8-6efd0072cf28	47ec5010-4353-493b-ab28-c95bc2cb026c
 dbb7a8d3-e3b3-4a88-b1b0-20b65299651a	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0109	C0109RT	C0109RT
 79d7a589-60bd-4b4a-89c1-d557fe24c733	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	b58ad350-5140-4fa8-bc2c-24bca8395f3a	79d7a589-60bd-4b4a-89c1-d557fe24c733	6dd4870f-1ec2-484b-8703-6397d8e67daa
@@ -1047,7 +1048,7 @@ dbb7a8d3-e3b3-4a88-b1b0-20b65299651a	icgc_pancancer	RECA-EU	Primary tumour - sol
 febead73-3b12-44e6-8bab-a7cfa7bf1129	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	f48937ed-e294-41f0-8872-7010391167a9	febead73-3b12-44e6-8bab-a7cfa7bf1129	6b43eeec-4feb-4062-827a-e63ed8ce3820
 34dda809-a7af-411f-ab80-b021b077eaf9	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	6abc861a-376d-446b-acee-fb0f03a82c09	34dda809-a7af-411f-ab80-b021b077eaf9	aacf33bd-95ce-40fd-9828-1e78cbbb0e1b
 7d2a4d8e-d44a-4df7-a186-656ea8232f45	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0091	C0091RA	C0091RA
-2227701b-3051-4a6d-bf9c-32b0f6f24c64	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0087|APGI-2133	8057443	8057443
+2227701b-3051-4a6d-bf9c-32b0f6f24c64	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0087|APGI-2133	2227701b-3051-4a6d-bf9c-32b0f6f24c64|8057443	8057443|missing
 41365ece-eec5-4e26-ac81-c6fbc254e754	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-085	AOCS-085-2-6|41365ece-eec5-4e26-ac81-c6fbc254e754	AOCS-085-1|AOCS-085-2-6
 d3c197e1-aaae-44a2-a7a9-10bc4fef6352	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4138527	tumor_4138527_RNA	tumor_4138527
 8fb74af6-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK007	RK007_Cancer	RK007_C01
@@ -1063,7 +1064,7 @@ A8AE9773-3287-43E4-A18A-1ACE7291E83F	PCAWG 2.0	THCA-US	Primary tumour - solid ti
 cecfa4f0-a6e2-4e48-a331-edaf736ae236	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	233400c5-6a47-40e2-bf2a-8b7fc9df462b	cecfa4f0-a6e2-4e48-a331-edaf736ae236	192b8235-8b09-4102-91ce-ddb77a5e0bad
 8cb7e009-0e3a-4fee-aca1-177c33ee3441	PCAWG 2.0	KIRC-US	Normal - tissue adjacent to primary	0487fc41-386c-4d76-9084-daf959bf5e98	8cb7e009-0e3a-4fee-aca1-177c33ee3441	3ebdb6a2-509d-421b-a186-989aba538664
 721c59a5-22b6-4388-a47d-d0108ea2c1aa	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	a3be445a-a592-4073-815b-47ae41f9c4a0	721c59a5-22b6-4388-a47d-d0108ea2c1aa	577057af-7775-497b-bee9-e04562648509
-0654e7d3-932a-49f4-8ec9-d722fc62dca5	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	308	308-01-3TR	308-01-3TR
+0654e7d3-932a-49f4-8ec9-d722fc62dca5	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	308	308-01-3TR	308-01-3TR
 4d847011-a970-488c-80da-9214c5d53364	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0035	C0035RA	C0035RA
 f684abbc-ff21-4042-a5d8-2a0f3e22bd59	PCAWG 2.0	SKCM-US	Primary tumour - solid tissue	d7ee2693-39a8-4e3a-b6f6-e4729800e34e	f684abbc-ff21-4042-a5d8-2a0f3e22bd59	a74e2fec-291c-4967-afe3-101955578225
 7e49cf6c-9feb-43a9-a123-917cd38e4f1d	PCAWG 2.0	KICH-US	Normal - tissue adjacent to primary	f2b58595-dec0-4194-ab33-7c7dc6c058a6	7e49cf6c-9feb-43a9-a123-917cd38e4f1d	f1f4235a-7aa4-4df7-8a9f-f1037ca7957a
@@ -1087,12 +1088,12 @@ e3d12938-a5e3-4212-85f8-a53d46c6ea77	PCAWG 2.0	SARC-US	Primary tumour - solid ti
 0561fb66-fe14-45cc-aeea-0e7e2955cc81	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	e37cae9e-0656-4b89-b326-739a5cc859e0	0561fb66-fe14-45cc-aeea-0e7e2955cc81	fa7426e1-fcfb-4b08-ad50-1d9e903a81fb
 75ba5803-449e-4770-8105-b675af8e6907	PCAWG 2.0	BRCA-US	Normal - tissue adjacent to primary	74f31744-0aed-4633-beec-4e203315f0b7	75ba5803-449e-4770-8105-b675af8e6907	a9ce148b-ad26-4257-8f5c-295fd2dcb1d7
 8fb91fd4-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK052	RK052_Liver	RK052_L01
-3edcf32e-076a-456f-9858-3276687fba90	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8067283	8067283
+3edcf32e-076a-456f-9858-3276687fba90	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8067283|3edcf32e-076a-456f-9858-3276687fba90	8067283|missing
 29c98197-249e-45c9-96dc-34dfb4ac1430	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	65cac997-4d39-4501-85ec-4fcb328a8eb5	29c98197-249e-45c9-96dc-34dfb4ac1430	fed3a891-21be-4196-b9ef-0bf7c8f976aa
 869c46c0-e7ac-4421-998d-28c5826fc091	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	2ff6aede-7bcd-440b-99ab-7a023faf658e	869c46c0-e7ac-4421-998d-28c5826fc091	a8673ba9-ef34-42ca-a73e-1efb4f186e88
 114b9dbd-0672-4b83-8bdc-cc2432f4fd91	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	2f1c4db6-88a7-4a5d-a5fe-94d85f569440	114b9dbd-0672-4b83-8bdc-cc2432f4fd91	f606fe9c-7d9f-4615-ab16-0bb4c796adea
 449fb25f-4449-4817-b182-ff246b4ffafe	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	2666ab3e-f2b9-4b3d-bfce-aac2a4bafe62	449fb25f-4449-4817-b182-ff246b4ffafe	3bb75df9-e710-4f3d-b1b1-a4d459eb376f
-77ded327-2c26-46de-afda-ef24ca25e8ac	icgc_pancancer	PACA-AU	Primary tumour	APGI-2928|ICGC_0315	8049225	8049225
+77ded327-2c26-46de-afda-ef24ca25e8ac	icgc_pancancer	PACA-AU	Primary tumour	APGI-2928|ICGC_0315	8049225|77ded327-2c26-46de-afda-ef24ca25e8ac	8049225|missing
 a4d107e6-4e56-49e9-8ec8-0903e6f00418	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-155	a4d107e6-4e56-49e9-8ec8-0903e6f00418|AOCS-155-4-9	AOCS-155-13|AOCS-155-4-9
 5ff2576f-3b08-48f0-8c65-b5f28bc98c89	dkfz_pancancer	MALY-DE	Primary tumour - blood derived (bone marrow)	4178310	tumor_4178310_RNA	tumor_4178310
 9d146704-9146-4bfc-8198-b0f6b700cdae	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	39f68467-3d37-4b19-aa43-ed7b120c619d	9d146704-9146-4bfc-8198-b0f6b700cdae	386455aa-441e-4bd2-a0a7-ad2ed278e5e6
@@ -1102,7 +1103,8 @@ aa86488e-5730-41e0-ae57-2ce4ac8cfdfb	icgc_pancancer	RECA-EU	Normal - tissue adja
 5ad0e307-eab1-4b09-b662-d4301c753a99	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	442	442-02-4TR	442-02-4TR
 04931dc2-f51b-4d87-97e9-af5af0132e23	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	9f632fc3-2241-469a-a14a-cd537350155f	04931dc2-f51b-4d87-97e9-af5af0132e23	1b2df3fd-183c-4099-a387-5908c8b44f57
 43672213-eb65-4206-bc57-56587b08259f	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	d4bc755a-2585-4529-ae36-7e1d88bdecfe	43672213-eb65-4206-bc57-56587b08259f	eeffadf9-2ccb-4937-ae1e-1d50aba41c4d
-cb5a8b68-8405-46c1-a534-b1f18009fc8f	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	23	023-0056-02TR	023-0056-02TR
+cb5a8b68-8405-46c1-a534-b1f18009fc8f	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	23	023-0056-02TR	023-0056-02TR
+433b49ba-949b-4914-985a-be19b3b32502	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	1557183c-aedd-4df6-b98a-3654667f7b69	433b49ba-949b-4914-985a-be19b3b32502	a09a99f9-33e3-45d5-bfc2-f57ce149a527
 82bb01e9-a659-417b-b9e8-831a76277a21	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	fafd4576-0709-49e1-926f-ad1ee09907ec	82bb01e9-a659-417b-b9e8-831a76277a21	c24759f8-566b-42da-a26d-bb0bf51ee15f
 70e5009c-009c-4cff-8ea1-4c130c8a31e3	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0139	C0139RT	C0139RT
 b19357df-ef0e-4a01-932c-3dc537ef75ea	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	78412f82-cc55-43d5-96ca-1d02cf957725	b19357df-ef0e-4a01-932c-3dc537ef75ea	6f084d86-6ce0-431a-87d7-0e543392ea15
@@ -1131,7 +1133,7 @@ cfd4785f-1844-4274-8892-e2e558cb112a	PCAWG 2.0	THCA-US	Primary tumour - solid ti
 3cddfc56-b101-46b6-bb24-9f06d0836968	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	b1c32911-5ca8-4b77-8063-a97c30a3a348	3cddfc56-b101-46b6-bb24-9f06d0836968	dcc4f5cd-032e-4129-92a9-d0a47efd12d5
 8fbd1d96-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK308	RK308_Cancer	RK308_C01
 507264df-eae4-4e84-8ba6-b883190665e9	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	9ecdde9c-2179-4830-bd10-c4fa40f26066	507264df-eae4-4e84-8ba6-b883190665e9	98d425be-4d70-4260-8c4f-b0eb89e0e4a6
-f17ef020-0b95-405e-bef3-d4821f2af1dc	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	138	138-03-3TR	138-03-3TR
+f17ef020-0b95-405e-bef3-d4821f2af1dc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	138	138-03-3TR	138-03-3TR
 61fb0e49-a3e7-4425-bb88-8e7d70fe76d8	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	7ca06dbe-f073-4aee-86ff-a545fad5ea93	61fb0e49-a3e7-4425-bb88-8e7d70fe76d8	24814eed-fddb-475a-822e-efff92202954
 cea49633-24f0-48c4-b2d0-fed47d5364e6	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	69d56f2d-6924-409b-9d1e-c8d69b400270	cea49633-24f0-48c4-b2d0-fed47d5364e6	8cfb4c3f-b25f-412c-91c7-997c64ea2d75
 050080ae-44db-4056-8df1-eae4d9014ac9	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	bce25281-502e-4599-9679-32dc8462ffb1	050080ae-44db-4056-8df1-eae4d9014ac9	c8cb1326-7ab9-4e3d-bdc9-9ce42715dac7
@@ -1139,7 +1141,7 @@ b1c4af00-f395-47ac-93c7-b32a293ca060	PCAWG 2.0	BRCA-US	Primary tumour - solid ti
 4a68e62e-ae0a-4eeb-a87a-8c67db008b6b	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0079	C0079RT	C0079RT
 3ff08cd5-591c-453c-aaf8-27b09f88a528	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0057	C0057RT	C0057RT
 c6721c2d-adce-447c-83dd-e500b43506fc	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	1ca3c5e0-32b0-4467-8ec0-ca212e35d2b3	c6721c2d-adce-447c-83dd-e500b43506fc	53369a25-3bc4-48cb-9004-da3507c4d478
-41eee6a7-806d-4c77-b236-eeb60a8cf183	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0313|APGI-3281	8067940	8067940
+41eee6a7-806d-4c77-b236-eeb60a8cf183	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0313|APGI-3281	41eee6a7-806d-4c77-b236-eeb60a8cf183|8067940	8067940|missing
 400b226d-d5a5-444a-9b0e-33c6c7252d1e	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	3429967f-4f77-4894-bf27-c4a22698ca92	400b226d-d5a5-444a-9b0e-33c6c7252d1e	ea59b74a-7456-43dd-b79c-74040176f0cd
 f77e9ef0-0a62-426b-98d9-6813edeb63a5	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	2c86c3ea-d926-4d39-a5ae-39ece4774287	f77e9ef0-0a62-426b-98d9-6813edeb63a5	9ef8142a-8627-4dcf-8c87-15b1bc2bfea2
 a6b72c40-c921-4159-abad-b64e20619241	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	0bc5744c-5fa3-45bb-87d0-70a02068b392	a6b72c40-c921-4159-abad-b64e20619241	3f104cf7-8de8-4e77-8baa-bad1bbb493ac
@@ -1150,7 +1152,7 @@ A2834ABA-B6C1-4E62-8682-D6FC9D093E49	PCAWG 2.0	THCA-US	Primary tumour - solid ti
 8fb888d0-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK036	RK036_Cancer	RK036_C01
 537507f7-d639-44b5-8725-2390fca5f6c1	PCAWG 2.0	READ-US	Primary tumour - solid tissue	8feb0e8f-d09b-437d-8651-0cdecfe776bf	537507f7-d639-44b5-8725-2390fca5f6c1	81ab66e0-6470-409b-aa27-846c869d2c8f
 8fba269a-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK079	RK079_Liver	RK079_L01
-8f518277-f131-48e9-9494-33beec0caac7	icgc_pancancer	PACA-AU	Primary tumour	APGI-2157|ICGC_0052	8015860	8015860
+8f518277-f131-48e9-9494-33beec0caac7	icgc_pancancer	PACA-AU	Primary tumour	APGI-2157|ICGC_0052	8f518277-f131-48e9-9494-33beec0caac7|8015860	8015860|missing
 f5968e01-320d-4ad7-844c-4fe139aa44b7	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	f75d2589-fd7b-49a1-a1c8-0b4726b81f3c	f5968e01-320d-4ad7-844c-4fe139aa44b7	46e59502-d5df-428b-beef-6ad1439b86c6
 01deb3b4-7229-40b1-a567-b1cb80e556eb	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-150	AOCS-150-4-5|01deb3b4-7229-40b1-a567-b1cb80e556eb	AOCS-150-4-5|AOCS-150-13
 8fb7fd34-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK025	RK025_Cancer	RK025_C
@@ -1168,7 +1170,7 @@ fca05afb-d892-431c-a19a-e0c8c6e283eb	PCAWG 2.0	LUSC-US	Primary tumour - solid ti
 932c2e20-510c-4aed-879e-b69d90710b64	PCAWG 2.0	READ-US	Primary tumour - solid tissue	e6827400-0d95-46b0-8874-6ce9e9d5011b	932c2e20-510c-4aed-879e-b69d90710b64	da1ca84f-6c55-4536-9449-3c87e51ef85a
 2c681223-21a5-4c58-acbb-2d51516bff12	PCAWG 2.0	BLCA-US	Primary tumour - solid tissue	cede5274-279d-4021-8aca-5ecc4bf94d66	2c681223-21a5-4c58-acbb-2d51516bff12	cbedc0db-39fd-4661-9531-cc24d422fac4
 a6adbcc1-dc20-4d7f-8397-d699a64287e0	PCAWG 2.0	KICH-US	Normal - tissue adjacent to primary	366219b9-fde3-4d2d-82d3-15fe6245aa98	a6adbcc1-dc20-4d7f-8397-d699a64287e0	f69de2af-c874-4667-b028-d1ed4ff5a11b
-ea84deee-d0be-49e7-b451-9d0c3d6361fb	icgc_pancancer	PACA-AU	Primary tumour	APGI-3746|ICGC_0502	8069317	8069317
+ea84deee-d0be-49e7-b451-9d0c3d6361fb	icgc_pancancer	PACA-AU	Primary tumour	APGI-3746|ICGC_0502	8069317|ea84deee-d0be-49e7-b451-9d0c3d6361fb	8069317|missing
 32f582db-018c-4134-9998-79138bf301f2	PCAWG 2.0	LUAD-US	Normal - tissue adjacent to primary	97831d28-ab41-4c18-bfc2-c4c6bc757d13	32f582db-018c-4134-9998-79138bf301f2	599c32bd-7967-4ced-a571-8836135510a9
 37f38cd6-6b65-4646-8ee1-d86ccc02fa75	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	f77cf4d3-9829-4fd3-95a1-b29aed9e94b8	37f38cd6-6b65-4646-8ee1-d86ccc02fa75	0a2d9fad-c5df-46c1-bf96-529c7c92dfba
 6243108f-1333-4198-b3af-aec72618ed19	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	cd032ddb-55f2-4c77-8dcf-e4e630f7de6f	6243108f-1333-4198-b3af-aec72618ed19	afb7ea63-2959-4e53-95ea-7a032dcb5a8b
@@ -1177,22 +1179,22 @@ ea84deee-d0be-49e7-b451-9d0c3d6361fb	icgc_pancancer	PACA-AU	Primary tumour	APGI-
 dddc9a74-f0b3-4428-a521-23f21ebf595e	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	c20682a1-f340-430d-99f9-077fe093ed19	dddc9a74-f0b3-4428-a521-23f21ebf595e	34b60937-76b3-401c-a8dd-3f78e2b20a38
 12c78d62-6045-4f77-bd84-9ab5a38f4635	PCAWG 2.0	OV-US	Primary tumour - solid tissue	c435627c-159d-4a6d-a819-30abac24bf4d	12c78d62-6045-4f77-bd84-9ab5a38f4635	ed9c97d8-4df2-4ed3-b455-4955d72901a8
 543b9907-bf2a-4f64-b83f-13cc4289310b	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	e56491af-718f-4ca1-b3cd-0e5b3154697b	543b9907-bf2a-4f64-b83f-13cc4289310b	7901f084-c220-4865-a034-da0144d63a28
-03897743-2cc0-4af4-adc6-1054cec2c2e0	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0304|APGI-2925	8058331	8058331
+03897743-2cc0-4af4-adc6-1054cec2c2e0	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0304|APGI-2925	03897743-2cc0-4af4-adc6-1054cec2c2e0|8058331	8058331|missing
 e5e12896-2cf3-4d5d-8f79-00cd964fc132	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	7dd3bda9-3a0a-46fa-b052-a6d24b847804	e5e12896-2cf3-4d5d-8f79-00cd964fc132	9b68c72d-30d4-4a7a-ade7-a2bde50a84f2
 1cade122-820d-4d68-8508-7a6c0f2b4852	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	1ab7ad70-0f80-41d8-8efa-3baebc8223cc	1cade122-820d-4d68-8508-7a6c0f2b4852	0bdbe623-cf95-465a-917d-87dfb6a8618e
 73dc0427-548d-49c4-ac22-bd127db791a3	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-115	73dc0427-548d-49c4-ac22-bd127db791a3|AOCS-115-2-4	AOCS-115-1|AOCS-115-2-4
 278030c0-cf38-4aee-bdb2-b918f009a658	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	42d044ae-1416-477d-ac80-779c49bc8d35	278030c0-cf38-4aee-bdb2-b918f009a658	7eea5c2a-f1a2-432e-88a2-e96b809e15d9
 2b7e9552-e34f-4c68-96af-1c01a605df60	PCAWG 2.0	LUAD-US	Normal - tissue adjacent to primary	35cb7841-9b09-465a-90c5-e3b8a9faad49	2b7e9552-e34f-4c68-96af-1c01a605df60	ffb185aa-75ac-4696-936b-52f35a345a2d
-4c5b9676-ed06-4bb8-8112-236974be9145	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8031111	8031111
+4c5b9676-ed06-4bb8-8112-236974be9145	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0099|APGI-2210	8031111|4c5b9676-ed06-4bb8-8112-236974be9145	8031111|missing
 0fd52e18-275a-4c3d-8c8d-9e27859a5482	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	e1e8dc66-467c-48a5-be56-3db4f665b9f1	0fd52e18-275a-4c3d-8c8d-9e27859a5482	981d9e3b-63c5-41e9-827f-7f1d268d62f4
 9e6f4e7f-23ba-4157-8334-1bee76294c19	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4159170	tumor_4159170_RNA	tumor_4159170
-b661cc40-81cf-4b40-a7a7-ce62eaea39cf	icgc_pancancer	PACA-AU	Primary tumour	APGI-2052|ICGC_0033	8015141	8015141
+b661cc40-81cf-4b40-a7a7-ce62eaea39cf	icgc_pancancer	PACA-AU	Primary tumour	APGI-2052|ICGC_0033	8015141|b661cc40-81cf-4b40-a7a7-ce62eaea39cf	8015141|missing
 7376a408-23a8-464b-84b5-64a6f68c9daf	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0020	C0020RT	C0020RT
 48645bef-8e98-4a16-9de5-c43cdeca8b95	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	8654c2b5-27d7-43c5-9a39-7fdefd7a0324	48645bef-8e98-4a16-9de5-c43cdeca8b95	3d38f7c9-00dd-47c1-8649-c50574953aab
 4b5102ee-e3a7-4ea6-b993-853180be3e05	PCAWG 2.0	KICH-US	Normal - tissue adjacent to primary	3ec3bcb3-492c-4942-be02-76a67f57e38f	4b5102ee-e3a7-4ea6-b993-853180be3e05	60bbc00f-df46-4ddf-9d01-4f66f5b2b26a
 d5a281fd-c004-477f-af62-c55fe20f1dee	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	2f4a127f-101a-4192-b3e8-f9be2c8648bc	d5a281fd-c004-477f-af62-c55fe20f1dee	c9e1be85-0699-48b4-8977-0db46af4ec94
 144739d3-b2d3-493c-8731-d652f03a5b37	PCAWG 2.0	DLBC-US	Primary tumour - solid tissue	f0a326d2-1f3e-4a5d-bca8-32aaccc52338	144739d3-b2d3-493c-8731-d652f03a5b37	562f76eb-cd16-4eec-9b31-3e5deee3497c
-9bcccf5d-dcdd-4ff3-a8df-72c16cfd3f4f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0295|APGI-2970	8058337	8058337
+9bcccf5d-dcdd-4ff3-a8df-72c16cfd3f4f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0295|APGI-2970	8058337|9bcccf5d-dcdd-4ff3-a8df-72c16cfd3f4f	8058337|missing
 17cd32db-6e48-48af-a259-5ee7393fee92	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4134005	tumor_4134005_RNA	tumor_4134005
 4ef6be80-9134-41eb-baa1-3ae9d81c6b51	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	7bab6742-4e3d-4fcf-9b90-d3e0218b4d79	4ef6be80-9134-41eb-baa1-3ae9d81c6b51	29fda349-d725-4f69-bb11-95d5454400f4
 7e8e0292-b1af-48af-9c53-823d7e0432c9	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	a122d361-835e-4cf2-850f-af7864aa112c	7e8e0292-b1af-48af-9c53-823d7e0432c9	abcf54fe-d93e-4c3b-acd0-757cdd6a3d3b
@@ -1201,7 +1203,7 @@ dcdeb647-e266-4494-ab18-1798ccbfabf4	PCAWG 2.0	KICH-US	Normal - tissue adjacent 
 b7c64cc0-2365-475b-938a-80f76b5707ad	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4145056	tumor_4145056_RNA	tumor_4145056
 1c908135-7fdf-4257-8b9e-92e6aa0850a6	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	2b76cc9c-c379-43e4-9c3f-56197a3353be	1c908135-7fdf-4257-8b9e-92e6aa0850a6	cf369a2c-d3c3-4fa3-b004-e4269530ceff
 C262A55B-8CF2-4C47-A867-F010361E22AC	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	ebbd54ad-7b97-4081-ad11-7f7f3ce74eef	C262A55B-8CF2-4C47-A867-F010361E22AC	979cbb75-28d9-4d33-8083-077c25bddfd6
-7a61be06-1917-46ad-9af1-f7058f5b0b52	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0025|APGI-2040	8012209	8012209
+7a61be06-1917-46ad-9af1-f7058f5b0b52	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0025|APGI-2040	7a61be06-1917-46ad-9af1-f7058f5b0b52|8012209	8012209|missing
 A4153890-D27B-4F55-A5E5-5204B7F59392	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	86b82345-6f4d-44fd-a9db-6f107de62f53	A4153890-D27B-4F55-A5E5-5204B7F59392	af7b5868-2c11-4c74-8033-e914c987ece6
 202abe19-20e0-4ea9-8653-bf5145da351c	PCAWG 2.0	OV-US	Primary tumour - solid tissue	f34aa3b6-e966-49c6-bc55-130545772c53	202abe19-20e0-4ea9-8653-bf5145da351c	6f9a6f73-285d-4a9c-80eb-5f2ebc1787a4
 8fb8b45e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK037	RK037_Liver	RK037_L01
@@ -1214,7 +1216,7 @@ cf1625b4-f30b-487f-8e2c-2866af730c7f	icgc_pancancer	OV-AU	Recurrent tumour - oth
 8b2f9a82-4c0d-496b-a46c-15d20d069e11	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	199386c2-bb53-4fad-a1b6-59ab216a4a50	8b2f9a82-4c0d-496b-a46c-15d20d069e11	9a7a1b22-9df6-438f-ad00-54755c7dbc7c
 82b154a5-b4d5-4737-8f79-10d252741963	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	9f81c602-8afa-4588-b0b6-6e5a1a128d5a	82b154a5-b4d5-4737-8f79-10d252741963	4d85772b-287e-4790-b1e8-cd1c0e88ad48
 13e54c27-7e42-494d-ac6d-884cb24a7940	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0097	C0097RA	C0097RA
-d626a136-dcb2-4fdc-a364-c3858cf5173a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0206|APGI-2271	8031546	8031546
+d626a136-dcb2-4fdc-a364-c3858cf5173a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0206|APGI-2271	8031546|d626a136-dcb2-4fdc-a364-c3858cf5173a	8031546|missing
 42ba8e87-8d37-4cbd-82f0-bca0cbe5dcd3	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	0a2a3529-f645-4967-9a58-89ee20b8bb62	42ba8e87-8d37-4cbd-82f0-bca0cbe5dcd3	9992eeb9-901b-4a32-badc-e9be7c9ba4ba
 8fb7b0cc-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK019	RK019_Cancer	RK019_C
 e74b936b-06c0-4a68-8f0e-ecadfe5b9f88	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4115001	tumor_4115001_RNA	tumor_4115001
@@ -1235,9 +1237,9 @@ df0df04e-bb65-4dd6-91db-753eaa86a0c3	PCAWG 2.0	STAD-US	Primary tumour - solid ti
 f8ee0b8d-d627-4b64-bd87-edd8521c1048	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	c5b0e6be-48b5-40e5-9d90-f9112050aa88	f8ee0b8d-d627-4b64-bd87-edd8521c1048	e7e97623-5c8a-42b4-abc6-e7b424816713
 33f213fa-6fa4-48ed-bd7e-a63ed8c3a8da	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	63bd2175-4b7c-44c9-aef3-9efc8f79837b	33f213fa-6fa4-48ed-bd7e-a63ed8c3a8da	fbc90b42-7d26-456b-a166-41993a1d3f0d
 5cd42d4a-5971-4a01-8c10-99321105a864	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	b094e8b2-8ece-4b36-8025-18073a8b873c	5cd42d4a-5971-4a01-8c10-99321105a864	2f4d3cea-30c8-4cf0-a610-33b3e20241e8
-f7873b4a-1cb9-41cb-a4bd-8ee8e7efd23f	icgc_pancancer	PACA-AU	Primary tumour	APGI-3771|ICGC_0522	8069206	8069206
+f7873b4a-1cb9-41cb-a4bd-8ee8e7efd23f	icgc_pancancer	PACA-AU	Primary tumour	APGI-3771|ICGC_0522	8069206|f7873b4a-1cb9-41cb-a4bd-8ee8e7efd23f	8069206|missing
 08d8bcee-9331-4c1b-ad8a-1ac2691b0e1b	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4131095	tumor_4131095_RNA	tumor_4131095
-d0301d39-d465-40c3-80f3-e842258ffdb7	icgc_pancancer	PACA-AU	Primary tumour	APGI-3770|ICGC_0521	8069444	8069444
+d0301d39-d465-40c3-80f3-e842258ffdb7	icgc_pancancer	PACA-AU	Primary tumour	APGI-3770|ICGC_0521	8069444|d0301d39-d465-40c3-80f3-e842258ffdb7	8069444|missing
 fada5c51-14ee-46be-a3e2-cd30590ce5f1	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0017	C0017RA	C0017RA
 8fb771de-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK010	RK010_Liver	RK010_L01
 7e84df9f-1da5-4add-a5e8-a9d9d8af409c	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	5d1d00c6-fcae-479e-ae1e-de76efd41d98	7e84df9f-1da5-4add-a5e8-a9d9d8af409c	dbeeddc1-d149-46f7-91ff-d057f8c6bffb
@@ -1251,11 +1253,11 @@ cfc2ea3a-5c54-4bcb-99e9-cf43ceebb823	PCAWG 2.0	KIRP-US	Primary tumour - solid ti
 aa1dfe29-6e97-4b20-b439-1d06455dfc56	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	df576520-a6b6-4c9b-8d06-3f59cc5342fd	aa1dfe29-6e97-4b20-b439-1d06455dfc56	56c937b3-b48f-4662-b992-3265dbb6bc7d
 70c76dd2-e52f-4caa-9e73-0c730f8e408a	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	386	386-01-10TR	386-01-10TR
 b29a0619-b8c8-47f3-8447-0f69f62ca8c3	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-134	AOCS-134-4-2|b29a0619-b8c8-47f3-8447-0f69f62ca8c3	AOCS-134-13|AOCS-134-4-2
-745a2093-2dc7-41d2-aff2-7201e3a20e1d	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	84	084-05-02TR	084-05-02TR
+745a2093-2dc7-41d2-aff2-7201e3a20e1d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	84	084-05-02TR	084-05-02TR
 cc541704-0f6c-413e-8049-77eaba992844	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	7664c241-b369-4d76-9cd1-7f2bdc1d267f	cc541704-0f6c-413e-8049-77eaba992844	068bfe4d-341c-49f7-b7a9-5d070de00ab3
-c400332b-7ef2-4891-8070-413cb48a7e9c	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	282	282-01-17TR	282-01-17TR
+c400332b-7ef2-4891-8070-413cb48a7e9c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	282	282-01-17TR	282-01-17TR
 20b8dd9b-c6b1-4a16-aeeb-e5aa49e62247	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	ec7a9d74-8b3f-4747-8926-1739a016ab2b	20b8dd9b-c6b1-4a16-aeeb-e5aa49e62247	ac14e378-2de1-458a-b8cd-7c60131aa927
-128ec04c-6514-4eb9-aa2e-79da6949b9a8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2992|ICGC_0235	8050941	8050941
+128ec04c-6514-4eb9-aa2e-79da6949b9a8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2992|ICGC_0235	128ec04c-6514-4eb9-aa2e-79da6949b9a8|8050941	8050941|missing
 5cd0eb59-abe2-4932-84d1-e76de485b53e	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	d8e9ea52-ff28-4626-baa3-71350fd53ddf	5cd0eb59-abe2-4932-84d1-e76de485b53e	52efbeb4-7b23-4c49-92f9-931a3eb99055
 ee665717-a903-44bc-8eaa-afb46bd4edf0	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	3b48cc5e-3396-4dd5-893d-54b75b98b016	ee665717-a903-44bc-8eaa-afb46bd4edf0	4dca97a5-b0e5-4383-8cc5-b6ff07741647
 c38294af-7b80-470a-99eb-523f3fafbbaa	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-166	AOCS-166-2-6|c38294af-7b80-470a-99eb-523f3fafbbaa	AOCS-166-1|AOCS-166-2-6
@@ -1266,8 +1268,8 @@ bf920e10-514e-4623-b92e-c83a3e32485f	PCAWG 2.0	LUAD-US	Primary tumour - solid ti
 a75135f0-66e9-415a-a9ae-94e54d2439f0	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0042	C0042RT	C0042RT
 4ede5304-b854-4da4-a783-03af25b9be4d	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	1c9b389c-4740-449c-a10e-a840e8531e7b	4ede5304-b854-4da4-a783-03af25b9be4d	e4f9f17f-ac3f-4f2f-b05e-60c3e64d7d3d
 26200b50-c40c-4e09-89c4-083b873bcf25	PCAWG 2.0	GBM-US	Recurrent tumour - solid tissue	de7b7cac-f094-4d59-8651-e991e34ea093	26200b50-c40c-4e09-89c4-083b873bcf25	15e8851a-ea08-4cf5-84a3-86fd47b60258
-d398a0c1-d873-49c1-b657-0c1d7121f3aa	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0006|APGI-1953	8052609	8052609
-cb9731cc-5116-4869-a806-ff6d659758b8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2156|ICGC_0051	8015281	8015281
+d398a0c1-d873-49c1-b657-0c1d7121f3aa	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0006|APGI-1953	d398a0c1-d873-49c1-b657-0c1d7121f3aa|8052609	8052609|missing
+cb9731cc-5116-4869-a806-ff6d659758b8	icgc_pancancer	PACA-AU	Primary tumour	APGI-2156|ICGC_0051	cb9731cc-5116-4869-a806-ff6d659758b8|8015281	8015281|missing
 1520b711-9fdb-4494-8229-b4664ca14d97	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0086	C0086RT	C0086RT
 2249879e-210f-44e8-9217-c701f6be03c5	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0100	C0100RA	C0100RA
 ce5b0ba0-2777-4c92-ac50-483174cc5dca	PCAWG 2.0	UCEC-US	Normal - tissue adjacent to primary	fba80122-d8b2-4d8d-a032-9767e8160f9f	ce5b0ba0-2777-4c92-ac50-483174cc5dca	cad6c89d-f722-470b-93bc-e8b24c033f0f
@@ -1310,19 +1312,20 @@ f58d0858-afcf-4fb5-b5fe-6a165511a32c	icgc_pancancer	RECA-EU	Primary tumour - sol
 c23100d3-5200-4970-863a-b76867a72071	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0113	C0113RT	C0113RT
 89343264-c6f3-45db-8252-0818e4ac4b3d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	594	594-01-3TR	594-01-3TR
 c73b5974-5e67-41c9-b2c9-b38420465112	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	a435fdf4-a89a-499e-9006-cbb5693eab26	c73b5974-5e67-41c9-b2c9-b38420465112	8537633b-6426-4b66-a2a3-fa942eedf01b
-91d33d66-caf7-4672-909f-1e09a343b02d	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	15	015-0038-05TR	015-0038-05TR
+91d33d66-caf7-4672-909f-1e09a343b02d	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	15	015-0038-05TR	015-0038-05TR
 5f8c2272-4530-45b3-a6d7-00de9be46d71	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	2e386e48-b99b-4806-a3e3-081d72a606e7	5f8c2272-4530-45b3-a6d7-00de9be46d71	0225a318-9bb2-4340-a34a-99fcbc563e0a
 90E7F816-EAD8-413D-A5C4-3BB5B3C48461	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	63b01b43-a68a-4046-89b0-736ba4d08504	90E7F816-EAD8-413D-A5C4-3BB5B3C48461	b48d226e-610a-40dc-b62a-6db863a7366c
 d5c39754-79c3-432c-b496-34a394662e17	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	5a57dc25-d252-4b22-b192-4de630d7002f	d5c39754-79c3-432c-b496-34a394662e17	8137ffee-bb4f-4e5f-b831-acfc9c5585a8
 a2d0eeb7-b227-4795-a3f6-0c0830003a5a	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4119027	tumor_4119027_RNA	tumor_4119027
 6b35871c-5b53-4135-8917-7dddedb3ed90	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	c1f50a22-38df-41cc-a1f4-f7985504a7ac	6b35871c-5b53-4135-8917-7dddedb3ed90	ac42070b-f4d6-47be-96aa-a713d66a0072
 a4bf07a3-893a-462a-bd60-821fab35608d	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	de287a25-981d-49f8-81af-fe0300e4cd31	a4bf07a3-893a-462a-bd60-821fab35608d	ba9e5603-bb1d-4aa8-93e4-40043164f143
+fd0df2dd-fa09-4ec1-8996-c6c6aca9c2a6	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0009	C0009RT	C0009RT
 05fbfc38-89ed-45e1-9d15-244820a6a089	icgc_pancancer	OV-AU	Recurrent tumour - solid tissue	AOCS-094	AOCS-094-4-2|05fbfc38-89ed-45e1-9d15-244820a6a089	AOCS-094-4-2|AOCS-094-2
 76eefb18-8fd2-49e2-9692-fbb3e5d0eff7	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	e303b8c4-6428-4134-bb9d-a95dc1d8e35e	76eefb18-8fd2-49e2-9692-fbb3e5d0eff7	62e8f535-cf5e-4f90-afcd-1e0136066820
 15576aa7-83e0-4bc7-9103-8b3eb78fe315	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4166503	tumor_4166503_RNA	tumor_4166503
 24664b94-f5b5-4a99-a09b-66e23edf5916	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	8785012f-f73e-4d68-87cf-1d804af32782	24664b94-f5b5-4a99-a09b-66e23edf5916	79fc9ed3-4e96-4c0e-869e-1756cbdabb39
 d5887688-b311-4ddc-84d4-538750849401	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	4fc8e011-4433-4537-b03f-457a3a70240f	d5887688-b311-4ddc-84d4-538750849401	bb98ff62-4cd8-46d6-9a85-8439265be40b
-ab72ea11-da2d-48a2-9fc2-157d080a67b1	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0149|APGI-2712	8044438	8044438
+ab72ea11-da2d-48a2-9fc2-157d080a67b1	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0149|APGI-2712	8044438|ab72ea11-da2d-48a2-9fc2-157d080a67b1	8044438|missing
 b05828bc-eb75-4220-9972-6c6d62fa5303	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	f6e1ec78-5ad9-4879-9b7e-262d17b166ad	b05828bc-eb75-4220-9972-6c6d62fa5303	518be2c7-fba5-47b1-8c8b-fef812fa74a4
 b3cf1b9e-aa69-452a-a9cc-f463ab4885be	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	f435ec00-0db8-46b4-96bf-890a9d931df3	b3cf1b9e-aa69-452a-a9cc-f463ab4885be	634ab666-0845-4b62-a2a1-abd408d8b829
 f05dba68-a8a6-4770-9e4d-62d3a9d70a79	icgc_pancancer	OV-AU	Recurrent tumour - other|Primary tumour - other	AOCS-170	AOCS-170-4-9|f05dba68-a8a6-4770-9e4d-62d3a9d70a79	AOCS-170-12|AOCS-170-4-9
@@ -1333,7 +1336,7 @@ d80de8fd-20dc-451f-8554-cacf5b6b0698	PCAWG 2.0	HNSC-US	Primary tumour - solid ti
 dab72f53-3833-475e-a365-9016edc3eb1c	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4189200	tumor_4189200_RNA	tumor_4189200
 670b4f33-2935-45c1-99b1-57660da763bb	PCAWG 2.0	LUSC-US	Normal - tissue adjacent to primary	b5e2cbda-bbfa-4ef8-a9c4-cb978bef9b23	670b4f33-2935-45c1-99b1-57660da763bb	c002ad87-ed8d-4e67-a067-32ab72739795
 c9e3d4c7-862b-4ef2-9a08-216fc44e0bdc	PCAWG 2.0	CESC-US	Primary tumour - solid tissue	7c93642d-7e05-40f8-b1ef-a014edcfba42	c9e3d4c7-862b-4ef2-9a08-216fc44e0bdc	4c1108c0-ed8a-4caf-9417-ddfb6352c61e
-953ffa20-1de2-45f2-b5ba-7b0f672ee7fb	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0144|APGI-2603	8057446	8057446
+953ffa20-1de2-45f2-b5ba-7b0f672ee7fb	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0144|APGI-2603	8057446|953ffa20-1de2-45f2-b5ba-7b0f672ee7fb	8057446|missing
 c0294497-87d4-481f-864a-e4fa9baab8c5	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	dee43082-4aa7-4650-981c-a779e9fe7b55	c0294497-87d4-481f-864a-e4fa9baab8c5	d78d2f6b-3eb3-4082-a7ea-f7b6202cdc58
 c09e8a88-5a82-4fd6-8d03-ef3ecb988003	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	96312510-c126-485d-8109-ed81844a1dc3	c09e8a88-5a82-4fd6-8d03-ef3ecb988003	46fecdc9-9d0d-41cd-811a-28731f0b7f92
 d4f590d7-626c-4c70-b170-1ad19d2ff6eb	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	dbd5b0de-94c9-45dd-afb3-6820a7ecaca2	d4f590d7-626c-4c70-b170-1ad19d2ff6eb	3ba5f6b9-6458-44e2-a0aa-b5c7e5fcd632
@@ -1349,11 +1352,11 @@ f9c8fe0e-124c-4099-b1bc-64f856deafeb	PCAWG 2.0	COAD-US	Primary tumour - solid ti
 31398055-e000-4ca1-a37d-aac2df5920b4	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	2c5fa2d4-8e35-42e4-8bca-9fb3371a19c8	31398055-e000-4ca1-a37d-aac2df5920b4	ac7ea2f0-a526-4b9a-8e81-2736ea38f53b
 ffac8b7c-64ac-429c-800b-fb2a5b6deefe	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	bfb07784-693b-4c25-874e-4ad6e04a5d46	ffac8b7c-64ac-429c-800b-fb2a5b6deefe	b083e3cb-0af1-44ea-854d-85fd99b75ad5
 84f24356-27a3-4321-a58d-f1f6b135c954	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	6dcfc418-ab28-4365-95ea-c1ae254f2341	84f24356-27a3-4321-a58d-f1f6b135c954	c827a8b9-359c-4a6f-b950-839b3fb0c097
-e9a72d9c-b6d5-494f-93c8-75cbc675c19b	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0321|APGI-3072	8061179	8061179
+e9a72d9c-b6d5-494f-93c8-75cbc675c19b	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0321|APGI-3072	e9a72d9c-b6d5-494f-93c8-75cbc675c19b|8061179	8061179|missing
 2cbd77bd-dece-4177-ace2-98d9d545b575	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	46592b7b-6968-42a6-83af-0917c9f4a9a5	2cbd77bd-dece-4177-ace2-98d9d545b575	c0a8c73c-35ba-4724-b13a-9a9986af36c0
 2a62ebc6-872e-4767-922b-f5763177e9cf	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	b5f20ec2-ff5d-4aac-8db6-49887506f0b3	2a62ebc6-872e-4767-922b-f5763177e9cf	793afd96-44ac-4c80-80db-1a072ac7611e
 a771088e-45e1-4e67-8e3e-88c65d0b0618	PCAWG 2.0	PRAD-US	Primary tumour - solid tissue	3acd8328-76f7-4f43-9660-394b95748c3d	a771088e-45e1-4e67-8e3e-88c65d0b0618	19c87de2-7936-4277-8aa8-3942d36e7579
-791091bf-1f86-409d-b44c-b6c79275f5db	icgc_pancancer	PACA-AU	Primary tumour	APGI-3152|ICGC_0309	8058340	8058340
+791091bf-1f86-409d-b44c-b6c79275f5db	icgc_pancancer	PACA-AU	Primary tumour	APGI-3152|ICGC_0309	791091bf-1f86-409d-b44c-b6c79275f5db|8058340	8058340|missing
 ee8417b7-5d4b-42e7-b0f1-094a9990fda8	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	955d428c-8fe8-456b-b86d-65ea6c2a1b18	ee8417b7-5d4b-42e7-b0f1-094a9990fda8	8719fecd-7ab5-4468-a978-5c6bf1d4a1d7
 102bbfea-fb71-41c8-899d-75670fda81e8	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	3129e869-bb2f-423a-bd20-d0daae33b11a	102bbfea-fb71-41c8-899d-75670fda81e8	07c3c6e6-d297-4d80-9c28-974fa470a132
 249b80fa-341f-429f-af14-18a917162c73	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	8a24f1a3-4bab-4591-9676-7bee01d096c1	249b80fa-341f-429f-af14-18a917162c73	5a5c4538-d75d-4da5-8e8c-dd92766fee50
@@ -1362,9 +1365,9 @@ ee8417b7-5d4b-42e7-b0f1-094a9990fda8	PCAWG 2.0	KICH-US	Primary tumour - solid ti
 8472944D-C0FA-4886-999A-5BEC7312C367	PCAWG 2.0	THCA-US	Normal - tissue adjacent to primary	8d54a2ed-03f1-4a23-bdd2-f3395f5d3716	8472944D-C0FA-4886-999A-5BEC7312C367	8a84f2a6-d968-433b-ab28-c7892a869d38
 a4bc78e7-1b6e-47de-8209-0beaa63dd4b9	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	3582fb74-f43d-4fcd-8f22-bb1506fcff1c	a4bc78e7-1b6e-47de-8209-0beaa63dd4b9	f818321c-6356-4c43-9109-6d873aa6b417
 ccf84703-a5c7-4995-a1c2-b3e4e15d99b7	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	a8d6694c-a213-4544-ac0b-63bce16d8f4e	ccf84703-a5c7-4995-a1c2-b3e4e15d99b7	336eb991-5705-4bc0-a167-6d7f82f81697
-e91ca177-f115-4726-a5bf-1927fc0a7e77	icgc_pancancer	PACA-AU	Primary tumour	APGI-2199|ICGC_0059	8030342	8030342
+e91ca177-f115-4726-a5bf-1927fc0a7e77	icgc_pancancer	PACA-AU	Primary tumour	APGI-2199|ICGC_0059	8030342|e91ca177-f115-4726-a5bf-1927fc0a7e77	8030342|missing
 2412baac-c345-465e-9c6e-bd17d3797129	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	f15279dd-5d12-460b-9bd1-b4f95681ca65	2412baac-c345-465e-9c6e-bd17d3797129	253da6ee-8786-4a20-a0dc-58816a8a9c39
-9259d1fc-34cb-4049-a8e8-54fbd681d506	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	367	367-01-8TR	367-01-8TR
+9259d1fc-34cb-4049-a8e8-54fbd681d506	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)|peripheral blood	367	367-01-8TR	367-01-8TR
 41d56421-a998-43b9-b319-18535315c820	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	1987b453-f97d-45c7-9c89-b9a33313d645	41d56421-a998-43b9-b319-18535315c820	0b88d087-50fb-4893-ae37-2fc5990a5b15
 d577af6d-d9f1-435d-8429-73b5c5962238	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	f45f4a30-6b4c-4f15-9140-959d6a25a45f	d577af6d-d9f1-435d-8429-73b5c5962238	9bb49615-6f5e-471c-b68b-866e6199ceb7
 77b1c06b-46ef-4c8c-8a82-37f83e3c48cf	PCAWG 2.0	OV-US	Primary tumour - solid tissue	66c92b9e-de3c-4d1a-bb69-46ffbc6caf33	77b1c06b-46ef-4c8c-8a82-37f83e3c48cf	5d4e65aa-d7d0-43ec-b395-df2f01b1a203
@@ -1383,21 +1386,21 @@ c66143ca-3cbb-4432-8013-cce080001918	PCAWG 2.0	LUSC-US	Primary tumour - solid ti
 8fbce04c-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK269	RK269_Liver	RK269_L01
 caf05305-45bc-4858-b8b5-21fe37061a5c	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	6c79f64b-63fe-46f5-bf7b-77208231b0f2	caf05305-45bc-4858-b8b5-21fe37061a5c	e8b59658-06c6-46b7-b51f-ed52de0c403e
 2692f7b0-3203-455f-b9b8-23b18eff2de1	PCAWG 2.0	LGG-US	Primary tumour - solid tissue	97cb8701-7d63-4142-b404-006fbb3ecb0b	2692f7b0-3203-455f-b9b8-23b18eff2de1	680dbc4e-5cec-4e76-848f-72bc0a2407c6
-9dad134e-d56d-4184-a572-1b5c20745bfc	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	564	564-02-8TR	564-02-8TR
+9dad134e-d56d-4184-a572-1b5c20745bfc	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	564	564-02-8TR	564-02-8TR
 c95712d8-52e4-49f9-b094-8c175978d96e	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0071	C0071RT	C0071RT
-cc6baf87-b93e-4648-9584-262daa8bcc21	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0141|APGI-2596	8043973	8043973
+cc6baf87-b93e-4648-9584-262daa8bcc21	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0141|APGI-2596	cc6baf87-b93e-4648-9584-262daa8bcc21|8043973	8043973|missing
 77e853ef-93de-46c9-8535-4f014e5f4743	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0015	C0015RA	C0015RA
 B5B8FDD8-C4DF-4F79-AED5-23AC41F75F18	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	9f6be944-83de-42ab-8738-f0022f475e61	B5B8FDD8-C4DF-4F79-AED5-23AC41F75F18	143fc27d-e119-48ff-a5ea-bd6aafc0404e
 322535cd-a5ec-4beb-99bc-91faa2ef445d	icgc_pancancer	PACA-AU	Mouse xenograft derived from tumour	ICGC_0067	322535cd-a5ec-4beb-99bc-91faa2ef445d	missing
 dea6072e-021d-4984-87ba-2c624e07fa18	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	d2824e6d-3784-45c2-9b0f-52b17356b5da	dea6072e-021d-4984-87ba-2c624e07fa18	f9f9c1dd-8462-4560-82b8-aea4309854c9
 8fba1a92-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK079	RK079_Cancer	RK079_C01
 d4d04af8-9c60-4d14-90a2-c2b211e20092	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	4e6edfe6-adcb-4c12-8ff4-38a79f5887e8	d4d04af8-9c60-4d14-90a2-c2b211e20092	e56e785d-f9b1-4afa-bc2d-b6cebf9e64cc
-8e9904fe-7408-4968-ae4a-f21dbb1c1b3e	icgc_pancancer	PACA-AU	Primary tumour	APGI-2827|ICGC_0188	8044984	8044984
-70d5ce3c-3325-47c5-a660-a7da72135d7a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0140|APGI-2592	8035557	8035557
+8e9904fe-7408-4968-ae4a-f21dbb1c1b3e	icgc_pancancer	PACA-AU	Primary tumour	APGI-2827|ICGC_0188	8044984|8e9904fe-7408-4968-ae4a-f21dbb1c1b3e	8044984|missing
+70d5ce3c-3325-47c5-a660-a7da72135d7a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0140|APGI-2592	8035557|70d5ce3c-3325-47c5-a660-a7da72135d7a	8035557|missing
 2de8f5dd-decd-47f4-856a-bda678ee6ab8	PCAWG 2.0	GBM-US	Primary tumour - solid tissue	be3a7ef3-34ed-40e1-9d9c-187940596b26	2de8f5dd-decd-47f4-856a-bda678ee6ab8	3190bd1a-a83a-45f6-959a-863bbae58ffe
-38c3b55f-15e5-4074-8358-b4ca85a5a7fe	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0063|APGI-2219	8030355	8030355
+38c3b55f-15e5-4074-8358-b4ca85a5a7fe	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0063|APGI-2219	38c3b55f-15e5-4074-8358-b4ca85a5a7fe|8030355	8030355|missing
 8fbcc7e2-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK226	RK226_Liver	RK226_L01
-acf3338f-5a88-4b90-bf52-882f2f03fc08	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-081	acf3338f-5a88-4b90-bf52-882f2f03fc08|AOCS-081-2-5	AOCS-081-1|AOCS-081-2-5
+acf3338f-5a88-4b90-bf52-882f2f03fc08	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-081	AOCS-081-2-5|acf3338f-5a88-4b90-bf52-882f2f03fc08	AOCS-081-1|AOCS-081-2-5
 4487f658-d3c7-4efa-bdaa-dfec82673a5e	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	a06c09a8-0951-49f4-a765-5147bbcae109	4487f658-d3c7-4efa-bdaa-dfec82673a5e	d448668c-90f3-40fa-9961-88407090da31
 3e42709a-7790-439c-8185-315a1c5ea065	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4108101	tumor_4108101_RNA	tumor_4108101
 047160f7-3727-4915-b02d-61557350d88b	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	1b703058-e596-45bc-80fe-8b98d545c2e2	047160f7-3727-4915-b02d-61557350d88b	d6f5c34a-0f5c-4aed-977a-74a1e5d50915
@@ -1417,7 +1420,7 @@ b06483d3-e2c0-4f6f-9af4-871c922eb506	PCAWG 2.0	KICH-US	Primary tumour - solid ti
 c970e2a6-4393-4641-9eea-33a022e23c53	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	4cdb18f5-47bf-475f-b34c-fa4912515268	c970e2a6-4393-4641-9eea-33a022e23c53	3fc2f92e-e55e-4484-b306-4303a9a0cbf5
 0b3c65ed-ff55-45c9-b6a3-dd3a596a0271	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	8bd68696-5eeb-46d7-9dc6-c39c849029a4	0b3c65ed-ff55-45c9-b6a3-dd3a596a0271	c385c7fc-0e3e-4fc8-87c1-6db442e5606f
 16658ea4-7879-4fc8-a6fc-92eded4d4574	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	36b46540-472f-4a4d-a801-b8b6ae660dc9	16658ea4-7879-4fc8-a6fc-92eded4d4574	7c6b9f49-9ea0-4532-bdce-f8987786bf5a
-5e5e48f8-8ddc-452a-85c4-15119480415a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0114|APGI-2278	8044093	8044093
+5e5e48f8-8ddc-452a-85c4-15119480415a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0114|APGI-2278	5e5e48f8-8ddc-452a-85c4-15119480415a|8044093	8044093|missing
 a9f8fa16-adff-4922-a965-186f84f6f136	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4135350	tumor_4135350_RNA	tumor_4135350
 990bafa2-fdcf-4e80-aeb3-702157438626	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	3666bc65-8e40-409e-9a1f-41583dd6d978	990bafa2-fdcf-4e80-aeb3-702157438626	87d21e55-7f4a-4652-b7f7-1e64cb300fae
 2495b5ae-f254-433e-a6a1-1fcab0b482e4	PCAWG 2.0	KIRC-US	Normal - tissue adjacent to primary	bbdaa931-e922-49be-bfbf-fa0c2ae27d7a	2495b5ae-f254-433e-a6a1-1fcab0b482e4	1ca90dce-8efc-420e-be6c-e52fe009e644
@@ -1442,14 +1445,14 @@ a2d46b53-d9bd-4c19-9a0a-fecb48d3c06a	PCAWG 2.0	UCEC-US	Primary tumour - solid ti
 5a499598-de5e-475e-9aac-d3a2cefe94ea	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	93ff9379-d1a1-412f-a776-c53397ba0dc3	5a499598-de5e-475e-9aac-d3a2cefe94ea	bc1b4410-07a6-4b5d-b8e9-78a6a171905e
 34980e1d-956b-4d89-8bf2-dcc008dbaad7	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	1174f6e4-ffbe-4e59-a000-8d861c968369	34980e1d-956b-4d89-8bf2-dcc008dbaad7	00f81e98-e5c3-43b2-9757-f769ec17f3f8
 bf0a3ece-c093-4ae2-99f3-d968ed956abb	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4177987	tumor_4177987_RNA	tumor_4177987
-8d00c444-2d06-4834-adc0-26afd8c8b63c	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	294	294-01-6TR	294-01-6TR
+8d00c444-2d06-4834-adc0-26afd8c8b63c	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	294	294-01-6TR	294-01-6TR
 8fb6f8bc-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK002	RK002_Cancer	RK002_C
 4c1d10e6-c86a-4139-94f6-185a97377550	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	8cfb88f6-7b37-4f1e-882b-3a368b604167	4c1d10e6-c86a-4139-94f6-185a97377550	29b4816d-4cfb-45f0-bcd2-6b948245f3a4
 9734c685-9f30-4c0b-b9ba-06bec4b3ca64	PCAWG 2.0	STAD-US	Normal - tissue adjacent to primary	87c217d4-66f4-46ca-8244-7856ce658fd3	9734c685-9f30-4c0b-b9ba-06bec4b3ca64	291c5592-1d7b-46d6-a626-e5450c4851e8
 30dc1f2d-9d27-4c6d-830a-0947bcf79cd0	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	7de19081-d5fd-468c-ad0d-f6e3e8b2ad70	30dc1f2d-9d27-4c6d-830a-0947bcf79cd0	fd99fd83-4040-4738-8a5a-e42d36ecfe0e
 52a9c93c-8753-4bfd-87d6-1a63a6e280af	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	9f45a227-1fd5-478c-a194-4a5c61b68cc3	52a9c93c-8753-4bfd-87d6-1a63a6e280af	d8dce266-1073-4bf2-a714-748e7e942635
 da7e432c-38d2-4a80-a82e-e1f950e7492d	PCAWG 2.0	KIRP-US	Primary tumour - solid tissue	d61e22d8-c3ce-4237-83d7-da188b9fd456	da7e432c-38d2-4a80-a82e-e1f950e7492d	520e4c08-e7c6-407f-94cd-a07681bc24a8
-a0281cb0-5e22-419d-8e98-5ec7af192c99	icgc_pancancer	PACA-AU	Primary tumour	APGI-3513|ICGC_0415	8067234	8067234
+a0281cb0-5e22-419d-8e98-5ec7af192c99	icgc_pancancer	PACA-AU	Primary tumour	APGI-3513|ICGC_0415	a0281cb0-5e22-419d-8e98-5ec7af192c99|8067234	8067234|missing
 2BC6743C-DC3D-4693-B5D2-F55381712D7F	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	39d90499-8549-4da5-b391-c421f18facf1	2BC6743C-DC3D-4693-B5D2-F55381712D7F	a6c23ca9-e6f4-4a2c-bb86-25ef76076381
 dd96340b-cc6f-4a3f-b441-c7af1d86684e	PCAWG 2.0	READ-US	Primary tumour - solid tissue	e5e4aa9f-6015-4d62-a088-69920d7f2500	dd96340b-cc6f-4a3f-b441-c7af1d86684e	7764db67-5d9e-4421-86c6-7151aca688d1
 aa181d66-d198-43ab-920e-a351454194a0	PCAWG 2.0	PRAD-US	Primary tumour - solid tissue	aa252f78-ebf3-42f9-86af-bb6e57345706	aa181d66-d198-43ab-920e-a351454194a0	627b9ff8-2557-4470-824a-b76a8bcd1e9f
@@ -1464,8 +1467,8 @@ b2282d62-a66d-4b64-a8c6-954e2d776358	PCAWG 2.0	READ-US	Primary tumour - solid ti
 8fb9496e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK055	RK055_Cancer	RK055_C01
 e56cec49-2b8c-418f-ab94-48589b29980f	icgc_pancancer	OV-AU	Primary tumour - solid tissue	AOCS-165	AOCS-165-2-3|e56cec49-2b8c-418f-ab94-48589b29980f	AOCS-165-2-3|AOCS-165-1
 a588764f-f972-4d3a-b8f8-d0209fc7d2a1	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	a3de401d-91fe-49a2-bb07-81c1a06506e6	a588764f-f972-4d3a-b8f8-d0209fc7d2a1	ed61ac6a-f21f-4b88-928a-029340d4aebd
-c48421b1-511c-4967-b2d7-30659effa5a5	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	10	010-0028-06TR	010-0028-06TR
-90c36d60-f8f2-4bf6-9f01-fc02e19dde5d	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	03f3dd32-e1d1-485b-a968-3f55798f4d46	90c36d60-f8f2-4bf6-9f01-fc02e19dde5d	59703768-8be1-47a7-8c7d-d794c0936019
+c48421b1-511c-4967-b2d7-30659effa5a5	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	10	010-0028-06TR	010-0028-06TR
+8fb7e470-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Primary tumour - solid tissue	RK023	RK023_Cancer	RK023_C
 01816f78-7cee-4160-8a99-85cb23d3a124	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	2ea84e23-6a0a-4c5d-9c70-d5355a85df35	01816f78-7cee-4160-8a99-85cb23d3a124	e1d3ee37-402b-4727-8e27-b797d42f46ba
 52d8cab6-af14-4311-af92-9b02eff8f665	PCAWG 2.0	KIRC-US	Normal - tissue adjacent to primary	9dc7812b-c7a2-4de4-bf6d-4c7261384a62	52d8cab6-af14-4311-af92-9b02eff8f665	f2b36ca3-8d5d-453d-b445-82faa22a8a35
 92767f50-7543-4312-93ff-f17a084bda26	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	01ad975d-c2ed-4e4d-bd3b-c9512fc9073c	92767f50-7543-4312-93ff-f17a084bda26	1e373c9c-ddb0-4c77-87af-468ee586f998
@@ -1473,7 +1476,7 @@ c48421b1-511c-4967-b2d7-30659effa5a5	icgc_pancancer	CLLE-ES	Primary tumour - blo
 233045a0-d053-4fc5-b9f8-9acc525a950d	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4189035	tumor_4189035_RNA	tumor_4189035
 b7b1b89b-13f9-4cae-9673-34e4c31cd3ca	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	02ec7a3a-2812-4a65-93cd-07bf655cc91b	b7b1b89b-13f9-4cae-9673-34e4c31cd3ca	77186d62-b354-49a4-8a2a-12f5f6b938f6
 6ccbd207-b55f-48a8-a571-9f530b8b6307	dkfz_pancancer	MALY-DE	Primary tumour - lymph node	4166151	tumor_4166151_RNA	tumor_4166151
-9e412214-549b-4fed-88e5-d7850c20a757	icgc_pancancer	PACA-AU	Primary tumour	APGI-3768|ICGC_0507	8069062	8069062
+9e412214-549b-4fed-88e5-d7850c20a757	icgc_pancancer	PACA-AU	Primary tumour	APGI-3768|ICGC_0507	8069062|9e412214-549b-4fed-88e5-d7850c20a757	8069062|missing
 8f0f34fb-bbef-4a17-8324-4ebda56f9e0e	PCAWG 2.0	OV-US	Primary tumour - solid tissue	914d8613-3c25-4a10-be50-28b42f4d3a5d	8f0f34fb-bbef-4a17-8324-4ebda56f9e0e	c063d066-9073-4f05-8a38-601aa65dc5bf
 14fd82b2-a288-403b-8608-c1d99f602c6f	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	60879669-96c2-4710-82e0-0ae9d0e5b242	14fd82b2-a288-403b-8608-c1d99f602c6f	4370b4f3-4fd7-4558-bf59-daae486badc3
 afcded2c-c9b2-452e-aeb4-09f618734199	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0040	C0040RA	C0040RA
@@ -1507,7 +1510,7 @@ a09baab9-3eac-4271-9c12-2684642f8869	PCAWG 2.0	BRCA-US	Primary tumour - solid ti
 63a48c81-2b6c-4f68-a76b-69ff2fc449ed	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	670c1cbc-4494-45f1-bb8b-18db82d4f7e0	63a48c81-2b6c-4f68-a76b-69ff2fc449ed	96f911ed-2064-4745-ad07-6c47b0a0c7cd
 c2ffc029-cab1-4014-b372-327f9271d882	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	115	115-1917-02TR	115-1917-02TR
 f8c4acd4-f42f-409b-a710-970611f0cc0a	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	238111f9-a08b-49b4-9035-cc43026330e7	f8c4acd4-f42f-409b-a710-970611f0cc0a	64143381-c9ea-4244-8bef-3f5127b9e22d
-26fb2688-efb2-45a1-82ca-14a163a7c144	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0365|APGI-3493	8066554	8066554
+26fb2688-efb2-45a1-82ca-14a163a7c144	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0365|APGI-3493	8066554|26fb2688-efb2-45a1-82ca-14a163a7c144	8066554|missing
 0a69935d-9552-4792-9b2e-1a630114691e	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	1549dc64-3dab-43fc-96e9-b07d520957e1	0a69935d-9552-4792-9b2e-1a630114691e	7e9145f7-ccff-4132-b2b7-9b992eebebf4
 06dbb69c-390b-4174-859b-c1e20380b483	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	b2e2d35c-7a79-4165-97a5-82d5c37d94f2	06dbb69c-390b-4174-859b-c1e20380b483	0a95bd32-539e-43f3-9694-a7d033a6fa84
 5c6d857a-55c1-4365-b8de-bde7e769ce77	PCAWG 2.0	LIHC-US	Primary tumour - solid tissue	8afa3140-dcbd-44c0-ab13-4ada6a0444d4	5c6d857a-55c1-4365-b8de-bde7e769ce77	fd1e3b28-c143-4ef6-a699-3a61cb20a5ed
@@ -1540,7 +1543,7 @@ c32b6576-54fc-44e6-accd-6d49e16a42f0	icgc_pancancer	CLLE-ES	peripheral blood|Pri
 93543d44-72a0-4f35-bc35-3acffc85ced6	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	f31ba8ec-a3dd-4dd8-8d15-f6c5975ebe44	93543d44-72a0-4f35-bc35-3acffc85ced6	566a0f2c-743c-4f18-b14e-1667a8666008
 526c9170-0f25-4374-9287-1fc40acb6555	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	2a84997d-ccee-4f46-bea2-752534f26416	526c9170-0f25-4374-9287-1fc40acb6555	e57574e4-7e01-4e61-bd29-ee4ec63dddd6
 2b64fee1-6e95-417d-b9b7-25bad9db4dc3	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	bd4284a7-260d-48b3-9b48-a1c578c30d27	2b64fee1-6e95-417d-b9b7-25bad9db4dc3	33c21dca-f3b3-48cd-9fc5-ad316598f23e
-d0ff40b5-64ef-4f6a-8c7e-d398248d162f	icgc_pancancer	CLLE-ES	Primary tumour - blood derived (peripheral blood)	342	342-01-4TR	342-01-4TR
+d0ff40b5-64ef-4f6a-8c7e-d398248d162f	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	342	342-01-4TR	342-01-4TR
 4b5b01c8-6080-4354-af1d-20035f19f9fd	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	e16ca88f-488b-40f0-9169-e5a62482a2ff	4b5b01c8-6080-4354-af1d-20035f19f9fd	27a64f32-69c5-4c49-86b4-c8fc923cae08
 47039a8f-de54-4ff9-84e2-6c1cdcd97dc0	PCAWG 2.0	THCA-US	Primary tumour - solid tissue	2f59f12d-ca0c-4ac6-9718-98a6d455af46	47039a8f-de54-4ff9-84e2-6c1cdcd97dc0	043765f1-ffbd-4ac9-b0ae-733c3643083d
 1b31fa14-48de-4b39-adc6-5d6a3db0e70b	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	9f89510c-ed07-471f-b35e-7c87c237b9fe	1b31fa14-48de-4b39-adc6-5d6a3db0e70b	4c4a6867-babe-4032-a639-a9b31cdddc6c
@@ -1551,17 +1554,17 @@ ab75168e-e0a3-46b9-a96f-49f383271b41	PCAWG 2.0	COAD-US	Primary tumour - solid ti
 d2fa892c-c327-46a7-9cf1-694696508e8e	PCAWG 2.0	LAML-US	Primary tumour - blood derived (peripheral blood)	e08f84fe-0013-4734-9966-cd734e6fedc5	d2fa892c-c327-46a7-9cf1-694696508e8e	10740f2a-d9aa-46f6-b7cb-22719fb9b0e1
 2bdb8f96-2194-4541-bf8b-2798fb197a7c	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	7b982d5e-3a7d-40ac-bd25-6044c62879b6	2bdb8f96-2194-4541-bf8b-2798fb197a7c	a6a1a05e-9126-45cd-b7be-c1c342faf5af
 2d1d69ce-ce01-4b63-81ec-92e261127916	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0118	C0118RA	C0118RA
-8e5f3908-6fb0-495d-9a01-6e3fcd063eca	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0105|APGI-2221	8031087	8031087
+8e5f3908-6fb0-495d-9a01-6e3fcd063eca	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0105|APGI-2221	8031087|8e5f3908-6fb0-495d-9a01-6e3fcd063eca	8031087|missing
 b7b99c23-fd12-475a-9397-c760e875f441	icgc_pancancer	OV-AU	Recurrent tumour - other	AOCS-091	b7b99c23-fd12-475a-9397-c760e875f441|AOCS-091-4-4	AOCS-091-13|AOCS-091-4-4
 bdbeb4d2-aa03-492f-b43c-8b1c49d5b0ee	PCAWG 2.0	COAD-US	Primary tumour - solid tissue	58facedb-fcb8-4ecf-8338-2bfa4947acef	bdbeb4d2-aa03-492f-b43c-8b1c49d5b0ee	d67fc406-7974-433e-896d-57197eced52b
 cc6b6cff-18ed-4df8-8d78-470e46c83378	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	6909302d-358a-46cd-8052-eedb09c83c83	cc6b6cff-18ed-4df8-8d78-470e46c83378	1a5af8e2-61b4-4a04-b4b6-ea41fc34c89a
 96756b4d-0e43-404d-a819-dc6da126eef8	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	d17668c4-5d66-4e16-8b70-b54616581aae	96756b4d-0e43-404d-a819-dc6da126eef8	488a7462-8348-422c-91d3-7d9f0c39d25e
-37b97ecc-786c-451b-910b-eebedf5a365f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0031|APGI-2049	8014809	8014809
+37b97ecc-786c-451b-910b-eebedf5a365f	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0031|APGI-2049	37b97ecc-786c-451b-910b-eebedf5a365f|8014809	8014809|missing
 7e5aa3e6-d4ff-4446-853e-4d78759918a5	icgc_pancancer	CLLE-ES	peripheral blood|Primary tumour - blood derived (peripheral blood)	3	003-0005-08TR	003-0005-08TR
 d48f5bc7-1cca-4435-8f59-d802fde708a8	PCAWG 2.0	SKCM-US	Metastatic tumour - metastatsis to distant location	3409f118-1798-48d6-9556-12a5c77ebefb	d48f5bc7-1cca-4435-8f59-d802fde708a8	eccbe1d5-33f3-443b-8c12-57276c552238
 d42c9589-3960-4964-be28-83d275bdc672	PCAWG 2.0	KICH-US	Primary tumour - solid tissue	cc316faf-dcb1-4dea-b8b0-a17d000ff40f	d42c9589-3960-4964-be28-83d275bdc672	84ed1792-cec8-4f98-9988-74b3f5f6f516
 2ebb4667-7945-4a92-b620-027b1e8578e4	dkfz_pancancer	MALY-DE	Primary tumour - blood derived (bone marrow)	4178345	tumor_4178345_RNA	tumor_4178345
-78029317-b987-4292-abfe-fe6a1036c805	icgc_pancancer	PACA-AU	Primary tumour	APGI-2136|ICGC_0088	8032819	8032819
+78029317-b987-4292-abfe-fe6a1036c805	icgc_pancancer	PACA-AU	Primary tumour	APGI-2136|ICGC_0088	8032819|78029317-b987-4292-abfe-fe6a1036c805	8032819|missing
 0c96bb0f-11f1-421c-b2c5-55458ba95d97	PCAWG 2.0	LUAD-US	Primary tumour - solid tissue	97831d28-ab41-4c18-bfc2-c4c6bc757d13	0c96bb0f-11f1-421c-b2c5-55458ba95d97	96a05d4b-3731-4b98-b38f-a6b33cd6ed96
 4575ca5e-968c-419d-9707-4e99d55dddb7	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	45d58088-d3f4-4eb0-b75c-bcb98c0981dc	4575ca5e-968c-419d-9707-4e99d55dddb7	117a5b33-42c5-4a52-babe-d9712f3e7472
 c924d924-56a3-4f43-8f86-76ee2b63330b	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	ea0e5ae7-1f15-4504-aea3-efd1f6733304	c924d924-56a3-4f43-8f86-76ee2b63330b	b09e1197-d6cd-4a76-8e2f-3b8af97d2390
@@ -1570,17 +1573,17 @@ c2ba5489-694e-43df-b9dd-48ab79041995	PCAWG 2.0	SARC-US	Primary tumour - solid ti
 4412ca3b-518d-4fe2-bd0b-a1bb5ff910c1	PCAWG 2.0	SARC-US	Primary tumour - solid tissue	6201394f-b70e-4f14-9519-ff9d5f06eb09	4412ca3b-518d-4fe2-bd0b-a1bb5ff910c1	acea4025-f740-4a60-ad51-eaf61964256b
 11fd13bc-b0d4-490b-a678-78ecfda9c9ce	PCAWG 2.0	LUSC-US	Primary tumour - solid tissue	4ca13c92-84b4-4edf-842a-b20b7e713415	11fd13bc-b0d4-490b-a678-78ecfda9c9ce	59f2654e-7f41-480b-b59c-f0db373b7160
 99675402-b0d7-4387-ae14-41f215960f75	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0077	C0077RT	C0077RT
-f2c1cdc9-fb9e-4def-974c-21d6122eb08a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0312|APGI-3198	8058334	8058334
+f2c1cdc9-fb9e-4def-974c-21d6122eb08a	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0312|APGI-3198	8058334|f2c1cdc9-fb9e-4def-974c-21d6122eb08a	8058334|missing
 38e159a4-9725-4f60-9b46-f21a40874a94	PCAWG 2.0	HNSC-US	Primary tumour - solid tissue	9e178d80-fe90-4998-9dae-726c4beceef7	38e159a4-9725-4f60-9b46-f21a40874a94	13ae9411-e63f-4093-a80e-8b64837c001d
 8e901591-a236-4208-899b-f1bde1e5f841	PCAWG 2.0	UCEC-US	Primary tumour - solid tissue	8d9e4917-334b-4c76-aee1-1e22be772db0	8e901591-a236-4208-899b-f1bde1e5f841	d777e49b-cb47-44f3-ad42-4d23af7e296c
-cc221879-6a22-4127-a863-84f09cd3317d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0061|APGI-2207	8030034	8030034
+cc221879-6a22-4127-a863-84f09cd3317d	icgc_pancancer	PACA-AU	Primary tumour	ICGC_0061|APGI-2207	8030034|cc221879-6a22-4127-a863-84f09cd3317d	8030034|missing
 8fb7083e-ddb8-11e4-ad8f-5ed8e2d07381	icgc_pancancer	LIRI-JP	Normal - solid tissue	RK002	RK002_Liver	RK002_L01
 cdbe04d1-7e8b-4c9a-94aa-cc8a9bc7ec5c	icgc_pancancer	RECA-EU	Primary tumour - solid tissue	C0056	C0056RT	C0056RT
 f6e76192-c4ed-485f-bb51-1b752bd7f544	PCAWG 2.0	BRCA-US	Primary tumour - solid tissue	233b02f3-c4f0-4a67-9db5-e68d5cdaccb6	f6e76192-c4ed-485f-bb51-1b752bd7f544	79763193-268d-49e7-b94c-5cb95f7271b6
 b5e3b839-718e-4bf7-b8b5-9e07c048bcc1	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0009	C0009RA	C0009RA
 f66ad0c1-2663-4f0d-80b0-fbdb6a94e607	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	3cbca837-f5a7-4a87-8f02-c59eac232d5a	f66ad0c1-2663-4f0d-80b0-fbdb6a94e607	0b935adb-0e19-4fcc-9bb0-b9d95872bcef
 b2ca2555-afb7-4794-aace-c59b5f4de2d9	icgc_pancancer	RECA-EU	Normal - tissue adjacent to primary	C0093	C0093RA	C0093RA
-b22c13e7-1ab8-48b1-8a35-64f7c82fe755	icgc_pancancer	PACA-AU	Primary tumour	APGI-2353|ICGC_0067	8033612	8033612
+b22c13e7-1ab8-48b1-8a35-64f7c82fe755	icgc_pancancer	PACA-AU	Primary tumour	APGI-2353|ICGC_0067	b22c13e7-1ab8-48b1-8a35-64f7c82fe755|8033612	8033612|missing
 726396f4-066c-4ae8-854e-c085801503c4	PCAWG 2.0	KIRC-US	Primary tumour - solid tissue	f5759059-c0e3-4f1a-af96-5c7197d3c33c	726396f4-066c-4ae8-854e-c085801503c4	6e67f804-5c82-4750-894a-0e85357f7e3d
 87793870-b51e-433f-9f32-eda032d71f04	PCAWG 2.0	STAD-US	Primary tumour - solid tissue	aef8d98f-7a1c-47f3-b5a7-a3cb299c70de	87793870-b51e-433f-9f32-eda032d71f04	1ddc7f73-d793-4ae6-8a6a-851069892fad
 381f4721-580b-4b93-9988-862780e177bb	PCAWG 2.0	BLCA-US	Normal - tissue adjacent to primary	5d54c742-5a8e-4c40-8d62-95e75e210ab8	381f4721-580b-4b93-9988-862780e177bb	892eb338-9c49-4378-a934-623f4edacf7d

@@ -3,16 +3,16 @@
 output_dir: gnos_metadata
 
 gnos_repos:
-#  - 
-#    repo_location: Seoul
-#    repo_code: etri
-#    base_url: https://gtrepo-etri.annailabs.com/
-#    cgquery_para: study=*
+  - 
+    repo_location: Seoul
+    repo_code: etri
+    base_url: https://gtrepo-etri.annailabs.com/
+    cgquery_para: study=*
   - 
     repo_location: London
     repo_code: ebi
     base_url: https://gtrepo-ebi.annailabs.com/
-    cgquery_para: study=* #"state=*&-study=PCAWG\\ 2.0"
+    cgquery_para: "state=*&-study=PCAWG\\ 2.0"
   - 
     repo_location: Barcelona
     repo_code: bsc
@@ -42,5 +42,5 @@ gnos_repos:
     repo_location: Santa Cruz
     repo_code: cghub
     base_url: https://cghub.ucsc.edu/
-    cgquery_para: study=(PCAWG\ 2.0 OR PAWG OR TCGA_MUT_BENCHMARK_4) 
+    cgquery_para: study=PCAWG\ 2.0
 
