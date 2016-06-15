@@ -103,7 +103,7 @@ with open(fname, 'r') as f:
          for s in donors:
              if 'ICGC' in s:
                  id_fix['new_submitter_donor_id']=s
-                 samples.remove(r.get('aliquot_id'))
+                 if r.get('aliquot_id') in samples: samples.remove(r.get('aliquot_id'))
                  id_fix['new_submitter_sample_id']=samples[0]
                  id_fix['new_submitter_specimen_id']=aliquot_dict[r.get('aliquot_id')][s][id_fix.get('new_submitter_sample_id')] if aliquot_dict[r.get('aliquot_id')][s].get(id_fix.get('new_submitter_sample_id')) else 'missing' 
              else:
