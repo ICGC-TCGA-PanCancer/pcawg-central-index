@@ -40,11 +40,6 @@ def get_project_donor_count(es, es_index, dcc_project_code):
                   "term": {
                     "flags.is_manual_qc_failed": "T"
                   }
-                },
-                {
-                  "term": {
-                    "flags.is_donor_blacklisted": "T" 
-                  }
                 }
               ]
             }
