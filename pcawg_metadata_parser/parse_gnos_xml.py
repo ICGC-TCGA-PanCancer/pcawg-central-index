@@ -48,6 +48,10 @@ def init_es(es_host, es_index):
 
 def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations):
   analysis_attrib = get_analysis_attrib(gnos_analysis)
+  if not analysis_attrib.get('dcc_project_code') or not analysis_attrib.get('submitter_donor_id') or '/' in analysis_attrib.get('submitter_donor_id'):
+    logger.warning('ignore entry does not have dcc_project_code or submitter_donor_id, or submitter_donor_id is invalid, GNOS entry: {}'
+                     .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+    return
   donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
 
   if analysis_attrib and analysis_attrib.get('variant_workflow_name'):  # variant call gnos entry
@@ -100,11 +104,11 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
-    if not analysis_attrib.get('dcc_project_code') or not analysis_attrib.get('submitter_donor_id') \
-            or '/' in analysis_attrib.get('submitter_donor_id'):
-        logger.warning('ignore entry does not have dcc_project_code or submitter_donor_id, or submitter_donor_id is invalid, GNOS entry: {}'
-                         .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-        return
+    # if not analysis_attrib.get('dcc_project_code') or not analysis_attrib.get('submitter_donor_id') \
+    #         or '/' in analysis_attrib.get('submitter_donor_id'):
+    #     logger.warning('ignore entry does not have dcc_project_code or submitter_donor_id, or submitter_donor_id is invalid, GNOS entry: {}'
+    #                      .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+    #     return
 
     if not analysis_attrib.get('submitter_specimen_id') or not analysis_attrib.get('submitter_sample_id'):
         logger.warning('ignore entry does not have submitter_specimen_id or submitter_sample_id, GNOS entry: {}'
