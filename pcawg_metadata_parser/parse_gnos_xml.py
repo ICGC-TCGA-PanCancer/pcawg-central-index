@@ -48,9 +48,10 @@ def init_es(es_host, es_index):
 
 def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations):
   analysis_attrib = get_analysis_attrib(gnos_analysis)
+  donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
 
   if analysis_attrib and analysis_attrib.get('variant_workflow_name'):  # variant call gnos entry
-    donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
+    # donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
 
     if is_in_donor_blacklist(donor_unique_id):
         logger.warning('ignore blacklisted donor: {} GNOS entry: {}'
@@ -74,8 +75,8 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     vcf_entries.get(donor_unique_id)['vcf_entry_files'].append(copy.deepcopy(vcf_file))
 
   else:  # BAM entry
-    if gnos_analysis.get('dcc_project_code') and gnos_analysis.get('dcc_project_code').upper() == 'TEST':
-        logger.warning('ignore entry with dcc_project_code being TEST, GNOS entry: {}'
+    if gnos_analysis.get('dcc_project_code') and gnos_analysis.get('dcc_project_code').upper() == 'TEST' and not is_in_donor_whitelist(donor_unique_id):
+        logger.warning('ignore entry with dcc_project_code being TEST and donor is not in whitelist, GNOS entry: {}'
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
@@ -117,12 +118,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
-    donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
+    # donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
 
     #disable this check for specimen and sample for now as we are still fixing these IDs
     #for id_type in ['donor', 'specimen', 'sample']:
     for id_type in ['donor']:
-        if not is_in_pcawg_final_list(analysis_attrib.get('dcc_project_code'), analysis_attrib.get('submitter_'+id_type+'_id'), id_type, annotations):
+        if not is_in_pcawg_final_list(analysis_attrib.get('dcc_project_code'), analysis_attrib.get('submitter_'+id_type+'_id'), id_type, annotations) and not is_in_donor_whitelist(donor_unique_id):
             logger.warning('ignore non-pcawg final list {}: {} GNOS entry: {}'
                              .format(id_type, analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_'+id_type+'_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
             return
@@ -535,11 +536,21 @@ def is_in_donor_blacklist(donor_unique_id):
             "PACA-CA::PCSI_0309",
             "LIHC-US::G1551",
             "LIHC-US::G15512",
-            "TCGA_MUT_BENCHMARK_4::G15511",
-            "TCGA_MUT_BENCHMARK_4::G15512",
+            # "TCGA_MUT_BENCHMARK_4::G15511",
+            # "TCGA_MUT_BENCHMARK_4::G15512",
             "PBCA-DE::SNV_CALLING_TEST"
         ])
     if donor_blacklist.intersection([donor_unique_id]):
+        return True
+    else:
+        return False
+
+def is_in_donor_whitelist(donor_unique_id):
+    donor_whitelist = set([
+            "TCGA_MUT_BENCHMARK_4::G15511",
+            "TCGA_MUT_BENCHMARK_4::G15512"        
+        ])
+    if donor_whitelist.intersection([donor_unique_id]):
         return True
     else:
         return False
