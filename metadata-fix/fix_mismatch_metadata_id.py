@@ -119,7 +119,7 @@ def fix_illegal_id(xml_str, id_mapping, fix_pattern, id_types):
 
     return xml_str
 
-def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
+def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype, modify_local_cache):
 
     xml_dir = os.path.join(fixed_dir, subtype, gnos_repo, gnos_id)
     if os.path.exists(xml_dir): shutil.rmtree(xml_dir, ignore_errors=True)  # empty the folder if exists
@@ -134,7 +134,16 @@ def generate_metadata(xml_str, gnos_id, gnos_repo, fixed_dir, subtype):
                                                 get(xml_subtype+'_xml'), pretty=True)
             with open(xml_dir+'/'+ xml_subtype+ '.xml', 'w') as y:
                 y.write(xml_subtype_str)
+    if modify_local_cache:
+        metadata_xml_dir = '../pcawg_metadata_parser/gnos_metadata/__all_metadata_xml/' + gnos_repo
+        gnos_ao = xmltodict.parse(xml_str).get('ResultSet').get('Result')
+        ao_uuid = gnos_ao.get('analysis_id')
+        ao_state = gnos_ao.get('state')
+        ao_updated = gnos_ao.get('last_modified')
 
+        metadata_xml_file = metadata_xml_dir + '/' + ao_uuid + '__' + ao_state + '__' + ao_updated + '.xml'
+        with open(metadata_xml_file, 'w') as f:  # write to metadata xml file now
+            f.write(xml_str.encode('utf8'))
 
 def read_annotations(annotations, type, file_name, subtype):
     # file_name=os.path.join('annotation_files', file_name)
@@ -226,7 +235,8 @@ def main(argv=None):
              help="Specify type of id fixes['dcc_project_code', 'submitter_donor_id', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']", required=False)                 
     parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir", default="fixed_dir",
              help="Specify output folder for the fixed metadata", required=False)
-
+    parser.add_argument("-l", "--modify the local cache", dest="modify_local_cache", default=False, type=bool,
+             help="Specify whether modify the local cache or not", required=False) 
 
     args = parser.parse_args()
     fname = args.fname
@@ -236,6 +246,7 @@ def main(argv=None):
     fix_type = args.fix_type
     id_types = args.id_types
     fixed_dir = args.fixed_dir
+    modify_local_cache = args.modify_local_cache
 
     id_types = list(id_types) if id_types else ['dcc_project_code', 'submitter_donor_id', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']
 
@@ -321,7 +332,7 @@ def main(argv=None):
             if not xmltodict.parse(xml_str).get('ResultSet') or not xmltodict.parse(xml_str).get('ResultSet').get('Result'): 
                 print('Unable to download the xml of {} from {}'.format(fixed_metadata['gnos_id']), fixed_metadata['gnos_repo_original'])
                 continue
-            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'orignal')
+            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'orignal', modify_local_cache)
             if fixed_metadata['fixed_type'] == 'fixed_illegal_id':
                 # fix the illegal ids
                 xml_str = fix_illegal_id(xml_str, annotations.get('id_mapping').get(fixed_metadata.get('object_id')), fix_pattern, id_types)
@@ -341,8 +352,8 @@ def main(argv=None):
             else:
                 print('Warning: this should not happen!!!') 
                 continue
-            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, project_code)
-            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'fixed_all')
+            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, project_code, modify_local_cache)
+            generate_metadata(xml_str, fixed_metadata['gnos_id'], fixed_metadata['gnos_repo_original'], fixed_dir, 'fixed_all', modify_local_cache)
 
 
             fixed_metadata_list.append(fixed_metadata)
