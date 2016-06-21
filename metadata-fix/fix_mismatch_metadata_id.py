@@ -235,7 +235,7 @@ def main(argv=None):
              help="Specify type of id fixes['dcc_project_code', 'submitter_donor_id', 'dcc_specimen_type', 'submitter_specimen_id', 'submitter_sample_id']", required=False)                 
     parser.add_argument("-o", "--fixed_metadata_dir output folder", dest="fixed_dir", default="fixed_dir",
              help="Specify output folder for the fixed metadata", required=False)
-    parser.add_argument("-l", "--modify the local cache", dest="modify_local_cache", default=False, type=bool,
+    parser.add_argument("-l", "--modify the local cache", dest="modify_local_cache", action='store_true',
              help="Specify whether modify the local cache or not", required=False) 
 
     args = parser.parse_args()
