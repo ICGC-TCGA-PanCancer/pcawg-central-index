@@ -5,7 +5,7 @@ info=($(less $infile |head -1|awk -F"\t" '{for (i=1; i<=NF; i++) print $i}'))
 echo report all the entries with mismatch info...
 
 mkdir -p mismatch_info
-ll=( 4 5 13 14 15 16)
+ll=( 4 5 14 15 16 17)
 for i in "${ll[@]}"; do
     num=`less $infile |awk -v k=$i -F"\t" '{print $1, $k}'|sort |uniq -c|awk '{print $2}'|sort |uniq -d |wc -l`
     z=0

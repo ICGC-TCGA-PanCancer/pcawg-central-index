@@ -1,0 +1,14 @@
+   3136 Primary tumour - solid tissue
+   1464 Primary tumour
+    485 Primary tumour - lymph node
+    460 Primary tumour - blood derived (peripheral blood)
+    318 Normal - solid tissue
+    269 Recurrent tumour - other
+    265 Normal - tissue adjacent to primary
+    228 Metastatic tumour - metastasis to distant location
+     60 Primary tumour - other
+     26 Mouse xenograft derived from tumour
+     18 Recurrent tumour - solid tissue
+     15 Primary tumour - blood derived (bone marrow)
+     13 Cell line derived from xenograft
+      1 peripheral blood

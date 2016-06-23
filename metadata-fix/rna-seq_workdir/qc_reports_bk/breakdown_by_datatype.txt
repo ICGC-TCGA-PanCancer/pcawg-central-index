@@ -1,0 +1,5 @@
+      1 file_ext refassem_short_name workflow_name
+    342 bam unaligned 
+    845 gz unaligned 
+   2741 bam GRCh37 Workflow_Bundle_TOPHAT2
+   2830 bam GRCh37 RNA-Seq_Alignment_SOP_STAR
