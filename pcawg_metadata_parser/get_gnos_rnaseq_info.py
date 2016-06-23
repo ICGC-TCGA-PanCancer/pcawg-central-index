@@ -93,6 +93,7 @@ def process_one(gnos_analysis):
     info['last_modified'] = gnos_analysis.get('last_modified')
     info['aliquot_id'] = gnos_analysis.get('aliquot_id')
     info['study'] = gnos_analysis.get('study')
+    info['refassem_short_name'] = gnos_analysis.get('refassem_short_name')
 
     info['workflow_name'] = analysis_attrib.get('workflow_name', '')
     info['workflow_version'] = analysis_attrib.get('workflow_version', '')
@@ -119,11 +120,15 @@ def process_one(gnos_analysis):
     file_ext = set([])
     file_md5sum = ''
     for f in file_list:
-        files.append({'file_name': f.get('filename'), 'file_size': f.get('filesize'), 'file_md5sum': f.get('checksum').get('#text')})
 
         ext = f.get('filename').split('.')[-1]
-        if ext == "gz" or ext == "bam":
-            file_md5sum = f.get('checksum').get('#text')
+        if ext == 'bai': continue
+
+        files.append({'file_name': f.get('filename'), 'file_size': f.get('filesize'), 'file_md5sum': f.get('checksum').get('#text')})
+
+#        ext = f.get('filename').split('.')[-1]
+#        if ext == "gz" or ext == "bam": 
+        file_md5sum = f.get('checksum').get('#text')
 
         file_ext.add(ext)
 
