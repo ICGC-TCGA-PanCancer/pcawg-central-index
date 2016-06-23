@@ -1133,11 +1133,11 @@ def read_annotations(annotations, type, file_name):
                 annotations[type] = {}
                 reader = csv.DictReader(r, delimiter='\t')
                 for row in reader:
-                    if not row.get('Tumour WGS aliquot ID'): continue
+                    if not row.get('Tumour_WGS_aliquot_ID'): continue
                     if row.get('Stars') == 'NA':  
-                        logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour WGS aliquot ID')))
+                        logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour_WGS_aliquot_ID')))
                         continue
-                    annotations[type][row.get('Tumour WGS aliquot ID')] = row.get('Stars')
+                    annotations[type][row.get('Tumour_WGS_aliquot_ID')] = row.get('Stars')
 
 
             else:
