@@ -697,12 +697,17 @@ def main(argv=None):
     # exclude the donors if they were specified on the exclude_donor_id_lists
     donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
 
-    for dtype in ['release', 'blacklist']:
+    for dtype in ['release', 'whitelist','blacklist']:
         if dtype == 'release':
             donor_fh = open(metadata_dir+'/reports/'+release_name+'.jsonl', 'w') 
             pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.tsv', 'w') 
             simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.tsv', 'w') 
-            donors_list = donor_ids_to_be_included
+            donors_list = donor_ids_to_be_included.union(donor_ids_to_be_excluded)
+        elif dtype == 'whitelist':
+            donor_fh = open(metadata_dir+'/reports/'+release_name+'.whitelisted_donors.jsonl', 'w') 
+            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.whitelisted_donors.tsv', 'w') 
+            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.whitelisted_donors.tsv', 'w') 
+            donors_list = donor_ids_to_be_included            
         else:
             donor_fh = open(metadata_dir+'/reports/'+release_name+'.blacklisted_donors.jsonl', 'w')
             pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.blacklisted_donors.tsv', 'w')
