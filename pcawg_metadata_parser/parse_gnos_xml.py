@@ -295,7 +295,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
 
 def is_in_aliquot_blacklist(aliquot_id, annotations):
-    if annotations.get('aliquot_blacklist') and annotations.get('aliquot_blacklist').intersection(aliquot_id):
+    if annotations.get('aliquot_blacklist') and aliquot_id in annotations.get('aliquot_blacklist'):
         return True
     else:
         return False
