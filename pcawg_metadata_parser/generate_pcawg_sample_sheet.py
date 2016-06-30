@@ -231,10 +231,13 @@ def main(argv=None):
     # exclude the donors if they were specified on the donor_ids_to_be_excluded
     donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
 
-    for dtype in ['release', 'blacklist']:
+    for dtype in ['release', 'whitelist', 'blacklist']:
         if dtype == 'release':
             PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')
-            donors_list = donor_ids_to_be_included
+            donors_list = donor_ids_to_be_included.union(donor_ids_to_be_excluded)
+        elif dtype == 'whitelist':
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.whitelisted_donors.tsv', 'w')
+            donors_list = donor_ids_to_be_included            
         else:
             PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.blacklisted_donors.tsv', 'w')
             donors_list = donor_ids_to_be_excluded
