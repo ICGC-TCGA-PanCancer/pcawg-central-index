@@ -89,6 +89,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
+    if is_in_aliquot_blacklist(gnos_analysis.get('aliquot_id'), annotations):
+        logger.warning('ignore blacklisted aliquot: {} GNOS entry: {}'
+                         .format(gnos_analysis.get('aliquot_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+        return         
+
+
     if gnos_analysis.get('refassem_short_name') != 'unaligned' and gnos_analysis.get('refassem_short_name') != 'GRCh37':
         logger.warning('ignore entry that is aligned but not aligned to GRCh37: {}'
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
@@ -288,11 +294,20 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     bam_output_fh.write(json.dumps(bam_file, default=set_default) + '\n')
 
 
+def is_in_aliquot_blacklist(aliquot_id, annotations):
+    if annotations.get('aliquot_blacklist') and aliquot_id in annotations.get('aliquot_blacklist'):
+        return True
+    else:
+        return False
+
+
 def is_in_pcawg_final_list(dcc_project_code, pcawg_id, id_type, annotations):
     if annotations.get('pcawg_final_list').get(id_type).intersection([dcc_project_code+'::'+pcawg_id]):
         return True
     else:
         return False
+
+
 
 def exist_in_previous_releases(vcf_entry):
     for r in previous_releases:
@@ -934,6 +949,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'icgc_specimen_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_sample_ids.csv')
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
+    read_annotations(annotations, 'aliquot_blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-aliquot_blacklist.tsv')
     read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
     read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
     read_annotations(annotations, 'Stars', '../pcawg-operations/lists/quality_control_info/PAWG_QC_Summary_of_Measures.tsv')
@@ -1058,7 +1074,7 @@ def read_annotations(annotations, type, file_name):
                     donor_id, ao_id = str.split(line.rstrip(), '\t')
                     annotations[type][donor_id] = ao_id
                     
-            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed', 'aliquot_blacklist']:
                 annotations[type] = set()
                 for line in r:
                     if line.startswith('#'): continue
