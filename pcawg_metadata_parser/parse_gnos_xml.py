@@ -170,10 +170,10 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     # temporary hack here to skip any BAM entries from odsc-tcga repo as it's supposed not contain
     # any BAM data, but it does, and those aligned BAMs it has overlap with what in CGHub hence causes problems
-    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
-        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
-                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-        return
+#    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
+#        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
+#                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+#        return
 
     if not donors.get(donor_unique_id):
         # create a new donor if not exist
