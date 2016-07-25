@@ -747,6 +747,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
             'is_mar2016_donor': True if donor_unique_id in annotations.get('mar2016').get('donor') else False,
             'is_may2016_donor': True if donor_unique_id in annotations.get('may2016').get('donor') else False,
+            'TiN': annotations.get('TiN').get(donor_unique_id, None),
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -953,6 +954,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
     read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
     read_annotations(annotations, 'Stars', '../pcawg-operations/lists/quality_control_info/PAWG_QC_Summary_of_Measures.tsv')
+    read_annotations(annotations, 'TiN', '../pcawg-operations/lists/quality_control_info/TiN_donor.TiNsorted.tsv')
     for r in ['aug2015', 'oct2015', 'mar2016', 'may2016']:
         read_annotations(annotations, r, '../pcawg-operations/data_releases/'+r+'/release_'+r+'_entry.tsv')
 
@@ -1154,6 +1156,16 @@ def read_annotations(annotations, type, file_name):
                         logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour_WGS_aliquot_ID')))
                         continue
                     annotations[type][row.get('Tumour_WGS_aliquot_ID')] = row.get('Stars')
+
+            elif type == 'TiN':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('donor_unique_id'): continue
+                    if not row.get('TiN_donor'):  
+                        logger.warning('donor:{} has no TiN information.'.format(row.get('donor_unique_id')))
+                        continue
+                    annotations[type][row.get('donor_unique_id')] = row.get('TiN_donor')
 
 
             else:
