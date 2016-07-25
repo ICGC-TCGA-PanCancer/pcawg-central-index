@@ -147,6 +147,7 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
         previous_release+'_donor': True if es_json.get('flags').get('is_'+previous_release+'_donor') else False,
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
         'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
+        'TiN': es_json.get('flags').get('TiN'),
         'wgs': {
             'normal_specimen': {},
             'tumor_specimens': []
@@ -385,7 +386,7 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf, annotations):
-    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq']
+    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'TiN']
     specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
@@ -697,12 +698,17 @@ def main(argv=None):
     # exclude the donors if they were specified on the exclude_donor_id_lists
     donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
 
-    for dtype in ['release', 'blacklist']:
+    for dtype in ['release', 'whitelist','blacklist']:
         if dtype == 'release':
             donor_fh = open(metadata_dir+'/reports/'+release_name+'.jsonl', 'w') 
             pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.tsv', 'w') 
             simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.tsv', 'w') 
-            donors_list = donor_ids_to_be_included
+            donors_list = donor_ids_to_be_included.union(donor_ids_to_be_excluded)
+        elif dtype == 'whitelist':
+            donor_fh = open(metadata_dir+'/reports/'+release_name+'.whitelisted_donors.jsonl', 'w') 
+            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.whitelisted_donors.tsv', 'w') 
+            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.whitelisted_donors.tsv', 'w') 
+            donors_list = donor_ids_to_be_included            
         else:
             donor_fh = open(metadata_dir+'/reports/'+release_name+'.blacklisted_donors.jsonl', 'w')
             pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.blacklisted_donors.tsv', 'w')
