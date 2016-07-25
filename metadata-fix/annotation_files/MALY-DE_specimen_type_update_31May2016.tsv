@@ -1,4 +1,4 @@
-project_code    donor_id    specimen_id old_dcc_specimen_type   new_dcc_specimen_type
+project_code    submitter_donor_id    specimen_id old_dcc_specimen_type   new_dcc_specimen_type
 MALY-DE 4182393 tumor_4182393   Primary tumour - solid tissue   Primary tumour - lymph node
 MALY-DE 4119027 tumor_4119027   Primary tumour - solid tissue   Primary tumour - lymph node
 MALY-DE 4125240 tumor_4125240   Primary tumour - solid tissue   Primary tumour - lymph node
