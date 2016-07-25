@@ -747,7 +747,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
             'is_mar2016_donor': True if donor_unique_id in annotations.get('mar2016').get('donor') else False,
             'is_may2016_donor': True if donor_unique_id in annotations.get('may2016').get('donor') else False,
-            'TiN': annotations.get('TiN').get(donor_unique_id, None),
+            'TiN': annotations.get('TiN').get(donor_unique_id, 'NA'),
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
