@@ -96,20 +96,20 @@ es_queries = [
                       #   }
                       # ],
                       "must_not": [
-                        {
-                          "terms": {
-                            "flags.is_bam_used_by_variant_calling_missing": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.exists_vcf_file_prefix_mismatch": [
-                              "T"
-                            ]
-                          }
-                        },
+#                        {
+#                          "terms": {
+#                            "flags.is_bam_used_by_variant_calling_missing": [
+#                              "T"
+#                            ]
+#                          }
+#                        },
+#                        {
+#                          "terms": {
+#                            "flags.exists_vcf_file_prefix_mismatch": [
+#                              "T"
+#                            ]
+#                          }
+#                        },
                         {
                           "terms": {
                             "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
