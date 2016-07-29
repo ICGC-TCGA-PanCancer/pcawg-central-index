@@ -229,7 +229,7 @@ def main(argv=None):
 
     # get the list of donors to be included in the release 
     donor_ids['release'] = get_donors_list(es, es_index, es_queries)
-    donor_ids['whitelist'] = donor_ids.get('release').different(donor_ids.get('blacklist').union(donor_ids.get('graylist')))
+    donor_ids['whitelist'] = donor_ids.get('release').difference(donor_ids.get('blacklist').union(donor_ids.get('graylist')))
 
     for dtype in ['release', 'whitelist', 'blacklist', 'graylist']:
         if dtype == 'release':
