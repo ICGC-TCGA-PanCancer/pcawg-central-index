@@ -222,26 +222,22 @@ def main(argv=None):
 
     es = Elasticsearch([es_host])
 
-    # get the list of donors to be excluded from the release: blacklist donors
-    donor_ids_to_be_excluded = generate_id_list('../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')
+    donor_ids = {}
+    # get the list of donors in blacklist/graylist donors
+    for dtype in ['blacklist', 'graylist']:
+        donor_ids[dtype] = generate_id_list('../pcawg-operations/lists/'+dtype+'/pc_annotation-donor_'+dtype+'.tsv')
 
     # get the list of donors to be included in the release 
-    donor_ids_to_be_included = get_donors_list(es, es_index, es_queries)
+    donor_ids['release'] = get_donors_list(es, es_index, es_queries)
+    donor_ids['whitelist'] = donor_ids.get('release').different(donor_ids.get('blacklist').union(donor_ids.get('graylist')))
 
-    # exclude the donors if they were specified on the donor_ids_to_be_excluded
-    donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
-
-    for dtype in ['release', 'whitelist', 'blacklist']:
+    for dtype in ['release', 'whitelist', 'blacklist', 'graylist']:
         if dtype == 'release':
-            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')
-            donors_list = donor_ids_to_be_included.union(donor_ids_to_be_excluded)
-        elif dtype == 'whitelist':
-            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.whitelisted_donors.tsv', 'w')
-            donors_list = donor_ids_to_be_included            
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')         
         else:
-            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.blacklisted_donors.tsv', 'w')
-            donors_list = donor_ids_to_be_excluded
-
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.'+dtype+'ed_donors.tsv', 'w')
+        
+        donors_list = donor_ids.get(dtype)
         donors_list = sorted(donors_list)
 
         header = True
