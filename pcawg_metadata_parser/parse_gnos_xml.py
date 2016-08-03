@@ -89,6 +89,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
 
+    if is_in_aliquot_blacklist(gnos_analysis.get('aliquot_id'), annotations):
+        logger.warning('ignore blacklisted aliquot: {} GNOS entry: {}'
+                         .format(gnos_analysis.get('aliquot_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+        return         
+
+
     if gnos_analysis.get('refassem_short_name') != 'unaligned' and gnos_analysis.get('refassem_short_name') != 'GRCh37':
         logger.warning('ignore entry that is aligned but not aligned to GRCh37: {}'
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
@@ -170,10 +176,10 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     # temporary hack here to skip any BAM entries from odsc-tcga repo as it's supposed not contain
     # any BAM data, but it does, and those aligned BAMs it has overlap with what in CGHub hence causes problems
-    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
-        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
-                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-        return
+#    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
+#        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
+#                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+#        return
 
     if not donors.get(donor_unique_id):
         # create a new donor if not exist
@@ -288,11 +294,20 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     bam_output_fh.write(json.dumps(bam_file, default=set_default) + '\n')
 
 
+def is_in_aliquot_blacklist(aliquot_id, annotations):
+    if annotations.get('aliquot_blacklist') and aliquot_id in annotations.get('aliquot_blacklist'):
+        return True
+    else:
+        return False
+
+
 def is_in_pcawg_final_list(dcc_project_code, pcawg_id, id_type, annotations):
     if annotations.get('pcawg_final_list').get(id_type).intersection([dcc_project_code+'::'+pcawg_id]):
         return True
     else:
         return False
+
+
 
 def exist_in_previous_releases(vcf_entry):
     for r in previous_releases:
@@ -732,6 +747,7 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
             'is_mar2016_donor': True if donor_unique_id in annotations.get('mar2016').get('donor') else False,
             'is_may2016_donor': True if donor_unique_id in annotations.get('may2016').get('donor') else False,
+            'TiN': annotations.get('TiN').get(donor_unique_id, 'NA'),
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -934,9 +950,11 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     read_annotations(annotations, 'icgc_specimen_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_specimen_ids.csv')
     read_annotations(annotations, 'icgc_sample_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_sample_ids.csv')
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
+    read_annotations(annotations, 'aliquot_blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-aliquot_blacklist.tsv')
     read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
     read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
     read_annotations(annotations, 'Stars', '../pcawg-operations/lists/quality_control_info/PAWG_QC_Summary_of_Measures.tsv')
+    read_annotations(annotations, 'TiN', '../pcawg-operations/lists/quality_control_info/TiN_donor.TiNsorted.tsv')
     for r in ['aug2015', 'oct2015', 'mar2016', 'may2016']:
         read_annotations(annotations, r, '../pcawg-operations/data_releases/'+r+'/release_'+r+'_entry.tsv')
 
@@ -1058,7 +1076,7 @@ def read_annotations(annotations, type, file_name):
                     donor_id, ao_id = str.split(line.rstrip(), '\t')
                     annotations[type][donor_id] = ao_id
                     
-            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed', 'aliquot_blacklist']:
                 annotations[type] = set()
                 for line in r:
                     if line.startswith('#'): continue
@@ -1138,6 +1156,16 @@ def read_annotations(annotations, type, file_name):
                         logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour_WGS_aliquot_ID')))
                         continue
                     annotations[type][row.get('Tumour_WGS_aliquot_ID')] = row.get('Stars')
+
+            elif type == 'TiN':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('donor_unique_id'): continue
+                    if not row.get('TiN_donor'):  
+                        logger.warning('donor:{} has no TiN information.'.format(row.get('donor_unique_id')))
+                        continue
+                    annotations[type][row.get('donor_unique_id')] = row.get('TiN_donor')
 
 
             else:

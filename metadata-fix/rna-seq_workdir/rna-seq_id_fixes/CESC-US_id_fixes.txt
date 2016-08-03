@@ -1,0 +1,2 @@
+dcc_project_code	aliquot_id	submitter_donor_id	submitter_specimen_id	old_study	new_study	old_dcc_specimen_type	new_dcc_specimen_type	old_submitter_sample_id	new_submitter_sample_id
+CESC-US	1e176d9d-dba9-4d41-946e-05b7f35eba64	0809ba8b-4ab6-4f43-934c-c1ccbc014a7e	5f613800-55df-497f-a544-5b12cb9446ce	icgc_pancancer	PCAWG 2.0	Primary Tumour - solid tissue	Primary tumour - solid tissue	b3b3a27c-ee9a-42af-a6d1-9af5970a98b9	1e176d9d-dba9-4d41-946e-05b7f35eba64

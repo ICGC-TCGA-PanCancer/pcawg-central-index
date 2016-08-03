@@ -5,9 +5,7 @@ import sys
 import os
 import re
 import glob
-import xmltodict
 import json
-import yaml
 import copy
 import logging
 from argparse import ArgumentParser
@@ -15,9 +13,6 @@ from argparse import RawDescriptionHelpFormatter
 from elasticsearch import Elasticsearch
 from collections import OrderedDict
 import datetime
-import dateutil.parser
-from itertools import izip
-from distutils.version import LooseVersion
 import csv
 
 logger = logging.getLogger('generate PCAWG data release')
@@ -141,12 +136,14 @@ es_queries = [
 def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     reorganized_donor = {
         'donor_unique_id': donor_unique_id,
+        'wgs_white_black_gray': 'Whitelist',
         'submitter_donor_id': es_json['submitter_donor_id'],
         'dcc_project_code': es_json['dcc_project_code'],
         'icgc_donor_id': es_json['icgc_donor_id'],
         previous_release+'_donor': True if es_json.get('flags').get('is_'+previous_release+'_donor') else False,
         'santa_cruz_pilot': True if es_json.get('flags').get('is_santa_cruz_donor') else False,
         'validation_by_deep_seq': True if es_json.get('flags').get('is_train2_pilot') else False,
+        'TiN': es_json.get('flags').get('TiN'),
         'wgs': {
             'normal_specimen': {},
             'tumor_specimens': []
@@ -156,6 +153,12 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
              'tumor_specimens': []
         }
     }
+    if donor_unique_id in annotations.get('blacklist'):
+        reorganized_donor['wgs_white_black_gray'] = 'Blacklist'
+    elif donor_unique_id in annotations.get('graylist'):
+        reorganized_donor['wgs_white_black_gray'] = 'Graylist'
+    else:
+        pass
     add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
     add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
 
@@ -176,7 +179,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'aliquot_id': aliquot.get('aliquot_id'),
         'is_'+previous_release+'_entry': aliquot.get(bam_type).get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
         # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
-        'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
+        'gnos_repo': filter_repo(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
         'gnos_id': aliquot.get(bam_type).get('gnos_id'),
         'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified')[-1],
         'files': []
@@ -261,7 +264,7 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'is_'+previous_release+'_entry': wgs_tumor_vcf_info.get('is_'+previous_release+'_entry'),
-        'gnos_repo': wgs_tumor_vcf_info.get('gnos_repo'),
+        'gnos_repo': filter_repo(wgs_tumor_vcf_info.get('gnos_repo'), data_type),
         'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
         'gnos_last_modified': wgs_tumor_vcf_info.get('gnos_last_modified')[-1],
         'files':[]
@@ -306,19 +309,22 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
     return reorganized_donor
 
 
-def filter_osdc_icgc(gnos_repo, data_type, bam_type):
-    if not bam_type == 'aligned_bam' or not 'wgs' in data_type:
-        return gnos_repo
-    if "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
+def filter_repo(gnos_repo, data_type, bam_type=None):
+    # osdc-icgc does not hold wgs aligned_bam
+    if bam_type == 'aligned_bam' and 'wgs' in data_type and "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
         gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
-    return gnos_repo  # return the whole list of repos if osdc-icgc is not in repos
+    # cghub went offline, all data should be sync-ed to osdc-tcga, hack for now since not all data have been sync-ed. 
+    if 'https://cghub.ucsc.edu/' in gnos_repo:
+        gnos_repo[gnos_repo.index('https://cghub.ucsc.edu/')] = 'https://gtrepo-osdc-tcga.annailabs.com/'
+
+    return list(set(gnos_repo))  
 
 
 def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     rna_seq_info = es_json.get('rna_seq').get('alignment')
     for specimen_type in rna_seq_info.keys():
         if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
-		    continue
+            continue
         
         if 'normal' in specimen_type:
             aliquot = rna_seq_info.get(specimen_type)
@@ -362,7 +368,7 @@ def get_donors_list(es, es_index, es_queries):
     response = es.search(index=es_index, body=es_queries[q_index])
     donors_list = set()
     for p in response['hits']['hits']:
-    	donors_list.add(p.get('fields').get('donor_unique_id')[0])
+      donors_list.add(p.get('fields').get('donor_unique_id')[0])
     return donors_list 
 
 
@@ -385,9 +391,9 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf, annotations):
-    donor_info = ['donor_unique_id','dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq']
-    specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
-    alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
+    donor_info = ['donor_unique_id', 'wgs_white_black_gray', 'dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'TiN']
+    #specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
+    #alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
     pilot_tsv = OrderedDict()
     for d in donor_info:
@@ -449,7 +455,7 @@ def generate_alignment_info(pilot_tsv, alignment, specimen_type, sequence_type, 
         if pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d): continue
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_'+d] = []
     if not pilot_tsv.get('is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type):
-    	  pilot_tsv['is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type] = []
+        pilot_tsv['is_'+previous_release+'_'+specimen_type+'_'+sequence_type+'_'+workflow_type] = []
     if not pilot_tsv.get(specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'):
         pilot_tsv[specimen_type+'_'+sequence_type+'_'+workflow_type+'_bam_file_name'] = []
 
@@ -577,25 +583,13 @@ def read_annotations(annotations, type, file_name):
                     if not row.get(vcf+'_variant_calling_deprecated_gnos_id'): continue
                     annotations[type][donor_unique_id][vcf]=row.get(vcf+'_variant_calling_deprecated_gnos_id') 
 
-        # elif type == 'oxog_score':
-        #     annotations[type] = {}
-        #     reader = csv.DictReader(r, delimiter='\t')
-        #     for row in reader:
-        #         if not row.get('aliquot_GUUID'): continue
-        #         if not row.get('picard_oxoQ'): 
-        #             logger.warning('aliquot: {} has no oxog_score'.format(row.get('aliquot_GUUID')))
-        #             continue
-        #         annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ')
+        elif type in ['blacklist', 'graylist']:
+            annotations[type] = set()
+            for line in r:
+                if line.startswith('#'): continue
+                if len(line.rstrip()) == 0: continue
+                annotations[type].add(line.rstrip())
 
-        # elif type == 'ContEST':
-        #     annotations[type] = {}
-        #     reader = csv.DictReader(r, delimiter='\t')
-        #     for row in reader:
-        #         if not row.get('aliquot_GUUID'): continue
-        #         if not row.get('contamination_percentage_whole_genome_no_array_value'): 
-        #             logger.warning('aliquot: {} has no ContEST'.format(row.get('aliquot_GUUID')))
-        #             continue
-        #         annotations[type][row.get('aliquot_GUUID')] = row.get('contamination_percentage_whole_genome_no_array_value')
 
         else:
             print('unknown annotation type: {}'.format(type))
@@ -667,6 +661,8 @@ def main(argv=None):
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/sanger_deprecated_gnos_id.160310.tsv')   
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/dkfz_embl_deprecated_gnos_id.160310.tsv')
     read_annotations(annotations, 'deprecated_gnos_id', '../pcawg-operations/lists/broad_deprecated_gnos_id.160310.tsv')
+    read_annotations(annotations, 'blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')
+    read_annotations(annotations, 'graylist', '../pcawg-operations/lists/graylist/pc_annotation-donor_graylist.tsv')
 
     if not os.path.exists(metadata_dir+'/reports/'): os.makedirs(metadata_dir+'/reports/')
 
@@ -682,32 +678,39 @@ def main(argv=None):
     # remove the gnos_ids_to_be_excluded from gnos_ids_to_be_included
     gnos_ids_to_be_included.difference_update(gnos_ids_to_be_excluded)
 
-    # get the list of donors to be excluded from the release: blacklist donors
+    # get the list of donors to be excluded from the whitelist: blacklist/graylist donors
     if not exclude_donor_id_lists:
-        donor_ids_to_be_excluded = generate_id_list('../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')
+        # blacklist_donors = generate_id_list('../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')
+        # graylist_donors = generate_id_list('../pcawg-operations/lists/graylist/pc_annotation-donor_graylist.tsv')
+        donor_ids_to_be_excluded = annotations.get('blacklist').union(annotations.get('graylist'))
     else:    
         donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
 
-    # get the list of donors to be included in the release
+    # get the full list of donors to be included in the release if not specify the donor to be included
     if not include_donor_id_lists:  
         donor_ids_to_be_included = get_donors_list(es, es_index, es_queries)
     else:
         donor_ids_to_be_included = generate_id_list(include_donor_id_lists)
 
-    # exclude the donors if they were specified on the exclude_donor_id_lists
-    donor_ids_to_be_included.difference_update(donor_ids_to_be_excluded)
+    
 
-    for dtype in ['release', 'blacklist']:
+    for dtype in ['release', 'whitelist','blacklist', 'graylist']:
         if dtype == 'release':
             donor_fh = open(metadata_dir+'/reports/'+release_name+'.jsonl', 'w') 
             pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.tsv', 'w') 
             simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.tsv', 'w') 
             donors_list = donor_ids_to_be_included
+        elif dtype in ['blacklist', 'graylist']:
+            donor_fh = open(metadata_dir+'/reports/'+release_name+'.'+dtype+'ed_donors.jsonl', 'w') 
+            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.'+dtype+'ed_donors.tsv', 'w') 
+            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.'+dtype+'ed_donors.tsv', 'w') 
+            donors_list = annotations.get(dtype)            
         else:
-            donor_fh = open(metadata_dir+'/reports/'+release_name+'.blacklisted_donors.jsonl', 'w')
-            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.blacklisted_donors.tsv', 'w')
-            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.blacklisted_donors.tsv', 'w')
-            donors_list = donor_ids_to_be_excluded
+            donor_fh = open(metadata_dir+'/reports/'+release_name+'.whitelisted_donors.jsonl', 'w')
+            pilot_tsv_fh = open(metadata_dir + '/reports/'+release_name+'.whitelisted_donors.tsv', 'w')
+            simple_tsv_fh = open(metadata_dir + '/reports/'+release_name+'_entry.whitelisted_donors.tsv', 'w')
+            # exclude the donors if they were specified on the exclude_donor_id_lists
+            donors_list = donor_ids_to_be_included.difference(donor_ids_to_be_excluded)
 
         donors_list = sorted(donors_list)  
         simple_release_tsv = []        
@@ -722,7 +725,7 @@ def main(argv=None):
 
             # push to Elasticsearch
             if dtype == 'release':
-                es_summary.index(index=es_index_summary, doc_type='donor', id=reorganized_donor['donor_unique_id'], body=json.loads(json.dumps(reorganized_donor, default=set_default)), timeout=90 )
+                es_summary.index(index=es_index_summary, doc_type=es_type, id=reorganized_donor['donor_unique_id'], body=json.loads(json.dumps(reorganized_donor, default=set_default)), timeout=90 )
 
             donor_fh.write(json.dumps(reorganized_donor, default=set_default) + '\n')
 
