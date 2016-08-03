@@ -310,13 +310,14 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
 
 
 def filter_repo(gnos_repo, data_type, bam_type=None):
+    # osdc-icgc does not hold wgs aligned_bam
     if bam_type == 'aligned_bam' and 'wgs' in data_type and "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
         gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
-
+    # cghub went offline, all data should be sync-ed to osdc-tcga, hack for now since not all data have been sync-ed. 
     if 'https://cghub.ucsc.edu/' in gnos_repo:
         gnos_repo[gnos_repo.index('https://cghub.ucsc.edu/')] = 'https://gtrepo-osdc-tcga.annailabs.com/'
 
-    return set(gnos_repo)  # return the whole list of repos if osdc-icgc is not in repos
+    return list(set(gnos_repo))  
 
 
 def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
