@@ -179,7 +179,7 @@ def create_alignment(es_json, aliquot, data_type, gnos_ids_to_be_excluded, gnos_
         'aliquot_id': aliquot.get('aliquot_id'),
         'is_'+previous_release+'_entry': aliquot.get(bam_type).get('is_'+previous_release+'_entry') if 'wgs' in data_type else aliquot.get('is_'+previous_release+'_entry'),
         # 'gnos_repo': aliquot.get(bam_type).get('gnos_repo'),
-        'gnos_repo': filter_osdc_icgc(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
+        'gnos_repo': filter_repo(aliquot.get(bam_type).get('gnos_repo'), data_type, bam_type),
         'gnos_id': aliquot.get(bam_type).get('gnos_id'),
         'gnos_last_modified': aliquot.get(bam_type).get('gnos_last_modified')[-1],
         'files': []
@@ -264,7 +264,7 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos
         'specimen_type': aliquot.get('dcc_specimen_type'),
         'aliquot_id': aliquot.get('aliquot_id'),
         'is_'+previous_release+'_entry': wgs_tumor_vcf_info.get('is_'+previous_release+'_entry'),
-        'gnos_repo': wgs_tumor_vcf_info.get('gnos_repo'),
+        'gnos_repo': filter_repo(wgs_tumor_vcf_info.get('gnos_repo'), data_type),
         'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
         'gnos_last_modified': wgs_tumor_vcf_info.get('gnos_last_modified')[-1],
         'files':[]
@@ -309,12 +309,14 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
     return reorganized_donor
 
 
-def filter_osdc_icgc(gnos_repo, data_type, bam_type):
-    if not bam_type == 'aligned_bam' or not 'wgs' in data_type:
-        return gnos_repo
-    if "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
+def filter_repo(gnos_repo, data_type, bam_type=None):
+    if bam_type == 'aligned_bam' and 'wgs' in data_type and "https://gtrepo-osdc-icgc.annailabs.com/" in gnos_repo:
         gnos_repo.remove("https://gtrepo-osdc-icgc.annailabs.com/")
-    return gnos_repo  # return the whole list of repos if osdc-icgc is not in repos
+
+    if 'https://cghub.ucsc.edu/' in gnos_repo:
+        gnos_repo[gnos_repo.index('https://cghub.ucsc.edu/')] = 'https://gtrepo-osdc-tcga.annailabs.com/'
+
+    return set(gnos_repo)  # return the whole list of repos if osdc-icgc is not in repos
 
 
 def add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
