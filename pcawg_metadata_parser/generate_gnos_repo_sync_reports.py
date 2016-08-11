@@ -198,7 +198,8 @@ def add_rna_seq_gnos_entity_1(report, gnos_entity_info, es_json):
         gnos_entity_info['entity_type'] = b.get('alignment').get('workflow_name')
         gnos_entity_info['gnos_id'] = b.get('bam_gnos_ao_id')
         gnos_entity_info['gnos_repo'] = b.get('gnos_repo')
-        report['gnos_objects_to_sync_from_cghub_into_osdc-tcga'].append(copy.deepcopy(gnos_entity_info))
+        add_subreport_info(report, b, gnos_entity_info)
+        # report['gnos_objects_to_sync_from_cghub_into_osdc-tcga'].append(copy.deepcopy(gnos_entity_info))
 
 
 def add_rna_seq_gnos_entity(report, gnos_entity_info, es_json):
