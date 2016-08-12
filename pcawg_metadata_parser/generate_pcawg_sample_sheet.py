@@ -51,11 +51,12 @@ es_queries = [
     }
 ]
 
-def create_specimen_info(donor_unique_id, es_json):
+def create_specimen_info(donor_unique_id, es_json, donor_ids):
     specimen_info_list = []
 
     specimen_info = OrderedDict()
     specimen_info['donor_unique_id'] = donor_unique_id
+    specimen_info['donor_wgs_white_black_gray'] = get_flag(donor_unique_id, donor_ids)
     specimen_info['submitter_donor_id'] = es_json['submitter_donor_id']
     specimen_info['icgc_donor_id'] = es_json['icgc_donor_id'] if es_json['icgc_donor_id'] else ''
     specimen_info['dcc_project_code'] = es_json['dcc_project_code']
@@ -66,6 +67,12 @@ def create_specimen_info(donor_unique_id, es_json):
 
     return specimen_info_list
 
+def get_flag(donor_unique_id, donor_ids):
+    for t in ['white', 'black', 'gray']:
+        if not donor_unique_id in donor_ids.get(t+'list'): continue
+        return t.capitalize()+'list'
+    return None
+        
 
 def add_wgs_specimens(specimen_info_list, specimen_info, es_json):
 
@@ -245,7 +252,7 @@ def main(argv=None):
         for donor_unique_id in donors_list:
             es_json = get_donor_json(es, es_index, donor_unique_id)
             if not es_json: continue
-            specimen_info_list = create_specimen_info(donor_unique_id, es_json)
+            specimen_info_list = create_specimen_info(donor_unique_id, es_json, donor_ids)
 
             for specimen in specimen_info_list: 
                 # write to the tsv file
