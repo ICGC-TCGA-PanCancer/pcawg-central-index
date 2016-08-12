@@ -56,7 +56,7 @@ def create_specimen_info(donor_unique_id, es_json, donor_ids):
 
     specimen_info = OrderedDict()
     specimen_info['donor_unique_id'] = donor_unique_id
-    specimen_info['wgs_white_black_gray_donor'] = get_flag(donor_unique_id, donor_ids)
+    specimen_info['donor_wgs_white_black_gray'] = get_flag(donor_unique_id, donor_ids)
     specimen_info['submitter_donor_id'] = es_json['submitter_donor_id']
     specimen_info['icgc_donor_id'] = es_json['icgc_donor_id'] if es_json['icgc_donor_id'] else ''
     specimen_info['dcc_project_code'] = es_json['dcc_project_code']
