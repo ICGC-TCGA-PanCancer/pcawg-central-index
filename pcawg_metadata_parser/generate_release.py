@@ -412,7 +412,7 @@ def generate_tsv_file(reorganized_donor, vcf, annotations):
     generate_variant_calling_info(pilot_tsv, wgs_tumor_speciments, vcf, annotations)
     # initial the two columns with flag to show whether wgs has matched RNA-Seq
     for specimen_type in ['normal', 'tumor']:
-        pilot_tsv[specimen_type+'_wgs_has_matched_RNA-Seq'] = []
+        pilot_tsv[specimen_type+'_wgs_has_matched_rna_seq'] = []
 
     # rna_seq normal
     alignment = reorganized_donor.get('rna_seq').get('normal_specimen')
@@ -425,7 +425,7 @@ def generate_tsv_file(reorganized_donor, vcf, annotations):
         generate_alignment_info(pilot_tsv, rna_seq_tumor, 'tumor', 'rna_seq', workflow.lower()+'_alignment')
     #populate the two columns with values
     for specimen_type in ['normal', 'tumor']:
-        pilot_tsv[specimen_type+'_wgs_has_matched_RNA-Seq'] = [t in pilot_tsv[specimen_type+'_rna_seq_icgc_specimen_id'] for t in pilot_tsv[specimen_type+'_wgs_icgc_specimen_id']]
+        pilot_tsv[specimen_type+'_wgs_has_matched_rna_seq'] = [t in pilot_tsv[specimen_type+'_rna_seq_icgc_specimen_id'] for t in pilot_tsv[specimen_type+'_wgs_icgc_specimen_id']]
 
     return pilot_tsv
 
