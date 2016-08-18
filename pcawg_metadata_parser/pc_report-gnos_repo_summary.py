@@ -92,13 +92,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -186,13 +179,6 @@ es_queries = [
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -291,13 +277,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -392,13 +371,6 @@ es_queries = [
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -497,13 +469,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -596,13 +561,6 @@ es_queries = [
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -703,13 +661,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -805,13 +756,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -904,13 +848,6 @@ es_queries = [
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -1011,13 +948,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -1110,13 +1040,6 @@ es_queries = [
                         {
                           "terms": {
                             "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
