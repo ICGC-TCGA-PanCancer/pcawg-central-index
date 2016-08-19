@@ -361,12 +361,12 @@ def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sa
                 if to_purge_sample_list:
                     out_dir = os.path.join(ega_dir, 'file_info', 'to_purge_sample_info')
                     if not os.path.isdir(out_dir): os.makedirs(out_dir)  
-                    write_tsv_file(to_purge_analysis_list, os.path.join(out_dir, project+'.'+u+'.tsv'))                 
+                    write_tsv_file(to_purge_sample_list, os.path.join(out_dir, project+'.'+u+'.tsv'))                 
 
                 if to_update_sample_list:
                     out_dir = os.path.join(ega_dir, 'file_info', 'to_update_sample_info')
                     if not os.path.isdir(out_dir): os.makedirs(out_dir)  
-                    write_tsv_file(to_update_analysis_list, os.path.join(out_dir, project+'.'+u+'.tsv')) 
+                    write_tsv_file(to_update_sample_list, os.path.join(out_dir, project+'.'+u+'.tsv')) 
 
 
         elif u in ['bwa', 'sanger', 'dkfz', 'broad', 'muse', 'tophat2', 'star']:
