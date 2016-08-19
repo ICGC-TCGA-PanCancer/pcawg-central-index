@@ -72,6 +72,9 @@ def get_donors_list(es, es_index, dcc_project_code):
 def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excluded, dcc_project_code, ega_dir, pcawg_sample_sheet, seq, annotations):
     for sequence_type in seq:
         print('\nCollecting the Sample Data for sequence_type: {} of project: {}'.format(sequence_type, dcc_project_code))
+
+        file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
+        gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
         sample_sheet = []
         with open(pcawg_sample_sheet, 'r') as s:
             reader = csv.DictReader(s, delimiter='\t')
@@ -236,6 +239,21 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
             staged_files = os.path.join(out_dir, project+'.'+w+'.tsv')
             write_tsv_file(gnos_xml_sheet, staged_files)
 
+def field_map(fin):
+    fout = {
+        'subject_id': 'icgc_donor_id',
+        'icgc_project_code': 'dcc_project_code',
+        'submitter_donor_id': 'submitter_donor_id',
+        'submitter_specimen_id': 'submitter_specimen_id',
+        'submitter_sample_id': 'submitter_sample_id',
+        'icgc_specimen_id': 'icgc_specimen_id',
+        'icgc_sample_id': 'icgc_sample_id',
+        'specimen_type': 'dcc_specimen_type',
+        'aliquot_id/sample_uuid': 'aliquot_id'
+    }
+    return fout(fin)
+
+
 def get_analysis_info(receipt_file, gnos_id):
     analysis_info = OrderedDict()
     analysis_info['filename'] = gnos_id+'/analysis.'+gnos_id+'.GNOS.xml.gz.gpg'
@@ -245,12 +263,111 @@ def get_analysis_info(receipt_file, gnos_id):
     analysis_info['analysis_accession'] = receipt_obj.get('RECEIPT').get('ANALYSIS').get('@accession')
     return analysis_info
 
+def get_sample_info(sample):
+    sample_info = OrderedDict()
+    sample_info['sample_accession'] = sample.get('@accession')
+    sample_info['sample_alias'] = sample.get('@alias')
+    return sample_info
+
+
+def sample_changed(sample_obj, sample_obj_prepared):
+    for f in sample_obj_prepared.keys():
+        fm = fields_map.get(f)
+        if not fm: continue
+        if not sample_obj.get(fm) == sample_obj_prepared.get(f): return True
+    return False
 
 def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, ega_dir, pcawg_sample_sheet, pcawg_gnos_id_sheet, update_type, annotations):
     for u in update_type:
         if u in ['wgs', 'rna-seq']:
+            # update sample
             print('\nUpdating the Sample Data for sequence_type: {} of project: {}'.format(u, dcc_project_code))
+            sample_dir = os.path.join(ega_dir, project, 'sample')
+            to_purge_sample_list = []
+            to_update_sample_list = []
+            sample_sheet = []
+            with open(pcawg_sample_sheet, 'r') as s: reader = csv.DictReader(s, delimiter='\t')
+            for f in glob.glob(os.path.join(sample_dir, 'sample.*.receipt-*.xml')):
+                with open(f, 'r') as x: xml_str = x.read()
+                receipt_obj = xmltodict.parse(xml_str)
+                items = receipt_obj.get('RECEIPT', {}).get('SAMPLE')
+                if items:
+                    if not isinstance(items, list): items = [ copy.deepcopy(items) ]
+
+                    if receipt_obj.get('RECEIPT', {}).get('ACTIONS') == 'ADD':
+                        for i in items:
+                            sample_obj = next((sample_obj for sample_obj in reader if sample_obj.get('icgc_sample_id') == i.get('@alias')), None)
+                            # could not find the sample_id in the pcawg_sample_sheet
+                            if not sample_obj:
+                                to_purge_sample = get_sample_info(i)
+                                to_purge_sample_list.append(copy.deepcopy(to_purge_sample))
+                                continue
+                            # if find, need to compare and see if any sample information have been changed
+                            changed=True
+                            for f in glob.glob(os.path.join(sample_dir, 'sample.*.tsv')):
+                                with open(f, 'r') as x: xreader = csv.DictReader(x, delimiter='\t')
+                                sample_obj_prepared = next((sample_obj_prepared for sample_obj_prepared in xreader if sample_obj_prepared.get('icgc_sample_id') == i.get('@alias')), None)
+                                if not sample_obj_prepared: continue
+                                changed = sample_changed(sample_obj, sample_obj_prepared)
+                                if not changed: break
+
+                            if changed:
+                                to_update_sample = get_sample_info(i)
+                                to_update_sample_list.append(copy.deepcopy(to_update_sample))
+                                sample = OrderedDict()
+
+                                try:
+                                    sample['subject_id'] = sample_obj['icgc_donor_id']
+                                    if annotations.get('gender') and annotations.get('gender').get(sample_obj.get('donor_unique_id')):
+                                        sample['gender'] = annotations.get('gender').get(sample_obj.get('donor_unique_id')) 
+                                    else:
+                                        click.echo('Warning: missing gender informaion for donor: %s' % sample_obj.get('donor_unique_id'), err=True)
+                                        continue
+                                    sample['phenotype'] = None
+                                    sample['icgc_project_code'] = sample_obj['dcc_project_code']
+
+                                    for tag in ['icgc_donor_id', 'submitter_donor_id', 'icgc_specimen_id', 'submitter_specimen_id', 'icgc_sample_id', 'submitter_sample_id']:
+                                        if sample_obj.get(tag):
+                                            sample[tag] = sample_obj.get(tag)  
+                                        else: 
+                                            click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_obj.get('donor_unique_id')), err=True)
+                                            return
+                                    sample['specimen_type'] = sample_obj['dcc_specimen_type']
+                                    sample['aliquot_id/sample_uuid'] = sample_obj['aliquot_id']
+
+
+                                except KeyError, e:
+                                    click.echo('Error: KeyError, %s' % str(e), err=True)
+                                    return
+                                except IndexError, e:
+                                    click.echo('Error: IndexError, %s' % str(e), err=True)
+                                    return
+                                except Exception, e:
+                                    click.echo('Error: %s' % str(e), err=True)
+                                    return
+
+                                sample_sheet.append(copy.deepcopy(sample))  
+
+            if sample_sheet:
+                out_dir = os.path.join(ega_dir, dcc_project_code, 'sample')
+                if not os.path.isdir(out_dir): os.makedirs(out_dir)
+                epoch_time = str(int(calendar.timegm(time.gmtime())))
+                out_file = os.path.join(out_dir, 'sample.'+dcc_project_code+'.'+sequence_type+'_'+epoch_time+'_update'+'.tsv')
+                write_tsv_file(sample_sheet, out_file)
+
+            if to_purge_sample_list:
+                out_dir = os.path.join(ega_dir, 'file_info', 'to_purge_sample_info')
+                if not os.path.isdir(out_dir): os.makedirs(out_dir)  
+                write_tsv_file(to_purge_analysis_list, os.path.join(out_dir, project+'.'+u+'.tsv'))                 
+
+            if to_update_sample_list:
+                out_dir = os.path.join(ega_dir, 'file_info', 'to_update_sample_info')
+                if not os.path.isdir(out_dir): os.makedirs(out_dir)  
+                write_tsv_file(to_update_analysis_list, os.path.join(out_dir, project+'.'+u+'.tsv')) 
+
+
         elif u in ['bwa', 'sanger', 'dkfz', 'broad', 'muse', 'tophat2', 'star']:
+            # update analysis xml
             print('\nUpdating the GNOS xmls for workflow: {} of project: {}'.format(get_mapping(u), project))
             gnos_xml_dir = os.path.join(ega_dir, project, get_mapping(u), 'GNOS_xml')
             analysis_dir = os.path.join(ega_dir, project, get_mapping(u), 'analysis')
@@ -425,13 +542,13 @@ def read_annotations(annotations, type, file_name):
 def generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded):
     files = glob.glob(file_pattern)
     for f in files:
-        if f.endswith('.xml'):
+        if 'analysis' in f:
             fname = str.split(f, '/')[-1]
             gnos_id = str.split(fname, '.')[1]
             gnos_sample_ids_to_be_excluded.add(gnos_id)
 
-        elif f.endswith('.tsv'):
-            with open(f, 'r') as fn:
+        if 'sample' in f:
+            with open(f, 'r') as fn: 
                 reader = csv.DictReader(fn, delimiter='\t')
                 for r in reader:
                     if r.get('icgc_sample_id'):
@@ -591,7 +708,7 @@ def main(argv=None):
     ega_dir = ega_dir if ega_dir else '../pcawg-ega-submission'
 
     pcawg_sample_sheet = '../pcawg-operations/lists/sample_sheet/pcawg_sample_sheet.tsv'
-    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/may2016/pcawg_summary_entry.2016-05-25.tsv'
+    pcawg_gnos_id_sheet = '../pcawg-operations/data_releases/may2016/release_may2016_entry.tsv'
     file_info = ega_dir+'/file_info/file_info_missing.tsv'
 
     annotations = {}
@@ -670,8 +787,8 @@ def main(argv=None):
             generate_unstaged_files(donors_list, project, ega_dir, unstage_type, annotations, es, es_index, gnos_sample_ids_to_be_excluded, ftp, ftp_gnos_ids, file_info) 
 
         if seq:
-            file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
-            gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
+            # file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
+            # gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
             collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations)
 
         if workflow:
