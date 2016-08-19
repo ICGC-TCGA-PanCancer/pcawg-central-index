@@ -352,10 +352,10 @@ def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sa
                                     sample_sheet.append(copy.deepcopy(sample))  
 
                 if sample_sheet:
-                    out_dir = os.path.join(ega_dir, dcc_project_code, 'sample')
+                    out_dir = os.path.join(ega_dir, project, 'sample')
                     if not os.path.isdir(out_dir): os.makedirs(out_dir)
                     epoch_time = str(int(calendar.timegm(time.gmtime())))
-                    out_file = os.path.join(out_dir, 'sample.'+dcc_project_code+'.'+sequence_type+'_'+epoch_time+'_update'+'.tsv')
+                    out_file = os.path.join(out_dir, 'sample.'+project+'.'+sequence_type+'_'+epoch_time+'_update'+'.tsv')
                     write_tsv_file(sample_sheet, out_file)
 
                 if to_purge_sample_list:
