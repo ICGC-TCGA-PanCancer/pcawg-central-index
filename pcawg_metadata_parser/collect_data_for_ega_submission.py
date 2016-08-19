@@ -243,6 +243,7 @@ def fields_map(fin):
     fout = {
         'subject_id': 'icgc_donor_id',
         'icgc_project_code': 'dcc_project_code',
+        'icgc_donor_id': 'icgc_donor_id',
         'submitter_donor_id': 'submitter_donor_id',
         'submitter_specimen_id': 'submitter_specimen_id',
         'submitter_sample_id': 'submitter_sample_id',
@@ -272,7 +273,7 @@ def get_sample_info(sample):
 
 def sample_changed(sample_obj, sample_obj_prepared):
     for f in sample_obj_prepared.keys():
-        fm = fields_map.get(f)
+        fm = fields_map(f)
         if not fm: continue
         if not sample_obj.get(fm) == sample_obj_prepared.get(f): return True
     return False
