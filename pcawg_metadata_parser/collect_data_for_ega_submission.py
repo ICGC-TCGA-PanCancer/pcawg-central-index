@@ -239,7 +239,7 @@ def collect_gnos_xml(donors_list, gnos_sample_ids_to_be_included, gnos_sample_id
             staged_files = os.path.join(out_dir, project+'.'+w+'.tsv')
             write_tsv_file(gnos_xml_sheet, staged_files)
 
-def field_map(fin):
+def fields_map(fin):
     fout = {
         'subject_id': 'icgc_donor_id',
         'icgc_project_code': 'dcc_project_code',
