@@ -294,7 +294,7 @@ def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sa
                 if items:
                     if not isinstance(items, list): items = [ copy.deepcopy(items) ]
 
-                    if receipt_obj.get('RECEIPT', {}).get('ACTIONS') == 'ADD':
+                    if 'ADD' in receipt_obj.get('RECEIPT', {}).get('ACTIONS'):
                         for i in items:
                             sample_obj = next((sample_obj for sample_obj in reader if sample_obj.get('icgc_sample_id') == i.get('@alias')), None)
                             # could not find the sample_id in the pcawg_sample_sheet
