@@ -251,7 +251,7 @@ def field_map(fin):
         'specimen_type': 'dcc_specimen_type',
         'aliquot_id/sample_uuid': 'aliquot_id'
     }
-    return fout(fin)
+    return fout.get(fin)
 
 
 def get_analysis_info(receipt_file, gnos_id):
@@ -281,7 +281,7 @@ def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sa
     for u in update_type:
         if u in ['wgs', 'rna-seq']:
             # update sample
-            print('\nUpdating the Sample Data for sequence_type: {} of project: {}'.format(u, dcc_project_code))
+            print('\nUpdating the Sample Data for sequence_type: {} of project: {}'.format(u, project))
             sample_dir = os.path.join(ega_dir, project, 'sample')
             to_purge_sample_list = []
             to_update_sample_list = []
