@@ -69,9 +69,9 @@ def get_donors_list(es, es_index, dcc_project_code):
     return donors_list 
 
 
-def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excluded, dcc_project_code, ega_dir, pcawg_sample_sheet, seq, annotations):
+def collect_sample(donors_list, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, project, ega_dir, pcawg_sample_sheet, seq, annotations):
     for sequence_type in seq:
-        print('\nCollecting the Sample Data for sequence_type: {} of project: {}'.format(sequence_type, dcc_project_code))
+        print('\nCollecting the Sample Data for sequence_type: {} of project: {}'.format(sequence_type, project))
 
         file_pattern = os.path.join(ega_dir, project, 'sample', 'sample.'+project+'.*.tsv')
         gnos_sample_ids_to_be_excluded = generate_exclude_list(file_pattern, gnos_sample_ids_to_be_excluded)
@@ -79,53 +79,22 @@ def collect_sample(donors_list, sample_ids_to_be_included, sample_ids_to_be_excl
         with open(pcawg_sample_sheet, 'r') as s:
             reader = csv.DictReader(s, delimiter='\t')
             for sample_info in reader:
-                if not sample_info.get('dcc_project_code') == dcc_project_code: continue
+                if not sample_info.get('dcc_project_code') == project: continue
                 if not sample_info.get('donor_unique_id') in donors_list: continue
                 sample_id = sample_info.get('icgc_sample_id')
-                if sample_ids_to_be_included and not sample_id in sample_ids_to_be_included: continue
-                if sample_ids_to_be_excluded and sample_id in sample_ids_to_be_excluded: continue
+                if gnos_sample_ids_to_be_included and not sample_id in gnos_sample_ids_to_be_included: continue
+                if gnos_sample_ids_to_be_excluded and sample_id in gnos_sample_ids_to_be_excluded: continue
                 library_strategy = sample_info.get('library_strategy').lower()
                 if not library_strategy == sequence_type: continue
             
-                sample = OrderedDict()
-
-                try:
-                    sample['subject_id'] = sample_info['icgc_donor_id']
-                    if annotations.get('gender') and annotations.get('gender').get(sample_info.get('donor_unique_id')):
-                        sample['gender'] = annotations.get('gender').get(sample_info.get('donor_unique_id')) 
-                    else:
-                        click.echo('Warning: missing gender informaion for donor: %s' % sample_info.get('donor_unique_id'), err=True)
-                        continue
-                    sample['phenotype'] = None
-                    sample['icgc_project_code'] = sample_info['dcc_project_code']
-
-                    for tag in ['icgc_donor_id', 'submitter_donor_id', 'icgc_specimen_id', 'submitter_specimen_id', 'icgc_sample_id', 'submitter_sample_id']:
-                        if sample_info.get(tag):
-                            sample[tag] = sample_info.get(tag)  
-                        else: 
-                            click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_info.get('donor_unique_id')), err=True)
-                            return
-                    sample['specimen_type'] = sample_info['dcc_specimen_type']
-                    sample['aliquot_id/sample_uuid'] = sample_info['aliquot_id']
-
-
-                except KeyError, e:
-                    click.echo('Error: KeyError, %s' % str(e), err=True)
-                    return
-                except IndexError, e:
-                    click.echo('Error: IndexError, %s' % str(e), err=True)
-                    return
-                except Exception, e:
-                    click.echo('Error: %s' % str(e), err=True)
-                    return
-
-                sample_sheet.append(copy.deepcopy(sample))     
+                sample = create_sample(sample_info, annotations)
+                if sample: sample_sheet.append(sample)     
 
         if sample_sheet:    
-            out_dir = os.path.join(ega_dir, dcc_project_code, 'sample')
+            out_dir = os.path.join(ega_dir, project, 'sample')
             if not os.path.isdir(out_dir): os.makedirs(out_dir)
             epoch_time = str(int(calendar.timegm(time.gmtime())))
-            out_file = os.path.join(out_dir, 'sample.'+dcc_project_code+'.'+sequence_type+'_'+epoch_time+'.tsv')
+            out_file = os.path.join(out_dir, 'sample.'+project+'.'+sequence_type+'_'+epoch_time+'.tsv')
             write_tsv_file(sample_sheet, out_file)
 
 def effective_xml_md5sum(xml_str):
@@ -278,6 +247,42 @@ def sample_changed(sample_obj, sample_obj_prepared):
         if not sample_obj.get(fm) == sample_obj_prepared.get(f): return True
     return False
 
+def create_sample(sample_obj, annotations):
+    sample = OrderedDict()
+
+    try:
+        sample['subject_id'] = sample_obj['icgc_donor_id']
+        if annotations.get('gender') and annotations.get('gender').get(sample_obj.get('donor_unique_id')):
+            sample['gender'] = annotations.get('gender').get(sample_obj.get('donor_unique_id')) 
+        else:
+            click.echo('Warning: missing gender informaion for donor: %s' % sample_obj.get('donor_unique_id'), err=True)
+            return
+        sample['phenotype'] = None
+        sample['icgc_project_code'] = sample_obj['dcc_project_code']
+
+        for tag in ['icgc_donor_id', 'submitter_donor_id', 'icgc_specimen_id', 'submitter_specimen_id', 'icgc_sample_id', 'submitter_sample_id']:
+            if sample_obj.get(tag):
+                sample[tag] = sample_obj.get(tag)  
+            else: 
+                click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_obj.get('donor_unique_id')), err=True)
+                return
+        sample['specimen_type'] = sample_obj['dcc_specimen_type']
+        sample['aliquot_id/sample_uuid'] = sample_obj['aliquot_id']
+
+
+    except KeyError, e:
+        click.echo('Error: KeyError, %s' % str(e), err=True)
+        return
+    except IndexError, e:
+        click.echo('Error: IndexError, %s' % str(e), err=True)
+        return
+    except Exception, e:
+        click.echo('Error: %s' % str(e), err=True)
+        return
+
+    return sample 
+
+
 def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sample_ids_to_be_excluded, ega_dir, pcawg_sample_sheet, pcawg_gnos_id_sheet, update_type, annotations):
     for u in update_type:
         if u in ['wgs', 'rna-seq']:
@@ -310,46 +315,15 @@ def update_objects(donors_list, project, gnos_sample_ids_to_be_included, gnos_sa
                                 with open(f, 'r') as x: 
                                     xreader = csv.DictReader(x, delimiter='\t')
                                     sample_obj_prepared = next((sample_obj_prepared for sample_obj_prepared in xreader if sample_obj_prepared.get('icgc_sample_id') == i.get('@alias')), None)
-                                    if not sample_obj_prepared: continue
-                                    changed = sample_changed(sample_obj, sample_obj_prepared)
-                                    if not changed: break
+                                if not sample_obj_prepared: continue
+                                changed = sample_changed(sample_obj, sample_obj_prepared)
+                                if not changed: break
 
                             if changed:
                                 to_update_sample = get_sample_info(i)
                                 to_update_sample_list.append(copy.deepcopy(to_update_sample))
-                                sample = OrderedDict()
-
-                                try:
-                                    sample['subject_id'] = sample_obj['icgc_donor_id']
-                                    if annotations.get('gender') and annotations.get('gender').get(sample_obj.get('donor_unique_id')):
-                                        sample['gender'] = annotations.get('gender').get(sample_obj.get('donor_unique_id')) 
-                                    else:
-                                        click.echo('Warning: missing gender informaion for donor: %s' % sample_obj.get('donor_unique_id'), err=True)
-                                        continue
-                                    sample['phenotype'] = None
-                                    sample['icgc_project_code'] = sample_obj['dcc_project_code']
-
-                                    for tag in ['icgc_donor_id', 'submitter_donor_id', 'icgc_specimen_id', 'submitter_specimen_id', 'icgc_sample_id', 'submitter_sample_id']:
-                                        if sample_obj.get(tag):
-                                            sample[tag] = sample_obj.get(tag)  
-                                        else: 
-                                            click.echo('Warning: missing {0} informaion for donor: {1}'.format(tag, sample_obj.get('donor_unique_id')), err=True)
-                                            return
-                                    sample['specimen_type'] = sample_obj['dcc_specimen_type']
-                                    sample['aliquot_id/sample_uuid'] = sample_obj['aliquot_id']
-
-
-                                except KeyError, e:
-                                    click.echo('Error: KeyError, %s' % str(e), err=True)
-                                    return
-                                except IndexError, e:
-                                    click.echo('Error: IndexError, %s' % str(e), err=True)
-                                    return
-                                except Exception, e:
-                                    click.echo('Error: %s' % str(e), err=True)
-                                    return
-
-                                sample_sheet.append(copy.deepcopy(sample))  
+                                sample = create_sample(sample_obj, annotations)
+                                if sample: sample_sheet.append(sample)  
 
             if sample_sheet:
                 out_dir = os.path.join(ega_dir, project, 'sample')
