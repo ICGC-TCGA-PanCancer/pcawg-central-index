@@ -21,6 +21,7 @@ import subprocess
 import time
 import calendar
 import ftplib
+from operator import itemgetter
 
 
 logger = logging.getLogger('Collect sample and gnos_xml data')
@@ -456,6 +457,8 @@ def get_mapping(source):
 
 
 def write_tsv_file(report, filename):
+    field_to_sort = report[0].keys()[0]
+    report.sort(key=itemgetter(field_to_sort))
     with open(filename, 'w') as fh:
         header = True  
         for r in report:
