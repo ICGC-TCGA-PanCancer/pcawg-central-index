@@ -64,7 +64,7 @@ def get_files(call, work_dir, tumor_aliquot_ids):
 def create_results_copies(row, create_results_copy, work_dir):
     
     donor_id = row.get('icgc_donor_id')
-    tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split('|')
+    tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split(',')
     for dt in create_results_copy:
         call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, donor_id)
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
