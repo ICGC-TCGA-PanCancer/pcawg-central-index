@@ -66,7 +66,7 @@ def create_results_copies(row, create_results_copy, work_dir):
     donor_id = row.get('icgc_donor_id')
     tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split('|')
     for dt in create_results_copy:
-        call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
+        call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, donor_id)
         if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
         vcf_files = get_files(dt, work_dir, tumor_aliquot_ids)      
         copy_files(call_results_dir, vcf_files)
@@ -108,7 +108,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
     project_code = row.get('dcc_project_code')
  
     for dt in generate_analysis_xml:
-        call_results_dir = os.path.join(work_dir,'call_results_dir', dt, donor_id)
+        call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, donor_id)
         vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz'))
         workflow_name = 'consensus_' + dt
         gnos_id = generate_uuid()
@@ -160,7 +160,7 @@ def generate_id_list(id_lists):
     if id_lists:
         with open(id_lists, 'r') as f:
             reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
-            for row in reader: ids_list.append(row.get('Submitter_donor_ID'))
+            for row in reader: ids_list.append(row.get('icgc_donor_id'))
     return ids_list
 
 
@@ -194,7 +194,7 @@ def main(argv=None):
     include_donor_id_lists= list(include_donor_id_lists) if include_donor_id_lists else generate_id_list(vcf_info_file)   
  
 
-    if not os.path.isdir(work_dir+'/call_results_dir'): os.makedirs(work_dir+'/call_results_dir')
+    if not os.path.isdir(work_dir+'/to_upload_dir'): os.makedirs(work_dir+'/to_upload_dir')
 
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
@@ -214,7 +214,7 @@ def main(argv=None):
     with open(vcf_info_file, 'r') as f:
         reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
         for row in reader:
-            if not row.get('Submitter_donor_ID') in include_donor_id_lists: continue
+            if not row.get('icgc_donor_id') in include_donor_id_lists: continue
 
             if create_results_copy: create_results_copies(row, create_results_copy, work_dir)
 
