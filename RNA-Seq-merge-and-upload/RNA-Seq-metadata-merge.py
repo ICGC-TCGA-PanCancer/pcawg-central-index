@@ -24,7 +24,7 @@ def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir, merge
     metadata_xml_dir = download_dir + workflow_type + '/' + merged_gnos_id
     logger.info('Download metadata xml from GNOS repo: {} for analysis object: {}'.format(gnos_repo, gnos_id))
     
-    url = gnos_repo + 'cghub/metadata/analysisFull/' + gnos_id
+    url = get_formal_repo_name(gnos_repo) + 'cghub/metadata/analysisFull/' + gnos_id
     response = None
     try:
         response = requests.get(url, stream=True, timeout=15)
@@ -73,6 +73,7 @@ def get_fix_donor_list (list_file):
 
 def validate_work_dir(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
+        if not donor.get('count_match') == 'TRUE': continue
         for caller in ('STAR', 'TopHat2'):
             gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, donor.get(caller + '_merged_gnos_id'))
             if not os.path.isdir(gnos_entry_dir):
@@ -82,6 +83,7 @@ def validate_work_dir(work_dir, donors_to_be_fixed):
 
 def download_metadata_files(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
+        if not donor.get('count_match') == 'TRUE': continue
         for caller in ('STAR', 'TopHat2'):
             gnos_ids_to_merge = donor.get(caller + '_analysis_id').split('|')
             merged_gnos_id = donor.get(caller + '_merged_gnos_id')
@@ -92,10 +94,12 @@ def download_metadata_files(work_dir, donors_to_be_fixed):
 
 def metadata_fix_and_merge(work_dir, donors_to_be_fixed):
     for donor in donors_to_be_fixed:
+        if not donor.get('count_match') == 'TRUE': continue
         donor_aliquot_id = donor.get('aliquot_id')
         for caller in ('STAR', 'TopHat2'):
             upload_gnos_uuid = donor.get(caller+'_merged_gnos_id')
-            upload_dir = os.path.join(work_dir, 'uploads', upload_gnos_uuid)
+            upload_gnos_repo = 'osdc-icgc' if not donor.get('dcc_project_code').endswith('-US') else 'osdc-tcga'
+            upload_dir = os.path.join(work_dir, 'uploads', caller, upload_gnos_repo, upload_gnos_uuid)
             os.mkdir(upload_dir)
             merged_filename = donor.get(caller+'_merged_file_name')
             unaligned_gnos_id = donor.get('unaligned_analysis_id').split('|')
@@ -136,14 +140,17 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
             # deal with the attributes to add all the info into set
             attributes = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
             for attr in attributes:
-                if attr.get('TAG') in ('dcc_project_code',
+                if attr.get('TAG') in ('STUDY',
+                                       'workflow_name',
+                                       'workflow_version',
+                                       'workflow_source_url',
+                                       'workflow_bundle_url',
+                                       caller.upper()+'_version',
+                                       'dcc_project_code',
                                        'submitter_donor_id',
-                                       'PM',
-                                       'alignment_workflow_name',
-                                       'alignment_workflow_source_url',
-                                       'alignment_workflow_version',
-                                       'alignment_workflow_bundle_url',
-                                       'variant_pipeline_input_info',
+                                       'submitter_sample_id',
+                                       'submitter_specimen_id',
+                                       'dcc_specimen_type',
                                        ):
                     if not ATTR.get(attr.get('TAG')): ATTR[attr.get('TAG')] = set()
                     ATTR[attr.get('TAG')].add(attr.get('VALUE'))
@@ -222,6 +229,29 @@ def create_symlinks(target, source):
         os.symlink(s, os.path.join(target, os.path.basename(s)))
 
 
+def get_formal_repo_name(repo):
+    repo_url_to_repo = {
+      "https://gtrepo-bsc.annailabs.com/": "bsc",
+      "bsc": "https://gtrepo-bsc.annailabs.com/",
+      "https://gtrepo-ebi.annailabs.com/": "ebi",
+      "ebi": "https://gtrepo-ebi.annailabs.com/",
+      "https://cghub.ucsc.edu/": "cghub",
+      "cghub": "https://cghub.ucsc.edu/",
+      "https://gtrepo-dkfz.annailabs.com/": "dkfz",
+      "dkfz": "https://gtrepo-dkfz.annailabs.com/",
+      "https://gtrepo-riken.annailabs.com/": "riken",
+      "riken": "https://gtrepo-riken.annailabs.com/",
+      "https://gtrepo-osdc-icgc.annailabs.com/": "osdc-icgc",
+      "osdc-icgc": "https://gtrepo-osdc-icgc.annailabs.com/",
+      "https://gtrepo-osdc-tcga.annailabs.com/": "osdc-tcga",
+      "osdc-tcga": "https://gtrepo-osdc-tcga.annailabs.com/",
+      "https://gtrepo-etri.annailabs.com/": "etri",
+      "etri": "https://gtrepo-etri.annailabs.com/"
+    }
+
+    return repo_url_to_repo.get(repo)
+
+
 def main():
     if len(sys.argv) == 1: sys.exit('\nMust specify working directory where the variant call fixes are kept.\nPlease refer to the SOP for details how to structure the working directory.\n')
     work_dir = sys.argv[1]
@@ -234,6 +264,7 @@ def main():
         test = True
         donor_list_file = 'test_donor_list.txt'
     else:
+        test = False
         donor_list_file = 'rnaseq_to_merge_lanes_derived_from_same_aliquot.tsv'
 
     if not os.path.exists(donor_list_file): sys.exit('Helper file missing!')
