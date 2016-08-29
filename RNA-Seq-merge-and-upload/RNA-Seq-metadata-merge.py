@@ -125,7 +125,8 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
     merged_object = copy.deepcopy(lane_object)
 
     if obj == 'analysis':
-        apply_data_block_patches(merged_object, set(glob.glob(gnos_entry_dir+'/*.bam') + glob.glob(gnos_entry_dir+'/*.bam.bai')))
+        real_files = list(set(glob.glob(gnos_entry_dir+'/*.bam') + glob.glob(gnos_entry_dir+'/*.bam.bai')))
+        apply_data_block_patches(merged_object, real_files)
         RUN_LABELS = []
         NOTES = []
         ATTR = {}
@@ -166,12 +167,12 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         EXPERIMENT = []
         for k, v in gnos_objects.iteritems():
             EXPERIMENT.append(v.get('EXPERIMENT_SET'))
-        merged_object['EXPERIMENT_SET'] = EXPERIMENT
+        merged_object.get('EXPERIMENT_SET')['EXPERIMENT'] = EXPERIMENT
     elif obj == 'run':
         RUN = []
         for k, v in gnos_objects.iteritems():
             RUN.append(v.get('RUN_SET'))
-        merged_object['RUN_SET'] = RUN
+        merged_object.get('RUN_SET')['RUN'] = RUN
     else:
         pass
 
