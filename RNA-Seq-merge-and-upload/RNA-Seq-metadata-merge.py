@@ -51,7 +51,7 @@ def generate_md5(fname):
     return hash.hexdigest()
 
 
-def get_gnos_object(f, obj, key, new_name, unaliged_merged_gnos_id):
+def get_gnos_object(f, obj, key, new_name, unaligned_merged_gnos_id):
     with open (f, 'r') as x: xml_str = x.read()
     for k in key:
         # replace the old filename with new filename
@@ -100,7 +100,7 @@ def metadata_fix_and_merge(work_dir, donors_to_be_fixed):
             upload_gnos_uuid = donor.get(caller+'_merged_gnos_id')
             upload_gnos_repo = 'osdc-icgc' if not donor.get('dcc_project_code').endswith('-US') else 'osdc-tcga'
             upload_dir = os.path.join(work_dir, 'uploads', caller, upload_gnos_repo, upload_gnos_uuid)
-            os.mkdir(upload_dir)
+            os.makedirs(upload_dir)
             merged_filename = donor.get(caller+'_merged_file_name')
             unaligned_gnos_id = donor.get('unaligned_analysis_id').split('|')
             unaligned_merged_gnos_id = donor.get('unaligned_merged_gnos_id')
