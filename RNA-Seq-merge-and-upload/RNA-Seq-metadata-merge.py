@@ -136,11 +136,21 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
             RUN.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'])
 
             # merge PIPE_SECTION
-            PIPE_SECTION.append(v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION'))
+            v_PIPE_SECTION = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION')
+            if isinstance(v_PIPE_SECTION, list):
+                PIPE_SECTION.extend(v_PIPE_SECTION)
+            elif isinstance(v_PIPE_SECTION, dict):
+               PIPE_SECTION.append(v_PIPE_SECTION)
+            else:
+                logger.error('PIPE_SECTION has incorrect data for caller: {} of aliquot_id: {}.'.format(caller, donor_aliquot_id))
+                sys.exit('Please check log for details.')
             
             # deal with the attributes to add all the info into set
             attributes = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
             for attr in attributes:
+                if not ATTR.get(attr.get('TAG')): ATTR[attr.get('TAG')] = set()
+                ATTR[attr.get('TAG')].add(attr.get('VALUE'))
+                # check the uniqueness for the given attributes
                 if attr.get('TAG') in ('STUDY',
                                        'workflow_name',
                                        'workflow_version',
@@ -153,15 +163,20 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
                                        'submitter_specimen_id',
                                        'dcc_specimen_type',
                                        ):
-                    if not ATTR.get(attr.get('TAG')): ATTR[attr.get('TAG')] = set()
-                    ATTR[attr.get('TAG')].add(attr.get('VALUE'))
+                    
                     #check whether all of the metadata have the same info
                     if not len(ATTR.get(attr.get('TAG'))) == 1:
-                        logger.warning('RNA-Seq lanes metadata of donor: {} for caller: {} have discrepancy in attributes: {} '.format(donor_aliquot_id, caller, attr.get('TAG'))) 
+                        logger.error('RNA-Seq lanes metadata of donor: {} for caller: {} have discrepancy in attributes: {} '.format(donor_aliquot_id, caller, attr.get('TAG'))) 
+                        sys.exit('Please check log for details.')
 
         merged_object.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'] = RUN
         merged_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING')['PIPELINE']['PIPE_SECTION'] = PIPE_SECTION
         
+        # re-populate the attributes section
+        attributes = merged_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
+        for attr in attributes:
+            attr['VALUE'] = ATTR.get(attr.get('TAG'))
+
     
     elif obj == 'experiment':
         EXPERIMENT = []
