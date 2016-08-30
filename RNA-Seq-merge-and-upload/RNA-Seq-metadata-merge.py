@@ -133,10 +133,10 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
 
         for k, v in gnos_objects.iteritems():
             # merge RUN_LABELS
-            RUN_LABELS.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS'])
+            RUN_LABELS.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'])
 
             # merge PIPELINE
-            PIPELINE.append({'PIPELINE': v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE')})
+            PIPELINE.append(v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION'))
             
             # deal with the attributes to add all the info into set
             attributes = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
@@ -166,12 +166,12 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
     elif obj == 'experiment':
         EXPERIMENT = []
         for k, v in gnos_objects.iteritems():
-            EXPERIMENT.append(v.get('EXPERIMENT_SET'))
+            EXPERIMENT.append(v.get('EXPERIMENT_SET').get('EXPERIMENT'))
         merged_object.get('EXPERIMENT_SET')['EXPERIMENT'] = EXPERIMENT
     elif obj == 'run':
         RUN = []
         for k, v in gnos_objects.iteritems():
-            RUN.append(v.get('RUN_SET'))
+            RUN.append(v.get('RUN_SET').get('RUN'))
         merged_object.get('RUN_SET')['RUN'] = RUN
     else:
         pass
