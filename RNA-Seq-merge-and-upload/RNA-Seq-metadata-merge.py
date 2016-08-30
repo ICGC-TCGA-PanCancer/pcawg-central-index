@@ -173,9 +173,12 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         merged_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING')['PIPELINE']['PIPE_SECTION'] = PIPE_SECTION
         
         # re-populate the attributes section
-        attributes = merged_analysis_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
+        attributes = merged_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
         for attr in attributes:
-            attr['VALUE'] = ATTR.get(attr.get('TAG'))
+            attr['VALUE'] = '|'.join(ATTR.get(attr.get('TAG')))
+
+        # add one extra attribute to label the merged RNA-Seq
+        attributes.append({'TAG':'RNA-Seq_status', 'VALUE':'merged'})    
 
     
     elif obj == 'experiment':
