@@ -127,16 +127,16 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
     if obj == 'analysis':
         real_files = list(set(glob.glob(gnos_entry_dir+'/*.bam') + glob.glob(gnos_entry_dir+'/*.bam.bai')))
         apply_data_block_patches(merged_object, real_files)
-        RUN_LABELS = []
-        PIPELINE = []
+        RUN = []
+        PIPE_SECTION = []
         ATTR = {}
 
         for k, v in gnos_objects.iteritems():
-            # merge RUN_LABELS
-            RUN_LABELS.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'])
+            # merge RUN
+            RUN.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'])
 
-            # merge PIPELINE
-            PIPELINE.append(v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION'))
+            # merge PIPE_SECTION
+            PIPE_SECTION.append(v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION'))
             
             # deal with the attributes to add all the info into set
             attributes = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
@@ -159,8 +159,8 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
                     if not len(ATTR.get(attr.get('TAG'))) == 1:
                         logger.warning('RNA-Seq lanes metadata of donor: {} for caller: {} have discrepancy in attributes: {} '.format(donor_aliquot_id, caller, attr.get('TAG'))) 
 
-        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS'] = RUN_LABELS
-        merged_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING')['PIPELINE'] = PIPELINE
+        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'] = RUN
+        merged_object.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING')['PIPELINE']['PIPE_SECTION'] = PIPE_SECTION
         
     
     elif obj == 'experiment':
