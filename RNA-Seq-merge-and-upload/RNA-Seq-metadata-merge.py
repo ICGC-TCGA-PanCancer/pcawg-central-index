@@ -25,22 +25,20 @@ def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir, merge
     logger.info('Download metadata xml from GNOS repo: {} for analysis object: {}'.format(gnos_repo, gnos_id))
     
     url = get_formal_repo_name(gnos_repo) + 'cghub/metadata/analysisFull/' + gnos_id
-    response = None
-    try:
-        response = requests.get(url, stream=True, timeout=15)
-    except:
-        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
 
-    if not response or not response.ok:
-        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
-        sys.exit('Unable to download GNOS metadata xml, please check the log for details.')
-    else:
-        metadata_xml_str = response.text
+    command = 'wget ' + url + ' -O ' + metadata_xml_dir + '/' + gnos_id+'.xml'
+    process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    out, err = process.communicate()
 
-        metadata_xml_file = metadata_xml_dir + '/' + gnos_id  + '.xml'
-        with open(metadata_xml_file, 'w') as f:  # write to metadata xml file now
-            f.write(metadata_xml_str.encode('utf8'))
+    if process.returncode:
+        # should not exit for just this error, improve it later
+        logger.error('Unable to download metadata for: {} from {}'.format(gnos_id, url))
+        sys.exit('Downloading metadata failed, please check log for details.')
 
 
 def generate_md5(fname):
