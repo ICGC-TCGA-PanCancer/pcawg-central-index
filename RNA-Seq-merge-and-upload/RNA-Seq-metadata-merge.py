@@ -15,6 +15,7 @@ import copy
 import simplejson as json
 import glob
 import hashlib
+import subprocess
 
 logger = logging.getLogger('RNA-Seq_metadata_merge')
 # create console handler with a higher log level
@@ -133,8 +134,10 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         RUN = []
         PIPE_SECTION = []
         ATTR = {}
+        unmerged_gnos_ids = set()
 
         for k, v in gnos_objects.iteritems():
+            unmerged_gnos_ids.add(k)
             # merge RUN
             RUN.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'])
 
@@ -184,7 +187,8 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         attributes.append({'TAG':'RNA-Seq_status', 'VALUE':'merged'})    
 
         # add one comment in the DESCRIPTION
-        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] = merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] + '. This is merged RNA-Seq alignment from multiple lanes.'
+        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] = merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] +\
+         '. This is merged RNA-Seq alignment from {} lanes.'.format(len(unmerged_gnos_ids))
 
     elif obj == 'experiment':
         EXPERIMENT = []
@@ -326,7 +330,7 @@ def main():
 
     # now download metadata xml
     if not test:
-        logger.info('Downloading GNOS metadata XML for unmerged RNA-Seq data...')
+        print('Downloading GNOS metadata XML for unmerged RNA-Seq data...')
         download_metadata_files(work_dir, donors_to_be_fixed, batch)
 
     # now process metadata xml fix and merge
