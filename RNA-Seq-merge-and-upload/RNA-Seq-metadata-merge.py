@@ -100,14 +100,16 @@ def metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch):
         donor_aliquot_id = donor.get('aliquot_id')
         for caller in ('STAR', 'TopHat2'):
             upload_gnos_uuid = donor.get(caller+'_merged_gnos_id')
+            gnos_entry_dir = os.path.join(work_dir, batch, caller, upload_gnos_uuid)
+            if not os.path.isdir(gnos_entry_dir): continue
+            
             upload_gnos_repo = 'osdc-icgc' if not donor.get('dcc_project_code').endswith('-US') else 'osdc-tcga'
             upload_dir = os.path.join(work_dir, 'uploads_'+batch, caller, upload_gnos_repo, upload_gnos_uuid)
             os.makedirs(upload_dir)
             merged_filename = donor.get(caller+'_merged_file_name')
             unaligned_gnos_id = donor.get('unaligned_analysis_id').split('|')
             unaligned_merged_gnos_id = donor.get('unaligned_merged_gnos_id')
-            gnos_entry_dir = os.path.join(work_dir, batch, caller, upload_gnos_uuid)
-            if not os.path.isdir(gnos_entry_dir): continue
+
             # create symlinks for bam and bai files to upload
             create_symlinks(upload_dir, set(glob.glob(gnos_entry_dir+'/*.bam') + glob.glob(gnos_entry_dir+'/*.bam.bai')))
             # loop over all the gnos objects
@@ -183,7 +185,9 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         # add one extra attribute to label the merged RNA-Seq
         attributes.append({'TAG':'RNA-Seq_status', 'VALUE':'merged'})    
 
-    
+        # add one comment in the DESCRIPTION
+        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] = merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] + ' This is merged RNA-Seq alignment from multiple lanes.'
+
     elif obj == 'experiment':
         EXPERIMENT = []
         for k, v in gnos_objects.iteritems():
@@ -325,11 +329,11 @@ def main():
     # now download metadata xml
     if not test:
         logger.info('Downloading GNOS metadata XML for unmerged RNA-Seq data...')
-        download_metadata_files(work_dir, donors_to_be_fixed)
+        download_metadata_files(work_dir, donors_to_be_fixed, batch)
 
     # now process metadata xml fix and merge
     print('Preparing new GNOS submissions...')
-    metadata_fix_and_merge(work_dir, donors_to_be_fixed)
+    metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch)
 
     print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads_'+batch)))
     print('Processing log file: {}'.format(log_file))
