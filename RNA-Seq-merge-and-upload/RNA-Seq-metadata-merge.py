@@ -102,7 +102,7 @@ def metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch):
             upload_gnos_uuid = donor.get(caller+'_merged_gnos_id')
             gnos_entry_dir = os.path.join(work_dir, batch, caller, upload_gnos_uuid)
             if not os.path.isdir(gnos_entry_dir): continue
-            
+
             upload_gnos_repo = 'osdc-icgc' if not donor.get('dcc_project_code').endswith('-US') else 'osdc-tcga'
             upload_dir = os.path.join(work_dir, 'uploads_'+batch, caller, upload_gnos_repo, upload_gnos_uuid)
             os.makedirs(upload_dir)
@@ -186,7 +186,7 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         attributes.append({'TAG':'RNA-Seq_status', 'VALUE':'merged'})    
 
         # add one comment in the DESCRIPTION
-        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] = merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] + ' This is merged RNA-Seq alignment from multiple lanes.'
+        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] = merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] + '. This is merged RNA-Seq alignment from multiple lanes.'
 
     elif obj == 'experiment':
         EXPERIMENT = []
