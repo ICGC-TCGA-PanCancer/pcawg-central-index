@@ -21,7 +21,7 @@ logger = logging.getLogger('RNA-Seq_metadata_merge')
 ch = logging.StreamHandler()
 
 def download_metadata_xml(gnos_id, gnos_repo, workflow_type, download_dir, merged_gnos_id):
-    metadata_xml_dir = download_dir + workflow_type + '/' + merged_gnos_id
+    metadata_xml_dir = os.path.join(download_dir, workflow_type, merged_gnos_id)
     logger.info('Download metadata xml from GNOS repo: {} for analysis object: {}'.format(gnos_repo, gnos_id))
     
     url = get_formal_repo_name(gnos_repo) + 'cghub/metadata/analysisFull/' + gnos_id
@@ -71,40 +71,43 @@ def get_fix_donor_list (list_file):
     return donors_to_be_fixed
 
 
-def validate_work_dir(work_dir, donors_to_be_fixed):
-    for donor in donors_to_be_fixed:
-        if not donor.get('count_match') == 'TRUE': continue
-        for caller in ('STAR', 'TopHat2'):
-            gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, donor.get(caller + '_merged_gnos_id'))
-            if not os.path.isdir(gnos_entry_dir):
-                logger.error('Expected merged RNA-Seq data does not exist: {}.'.format(gnos_entry_dir))
-                sys.exit('Validating working directory failed, please check log for details.')
+# def validate_work_dir(work_dir, donors_to_be_fixed):
+#     for donor in donors_to_be_fixed:
+#         if not donor.get('count_match') == 'TRUE': continue
+#         for caller in ('STAR', 'TopHat2'):
+#             gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, donor.get(caller + '_merged_gnos_id'))
+#             if not os.path.isdir(gnos_entry_dir):
+#                 logger.error('Expected merged RNA-Seq data does not exist: {}.'.format(gnos_entry_dir))
+#                 sys.exit('Validating working directory failed, please check log for details.')
 
 
-def download_metadata_files(work_dir, donors_to_be_fixed):
+def download_metadata_files(work_dir, donors_to_be_fixed, batch):
     for donor in donors_to_be_fixed:
-        if not donor.get('count_match') == 'TRUE': continue
+        # if not donor.get('count_match') == 'TRUE': continue
         for caller in ('STAR', 'TopHat2'):
             gnos_ids_to_merge = donor.get(caller + '_analysis_id').split('|')
             merged_gnos_id = donor.get(caller + '_merged_gnos_id')
             gnos_repo = donor.get(caller + '_gnos_server').split('|')[0]
+            # check whether the merged_gnos_id has been downloaded
+            if not os.path.isdir(os.path.join(work_dir, batch, caller, merged_gnos_id)): continue
             for gnos_id in gnos_ids_to_merge:
-                download_metadata_xml(gnos_id, gnos_repo, caller, os.path.join(work_dir, 'downloads/'), merged_gnos_id)
+                download_metadata_xml(gnos_id, gnos_repo, caller, os.path.join(work_dir, batch), merged_gnos_id)
 
 
-def metadata_fix_and_merge(work_dir, donors_to_be_fixed):
+def metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch):
     for donor in donors_to_be_fixed:
-        if not donor.get('count_match') == 'TRUE': continue
+        # if not donor.get('count_match') == 'TRUE': continue
         donor_aliquot_id = donor.get('aliquot_id')
         for caller in ('STAR', 'TopHat2'):
             upload_gnos_uuid = donor.get(caller+'_merged_gnos_id')
             upload_gnos_repo = 'osdc-icgc' if not donor.get('dcc_project_code').endswith('-US') else 'osdc-tcga'
-            upload_dir = os.path.join(work_dir, 'uploads', caller, upload_gnos_repo, upload_gnos_uuid)
+            upload_dir = os.path.join(work_dir, 'uploads_'+batch, caller, upload_gnos_repo, upload_gnos_uuid)
             os.makedirs(upload_dir)
             merged_filename = donor.get(caller+'_merged_file_name')
             unaligned_gnos_id = donor.get('unaligned_analysis_id').split('|')
             unaligned_merged_gnos_id = donor.get('unaligned_merged_gnos_id')
-            gnos_entry_dir = os.path.join(work_dir, 'downloads', caller, upload_gnos_uuid)
+            gnos_entry_dir = os.path.join(work_dir, batch, caller, upload_gnos_uuid)
+            if not os.path.isdir(gnos_entry_dir): continue
             # create symlinks for bam and bai files to upload
             create_symlinks(upload_dir, set(glob.glob(gnos_entry_dir+'/*.bam') + glob.glob(gnos_entry_dir+'/*.bam.bai')))
             # loop over all the gnos objects
@@ -277,7 +280,8 @@ def main():
     if not os.path.isdir(work_dir):
         sys.exit('Specified working directory does not exist.')
     work_dir = os.path.abspath(work_dir)
-
+    
+    batch = sys.argv[2]
     if work_dir == os.path.join(os.path.dirname(os.path.realpath(__file__)), 'test'):
         print('\nUsing \'test\' folder as working directory ...')
         test = True
@@ -304,19 +308,19 @@ def main():
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-    # validate working direcotry first
-    print('\nValidating working directory...')
-    validate_work_dir(work_dir, donors_to_be_fixed)
+    # # validate working direcotry first
+    # print('\nValidating working directory...')
+    # validate_work_dir(work_dir, donors_to_be_fixed)
 
     # dectect whether uploads dir exists, stop if exists
-    upload_dir = os.path.join(work_dir, 'uploads')
-    if os.path.isdir(upload_dir):
-        try:
-            os.rmdir(upload_dir)
-        except OSError as ex:
-            sys.exit('\nStop: none empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.\n'.format(upload_dir))
-
-    os.mkdir(upload_dir)
+    upload_dir = os.path.join(work_dir, 'uploads_'+batch)
+    # if os.path.isdir(upload_dir):
+    #     try:
+    #         os.rmdir(upload_dir)
+    #     except OSError as ex:
+    #         sys.exit('\nStop: none empty "uploads" directory exists: {}. Please confirm it\'s safe to remove, then manually remove it and try this script again.\n'.format(upload_dir))
+    if not os.path.isdir(upload_dir): 
+        os.mkdir(upload_dir)
 
     # now download metadata xml
     if not test:
@@ -327,7 +331,7 @@ def main():
     print('Preparing new GNOS submissions...')
     metadata_fix_and_merge(work_dir, donors_to_be_fixed)
 
-    print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads')))
+    print('Submission folder located at: {}'.format(os.path.join(work_dir, 'uploads_'+batch)))
     print('Processing log file: {}'.format(log_file))
     print('Done!\n')
 
