@@ -50,11 +50,14 @@ def generate_md5(fname):
     return hash.hexdigest()
 
 
-def get_gnos_object(f, obj, key, new_name, unaligned_merged_gnos_id):
+def get_gnos_object(f, obj, key, new_name, unaligned_merged_gnos_id, caller):
     with open (f, 'r') as x: xml_str = x.read()
     for k in key:
         # replace the old filename with new filename
-        old_name = new_name.replace(unaligned_merged_gnos_id, k)
+        if caller == 'STAR':
+            old_name = new_name.replace(unaligned_merged_gnos_id, k)
+        else:
+            old_name = new_name.replace(unaligned_merged_gnos_id, k).lstrip('PCAWG.')
         xml_str = re.sub('"'+old_name+'"', '"'+new_name+'"', xml_str)
     obj_xml = xmltodict.parse(xml_str).get('ResultSet').get('Result').get(obj+'_xml')
     return obj_xml
@@ -117,7 +120,7 @@ def metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch):
                 # loop over all the lanes
                 for lane_gnos_id in donor.get(caller + '_analysis_id').split('|'):                    
                     xml_file = os.path.join(gnos_entry_dir, lane_gnos_id + '.xml')
-                    gnos_object = get_gnos_object(xml_file, obj, unaligned_gnos_id, merged_filename, unaligned_merged_gnos_id)
+                    gnos_object = get_gnos_object(xml_file, obj, unaligned_gnos_id, merged_filename, unaligned_merged_gnos_id, caller)
                     gnos_objects.update({lane_gnos_id: gnos_object})
 
                 create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_objects, obj, gnos_entry_dir) # merge xml
