@@ -66,11 +66,12 @@ def create_results_copies(row, create_results_copy, work_dir):
     donor_id = row.get('icgc_donor_id')
     tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split(',')
     for dt in create_results_copy:
-        call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, donor_id)
-        if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
-        vcf_files = get_files(dt, work_dir, tumor_aliquot_ids)      
-        copy_files(call_results_dir, vcf_files)
-        generate_md5_files(call_results_dir, tumor_aliquot_ids)
+        for aliquot_id in tumor_aliquot_ids:
+            call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, aliquot_id)
+            if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
+            vcf_files = get_files(dt, work_dir, aliquot_id)      
+            copy_files(call_results_dir, vcf_files)
+            generate_md5_files(call_results_dir, aliquot_id)
         
 
 def generate_md5_files(folder_name, tumor_aliquot_ids):
@@ -101,35 +102,38 @@ def generate_uuid():
 
 def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
     donor_id = row.get('icgc_donor_id')
-    aliquot_id = row.get('tumor_wgs_aliquot_id')
+    tumor_count = row.get('tumor_wgs_specimen_count')
+    aliquot_ids = row.get('tumor_wgs_aliquot_id').split(',')
+    tumor_bam_gnos_ids = row.get('tumor_wgs_bwa_alignment_gnos_id').split(',')
     normal_bam_url = row.get('normal_wgs_bwa_alignment_gnos_repo').split('|')[0] + 'cghub/metadata/analysisFull/' + row.get('normal_wgs_bwa_alignment_gnos_id')
-    tumor_bam_url = row.get('tumor_wgs_bwa_alignment_gnos_repo').split('|')[0] + 'cghub/metadata/analysisFull/' + row.get('tumor_wgs_bwa_alignment_gnos_id')
-    metadata_urls = normal_bam_url + ',' + tumor_bam_url
     project_code = row.get('dcc_project_code')
  
     for dt in generate_analysis_xml:
-        call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, donor_id)
-        vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_id+'*.vcf.gz'))
-        workflow_name = 'consensus_' + dt
-        gnos_id = generate_uuid()
-        output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc')
-        study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
+        for t in range(int(tumor_count)):
+            tumor_bam_url = row.get('tumor_wgs_bwa_alignment_gnos_repo').split(',')[0].split('|')[0] + 'cghub/metadata/analysisFull/' + tumor_bam_gnos_ids[t]
+            metadata_urls = normal_bam_url + ',' + tumor_bam_url
+            call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, aliquot_ids[t])
+            vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_ids[t]+'*.vcf.gz'))
+            workflow_name = 'consensus_' + dt
+            gnos_id = generate_uuid()
+            output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc')
+            study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
 
-        command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name)
+            command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name)
 
-        process = subprocess.Popen(
-            command,
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            )
 
-        out, err = process.communicate()
+            out, err = process.communicate()
 
-        if not process.returncode:#success
-            continue
-        else:
-            sys.exit('Error:{}'.format(err))
+            if not process.returncode:#success
+                continue
+            else:
+                sys.exit('Error:{}'.format(err))
 
 
 
