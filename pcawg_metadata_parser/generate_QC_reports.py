@@ -51,13 +51,6 @@ es_queries = [
                               #         "T"
                               #       ]
                               #     }
-                              #   },
-                              #   {
-                              #     "terms": {
-                              #       "flags.is_donor_blacklisted": [
-                              #         "T"
-                              #       ]
-                              #     }
                               #   }
                               # ]
                             }
@@ -167,13 +160,6 @@ es_queries = [
                                 "T"
                               ]
                             }
-                          },
-                          {
-                            "terms": {
-                              "flags.is_donor_blacklisted": [
-                                "T"
-                              ]
-                            }
                           }
                         ]
                       }
@@ -212,21 +198,7 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
-                      },
-                  # {
-                  #   "terms":{
-                  #     "dcc_project_code": [
-                  #             "LIRI-JP"
-                  #     ]
-                  #   }
-                  # }
+                      }
                  ]
                 }
               },
@@ -258,13 +230,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -303,13 +268,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -385,13 +343,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -427,13 +378,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -493,13 +437,6 @@ es_queries = [
                                     "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                   }
@@ -538,13 +475,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -578,13 +508,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -633,13 +556,6 @@ es_queries = [
                                     "T"
                             ]
                           }
-                        },
-                        {
-                          "term": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                   }
@@ -683,14 +599,7 @@ es_queries = [
                                   "T"
                                 ]
                               }
-                            },
-                            # {
-                            #   "terms": {
-                            #     "flags.is_donor_blacklisted": [
-                            #       "T"
-                            #     ]
-                            #   }
-                            # }
+                            }
                           ]
                         }
                     },
@@ -723,13 +632,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -770,13 +672,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -814,13 +709,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -855,13 +743,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -903,13 +784,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -945,13 +819,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -1007,19 +874,48 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
               },
               "size": 10000
       }
+},
+
+# query 20: get missing gnos_entry from may2016_release 
+{
+     "name": "missing_gnos_entry_from_may2016_release",
+     "content":{
+         "fields": ["donor_unique_id"],
+         "filter":{
+             "bool": {
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_may2016_donor":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+             }
+         },
+         "size": 10000
+     }
 },
 
 ]
@@ -1086,6 +982,10 @@ def create_report_info(donor_unique_id, es_json, q_index, annotations):
 
     if q_index == 16:
         flag = 'is_mar2016_entry' 
+        add_report_info_4_10(report_info, report_info_list, es_json, flag)
+
+    if q_index == 20:
+        flag = 'is_may2016_entry' 
         add_report_info_4_10(report_info, report_info_list, es_json, flag)
 
     if q_index == 5:
@@ -1351,7 +1251,7 @@ def add_report_info_4_10(report_info, report_info_list, es_json, flag):
 
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
-        for workflow in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+        for workflow in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar', 'minibam']:
             if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get(flag):
                 report_info['gnos_id'] =  vcf.get(workflow+'_variant_calling').get('gnos_id')
                 report_info_list.append(copy.deepcopy(report_info))
@@ -1569,7 +1469,7 @@ def main(argv=None):
             report_info_list_full.extend(report_info_list_donor)
 
         # do diff for santa_cruz missing only
-        if q in [4, 10, 13, 16]:
+        if q in [4, 10, 13, 16, 20]:
             if q==4:
                 release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' 
             elif q==10:
@@ -1578,6 +1478,8 @@ def main(argv=None):
                 release_tsv = '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv'
             elif q==16:
                 release_tsv = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
+            elif q==20:
+                release_tsv = '../pcawg-operations/data_releases/may2016/release_may2016_entry.tsv'
             else:
                 print('No entry for this query!')
             # generate the set of gnos_id

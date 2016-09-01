@@ -25,8 +25,8 @@ import hashlib
 logger = logging.getLogger('gnos parser')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
-latest_release = 'mar2016'
-previous_releases = ['oct2015', 'aug2015', 'santa_cruz']
+latest_release = 'may2016'
+previous_releases = ['mar2016','oct2015', 'aug2015', 'santa_cruz']
 
 
 def init_es(es_host, es_index):
@@ -88,6 +88,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.warning('ignore entry does not have aliquot_id, GNOS entry: {}'
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
+
+    if is_in_aliquot_blacklist(gnos_analysis.get('aliquot_id'), annotations):
+        logger.warning('ignore blacklisted aliquot: {} GNOS entry: {}'
+                         .format(gnos_analysis.get('aliquot_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+        return         
+
 
     if gnos_analysis.get('refassem_short_name') != 'unaligned' and gnos_analysis.get('refassem_short_name') != 'GRCh37':
         logger.warning('ignore entry that is aligned but not aligned to GRCh37: {}'
@@ -170,10 +176,10 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     # temporary hack here to skip any BAM entries from odsc-tcga repo as it's supposed not contain
     # any BAM data, but it does, and those aligned BAMs it has overlap with what in CGHub hence causes problems
-    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
-        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
-                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-        return
+#    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
+#        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
+#                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+#        return
 
     if not donors.get(donor_unique_id):
         # create a new donor if not exist
@@ -288,11 +294,20 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     bam_output_fh.write(json.dumps(bam_file, default=set_default) + '\n')
 
 
+def is_in_aliquot_blacklist(aliquot_id, annotations):
+    if annotations.get('aliquot_blacklist') and aliquot_id in annotations.get('aliquot_blacklist'):
+        return True
+    else:
+        return False
+
+
 def is_in_pcawg_final_list(dcc_project_code, pcawg_id, id_type, annotations):
     if annotations.get('pcawg_final_list').get(id_type).intersection([dcc_project_code+'::'+pcawg_id]):
         return True
     else:
         return False
+
+
 
 def exist_in_previous_releases(vcf_entry):
     for r in previous_releases:
@@ -407,6 +422,7 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
         "is_mar2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('mar2016').get('gnos_id') else False,
+        "is_may2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('may2016').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
         "exists_xml_md5sum_mismatch": False,
@@ -555,12 +571,16 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "aliquot_id": gnos_analysis.get('aliquot_id'),
         "use_cntl": analysis_attrib.get('use_cntl'),
         "total_lanes": analysis_attrib.get('total_lanes'),
+        "oxog_score": annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) if annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) else None,
+        "ContEST": annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) if annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) else None,
+        "Stars": annotations.get('Stars').get(gnos_analysis.get('aliquot_id')) if annotations.get('Stars').get(gnos_analysis.get('aliquot_id')) else None,
 
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
         "is_mar2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('mar2016').get('gnos_id') else False,
+        "is_may2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('may2016').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
 
@@ -726,6 +746,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_aug2015_donor': True if donor_unique_id in annotations.get('aug2015').get('donor') else False,
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
             'is_mar2016_donor': True if donor_unique_id in annotations.get('mar2016').get('donor') else False,
+            'is_may2016_donor': True if donor_unique_id in annotations.get('may2016').get('donor') else False,
+            'TiN': annotations.get('TiN').get(donor_unique_id, 'NA'),
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -916,23 +938,25 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     annotations = {}
     read_annotations(annotations, 'gnos_assignment', 'pc_annotation-gnos_assignment.yml')  # hard-code file name for now
     read_annotations(annotations, 'train2_pilot', 'pc_annotation-train2_pilot.tsv')  # hard-code file name for now
-    read_annotations(annotations, 'donor_blacklist', 'pc_annotation-donor_blacklist.tsv')  # hard-code file name for now
+    read_annotations(annotations, 'donor_blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')  # hard-code file name for now
     read_annotations(annotations, 'manual_qc_failed', 'pc_annotation-manual_qc_failed.tsv')  # hard-code file name for now
     read_annotations(annotations, 'sanger_vcf_in_jamboree', 'pc_annotation-sanger_vcf_in_jamboree.tsv')  # hard-code file name for now
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
-    read_annotations(annotations, 'aug2015', '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv')
-    read_annotations(annotations, 'oct2015', '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv')
-    read_annotations(annotations, 'mar2016', '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
     read_annotations(annotations, 'uuid_to_barcode', 'pc_annotation-tcga_uuid2barcode.tsv')    
-    read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
-    read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
-    read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
+    read_annotations(annotations, 'icgc_donor_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_donor_ids.csv')
+    read_annotations(annotations, 'icgc_specimen_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_specimen_ids.csv')
+    read_annotations(annotations, 'icgc_sample_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_sample_ids.csv')
     read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
-
-
+    read_annotations(annotations, 'aliquot_blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-aliquot_blacklist.tsv')
+    read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
+    read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
+    read_annotations(annotations, 'Stars', '../pcawg-operations/lists/quality_control_info/PAWG_QC_Summary_of_Measures.tsv')
+    read_annotations(annotations, 'TiN', '../pcawg-operations/lists/quality_control_info/TiN_donor.TiNsorted.tsv')
+    for r in ['aug2015', 'oct2015', 'mar2016', 'may2016']:
+        read_annotations(annotations, r, '../pcawg-operations/data_releases/'+r+'/release_'+r+'_entry.tsv')
 
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
@@ -1052,14 +1076,14 @@ def read_annotations(annotations, type, file_name):
                     donor_id, ao_id = str.split(line.rstrip(), '\t')
                     annotations[type][donor_id] = ao_id
                     
-            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed', 'aliquot_blacklist']:
                 annotations[type] = set()
                 for line in r:
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
                     annotations[type].add(line.rstrip())
 
-            elif type in ['santa_cruz', 'aug2015', 'oct2015', 'mar2016']:
+            elif type in ['santa_cruz', 'aug2015', 'oct2015', 'mar2016', 'may2016']:
                 annotations[type] = {
                     'donor': set(),
                     'gnos_id': set()
@@ -1109,6 +1133,39 @@ def read_annotations(annotations, type, file_name):
                     annotations[type]['donor'].add(row.get('donor_unique_id'))
                     annotations[type]['specimen'].add(row.get('dcc_project_code')+'::'+row.get('submitter_specimen_id'))
                     annotations[type]['sample'].add(row.get('dcc_project_code')+'::'+row.get('submitter_sample_id'))
+
+            elif type in ['oxog_score', 'ContEST']:
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('aliquot_GUUID'): continue
+                    if type == 'oxog_score' and not row.get('picard_oxoQ'): 
+                        logger.warning('aliquot: {} has no oxog_score'.format(row.get('aliquot_GUUID')))
+                        continue
+                    if type == 'ContEST' and not row.get('contamination_percentage_whole_genome_no_array_value'): 
+                        logger.warning('aliquot: {} has no ContEST'.format(row.get('aliquot_GUUID')))
+                        continue
+                    annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ') if type=='oxog_score' else row.get('contamination_percentage_whole_genome_no_array_value')
+
+            elif type == 'Stars':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('Tumour_WGS_aliquot_ID'): continue
+                    if row.get('Stars') == 'NA':  
+                        logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour_WGS_aliquot_ID')))
+                        continue
+                    annotations[type][row.get('Tumour_WGS_aliquot_ID')] = row.get('Stars')
+
+            elif type == 'TiN':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('donor_unique_id'): continue
+                    if not row.get('TiN_donor'):  
+                        logger.warning('donor:{} has no TiN information.'.format(row.get('donor_unique_id')))
+                        continue
+                    annotations[type][row.get('donor_unique_id')] = row.get('TiN_donor')
 
 
             else:
@@ -1195,6 +1252,55 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
     add_vcf_entry(donor, vcf_entries.get(donor.get('donor_unique_id')))
 
     check_bwa_duplicates(donor, train2_freeze_bams)
+
+    reshape_minibam(donor)
+
+def reshape_minibam(donor):
+    if not donor.get('variant_calling_results'): return
+    if not donor.get('normal_alignment_status') or not donor.get('tumor_alignment_status'): return
+    if not donor.get('normal_alignment_status').get('aligned_bam'): return
+    if not donor.get('variant_calling_results').get('minibam_variant_calling'): return
+    minibam_info = donor.get('variant_calling_results').get('minibam_variant_calling')
+    # add minibam to normal
+    wgs_normal_alignment = donor.get('normal_alignment_status').get('aligned_bam')
+    donor.get('normal_alignment_status')['minibam'] = create_minibam(wgs_normal_alignment, minibam_info)
+    # add minibam to tumour
+    for aliquot in donor.get('tumor_alignment_status'):
+        wgs_tumor_alignment = aliquot.get('aligned_bam')
+        aliquot['minibam'] = create_minibam(wgs_tumor_alignment, minibam_info)
+
+    return donor
+
+
+
+def create_minibam(alignment, minibam_info):
+    minibam_entry = {
+        "gnos_id": minibam_info['gnos_id'],
+        "effective_xml_md5sum": minibam_info['effective_xml_md5sum'],
+        "gnos_last_modified": minibam_info['gnos_last_modified'],
+        "gnos_repo": minibam_info['gnos_repo'],
+        "is_santa_cruz_entry": minibam_info['is_santa_cruz_entry'],
+        "is_aug2015_entry": minibam_info['is_aug2015_entry'],
+        "is_oct2015_entry": minibam_info['is_oct2015_entry'],
+        "is_mar2016_entry": minibam_info['is_mar2016_entry'],
+        "is_may2016_entry": minibam_info['is_may2016_entry'],
+        "is_s3_transfer_scheduled": minibam_info['is_s3_transfer_scheduled'],
+        "is_s3_transfer_completed": minibam_info['is_s3_transfer_completed']
+    }
+    minibam_files = minibam_info.get('files')
+    if not minibam_files:
+        logger.warning('The minibam with gnos_id {} is missing files.'.format(minibam_entry.get('gnos_id')))
+        return
+    for ftype in ['bam', 'bai']:
+        for f in minibam_files:            
+            if not f.get('file_name').replace('_minibam', '') == alignment.get(ftype+'_file_name'): continue
+            for feature in ['name', 'size', 'md5sum']:
+                minibam_entry[ftype+'_file_'+feature] = f.get('file_'+feature) if f.get('file_'+feature) else None
+        for feature in ['name', 'size', 'md5sum']:
+            if not minibam_entry.get(ftype+'_file_'+feature):
+                logger.warning('The minibam with gnos_id: {} is missing {} data for file {}.'.format(minibam_entry.get('gnos_id'), feature, alignment.get(ftype+'_file_name')))
+    
+    return minibam_entry
 
 
 def reorganize_dkfz_embl_calls(vcf_entries):
@@ -1294,7 +1400,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                 'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                                 'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
                                 'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
-                                'is_mar2016_entry': bam_file.get('is_mar2016_entry')
+                                'is_mar2016_entry': bam_file.get('is_mar2016_entry'),
+                                'is_may2016_entry': bam_file.get('is_may2016_entry')
                             }
                         )
                 else:
@@ -1317,7 +1424,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                 'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                                 'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
                                 'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
-                                'is_mar2016_entry': bam_file.get('is_mar2016_entry')
+                                'is_mar2016_entry': bam_file.get('is_mar2016_entry'),
+                                'is_may2016_entry': bam_file.get('is_may2016_entry')
                             }
                         ]
                     }
@@ -1346,7 +1454,8 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                             'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                             'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
                             'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
-                            'is_mar2016_entry': bam_file.get('is_mar2016_entry')
+                            'is_mar2016_entry': bam_file.get('is_mar2016_entry'),
+                            'is_may2016_entry': bam_file.get('is_may2016_entry')
                         }
                     )
 
@@ -1864,11 +1973,15 @@ def create_aggregated_bam_info_dict(bam):
             "is_aug2015_entry": bam['is_aug2015_entry'],
             "is_oct2015_entry": bam['is_oct2015_entry'],
             "is_mar2016_entry": bam['is_mar2016_entry'],
+            "is_may2016_entry": bam['is_may2016_entry'],
             "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
             "is_s3_transfer_completed": bam['is_s3_transfer_completed']
          },
          "bam_with_unmappable_reads": {},
-         "unaligned_bams": {}
+         "unaligned_bams": {},
+         "oxog_score": bam['oxog_score'],
+         "ContEST": bam['ContEST'],
+         "Stars": bam['Stars']
     }
     
     return aggregated_bam_info_dict
@@ -1918,7 +2031,11 @@ def bam_aggregation(bam_files):
                     alignment_status['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
                     
             else:
-                if bam['is_mar2016_entry']:
+                if bam['is_may2016_entry']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in may2016: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
+                elif bam['is_mar2016_entry']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in mar2016: {}, additional: {}'
                         .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
@@ -2090,7 +2207,12 @@ def bam_aggregation(bam_files):
 
 
                 else:
-                    if bam['is_mar2016_entry']:
+                    if bam['is_may2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in may2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('tophat').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_mar2016_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in mar2016: {}, additional: {}'
@@ -2149,7 +2271,12 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
                 else:
-                    if bam['is_mar2016_entry']:
+                    if bam['is_may2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in may2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('star').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_mar2016_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in mar2016: {}, additional: {}'
@@ -2211,6 +2338,7 @@ def create_aggregated_rna_bam_info(bam):
         "is_aug2015_entry": bam['is_aug2015_entry'],
         "is_oct2015_entry": bam['is_oct2015_entry'],
         "is_mar2016_entry": bam['is_mar2016_entry'],
+        "is_may2016_entry": bam['is_may2016_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
         "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
         "exists_xml_md5sum_mismatch": False,           
