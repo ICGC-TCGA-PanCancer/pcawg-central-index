@@ -89,13 +89,13 @@ es_queries = [
             #     "dcc_project_code": ".*-DE"
             #   }
             # },
-            {
-              "terms": {
-                "flags.is_bam_used_by_variant_calling_missing": [
-                  "T"
-                ]
-              }
-            },
+            # {
+            #   "terms": {
+            #     "flags.is_bam_used_by_variant_calling_missing": [
+            #       "T"
+            #     ]
+            #   }
+            # },
             {
               "terms": {
                 "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
@@ -103,13 +103,13 @@ es_queries = [
                 ]
               }
             },
-            {
-               "terms":{
-                  "flags.exists_vcf_file_prefix_mismatch":[
-                     "T"
-                  ]
-               }
-            }, 
+            # {
+            #    "terms":{
+            #       "flags.exists_vcf_file_prefix_mismatch":[
+            #          "T"
+            #       ]
+            #    }
+            # }, 
             # {
             #   "terms": {
             #     "flags.exists_xml_md5sum_mismatch": [
@@ -137,11 +137,9 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         "https://gtrepo-osdc-icgc.annailabs.com/",
         "https://gtrepo-ebi.annailabs.com/",
         "https://gtrepo-riken.annailabs.com/",
-        "https://gtrepo-etri.annailabs.com/",
         "https://gtrepo-bsc.annailabs.com/",
         "https://gtrepo-dkfz.annailabs.com/",
-        "https://gtrepo-osdc-tcga.annailabs.com/",
-        "https://cghub.ucsc.edu/"
+        "https://gtrepo-osdc-tcga.annailabs.com/"
     ]
     if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
         source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
@@ -253,6 +251,8 @@ def add_metadata_xml_info(obj, chosen_gnos_repo=None):
 
 def get_available_repos(obj):
     repos = obj.get('gnos_repo')
+    if get_formal_repo_name('cghub') in repos:
+        repos.remove(get_formal_repo_name('cghub'))
     ret_repos = []
     for r in repos:
         metadata_xml_info = add_metadata_xml_info(obj, get_formal_repo_name(r))
