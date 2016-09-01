@@ -32,11 +32,11 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		git pull
 		cd $DIR
 
-		echo update tcga-transfer-operations git submodule
-		cd ../tcga_transfer_ops/
-		git checkout master
-		git pull
-		cd $DIR
+		# echo update tcga-transfer-operations git submodule
+		# cd ../tcga_transfer_ops/
+		# git checkout master
+		# git pull
+		# cd $DIR
 
 		echo update oxog-ops git submodule
 		cd ../oxog-ops/
