@@ -58,17 +58,19 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		if [ "$JOB_NUM" -gt "$Z" ]; then
 			echo move job to job folders
 			if [ "$CLOUD" == "collab" ]; then
-				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../ceph_transfer_ops/ceph-transfer-jobs-bwa/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../ceph_transfer_ops/ceph-transfer-jobs-rna-seq/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../ceph_transfer_ops/ceph-transfer-jobs-bwa/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 			else if [ "$CLOUD" == "aws" ]; then
-				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
-				cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../s3-transfer-operations/s3-transfer-jobs-rna-seq/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
 			else
 				cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../tcga-transfer-operations/tcga-transfer-jobs-bwa/backlog-jobs/.
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../tcga-transfer-operations/tcga-transfer-jobs-vcf-v1/backlog-jobs/.
@@ -86,12 +88,12 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		    else
 		    	cd ../tcga-transfer-operations
 		    fi
-	        git checkout master
-	        git reset --hard origin/master
-	        git pull
-	        git add .
-	        git commit -m "add $JOB_NUM new transfer jobs for project: $f"        
-	        git push     
+	        # git checkout master
+	        # git reset --hard origin/master
+	        # git pull
+	        # git add .
+	        # git commit -m "add $JOB_NUM new transfer jobs for project: $f"        
+	        # git push     
 	    else
 	    	echo no new job could be generated from $f
 		fi
