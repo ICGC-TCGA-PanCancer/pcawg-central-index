@@ -187,11 +187,7 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
             attr['VALUE'] = '|'.join(ATTR.get(attr.get('TAG')))
 
         # add one extra attribute to label the merged RNA-Seq
-        attributes.append({'TAG':'RNA-Seq_status', 'VALUE':'merged'})    
-
-        # add one comment in the DESCRIPTION
-        merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] = merged_object.get('ANALYSIS_SET').get('ANALYSIS')['DESCRIPTION'] +\
-         '. This is merged RNA-Seq alignment from {} lanes.'.format(len(unmerged_gnos_ids))
+        attributes.append({'TAG':'Note', 'VALUE':'This BAM file is merged from {} individually aligned lane-level BAM files'.format(len(unmerged_gnos_ids))})    
 
     elif obj == 'experiment':
         EXPERIMENT = []
