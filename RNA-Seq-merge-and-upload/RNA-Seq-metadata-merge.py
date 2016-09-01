@@ -89,7 +89,10 @@ def download_metadata_files(work_dir, donors_to_be_fixed, batch):
         for caller in ('STAR', 'TopHat2'):
             gnos_ids_to_merge = donor.get(caller + '_analysis_id').split('|')
             merged_gnos_id = donor.get(caller + '_merged_gnos_id')
-            gnos_repo = donor.get(caller + '_gnos_server').split('|')[0]
+            if 'ebi' in donor.get(caller + '_gnos_server').split('|'):
+                gnos_repo = 'ebi'
+            else:
+                gnos_repo = donor.get(caller + '_gnos_server').split('|')[0]
             # check whether the merged_gnos_id has been downloaded
             if not os.path.isdir(os.path.join(work_dir, batch, caller, merged_gnos_id)): continue
             for gnos_id in gnos_ids_to_merge:
