@@ -200,7 +200,10 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
     elif obj == 'run':
         RUN = []
         for k, v in gnos_objects.iteritems():
+            if v.get('RUN_SET').get('RUN').get('DATA_BLOCK'):
+                v.get('RUN_SET')['RUN'].pop('DATA_BLOCK')
             RUN.append(v.get('RUN_SET').get('RUN'))
+
         merged_object.get('RUN_SET')['RUN'] = RUN
     else:
         pass
