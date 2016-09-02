@@ -64,7 +64,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
-			else if [ "$CLOUD" == "aws" ]; then
+			elif [ "$CLOUD" == "aws" ]; then
 				cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../s3-transfer-operations/s3-transfer-jobs-rna-seq/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
@@ -83,7 +83,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	        echo check the job into git
 	        if [ "$CLOUD" == "collab" ]; then
 		        cd ../ceph_transfer_ops
-		    else if [ "$CLOUD" == "aws" ]; then
+		    elif [ "$CLOUD" == "aws" ]; then
 		    	cd ../s3-transfer-operations
 		    else
 		    	cd ../tcga-transfer-operations
