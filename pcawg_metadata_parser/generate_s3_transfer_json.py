@@ -688,7 +688,7 @@ def main(argv=None):
             add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf, vcf_result_version)
 
         if seq and 'rna_seq' in seq:
-            add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
+            add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
 
     if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
