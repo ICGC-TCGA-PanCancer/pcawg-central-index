@@ -38,11 +38,11 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		# git pull
 		# cd $DIR
 
-		echo update oxog-ops git submodule
-		cd ../oxog-ops/
-		git checkout master
-		git pull
-		cd $DIR
+		# echo update oxog-ops git submodule
+		# cd ../oxog-ops/
+		# git checkout master
+		# git pull
+		# cd $DIR
 
 		echo update pcawg-operations git submodule where white lists are maintained
 		cd ../pcawg-operations/
@@ -50,7 +50,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the transfer jsons from $f...
-		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s wgs -v sanger dkfz broad muse
+		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s rna_seq
 
 		JOB_NUM=`ls -l $M/reports/s3_transfer_json_$CLOUD/ |grep json|wc -l`
 		Z=0
