@@ -1117,22 +1117,24 @@ def gen_dict_extract(key, var):
 
 def add_report_info_21(report_info, report_info_list, es_json):
     rna_seq_info = es_json.get('rna_seq').get('alignment')
+    report_info['library_strategy'] = 'RNA-Seq'
     for specimen_type in rna_seq_info.keys():
         if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
             continue
         if 'normal' in specimen_type:
             aliquot = rna_seq_info.get(specimen_type)
             for workflow_type in aliquot.keys():
+                report_info['workflow'] = workflow_type
                 add_report_info_21_alignment(aliquot.get(workflow_type), report_info, report_info_list)
         else:
             for aliquot in rna_seq_info.get(specimen_type):
                 for workflow_type in aliquot.keys():
+                    report_info['workflow'] = workflow_type
                     add_report_info_21_alignment(aliquot.get(workflow_type), report_info, report_info_list) 
     return report_info_list
 
 
 def add_report_info_21_alignment(alignment, report_info, report_info_list):
-    report_info['library_strategy'] = 'RNA-Seq'
     report_info['aliquot_id'] = alignment.get('aliquot_id')
     report_info['icgc_sample_id'] = alignment.get('icgc_sample_id')
     report_info['icgc_specimen_id'] = alignment.get('icgc_specimen_id')
