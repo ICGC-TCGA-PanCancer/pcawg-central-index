@@ -97,11 +97,14 @@ def create_report_info(donor_unique_id, es_json, report, seq, vcf):
     if vcf:
         add_vcf_gnos_entity(report, gnos_entity_info, es_json, vcf)
 
-    if seq and 'rna_seq' in seq and not gnos_entity_info['dcc_project_code'].endswith('-US'):
+    if seq and 'rna_seq' in seq:
         add_rna_seq_gnos_entity(report, gnos_entity_info, es_json)
 
-    if seq and 'rna_seq' in seq and gnos_entity_info['dcc_project_code'].endswith('-US'):
-        add_rna_seq_gnos_entity_1(report, gnos_entity_info, es_json)
+    # if seq and 'rna_seq' in seq and not gnos_entity_info['dcc_project_code'].endswith('-US'):
+    #     add_rna_seq_gnos_entity(report, gnos_entity_info, es_json)
+
+    # if seq and 'rna_seq' in seq and gnos_entity_info['dcc_project_code'].endswith('-US'):
+    #     add_rna_seq_gnos_entity_1(report, gnos_entity_info, es_json)
 
     return report
 
