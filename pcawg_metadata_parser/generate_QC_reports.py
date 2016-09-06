@@ -920,7 +920,7 @@ es_queries = [
 
 # query 21: get all RNA-Seq data information 
 {
-      "name": "RNA-Seq_uploads",
+      "name": "rna-seq_summary",
       "content":{
            "fields":[
                "donor_unique_id"
