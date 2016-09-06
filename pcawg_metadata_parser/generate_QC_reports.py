@@ -918,6 +918,70 @@ es_queries = [
      }
 },
 
+# query 21: get all RNA-Seq data information 
+{
+      "name": "RNA-Seq_uploads",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                      "bool": {
+                        "should":[
+                          {
+                            "terms": {
+                              "flags.is_normal_star_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.is_normal_tophat_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.is_tumor_star_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.is_tumor_tophat_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          }                        
+                        ]
+                      }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 ]
 
 
@@ -1024,6 +1088,9 @@ def create_report_info(donor_unique_id, es_json, q_index, annotations):
         # annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
         add_report_info_19(report_info, report_info_list, es_json, annotations)
 
+    if q_index == 21:
+        add_report_info_21(report_info, report_info_list, es_json)
+
     return report_info_list
 
 def get_mapping(source):
@@ -1047,6 +1114,35 @@ def gen_dict_extract(key, var):
                 for d in v:
                     for result in gen_dict_extract(key, d):
                         yield result
+
+def add_report_info_21(report_info, report_info_list, es_json):
+    rna_seq_info = es_json.get('rna_seq').get('alignment')
+    for specimen_type in rna_seq_info.keys():
+        if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
+            continue
+        if 'normal' in specimen_type:
+            aliquot = rna_seq_info.get(specimen_type)
+            for workflow_type in aliquot.keys():
+                add_report_info_21_alignment(aliquot.get(workflow_type), report_info, report_info_list)
+        else:
+            for aliquot in rna_seq_info.get(specimen_type):
+                for workflow_type in aliquot.keys():
+                    add_report_info_21_alignment(aliquot.get(workflow_type), report_info, report_info_list) 
+    return report_info_list
+
+
+def add_report_info_21_alignment(alignment, report_info, report_info_list):
+    report_info['library_strategy'] = 'RNA-Seq'
+    report_info['aliquot_id'] = alignment.get('aliquot_id')
+    report_info['icgc_sample_id'] = alignment.get('icgc_sample_id')
+    report_info['icgc_specimen_id'] = alignment.get('icgc_specimen_id')
+    report_info['dcc_specimen_type'] = alignment.get('dcc_specimen_type')
+    if alignment.get('aligned_bam'):
+        report_info['gnos_id'] = alignment.get('aligned_bam').get('gnos_id')
+        report_info['gnos_repo'] = alignment.get('aligned_bam').get('gnos_repo')
+        report_info['exist_bai_file'] = True if alignment.get('aligned_bam').get('bai_file_name') else False        
+    report_info_list.append(copy.deepcopy(report_info))
+    return report_info_list
 
 
 def add_report_info_19(report_info, report_info_list, es_json, annotations):
