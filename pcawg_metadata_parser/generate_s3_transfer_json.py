@@ -454,7 +454,7 @@ def add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, 
 
 def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
     if not aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
-        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')))
         return None
 
     alignment_info = {
