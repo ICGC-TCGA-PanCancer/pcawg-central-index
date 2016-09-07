@@ -88,12 +88,12 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		    else
 		    	cd ../tcga-transfer-operations
 		    fi
-	        # git checkout master
-	        # git reset --hard origin/master
-	        # git pull
-	        # git add .
-	        # git commit -m "add $JOB_NUM new transfer jobs for project: $f"        
-	        # git push     
+	        git checkout master
+	        git reset --hard origin/master
+	        git pull
+	        git add .
+	        git commit -m "add $JOB_NUM new transfer jobs for project: $f"        
+	        git push     
 	    else
 	    	echo no new job could be generated from $f
 		fi
