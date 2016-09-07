@@ -112,7 +112,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
         for t in range(int(tumor_count)):
             tumor_bam_url = row.get('tumor_wgs_bwa_alignment_gnos_repo').split(',')[t].split('|')[0] + 'cghub/metadata/analysisFull/' + tumor_bam_gnos_ids[t]
             metadata_urls = normal_bam_url + ',' + tumor_bam_url
-            call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, aliquot_ids[t])
+            call_results_dir = os.path.join(work_dir,'call_results_dir', dt, aliquot_ids[t])
             vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_ids[t]+'*.vcf.gz'))
             workflow_name = 'consensus_' + dt
             gnos_id = generate_uuid()
