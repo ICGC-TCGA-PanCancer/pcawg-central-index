@@ -487,6 +487,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
         alignment_info.get('files').append(bai_file)
     else:
         logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+        return None
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), chosen_gnos_repo)
