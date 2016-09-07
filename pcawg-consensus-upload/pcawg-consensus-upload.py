@@ -28,34 +28,33 @@ ch = logging.StreamHandler()
 
 
 
-def get_files(call, work_dir, tumor_aliquot_ids):
+def get_files(call, work_dir, aliquot):
 
     matched_files = []
     vcf_file_dir = os.path.join(work_dir, call)
 
-    for aliquot in tumor_aliquot_ids:
-        file_name_patterns = set([
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\.'+re.escape(call)+r'\.vcf\.gz$',
-                r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\.'+re.escape(call)+r'\.vcf\.gz\.tbi$'
-            ])
+    file_name_patterns = set([
+            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\.'+re.escape(call)+r'\.vcf\.gz$',
+            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\.'+re.escape(call)+r'\.vcf\.gz\.tbi$'
+        ])
 
 
-        for f in glob.glob(os.path.join(vcf_file_dir, aliquot+'*')):
-            file_name = os.path.basename(f)
-            # print file_name
-            matched_fp = None
-            for fp in file_name_patterns:
-                if re.match(fp, file_name):
-                    matched_fp = fp
-                    matched_files.append(copy.deepcopy(f))
+    for f in glob.glob(os.path.join(vcf_file_dir, aliquot+'*')):
+        file_name = os.path.basename(f)
+        # print file_name
+        matched_fp = None
+        for fp in file_name_patterns:
+            if re.match(fp, file_name):
+                matched_fp = fp
+                matched_files.append(copy.deepcopy(f))
 
-            if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
-    
-        # print matched_files
-        # print len(matched_files)
-        if file_name_patterns:
-            for fp in file_name_patterns:
-                logger.error('Missing expected consensus variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
+        if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
+
+    # print matched_files
+    # print len(matched_files)
+    if file_name_patterns:
+        for fp in file_name_patterns:
+            logger.error('Missing expected consensus variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
      
     return matched_files
 
