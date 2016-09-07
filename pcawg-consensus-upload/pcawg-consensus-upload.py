@@ -67,7 +67,7 @@ def create_results_copies(row, create_results_copy, work_dir):
     tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split(',')
     for dt in create_results_copy:
         for aliquot_id in tumor_aliquot_ids:
-            call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, aliquot_id)
+            call_results_dir = os.path.join(work_dir,'call_results_dir', dt, aliquot_id)
             if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
             vcf_files = get_files(dt, work_dir, aliquot_id)      
             copy_files(call_results_dir, vcf_files)
@@ -110,13 +110,13 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
  
     for dt in generate_analysis_xml:
         for t in range(int(tumor_count)):
-            tumor_bam_url = row.get('tumor_wgs_bwa_alignment_gnos_repo').split(',')[0].split('|')[0] + 'cghub/metadata/analysisFull/' + tumor_bam_gnos_ids[t]
+            tumor_bam_url = row.get('tumor_wgs_bwa_alignment_gnos_repo').split(',')[t].split('|')[0] + 'cghub/metadata/analysisFull/' + tumor_bam_gnos_ids[t]
             metadata_urls = normal_bam_url + ',' + tumor_bam_url
             call_results_dir = os.path.join(work_dir,'to_upload_dir', dt, aliquot_ids[t])
             vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_ids[t]+'*.vcf.gz'))
             workflow_name = 'consensus_' + dt
             gnos_id = generate_uuid()
-            output_dir = os.path.join(dt, 'osdc-tcga') if project_code.endswith('-US') else os.path.join(dt, 'osdc-icgc')
+            output_dir = 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc'
             study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
 
             command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name)
@@ -198,7 +198,7 @@ def main(argv=None):
     include_donor_id_lists= list(include_donor_id_lists) if include_donor_id_lists else generate_id_list(vcf_info_file)   
  
 
-    if not os.path.isdir(work_dir+'/to_upload_dir'): os.makedirs(work_dir+'/to_upload_dir')
+    # if not os.path.isdir(work_dir+'/to_upload_dir'): os.makedirs(work_dir+'/to_upload_dir')
 
     current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
 
