@@ -453,6 +453,10 @@ def add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, 
 
 
 def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
+    if not aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
+        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+        return None
+
     alignment_info = {
         'data_type': 'RNA_Seq-'+workflow_type.capitalize()+'-Normal' if 'normal' in aliquot.get(workflow_type).get('dcc_specimen_type').lower() else 'RNA_Seq-'+workflow_type.capitalize()+'-Tumor',
         'project_code': es_json['dcc_project_code'],
@@ -472,22 +476,28 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
                 'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_md5sum'),
                 'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_size'),
                 'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                          
+            },
+            {
+                'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'),
+                'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_md5sum'),
+                'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_size'),
+                'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                        
             }
         ]
     }
 
-    # add the bai file info if exist
-    if aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
-        bai_file = {
-            'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'),
-            'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_md5sum'),
-            'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_size'),
-            'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                        
-        }
-        alignment_info.get('files').append(bai_file)
-    else:
-        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
-        return None
+    # # add the bai file info if exist
+    # if aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
+    #     bai_file = {
+    #         'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'),
+    #         'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_md5sum'),
+    #         'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_size'),
+    #         'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                        
+    #     }
+    #     alignment_info.get('files').append(bai_file)
+    # else:
+    #     logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+    #     return None
 
     # add the metadata_xml_file_info
     metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), chosen_gnos_repo)
