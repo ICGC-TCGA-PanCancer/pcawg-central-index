@@ -50,7 +50,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the transfer jsons from $f...
-		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s rna_seq
+		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s rna_seq -d ../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv
 
 		JOB_NUM=`ls -l $M/reports/s3_transfer_json_$CLOUD/ |grep json|wc -l`
 		Z=0
