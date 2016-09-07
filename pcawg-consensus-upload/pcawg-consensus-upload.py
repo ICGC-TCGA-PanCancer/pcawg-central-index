@@ -163,7 +163,9 @@ def generate_id_list(id_lists):
     if id_lists:
         with open(id_lists, 'r') as f:
             reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
-            for row in reader: ids_list.append(row.get('icgc_donor_id'))
+            for row in reader:
+                if row.get('wgs_white_black_gray') == 'Blacklist': continue
+                ids_list.append(row.get('icgc_donor_id'))
     return ids_list
 
 
