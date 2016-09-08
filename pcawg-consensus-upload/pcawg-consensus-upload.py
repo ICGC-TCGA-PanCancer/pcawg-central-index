@@ -28,30 +28,31 @@ ch = logging.StreamHandler()
 
 
 
-def get_files(call, work_dir, aliquot):
+def get_files(dcc_project_code, call, work_dir, aliquot):
 
     matched_files = []
-    vcf_file_dir = os.path.join(work_dir, call)
+    repo_type = 'tcga' if dcc_project_code.endswith('-US') else 'icgc'
+    white_file_dir = os.path.join(work_dir, 'final_consensus_30aug', repo_type, call)
 
     file_name_patterns = set([
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\.'+re.escape(call)+r'\.vcf\.gz$',
-            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\.'+re.escape(call)+r'\.vcf\.gz\.tbi$'
+            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\..+\.somatic\.'+re.escape(call)+r'\.vcf\.gz$',
+            r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\..+\.somatic\.'+re.escape(call)+r'\.vcf\.gz\.tbi$'
         ])
 
+    for file_dir in (white_file_dir, os.path.join(white_file_dir, '..', 'graylist', call)): # match fixed_file dir first
+        for f in glob.glob(os.path.join(file_dir, aliquot+'*')):
+            file_name = os.path.basename(f)
+            # print file_name
+            matched_fp = None
+            for fp in file_name_patterns:
+                if re.match(fp, file_name):
+                    matched_fp = fp
+                    matched_files.append(copy.deepcopy(f))
 
-    for f in glob.glob(os.path.join(vcf_file_dir, aliquot+'*')):
-        file_name = os.path.basename(f)
-        # print file_name
-        matched_fp = None
-        for fp in file_name_patterns:
-            if re.match(fp, file_name):
-                matched_fp = fp
-                matched_files.append(copy.deepcopy(f))
+            if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
 
-        if matched_fp: file_name_patterns.remove(matched_fp)  # remove the file pattern that had a match
-
-    # print matched_files
-    # print len(matched_files)
+        # print matched_files
+        # print len(matched_files)
     if file_name_patterns:
         for fp in file_name_patterns:
             logger.error('Missing expected consensus variant call result file with pattern: {} for aliquot {}'.format(fp, aliquot))
@@ -62,23 +63,23 @@ def get_files(call, work_dir, aliquot):
 
 def create_results_copies(row, create_results_copy, work_dir):
     
-    donor_id = row.get('icgc_donor_id')
+    dcc_project_code = row.get('dcc_project_code')
     tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split(',')
     for dt in create_results_copy:
         for aliquot_id in tumor_aliquot_ids:
             call_results_dir = os.path.join(work_dir,'call_results_dir', dt, aliquot_id)
             if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
-            vcf_files = get_files(dt, work_dir, aliquot_id)      
-            copy_files(call_results_dir, vcf_files)
-            generate_md5_files(call_results_dir, aliquot_id)
+            vcf_files = get_files(dcc_project_code, dt, work_dir, aliquot_id)      
+            create_symlinks(call_results_dir, vcf_files)
+            # generate_md5_files(call_results_dir, aliquot_id)
         
 
-def generate_md5_files(folder_name, tumor_aliquot_ids):
-    for aliquot_id in tumor_aliquot_ids:
-        for f in glob.glob(os.path.join(folder_name, aliquot_id+'*')):
-            if f.endswith('md5'): continue
-            md5_value = generate_md5(f)
-            with open(f+'.md5', 'w') as fh: fh.write(md5_value)
+# def generate_md5_files(folder_name, tumor_aliquot_ids):
+#     for aliquot_id in tumor_aliquot_ids:
+#         for f in glob.glob(os.path.join(folder_name, aliquot_id+'*')):
+#             if f.endswith('md5'): continue
+#             md5_value = generate_md5(f)
+#             with open(f+'.md5', 'w') as fh: fh.write(md5_value)
 
 
 def generate_md5(fname):
@@ -89,10 +90,11 @@ def generate_md5(fname):
     return hash.hexdigest()
 
 
-def copy_files(target, source):
+def create_symlinks(target, source):
     for s in source:
-        filename = os.path.basename(s).replace('consensus', 'consensus.20160826.somatic')
-        shutil.copy(s, os.path.join(target, filename))
+        os.symlink(s, os.path.join(target, os.path.basename(s)))
+        md5_value = generate_md5(s)
+        with open(os.path.join(target, os.path.basename(s))+'.md5'), 'w') as fh: fh.write(md5_value)
 
 def generate_uuid():
     uuid_str = str(uuid.uuid4())
@@ -112,7 +114,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
             tumor_bam_url = row.get('tumor_wgs_bwa_alignment_gnos_repo').split(',')[t].split('|')[0] + 'cghub/metadata/analysisFull/' + tumor_bam_gnos_ids[t]
             metadata_urls = normal_bam_url + ',' + tumor_bam_url
             call_results_dir = os.path.join(work_dir,'call_results_dir', dt, aliquot_ids[t])
-            vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_ids[t]+'*.vcf.gz'))
+            vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_ids[t]+'.*.'+dt+'.vcf.gz'))
             workflow_name = 'consensus_' + dt
             gnos_id = generate_uuid()
             output_dir = 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc'
