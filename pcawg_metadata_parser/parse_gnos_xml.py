@@ -46,7 +46,7 @@ def init_es(es_host, es_index):
     return es
 
 
-def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations):
+def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations, consensus_entries):
   analysis_attrib = get_analysis_attrib(gnos_analysis)
 
   if analysis_attrib and analysis_attrib.get('variant_workflow_name'):  # variant call gnos entry
@@ -70,8 +70,15 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     if not vcf_entries.get(donor_unique_id):
         vcf_entries[donor_unique_id] = {}
         vcf_entries[donor_unique_id]['vcf_entry_files'] = []
-    
-    vcf_entries.get(donor_unique_id)['vcf_entry_files'].append(copy.deepcopy(vcf_file))
+
+    if not consensus_entries.get(donor_unique_id):
+        consensus_entries[donor_unique_id] = {}
+        consensus_entries[donor_unique_id]['consensus_entry_files'] = []
+
+    if vcf_file.get('vcf_workflow_type') in ['snv_mnv', 'indel', 'cnv', 'sv']:
+        consensus_entries.get(donor_unique_id)['consensus_entry_files'].append(copy.deepcopy(vcf_file))
+    else:
+        vcf_entries.get(donor_unique_id)['vcf_entry_files'].append(copy.deepcopy(vcf_file))
 
   else:  # BAM entry
     if gnos_analysis.get('dcc_project_code') and gnos_analysis.get('dcc_project_code').upper() == 'TEST':
@@ -315,6 +322,21 @@ def exist_in_previous_releases(vcf_entry):
     return False
 
 
+def choose_consensus_entry(consensus_entries, donor_unique_id):
+    # It is very naive now to append all the entries for the same variant type.(snv_mnv/indel/sv/cnv)
+    # The assumption: there is no duplicated uploading for the same aliquot of the same variant type
+    if not consensus_entries or not consensus_entries.get(donor_unique_id) or not consensus_entries.get(donor_unique_id).get('consensus_entry_files'):
+        return
+    for current_vcf_entry in consensus_entries.get(donor_unique_id).get('consensus_entry_files'):
+        variant_workflow = current_vcf_entry.get('vcf_workflow_type')
+        workflow_label = variant_workflow + '_variant_calling'  
+
+        if not consensus_entries.get(donor_unique_id).get(workflow_label):  # new vcf for workflow_type
+            consensus_entries.get(donor_unique_id)[workflow_label] = []
+        consensus_entries.get(donor_unique_id)[workflow_label].append(current_vcf_entry)
+
+    return consensus_entries
+
 
 def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
 
@@ -518,7 +540,23 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
 
     elif workflow_name == 'OxoGWorkflow-variantbam':
         vcf_entry['vcf_workflow_type'] = 'minibam'
-        vcf_entry['vcf_workflow_result_version'] = 'v1'    
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_snv_mnv':
+        vcf_entry['vcf_workflow_type'] = 'snv_mnv'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_indel':
+        vcf_entry['vcf_workflow_type'] = 'indel'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_cnv':
+        vcf_entry['vcf_workflow_type'] = 'cnv'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_sv':
+        vcf_entry['vcf_workflow_type'] = 'sv'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     else:
         vcf_entry['vcf_workflow_type'] = 'Unknown'
@@ -927,6 +965,7 @@ def get_xml_files( metadata_dir, conf, repo ):
 def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_output_jsonl_file, repo, exclude_gnos_id_lists):
     donors = {}
     vcf_entries = {}
+    consensus_entries = {}
 
     # update the pc_annotation-sanger_vcf_in_jamboree files using the jamboree subdirectory files
     vcf_in_jamboree_dir = '../pcawg-operations/variant_calling/sanger_workflow/jamboree/'
@@ -983,7 +1022,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
                     .format(f, gnos_analysis.get('analysis_id')) )
                 continue
 
-            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations)
+            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations, consensus_entries)
         else:
             logger.warning( 'skipping invalid xml file: {}'.format(f) )
 
@@ -1250,6 +1289,12 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
     reorganize_dkfz_embl_calls(vcf_entries.get(donor.get('donor_unique_id')))
 
     add_vcf_entry(donor, vcf_entries.get(donor.get('donor_unique_id')))
+
+    # choose consensus by iterating all cached vcfs
+    choose_consensus_entry(consensus_entries, donor.get('donor_unique_id'))
+
+    # add the consensus to donor
+    add_consensus_entry(donor, consensus_entries.get(donor.get('donor_unique_id')))
 
     check_bwa_duplicates(donor, train2_freeze_bams)
 
@@ -1655,6 +1700,16 @@ def is_train2_bam(donor, train2_freeze_bams, gnos_id, specimen_type):
                     .format(donor.get('donor_unique_id')))
         return True
     return False
+
+def add_consensus_entry(donor, consensus_entry):
+    if not consensus_entry:
+        return
+    if not donor.get('consensus_calling_results'): donor['consensus_calling_results'] = {}
+    donor['consensus_files'] = copy.deepcopy(consensus_entry.get('consensus_entry_files'))
+    del consensus_entry['consensus_entry_files']
+    donor.get('consensus_calling_results').update(consensus_entry)
+
+    return donor   
 
 
 def add_vcf_entry(donor, vcf_entry):
