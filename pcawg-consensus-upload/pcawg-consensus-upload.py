@@ -94,7 +94,7 @@ def create_symlinks(target, source):
     for s in source:
         os.symlink(s, os.path.join(target, os.path.basename(s)))
         md5_value = generate_md5(s)
-        with open(os.path.join(target, os.path.basename(s))+'.md5'), 'w') as fh: fh.write(md5_value)
+        with open(os.path.join(target, os.path.basename(s)+'.md5'), 'w') as fh: fh.write(md5_value)
 
 def generate_uuid():
     uuid_str = str(uuid.uuid4())
@@ -120,7 +120,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
             output_dir = 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc'
             study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
 
-            command = generate_perl_command(dt, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name)
+            command = generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name)
 
             process = subprocess.Popen(
                 command,
@@ -138,7 +138,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
 
 
 
-def generate_perl_command(call, gnos_id, metadata_urls, vcf_files, workflow_file_subset, related_file_subset_uuids, output_dir, study_ref_name):
+def generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name):
 
     command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
                  ' --key gnos_fake_key '+\
