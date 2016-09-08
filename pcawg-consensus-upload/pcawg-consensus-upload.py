@@ -67,9 +67,10 @@ def create_results_copies(row, create_results_copy, work_dir):
     tumor_aliquot_ids = row.get('tumor_wgs_aliquot_id').split(',')
     for dt in create_results_copy:
         for aliquot_id in tumor_aliquot_ids:
+            vcf_files = get_files(dcc_project_code, dt, work_dir, aliquot_id) 
+            if not vcf_files: continue
             call_results_dir = os.path.join(work_dir,'call_results_dir', dt, aliquot_id)
             if not os.path.isdir(call_results_dir): os.makedirs(call_results_dir)
-            vcf_files = get_files(dcc_project_code, dt, work_dir, aliquot_id)      
             create_symlinks(call_results_dir, vcf_files)
             # generate_md5_files(call_results_dir, aliquot_id)
         
@@ -115,6 +116,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
             metadata_urls = normal_bam_url + ',' + tumor_bam_url
             call_results_dir = os.path.join(work_dir,'call_results_dir', dt, aliquot_ids[t])
             vcf_files = glob.glob(os.path.join(call_results_dir, aliquot_ids[t]+'.*.'+dt+'.vcf.gz'))
+            if not vcf_files: continue
             workflow_name = 'consensus_' + dt
             gnos_id = generate_uuid()
             output_dir = 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc'
