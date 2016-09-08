@@ -319,6 +319,58 @@ def add_wgs_tumor_specimens(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
         aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
         write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
 
+def add_consensus_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, consensus):
+    if not es_json.get('consensus_calling_results'): return
+
+    for v in consensus:
+        if not es_json.get('consensus_calling_results').get(v): continue
+        for c in es_json.get('consensus_calling_results').get(v):
+            gnos_id = c.get('gnos_id')
+            if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
+            if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
+            
+            # get prefix of the file, which is tumor aliquot_id
+            vcf_files = c.get('files')
+            prefix = set()
+            for f in vcf_files:
+                prefix.add(f.get('file_name').split('.')[0])
+            if not len(prefix) == 1:
+                logger.warning('donor: {} has mismatch file prefix for consensus: {}'.format(es_json.get('donor_unique_id'), v))
+                continue
+
+            consensus_calling = {
+                'data_type': 'Consensus-'+v.upper(),
+                'project_code': es_json['dcc_project_code'],
+                'submitter_donor_id': es_json['submitter_donor_id'],  
+                'vcf_workflow_result_version': c.get('vcf_workflow_result_version'),             
+                'submitter_specimen_id': prefix,
+                'submitter_sample_id': None,
+                'specimen_type': None,
+                'aliquot_id': prefix,
+                'available_repos': get_available_repos(c),
+                'gnos_repo': [ c.get('gnos_repo')[ \
+                    get_source_repo_index_pos(c.get('gnos_repo'), chosen_gnos_repo) ] ],
+                'gnos_id': c.get('gnos_id'),
+                'files': []            
+            }            
+
+
+            # add the object_id for each file object
+            for f in vcf_files:
+                if int(f.get('file_size')) == 0: 
+                    logger.warning('donor: {} has consensus_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
+                    continue
+                f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
+                f.update({'object_id': generate_object_id(f.get('file_name'), consensus_calling.get('gnos_id'))})
+                consensus_calling.get('files').append(f)
+
+            # add the metadata_xml_file_info
+            metadata_xml_file_info = add_metadata_xml_info(c, chosen_gnos_repo)
+
+            consensus_calling.get('files').append(metadata_xml_file_info) 
+
+            write_s3_transfer_json(jobs_dir, consensus_calling, gnos_ids_to_be_excluded)  
+
 
 def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf, vcf_result_version):
     if not es_json.get('variant_calling_results'): return
@@ -340,7 +392,7 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
             'project_code': es_json['dcc_project_code'],
             'submitter_donor_id': es_json['submitter_donor_id'],  
             'vcf_workflow_result_version': wgs_tumor_vcf_info.get('vcf_workflow_result_version'),             
-            'submitter_specimen_id': None,
+            'submitter_specimen_id': '-',
             'submitter_sample_id': None,
             'specimen_type': None,
             'aliquot_id': None,
@@ -542,7 +594,7 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_excluded):
 
         project_code = transfer_json.get('project_code')
         donor_id = transfer_json.get('submitter_donor_id')
-        specimen_id = '-' if transfer_json.get('data_type').endswith('-VCF') else transfer_json.get('submitter_specimen_id')
+        specimen_id = transfer_json.get('submitter_specimen_id')
         data_type = transfer_json.get('data_type')
         
         json_name_list = [gnos_id, project_code, donor_id, specimen_id, data_type, 'json']
@@ -593,6 +645,8 @@ def main(argv=None):
              help="List sequence_type types", required=False)
     parser.add_argument("-v", "--variant_calling", dest="vcf", nargs="*",
              help="List variant_calling types", required=False) 
+    parser.add_argument("-u", "--consensus", dest="consensus", nargs="*",
+             help="List consensus types", required=False) 
     parser.add_argument("-n", "--specify the vcf_workflow_result_version", dest="vcf_result_version", default="v2", type=str,
              help="Specify vcf_workflow_result_version", required=False)   
 
@@ -609,10 +663,12 @@ def main(argv=None):
     seq = args.seq
     vcf = args.vcf
     vcf_result_version = args.vcf_result_version
+    consensus = args.consensus
 
 
     seq= list(seq) if seq else [] 
-    vcf = list(vcf) if vcf else []   
+    vcf = list(vcf) if vcf else []
+    consensus = list(consensus) if consensus else []   
 
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = generate_id_list(exclude_gnos_id_lists)
@@ -702,6 +758,9 @@ def main(argv=None):
 
         if seq and 'rna_seq' in seq:
             add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
+
+        if consensus:
+            add_consensus_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, consensus)
 
     if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
