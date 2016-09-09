@@ -129,6 +129,15 @@ def metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch):
                 create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_objects, obj, gnos_entry_dir) # merge xml
 
 
+def smart_append(section, sub_section): 
+    if isinstance(sub_section, list):
+        section.extend(sub_section)
+    else isinstance(sub_section, dict):
+        section.append(sub_section)
+
+    return section
+
+
 def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_objects, obj, gnos_entry_dir):
     # random choose the xml of one lane as starting point, the first element in gnos_objects
     lane_object = gnos_objects.itervalues().next()
@@ -145,17 +154,12 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
         for k, v in gnos_objects.iteritems():
             unmerged_gnos_ids.add(k)
             # merge RUN
-            RUN.append(v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN'])
+            v_RUN = v.get('ANALYSIS_SET').get('ANALYSIS')['ANALYSIS_TYPE']['REFERENCE_ALIGNMENT']['RUN_LABELS']['RUN']
+            RUN = smart_append(RUN, v_RUN)
 
             # merge PIPE_SECTION
             v_PIPE_SECTION = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_TYPE').get('REFERENCE_ALIGNMENT').get('PROCESSING').get('PIPELINE').get('PIPE_SECTION')
-            if isinstance(v_PIPE_SECTION, list):
-                PIPE_SECTION.extend(v_PIPE_SECTION)
-            elif isinstance(v_PIPE_SECTION, dict):
-               PIPE_SECTION.append(v_PIPE_SECTION)
-            else:
-                logger.error('PIPE_SECTION has incorrect data for caller: {} of aliquot_id: {}.'.format(caller, donor_aliquot_id))
-                sys.exit('Please check log for details.')
+            PIPE_SECTION = smart_append(PIPE_SECTION, v_PIPE_SECTION)
             
             # deal with the attributes to add all the info into set
             attributes = v.get('ANALYSIS_SET').get('ANALYSIS').get('ANALYSIS_ATTRIBUTES').get('ANALYSIS_ATTRIBUTE')
@@ -195,14 +199,19 @@ def create_merged_gnos_submission(donor_aliquot_id, caller, upload_dir, gnos_obj
     elif obj == 'experiment':
         EXPERIMENT = []
         for k, v in gnos_objects.iteritems():
-            EXPERIMENT.append(v.get('EXPERIMENT_SET').get('EXPERIMENT'))
+            v_EXP = v.get('EXPERIMENT_SET').get('EXPERIMENT')
+            EXPERIMENT = smart_append(EXPERIMENT, v_EXP)
+
         merged_object.get('EXPERIMENT_SET')['EXPERIMENT'] = EXPERIMENT
     elif obj == 'run':
         RUN = []
         for k, v in gnos_objects.iteritems():
-            if v.get('RUN_SET').get('RUN').get('DATA_BLOCK'):
-                v.get('RUN_SET')['RUN'].pop('DATA_BLOCK')
-            RUN.append(v.get('RUN_SET').get('RUN'))
+            v_RUN = v.get('RUN_SET').get('RUN')
+            RUN = smart_append(RUN, v_RUN)
+        
+        # remove DATA_BLOCK if exist in RUN
+        for v in RUN:
+            if v.get('DATA_BLOCK'): v.pop('DATA_BLOCK') 
 
         merged_object.get('RUN_SET')['RUN'] = RUN
     else:
