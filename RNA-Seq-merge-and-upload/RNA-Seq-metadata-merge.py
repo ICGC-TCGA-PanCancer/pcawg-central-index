@@ -132,7 +132,7 @@ def metadata_fix_and_merge(work_dir, donors_to_be_fixed, batch):
 def smart_append(section, sub_section): 
     if isinstance(sub_section, list):
         section.extend(sub_section)
-    else isinstance(sub_section, dict):
+    else:
         section.append(sub_section)
 
     return section
