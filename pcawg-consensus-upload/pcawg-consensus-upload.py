@@ -121,8 +121,9 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
             gnos_id = generate_uuid()
             output_dir = 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc'
             study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
+            description_file = os.path.join(work_dir, 'description_'+dt+'.txt')
 
-            command = generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name)
+            command = generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name, description_file)
 
             process = subprocess.Popen(
                 command,
@@ -140,7 +141,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
 
 
 
-def generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name):
+def generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, output_dir, study_ref_name, description_file):
 
     command =   'perl -I /home/ubuntu/gt-download-upload-wrapper/lib/ /home/ubuntu/vcf-uploader/gnos_upload_vcf.pl' +\
                  ' --key gnos_fake_key '+\
@@ -157,7 +158,8 @@ def generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, outp
                  ' --skip-validate --skip-upload ' +\
                  ' --uuid ' + gnos_id +\
                  ' --outdir ' + output_dir +\
-                 ' --study-refname-override ' + study_ref_name   
+                 ' --study-refname-override ' + study_ref_name +\
+                 ' --description_file ' + description_file  
 
     return command
 
