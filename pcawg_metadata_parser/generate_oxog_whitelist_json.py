@@ -103,7 +103,7 @@ es_queries = [
             },
             {
               "terms":{
-                "flags.is_mar2016_donor":[
+                "flags.is_may2016_donor":[
                   "T"
                 ]
               }
