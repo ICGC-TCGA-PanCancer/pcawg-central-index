@@ -159,7 +159,7 @@ def generate_perl_command(workflow_name, gnos_id, metadata_urls, vcf_files, outp
                  ' --uuid ' + gnos_id +\
                  ' --outdir ' + output_dir +\
                  ' --study-refname-override ' + study_ref_name +\
-                 ' --description_file ' + description_file  
+                 ' --description-file ' + description_file  
 
     return command
 
