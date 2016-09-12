@@ -329,7 +329,7 @@ def choose_consensus_entry(consensus_entries, donor_unique_id):
         return
     for current_vcf_entry in consensus_entries.get(donor_unique_id).get('consensus_entry_files'):
         variant_workflow = current_vcf_entry.get('vcf_workflow_type')
-        workflow_label = variant_workflow + '_variant_calling'  
+        workflow_label = variant_workflow  
 
         if not consensus_entries.get(donor_unique_id).get(workflow_label):  # new vcf for workflow_type
             consensus_entries.get(donor_unique_id)[workflow_label] = []
@@ -1704,10 +1704,12 @@ def is_train2_bam(donor, train2_freeze_bams, gnos_id, specimen_type):
 def add_consensus_entry(donor, consensus_entry):
     if not consensus_entry:
         return
-    if not donor.get('consensus_calling_results'): donor['consensus_calling_results'] = {}
+    if not donor.get('consensus_somatic_calling_results'): donor['consensus_somatic_calling_results'] = {}
     donor['consensus_files'] = copy.deepcopy(consensus_entry.get('consensus_entry_files'))
     del consensus_entry['consensus_entry_files']
-    donor.get('consensus_calling_results').update(consensus_entry)
+    for k, v in consensus_entry.iteritems():
+        if k in ['indel', 'snv_mnv', 'sv', 'cnv']:
+            donor.get('consensus_somatic_calling_results').update({k: v})
 
     return donor   
 
