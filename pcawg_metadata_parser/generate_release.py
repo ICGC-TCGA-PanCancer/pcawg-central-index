@@ -136,7 +136,7 @@ es_queries = [
 def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     reorganized_donor = {
         'donor_unique_id': donor_unique_id,
-        'wgs_white_black_gray': 'Whitelist',
+        'wgs_exclusion_white_gray': 'Whitelist',
         'submitter_donor_id': es_json['submitter_donor_id'],
         'dcc_project_code': es_json['dcc_project_code'],
         'icgc_donor_id': es_json['icgc_donor_id'],
@@ -154,9 +154,9 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
         }
     }
     if donor_unique_id in annotations.get('blacklist'):
-        reorganized_donor['wgs_white_black_gray'] = 'Blacklist'
+        reorganized_donor['wgs_exclusion_white_gray'] = 'Excluded'
     elif donor_unique_id in annotations.get('graylist'):
-        reorganized_donor['wgs_white_black_gray'] = 'Graylist'
+        reorganized_donor['wgs_exclusion_white_gray'] = 'Graylist'
     else:
         pass
     add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
@@ -391,7 +391,7 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf, annotations):
-    donor_info = ['donor_unique_id', 'wgs_white_black_gray', 'dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'TiN']
+    donor_info = ['donor_unique_id', 'wgs_exclusion_white_gray', 'dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'TiN']
     #specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     #alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         

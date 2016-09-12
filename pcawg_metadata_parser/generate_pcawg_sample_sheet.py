@@ -56,7 +56,7 @@ def create_specimen_info(donor_unique_id, es_json, donor_ids):
 
     specimen_info = OrderedDict()
     specimen_info['donor_unique_id'] = donor_unique_id
-    specimen_info['donor_wgs_white_black_gray'] = get_flag(donor_unique_id, donor_ids)
+    specimen_info['donor_wgs_exclusion_white_gray'] = get_flag(donor_unique_id, donor_ids)
     specimen_info['submitter_donor_id'] = es_json['submitter_donor_id']
     specimen_info['icgc_donor_id'] = es_json['icgc_donor_id'] if es_json['icgc_donor_id'] else ''
     specimen_info['dcc_project_code'] = es_json['dcc_project_code']
@@ -70,7 +70,10 @@ def create_specimen_info(donor_unique_id, es_json, donor_ids):
 def get_flag(donor_unique_id, donor_ids):
     for t in ['white', 'black', 'gray']:
         if not donor_unique_id in donor_ids.get(t+'list'): continue
-        return t.capitalize()+'list'
+        if t == 'black':
+            return 'Excluded'
+        else:
+            return t.capitalize()+'list'
     return None
         
 
