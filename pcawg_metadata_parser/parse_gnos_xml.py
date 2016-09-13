@@ -1706,7 +1706,7 @@ def add_consensus_entry(donor, consensus_entry):
         return
     donor['consensus_files'] = copy.deepcopy(consensus_entry.get('consensus_entry_files'))
     del consensus_entry['consensus_entry_files']
-    for ct in ('somatic'):
+    for ct in ['somatic']:
         if not donor.get('consensus_'+ct+'_variant_calls'): donor['consensus_'+ct+'_variant_calls'] = {}
     for k, v in consensus_entry.iteritems():
         if k in ['indel', 'snv_mnv', 'sv', 'cnv']:
