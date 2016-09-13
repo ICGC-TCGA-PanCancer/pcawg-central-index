@@ -1029,7 +1029,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     for donor_id in donors.keys():
         donor = donors[donor_id]
 
-        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams)
+        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, consensus_entries)
 
         # push to Elasticsearch
         es.index(index=es_index, doc_type='donor', id=donor['donor_unique_id'], \
@@ -1211,7 +1211,7 @@ def read_annotations(annotations, type, file_name):
                 logger.warning('unknown annotation type: {}'.format(type))
 
 
-def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
+def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, consensus_entries):
     logger.info( 'processing donor: {} ...'.format(donor.get('donor_unique_id')) )
 
     # check whether all tumor specimen(s) aligned
