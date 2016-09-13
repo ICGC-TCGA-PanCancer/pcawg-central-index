@@ -311,10 +311,10 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
 
             # add consensus_variant_call results
             for ct in ['somatic', 'germline']:
-                if not es_json.get('consensus_'+ct+'_calling_results'): continue
-                reorganized_donor['consensus_'+ct+'_calling_results'] = {}
+                if not es_json.get('consensus_'+ct+'_variant_calls'): continue
+                reorganized_donor['consensus_'+ct+'_variant_calls'] = {}
                 for cc in ['indel', 'snv_mnv', 'sv', 'cnv']:
-                    wgs_tumor_consensus_info = es_json.get('consensus_'+ct+'_calling_results').get(cc)
+                    wgs_tumor_consensus_info = es_json.get('consensus_'+ct+'_variant_calls').get(cc)
                     if not wgs_tumor_consensus_info: continue
                     consensus_info = {cc: []}
                     for consensus_vcf in wgs_tumor_consensus_info:
@@ -323,7 +323,7 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
                         # consensus_vcf_tmp is empty if the aliquot was blacklisted aliquot
                         if not consensus_vcf_tmp: continue
                         consensus_info[cc].append(consensus_vcf_tmp)
-                    reorganized_donor['consensus_'+ct+'_calling_results'].update(consensus_info)
+                    reorganized_donor['consensus_'+ct+'_variant_calls'].update(consensus_info)
 
     reorganized_donor['tumor_wgs_specimen_count'] = tumor_wgs_specimen_count
     return reorganized_donor
