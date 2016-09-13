@@ -136,7 +136,7 @@ es_queries = [
 def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations):
     reorganized_donor = {
         'donor_unique_id': donor_unique_id,
-        'wgs_white_black_gray': 'Whitelist',
+        'wgs_exclusion_white_gray': 'Whitelist',
         'submitter_donor_id': es_json['submitter_donor_id'],
         'dcc_project_code': es_json['dcc_project_code'],
         'icgc_donor_id': es_json['icgc_donor_id'],
@@ -154,9 +154,9 @@ def create_reorganized_donor(donor_unique_id, es_json, vcf, gnos_ids_to_be_exclu
         }
     }
     if donor_unique_id in annotations.get('blacklist'):
-        reorganized_donor['wgs_white_black_gray'] = 'Blacklist'
+        reorganized_donor['wgs_exclusion_white_gray'] = 'Excluded'
     elif donor_unique_id in annotations.get('graylist'):
-        reorganized_donor['wgs_white_black_gray'] = 'Graylist'
+        reorganized_donor['wgs_exclusion_white_gray'] = 'Graylist'
     else:
         pass
     add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, gnos_ids_to_be_included, annotations)
@@ -277,6 +277,10 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos
     else:
         logger.warning('{} GNOS entry {} has no files'.format(data_type, variant_calling.get('gnos_id')))
 
+    # do not find the vcf files for given aliquot_id
+    if not variant_calling.get('files'):
+        return None
+
     return variant_calling
 
 
@@ -304,6 +308,22 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
                 data_type = 'wgs_'+vc        
                 aliquot_info[vc] = create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)        
             reorganized_donor.get('wgs').get('tumor_specimens').append(copy.deepcopy(aliquot_info)) 
+
+            # add consensus_variant_call results
+            for ct in ['somatic', 'germline']:
+                if not es_json.get('consensus_'+ct+'_variant_calls'): continue
+                reorganized_donor['consensus_'+ct+'_variant_calls'] = {}
+                for cc in ['indel', 'snv_mnv', 'sv', 'cnv']:
+                    wgs_tumor_consensus_info = es_json.get('consensus_'+ct+'_variant_calls').get(cc)
+                    if not wgs_tumor_consensus_info: continue
+                    consensus_info = {cc: []}
+                    for consensus_vcf in wgs_tumor_consensus_info:
+                        data_type = 'wgs_consensus_'+ct+'_'+cc
+                        consensus_vcf_tmp = create_variant_calling(es_json, aliquot, consensus_vcf, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
+                        # consensus_vcf_tmp is empty if the aliquot was blacklisted aliquot
+                        if not consensus_vcf_tmp: continue
+                        consensus_info[cc].append(consensus_vcf_tmp)
+                    reorganized_donor['consensus_'+ct+'_variant_calls'].update(consensus_info)
 
     reorganized_donor['tumor_wgs_specimen_count'] = tumor_wgs_specimen_count
     return reorganized_donor
@@ -391,7 +411,7 @@ def set_default(obj):
 
 
 def generate_tsv_file(reorganized_donor, vcf, annotations):
-    donor_info = ['donor_unique_id', 'wgs_white_black_gray', 'dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'TiN']
+    donor_info = ['donor_unique_id', 'wgs_exclusion_white_gray', 'dcc_project_code', 'submitter_donor_id', 'icgc_donor_id', previous_release+'_donor','santa_cruz_pilot', 'validation_by_deep_seq', 'TiN']
     #specimen = ['submitter_specimen_id', 'icgc_specimen_id', 'submitter_sample_id', 'icgc_sample_id', 'aliquot_id']
     #alignment = ['alignment_gnos_repo', 'alignment_gnos_id', 'alignment_bam_file_name']
         
