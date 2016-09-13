@@ -1704,12 +1704,13 @@ def is_train2_bam(donor, train2_freeze_bams, gnos_id, specimen_type):
 def add_consensus_entry(donor, consensus_entry):
     if not consensus_entry:
         return
-    if not donor.get('consensus_somatic_calling_results'): donor['consensus_somatic_calling_results'] = {}
     donor['consensus_files'] = copy.deepcopy(consensus_entry.get('consensus_entry_files'))
     del consensus_entry['consensus_entry_files']
+    for ct in ('somatic'):
+        if not donor.get('consensus_'+ct+'_variant_calls'): donor['consensus_'+ct+'_variant_calls'] = {}
     for k, v in consensus_entry.iteritems():
         if k in ['indel', 'snv_mnv', 'sv', 'cnv']:
-            donor.get('consensus_somatic_calling_results').update({k: v})
+            donor.get('consensus_somatic_variant_calls').update({k: v})
 
     return donor   
 
