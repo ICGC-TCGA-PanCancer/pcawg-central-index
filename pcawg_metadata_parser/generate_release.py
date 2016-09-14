@@ -295,7 +295,8 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
     if es_json.get('tumor_alignment_status'):
         variant_calling = choose_variant_calling(es_json, vcf)
         wgs_tumor_alignment_info = es_json.get('tumor_alignment_status')
-    
+        consensus_info = {}
+
         for aliquot in wgs_tumor_alignment_info:
             aliquot_info = OrderedDict()
             tumor_wgs_specimen_count += 1
@@ -311,19 +312,26 @@ def add_wgs_specimens(reorganized_donor, es_json, vcf, gnos_ids_to_be_excluded, 
 
             # add consensus_variant_call results
             for ct in ['somatic', 'germline']:
+                # ignore if there is not specific variant calls
                 if not es_json.get('consensus_'+ct+'_variant_calls'): continue
-                reorganized_donor['consensus_'+ct+'_variant_calls'] = {}
+                # initialize the dict
+                if not reorganized_donor.get('consensus_'+ct+'_variant_calls'): reorganized_donor['consensus_'+ct+'_variant_calls'] = {}            
+                if not consensus_info.get(ct): consensus_info[ct] = {}
                 for cc in ['indel', 'snv_mnv', 'sv', 'cnv']:
                     wgs_tumor_consensus_info = es_json.get('consensus_'+ct+'_variant_calls').get(cc)
                     if not wgs_tumor_consensus_info: continue
-                    consensus_info = {cc: []}
+                    if not consensus_info.get(ct).get(cc): consensus_info[ct][cc] = []
+
                     for consensus_vcf in wgs_tumor_consensus_info:
                         data_type = 'wgs_consensus_'+ct+'_'+cc
                         consensus_vcf_tmp = create_variant_calling(es_json, aliquot, consensus_vcf, data_type, gnos_ids_to_be_excluded, gnos_ids_to_be_included)
                         # consensus_vcf_tmp is empty if the aliquot was blacklisted aliquot
                         if not consensus_vcf_tmp: continue
-                        consensus_info[cc].append(consensus_vcf_tmp)
-                    reorganized_donor['consensus_'+ct+'_variant_calls'].update(consensus_info)
+                        consensus_info[ct][cc].append(consensus_vcf_tmp)
+        
+        for ct in ['somatic', 'germline']:
+            if not consensus_info.get(ct): continue
+            reorganized_donor['consensus_'+ct+'_variant_calls'].update(consensus_info.get(ct))
 
     reorganized_donor['tumor_wgs_specimen_count'] = tumor_wgs_specimen_count
     return reorganized_donor
