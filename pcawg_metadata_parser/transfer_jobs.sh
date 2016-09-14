@@ -50,7 +50,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the transfer jsons from $f...
-		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s rna_seq -d ../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv
+		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -u indel snv_mnv -d ../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv
 
 		JOB_NUM=`ls -l $M/reports/s3_transfer_json_$CLOUD/ |grep json|wc -l`
 		Z=0
@@ -58,14 +58,16 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		if [ "$JOB_NUM" -gt "$Z" ]; then
 			echo move job to job folders
 			if [ "$CLOUD" == "collab" ]; then
-				cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../ceph_transfer_ops/ceph-transfer-jobs-rna-seq/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Consensus*.json ../ceph_transfer_ops/ceph-transfer-jobs-consensus/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../ceph_transfer_ops/ceph-transfer-jobs-rna-seq/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../ceph_transfer_ops/ceph-transfer-jobs-bwa/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 			elif [ "$CLOUD" == "aws" ]; then
-				cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../s3-transfer-operations/s3-transfer-jobs-rna-seq/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Consensus*.json ../s3-transfer-operations/s3-transfer-jobs-consensus/backlog-jobs/.
+				# cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../s3-transfer-operations/s3-transfer-jobs-rna-seq/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
