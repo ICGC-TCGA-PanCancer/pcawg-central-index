@@ -345,16 +345,17 @@ def add_consensus_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclu
                 if not len(prefix) == 1:
                     logger.warning('donor: {} has mismatch file prefix for consensus: {}'.format(es_json.get('donor_unique_id'), v))
                     continue
+                aliquot_id = prefix.pop()
 
                 consensus_calling = {
                     'data_type': 'Consensus-'+ct+'-'+v.upper(),
                     'project_code': es_json['dcc_project_code'],
                     'submitter_donor_id': es_json['submitter_donor_id'],  
                     'vcf_workflow_result_version': c.get('vcf_workflow_result_version'),             
-                    'submitter_specimen_id': prefix,
+                    'submitter_specimen_id': aliquot_id,
                     'submitter_sample_id': None,
                     'specimen_type': None,
-                    'aliquot_id': prefix,
+                    'aliquot_id': aliquot_id,
                     'available_repos': get_available_repos(c),
                     'gnos_repo': [ c.get('gnos_repo')[ \
                         get_source_repo_index_pos(c.get('gnos_repo'), chosen_gnos_repo) ] ],
