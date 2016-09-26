@@ -195,7 +195,7 @@ def generate_md5_size(metadata_xml_file):
     return [xml_md5, xml_size]
 
 
-def generate_object_id(filename, gnos_id):
+def generate_object_id(filename, gnos_id, project_code):
     global id_service_token
     url = 'https://meta.icgc.org/entities'
     # try get request first
@@ -218,7 +218,8 @@ def generate_object_id(filename, gnos_id):
         }
         body = {
             "gnosId": gnos_id,
-            "fileName": filename
+            "fileName": filename,
+            "projectCode": project_code
         }
         r = requests.post(url, data=json.dumps(body), headers=headers)
         if not r or not r.ok:
@@ -239,7 +240,7 @@ def add_wgs_normal_specimen(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
     write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
 
 
-def add_metadata_xml_info(obj, chosen_gnos_repo=None):
+def add_metadata_xml_info(obj, project_code, chosen_gnos_repo=None):
     repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ])
     gnos_id = obj.get('gnos_id')
     ao_state = 'live'
@@ -250,7 +251,7 @@ def add_metadata_xml_info(obj, chosen_gnos_repo=None):
         'file_name': gnos_id + '.xml',
         'file_md5sum': generate_md5_size(metadata_xml_file)[0],
         'file_size': generate_md5_size(metadata_xml_file)[1],
-        'object_id': generate_object_id(gnos_id+'.xml', gnos_id)
+        'object_id': generate_object_id(gnos_id+'.xml', gnos_id, project_code) if project_code else None
     }
 
     return metadata_xml_file_info
@@ -262,7 +263,7 @@ def get_available_repos(obj):
         repos.remove(get_formal_repo_name('cghub'))
     ret_repos = []
     for r in repos:
-        metadata_xml_info = add_metadata_xml_info(obj, get_formal_repo_name(r))
+        metadata_xml_info = add_metadata_xml_info(obj, None, get_formal_repo_name(r))
         ret_repos.append({
               r:{
                   'file_md5sum': metadata_xml_info.get('file_md5sum'),
@@ -291,7 +292,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
                 'file_name': aliquot.get('aligned_bam').get('bam_file_name'),
                 'file_md5sum': aliquot.get('aligned_bam').get('bam_file_md5sum'),
                 'file_size': aliquot.get('aligned_bam').get('bam_file_size'),
-                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                       
+                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'), es_json['dcc_project_code'])                       
             }
         ]
     }
@@ -302,14 +303,14 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
             'file_name': aliquot.get('aligned_bam').get('bai_file_name'),
             'file_md5sum': aliquot.get('aligned_bam').get('bai_file_md5sum'),
             'file_size': aliquot.get('aligned_bam').get('bai_file_size'),
-            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                        
+            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'), aliquot_info.get('project_code'))                        
         }
         aliquot_info.get('files').append(bai_file)
     else:
         logger.warning('BWA alignment GNOS entry {} has no .bai file'.format(aliquot_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), chosen_gnos_repo)
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), aliquot_info.get('project_code'), chosen_gnos_repo)
     aliquot_info.get('files').append(metadata_xml_file_info)   
 
     return aliquot_info
@@ -370,11 +371,11 @@ def add_consensus_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclu
                         logger.warning('donor: {} has consensus_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
                         continue
                     f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
-                    f.update({'object_id': generate_object_id(f.get('file_name'), consensus_calling.get('gnos_id'))})
+                    f.update({'object_id': generate_object_id(f.get('file_name'), consensus_calling.get('gnos_id'), consensus_calling.get('project_code'))})
                     consensus_calling.get('files').append(f)
 
                 # add the metadata_xml_file_info
-                metadata_xml_file_info = add_metadata_xml_info(c, chosen_gnos_repo)
+                metadata_xml_file_info = add_metadata_xml_info(c, consensus_calling.get('project_code'), chosen_gnos_repo)
 
                 consensus_calling.get('files').append(metadata_xml_file_info) 
 
@@ -419,11 +420,11 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
                 continue
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
-            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
+            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'), variant_calling.get('project_code'))})
             variant_calling.get('files').append(f)
 
         # add the metadata_xml_file_info
-        metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, chosen_gnos_repo)
+        metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, variant_calling.get('project_code'), chosen_gnos_repo)
 
         variant_calling.get('files').append(metadata_xml_file_info) 
 
@@ -541,7 +542,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
                 'file_name': aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_name'),
                 'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_md5sum'),
                 'file_size': aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_size'),
-                'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                        
+                'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'), alignment_info.get('project_code'))                        
             }
             alignment_info.get('files').append(file_obj)
         # else:
@@ -549,7 +550,7 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
             
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), chosen_gnos_repo)
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), alignment_info.get('project_code'), chosen_gnos_repo)
     alignment_info.get('files').append(metadata_xml_file_info)
 
     return alignment_info
