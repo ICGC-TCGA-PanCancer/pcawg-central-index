@@ -32,7 +32,7 @@ def get_files(dcc_project_code, call, work_dir, aliquot):
 
     matched_files = []
     repo_type = 'tcga' if dcc_project_code.endswith('-US') else 'icgc'
-    white_file_dir = os.path.join(work_dir, 'final_consensus_30aug', repo_type, call)
+    white_file_dir = os.path.join(work_dir, 'final_consensus_12oct', repo_type, call)
 
     file_name_patterns = set([
             r'^([a-f\d]{8}(-[a-f\d]{4}){3}-[a-f\d]{12}?)\.consensus\..+\.somatic\.'+re.escape(call)+r'\.vcf\.gz$',
@@ -119,7 +119,7 @@ def generate_analysis_xmls(row, generate_analysis_xml, work_dir):
             if not vcf_files: continue
             workflow_name = 'consensus_' + dt
             gnos_id = generate_uuid()
-            output_dir = 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc'
+            output_dir = os.path.join(work_dir, 'vcf_to_upload', 'osdc-tcga' if project_code.endswith('-US') else 'osdc-icgc')
             study_ref_name = 'tcga_pancancer_vcf' if project_code.endswith('-US') else 'icgc_pancancer_vcf'
             description_file = os.path.join(work_dir, 'description_'+dt+'.txt')
 
@@ -170,7 +170,7 @@ def generate_id_list(id_lists):
         with open(id_lists, 'r') as f:
             reader = csv.DictReader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
             for row in reader:
-                if row.get('wgs_white_black_gray') == 'Blacklist': continue
+                if row.get('wgs_exclusion_white_gray') == 'Excluded': continue
                 ids_list.append(row.get('icgc_donor_id'))
     return ids_list
 
