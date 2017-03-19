@@ -279,7 +279,7 @@ def get_compute_site(donor_unique_id, compute_sites, gnos_repo):
             compute_site = c
             return compute_site
 
-    compute_site = gnos_repo    
+    compute_site = get_formal_repo_name(gnos_repo)    
     return compute_site
 
 
@@ -412,7 +412,7 @@ def get_formal_repo_name(repo):
     return repo_url_to_repo.get(repo)
 
 def generate_report(es, es_index, es_queries, report_dir):
-    repos = ['bsc', 'ebi', 'cghub', 'dkfz', 'riken', 'osdc-icgc', 'osdc-tcga', 'etri']
+    repos = set()
 
     for q_index in range(len(es_queries)):
         counts_per_day = OrderedDict()
@@ -425,8 +425,8 @@ def generate_report(es, es_index, es_queries, report_dir):
         while start_date<current_date:
             counts_per_day[start_date.strftime("%Y-%m-%d")]={}
             counts_per_day[start_date.strftime("%Y-%m-%d")]['count']=0
-            for r in repos:
-                counts_per_day[start_date.strftime("%Y-%m-%d")][r]=0
+            # for r in repos:
+            #     counts_per_day[start_date.strftime("%Y-%m-%d")][r]=0
             all_dates.append(start_date.strftime("%Y-%m-%d"))
             start_date += step
         
@@ -436,7 +436,8 @@ def generate_report(es, es_index, es_queries, report_dir):
             published_date = p.get('key_as_string').split('T')[0]
             counts_per_day[published_date]['count'] = p.get('doc_count')
             for d in p.get('repo').get('buckets'):
-                counts_per_day[published_date][get_formal_repo_name(d.get('key'))] = d.get('doc_count')
+                repos.add(d.get('key'))
+                counts_per_day[published_date][d.get('key')] = d.get('doc_count')
 
         # get the cumulative sum
         counts_sum = OrderedDict()
