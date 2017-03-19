@@ -69,7 +69,7 @@ es_queries_history = [
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "gnos_repo"}
+                        "terms": {"field": "compute_site"}
                       }
                     }
                   }
@@ -96,7 +96,7 @@ es_queries_history = [
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "gnos_repo"}
+                        "terms": {"field": "compute_site"}
                       }
                     }
                   }
@@ -123,7 +123,7 @@ es_queries_history = [
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "gnos_repo"}
+                        "terms": {"field": "compute_site"}
                       }
                     }
                   }
@@ -150,7 +150,7 @@ es_queries_history = [
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "gnos_repo"}
+                        "terms": {"field": "compute_site"}
                       }
                     }
                   }
@@ -177,7 +177,7 @@ es_queries_history = [
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "gnos_repo"}
+                        "terms": {"field": "compute_site"}
                       }
                     }
                   }
@@ -204,7 +204,7 @@ es_queries_history = [
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "gnos_repo"}
+                        "terms": {"field": "compute_site"}
                       }
                     }
                   }
@@ -226,7 +226,7 @@ es_queries_history = [
 ]
 
 
-def create_gnos_entity_info(donor_unique_id, es_json):
+def create_gnos_entity_info(donor_unique_id, es_json, compute_sites):
     gnos_entity_info_list = []
 
     gnos_entity_info = OrderedDict()
@@ -234,28 +234,28 @@ def create_gnos_entity_info(donor_unique_id, es_json):
     gnos_entity_info['submitter_donor_id'] = es_json['submitter_donor_id']
     gnos_entity_info['dcc_project_code'] = es_json['dcc_project_code']
     
-    add_wgs_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json)
+    add_wgs_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites)
 
-    add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json)
+    add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites)
 
-    add_rna_seq_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json)
+    add_rna_seq_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites)
 
     return gnos_entity_info_list
 
 
-def add_wgs_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
+def add_wgs_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites):
 
     if es_json.get('normal_alignment_status'):
-        add_wgs_aliquot_gnos_entity(es_json.get('normal_alignment_status'), gnos_entity_info, gnos_entity_info_list)
+        add_wgs_aliquot_gnos_entity(es_json.get('normal_alignment_status'), gnos_entity_info, gnos_entity_info_list, compute_sites)
 
     if es_json.get('tumor_alignment_status'):
         for aliquot in es_json.get('tumor_alignment_status'):
-            add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list)
+            add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list, compute_sites)
 
     return gnos_entity_info_list
 
 
-def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list):
+def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list, compute_sites):
     gnos_entity_info['library_strategy'] = 'WGS'
     gnos_entity_info['aliquot_id'] = aliquot.get('aliquot_id')
     gnos_entity_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
@@ -267,9 +267,20 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list
         gnos_entity_info['gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
         gnos_entity_info['gnos_repo'] = sort_repos_by_time(aliquot.get('aligned_bam'))[1]
         gnos_entity_info['published_date'] = sort_repos_by_time(aliquot.get('aligned_bam'))[0]
+        gnos_entity_info['compute_site'] = get_compute_site(gnos_entity_info['donor_unique_id'], compute_sites['bwa'], gnos_entity_info['gnos_repo'])
         gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
 
     return gnos_entity_info_list
+
+def get_compute_site(donor_unique_id, compute_sites, gnos_repo):
+
+    for c in compute_sites:
+        if donor_unique_id.replace('::', '\t') in compute_sites.get(c):
+            compute_site = c
+            return compute_site
+
+    compute_site = gnos_repo    
+    return compute_site
 
 
 def sort_repos_by_time(obj):    
@@ -286,12 +297,13 @@ def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
         gnos_entity_info['submitter_specimen_id'] = None
         gnos_entity_info['submitter_sample_id'] = None
         gnos_entity_info['dcc_specimen_type'] = None
-        for vcf_type in ['sanger_variant_calling', 'dkfz_embl_variant_calling', 'broad_variant_calling']:
+        for vcf_type in ['sanger_variant_calling', 'dkfz_embl_variant_calling', 'broad_variant_calling', 'muse_variant_calling']:
             if es_json.get('flags').get('is_'+vcf_type+'_performed') and es_json.get('variant_calling_results').get(vcf_type):
                 gnos_entity_info['entity_type'] = vcf_type
                 gnos_entity_info['gnos_id'] = es_json.get('variant_calling_results').get(vcf_type).get('gnos_id')    
                 gnos_entity_info['gnos_repo'] = sort_repos_by_time(es_json.get('variant_calling_results').get(vcf_type))[1]
                 gnos_entity_info['published_date'] = sort_repos_by_time(es_json.get('variant_calling_results').get(vcf_type))[0]
+                gnos_entity_info['compute_site'] = get_compute_site(gnos_entity_info['donor_unique_id'], compute_sites['vcf_type'], gnos_entity_info['gnos_repo'])
                 gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
 
     return gnos_entity_info_list
@@ -329,6 +341,7 @@ def add_rna_seq_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_
         gnos_entity_info['gnos_id'] = aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')
         gnos_entity_info['gnos_repo'] = sort_repos_by_time(aliquot.get(workflow_type).get('aligned_bam'))[1]
         gnos_entity_info['published_date'] = sort_repos_by_time(aliquot.get(workflow_type).get('aligned_bam'))[0]
+        gnos_entity_info['compute_site'] = gnos_entity_info['gnos_repo']
         gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))         
 
     return gnos_entity_info_list
@@ -458,6 +471,28 @@ def init_report_dir(metadata_dir, report_name):
     return report_dir
 
 
+def get_whitelists(whitelist_dir):    
+    compute_sites = {}
+
+    for d in whitelist_dir:
+        # get the compute_site_names from the subfolder name
+        site_name = next(os.walk(d))[1]
+        for c in site_name:
+            files = glob.glob(whitelist_dir[d] + '/' + c + '/' + c + '.*.txt')
+            for f in files:
+                if not compute_sites.get(d): compute_sites[d] = {} 
+                if not compute_sites[d].get(c): compute_sites[d][c] = {}
+                compute_sites[d][c].update(get_donors(f))
+    return compute_sites
+
+def get_donors(fname):
+    donors = []
+    with open(fname) as f:
+        for d in f:
+            if d.rstrip(): donors.append(d.rstrip())
+    return donors
+
+
 def main(argv=None):
 
     parser = ArgumentParser(description="PCAWG Full List of GNOS entities Info Generator",
@@ -490,19 +525,29 @@ def main(argv=None):
 
 	# get the full list of donors in PCAWG
     donors_list = get_donors_list(es, es_index, es_queries)
-    
+
+    # get the computer sites info
+    whitelist_dir = {
+        'bwa': '../pcawg-operations/bwa_alignment',
+        'sanger_variant_calling': '../pcawg-operations/variant_calling/sanger_workflow/whitelists',
+        'broad_variant_calling': '../pcawg-operations/variant_calling/broad_workflow/whitelists',
+        'dkfz_embl_variant_calling': '../pcawg-operations/variant_calling/dkfz_embl_workflow/whitelists',
+        'muse_variant_calling': '../pcawg-operations/variant_calling/broad_workflow/whitelists'
+    }
+    compute_sites = get_whitelists(whitelist_dir)
+   
     header = True
     # get json doc for each donor and reorganize it 
     for donor_unique_id in donors_list:     
         
-    	es_json = get_donor_json(es, es_index, donor_unique_id)
+    	  es_json = get_donor_json(es, es_index, donor_unique_id)
         
-        gnos_entity_info_list = create_gnos_entity_info(donor_unique_id, es_json)
+        gnos_entity_info_list = create_gnos_entity_info(donor_unique_id, es_json, compute_sites)
         
         for gnos_entity in gnos_entity_info_list: 
             fh.write(json.dumps(gnos_entity, default=set_default) + '\n')
             # push to Elasticsearch
-            es_history.index(index=es_index_history, doc_type='gnos_entity', id=gnos_entity['gnos_id'], body=json.loads(json.dumps(gnos_entity, default=set_default)), timeout=90 )
+            es_history.index(index=es_index_history, doc_type=es_type_history, id=gnos_entity['gnos_id'], body=json.loads(json.dumps(gnos_entity, default=set_default)), timeout=90 )
 
             if header:
                 tsv_fh.write('\t'.join(gnos_entity.keys()) + '\n')
