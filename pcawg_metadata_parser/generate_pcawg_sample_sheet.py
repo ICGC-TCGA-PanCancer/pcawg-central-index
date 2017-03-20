@@ -43,13 +43,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                     }
@@ -58,12 +51,14 @@ es_queries = [
     }
 ]
 
-def create_specimen_info(donor_unique_id, es_json):
+def create_specimen_info(donor_unique_id, es_json, donor_ids):
     specimen_info_list = []
 
     specimen_info = OrderedDict()
     specimen_info['donor_unique_id'] = donor_unique_id
+    specimen_info['donor_wgs_exclusion_white_gray'] = get_flag(donor_unique_id, donor_ids)
     specimen_info['submitter_donor_id'] = es_json['submitter_donor_id']
+    specimen_info['icgc_donor_id'] = es_json['icgc_donor_id'] if es_json['icgc_donor_id'] else ''
     specimen_info['dcc_project_code'] = es_json['dcc_project_code']
     
     add_wgs_specimens(specimen_info_list, specimen_info, es_json)
@@ -72,13 +67,26 @@ def create_specimen_info(donor_unique_id, es_json):
 
     return specimen_info_list
 
+def get_flag(donor_unique_id, donor_ids):
+    for t in ['white', 'black', 'gray']:
+        if not donor_unique_id in donor_ids.get(t+'list'): continue
+        if t == 'black':
+            return 'Excluded'
+        else:
+            return t.capitalize()+'list'
+    return None
+        
 
 def add_wgs_specimens(specimen_info_list, specimen_info, es_json):
 
     if es_json.get('normal_alignment_status'):
         specimen_info['aliquot_id'] = es_json.get('normal_alignment_status').get('aliquot_id')
         specimen_info['submitter_specimen_id'] = es_json.get('normal_alignment_status').get('submitter_specimen_id')
+        specimen_info['icgc_specimen_id'] = es_json.get('normal_alignment_status').get('icgc_specimen_id') \
+                                            if es_json.get('normal_alignment_status').get('icgc_specimen_id') else ''
         specimen_info['submitter_sample_id'] = es_json.get('normal_alignment_status').get('submitter_sample_id')
+        specimen_info['icgc_sample_id'] = es_json.get('normal_alignment_status').get('icgc_sample_id') \
+                                          if es_json.get('normal_alignment_status').get('icgc_sample_id') else ''
         specimen_info['dcc_specimen_type'] = es_json.get('normal_alignment_status').get('dcc_specimen_type')
         specimen_info['library_strategy'] = 'WGS'
         specimen_info_list.append(copy.deepcopy(specimen_info))
@@ -87,7 +95,9 @@ def add_wgs_specimens(specimen_info_list, specimen_info, es_json):
         for aliquot in es_json.get('tumor_alignment_status'):
     	    specimen_info['aliquot_id'] = aliquot.get('aliquot_id')
             specimen_info['submitter_specimen_id'] = aliquot.get('submitter_specimen_id')
+            specimen_info['icgc_specimen_id'] = aliquot.get('icgc_specimen_id') if aliquot.get('icgc_specimen_id') else ''
             specimen_info['submitter_sample_id'] = aliquot.get('submitter_sample_id')
+            specimen_info['icgc_sample_id'] = aliquot.get('icgc_sample_id') if aliquot.get('icgc_sample_id') else ''
             specimen_info['dcc_specimen_type'] = aliquot.get('dcc_specimen_type')
             specimen_info['library_strategy'] = 'WGS'
             specimen_info_list.append(copy.deepcopy(specimen_info))
@@ -108,12 +118,20 @@ def add_rna_seq_specimens(specimen_info_list, specimen_info, es_json):
             aliquot = rna_seq_info.get(specimen_type)
             specimen_info['aliquot_id'] = set()
             specimen_info['submitter_specimen_id'] = set()
+            specimen_info['icgc_specimen_id'] = set()
             specimen_info['submitter_sample_id'] = set()
+            specimen_info['icgc_sample_id'] = set()
             specimen_info['dcc_specimen_type'] = set()
             for workflow_type in aliquot.keys():
                 specimen_info['aliquot_id'].add(aliquot.get(workflow_type).get('aliquot_id'))
                 specimen_info['submitter_specimen_id'].add(aliquot.get(workflow_type).get('submitter_specimen_id'))
+                specimen_info['icgc_specimen_id'].add(
+                        aliquot.get(workflow_type).get('icgc_specimen_id') if aliquot.get(workflow_type).get('icgc_specimen_id') else ''
+                    )
                 specimen_info['submitter_sample_id'].add(aliquot.get(workflow_type).get('submitter_sample_id'))
+                specimen_info['icgc_sample_id'].add(
+                        aliquot.get(workflow_type).get('icgc_sample_id') if aliquot.get(workflow_type).get('icgc_sample_id') else ''
+                    )
                 specimen_info['dcc_specimen_type'].add(aliquot.get(workflow_type).get('dcc_specimen_type'))
                 specimen_info['library_strategy'] = 'RNA-Seq'
             specimen_info_list.append(copy.deepcopy(specimen_info))
@@ -122,12 +140,20 @@ def add_rna_seq_specimens(specimen_info_list, specimen_info, es_json):
             for aliquot in rna_seq_info.get(specimen_type):
                 specimen_info['aliquot_id'] = set()
                 specimen_info['submitter_specimen_id'] = set()
+                specimen_info['icgc_specimen_id'] = set()
                 specimen_info['submitter_sample_id'] = set()
+                specimen_info['icgc_sample_id'] = set()
                 specimen_info['dcc_specimen_type'] = set()
                 for workflow_type in aliquot.keys():
                     specimen_info['aliquot_id'].add(aliquot.get(workflow_type).get('aliquot_id'))
                     specimen_info['submitter_specimen_id'].add(aliquot.get(workflow_type).get('submitter_specimen_id'))
+                    specimen_info['icgc_specimen_id'].add(
+                            aliquot.get(workflow_type).get('icgc_specimen_id') if aliquot.get(workflow_type).get('icgc_specimen_id') else ''
+                        )
                     specimen_info['submitter_sample_id'].add(aliquot.get(workflow_type).get('submitter_sample_id'))
+                    specimen_info['icgc_sample_id'].add(
+                            aliquot.get(workflow_type).get('icgc_sample_id') if aliquot.get(workflow_type).get('icgc_sample_id') else ''
+                        )
                     specimen_info['dcc_specimen_type'].add(aliquot.get(workflow_type).get('dcc_specimen_type'))
                     specimen_info['library_strategy'] = 'RNA-Seq'
                 specimen_info_list.append(copy.deepcopy(specimen_info))
@@ -144,6 +170,8 @@ def get_donor_json(es, es_index, donor_unique_id):
         }
     }
     response = es.search(index=es_index, body=es_query_donor)
+    if not response['hits'].get('hits'):
+        return None
 
     es_json = response['hits']['hits'][0]['_source']
  
@@ -154,9 +182,9 @@ def get_donors_list(es, es_index, es_queries):
     q_index = 0
     response = es.search(index=es_index, body=es_queries[q_index])
     
-    donors_list = []
+    donors_list = set()
     for p in response['hits']['hits']:
-    	donors_list.append(p.get('fields').get('donor_unique_id')[0])
+    	donors_list.add(p.get('fields').get('donor_unique_id')[0])
 
     return donors_list 
 
@@ -167,6 +195,18 @@ def set_default(obj):
     if isinstance(obj, set):
         return list(obj)
     raise TypeError
+
+def generate_id_list(id_lists):
+    ids_list = set()
+    if id_lists:
+        files = glob.glob(id_lists)
+        for fname in files:
+            with open(fname) as f:
+                for d in f: 
+                    if d.startswith('#'): continue
+                    ids_list.add(d.rstrip())
+
+    return ids_list
 
 
 def main(argv=None):
@@ -192,39 +232,45 @@ def main(argv=None):
 
     es = Elasticsearch([es_host])
 
-    #PCAWG_specimen_fh = open(metadata_dir+'/reports/pcawg_sample_sheet.jsonl', 'w')
+    donor_ids = {}
+    # get the list of donors in blacklist/graylist donors
+    for dtype in ['blacklist', 'graylist']:
+        donor_ids[dtype] = generate_id_list('../pcawg-operations/lists/'+dtype+'/pc_annotation-donor_'+dtype+'.tsv')
 
-    PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')
-    
-    # read the tsv fields file and write to the pilot donor tsv file
-    tsv_fields = ["donor_unique_id", "submitter_donor_id", "dcc_project_code", "aliquot_id", "submitter_specimen_id", \
-    "submitter_sample_id", "dcc_specimen_type", "library_strategy" 
-    ]
-    PCAWG_specimen_tsv_fh.write('\t'.join(tsv_fields) + '\n')
+    # get the list of donors to be included in the release 
+    donor_ids['release'] = get_donors_list(es, es_index, es_queries)
+    donor_ids['whitelist'] = donor_ids.get('release').difference(donor_ids.get('blacklist').union(donor_ids.get('graylist')))
 
-	# get the full list of donors in PCAWG
-    donors_list = get_donors_list(es, es_index, es_queries)
-    
-    # get json doc for each donor and reorganize it 
-    for donor_unique_id in donors_list:     
+    for dtype in ['release', 'whitelist', 'blacklist', 'graylist']:
+        if dtype == 'release':
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.tsv', 'w')         
+        else:
+            PCAWG_specimen_tsv_fh = open(metadata_dir + '/reports/pcawg_sample_sheet.'+dtype+'ed_donors.tsv', 'w')
         
-    	es_json = get_donor_json(es, es_index, donor_unique_id)
-        
-        specimen_info_list = create_specimen_info(donor_unique_id, es_json)
-        
-        for specimen in specimen_info_list: 
-            #PCAWG_specimen_fh.write(json.dumps(specimen, default=set_default) + '\n')
-            # write to the tsv file
-            for p in specimen.keys():
-                if isinstance(specimen.get(p), set):
-                    PCAWG_specimen_tsv_fh.write('|'.join(list(specimen.get(p))) + '\t')
-                else:
-                    PCAWG_specimen_tsv_fh.write(str(specimen.get(p)) + '\t')
-            PCAWG_specimen_tsv_fh.write('\n')
-        
-    PCAWG_specimen_tsv_fh.close()
+        donors_list = donor_ids.get(dtype)
+        donors_list = sorted(donors_list)
 
-    #PCAWG_specimen_fh.close()
+        header = True
+        # get json doc for each donor and reorganize it 
+        for donor_unique_id in donors_list:
+            es_json = get_donor_json(es, es_index, donor_unique_id)
+            if not es_json: continue
+            specimen_info_list = create_specimen_info(donor_unique_id, es_json, donor_ids)
+
+            for specimen in specimen_info_list: 
+                # write to the tsv file
+                if header:
+                    PCAWG_specimen_tsv_fh.write('\t'.join(specimen.keys()) + '\n')
+                    header = False
+                line = []
+                for p in specimen.keys():
+                    if isinstance(specimen.get(p), set):
+                        line.append('|'.join(list(specimen.get(p))))
+                    else:
+                        line.append(str(specimen.get(p)))
+                PCAWG_specimen_tsv_fh.write('\t'.join(line)+'\n')
+            
+        PCAWG_specimen_tsv_fh.close()
 
     return 0
 

@@ -109,8 +109,10 @@ def calculate_xml_md5sum(xml_str, workflow, xml_dir, gnos_id, gnos_repo):
     md5sum.append(hashlib.md5(qc_metrics_xml).hexdigest())
 
     # take out the different file_type section
-    if workflow.endswith('alignment'):
+    if workflow.startswith('wgs_bwa') or workflow.startswith('rna_seq') or workflow.startswith('minibam'):
         file_types = ['.bam', '.bai']
+    elif workflow.startswith('broad') or workflow.startswith('muse'):
+        file_types = ['.gz', '.idx']
     else:
         file_types = ['.gz', '.tbi']
     for file_type in file_types:
@@ -175,7 +177,7 @@ def calculate_xml_md5sum(xml_str, workflow, xml_dir, gnos_id, gnos_repo):
 
 def generate_subreport(fname, subreport_dir):
     for subreport in ['qc_metrics', 'data_file', 'index_file', 'other']:
-        for workflow in ['wgs_bwa', 'rna_seq']:
+        for workflow in ['wgs_bwa', 'rna_seq', 'sanger', 'dkfz_embl', 'broad', 'muse', 'oxog', 'minibam']:
             subreport_name = subreport_dir+'/'+workflow+'_'+subreport+'_mismatch.txt'
             subreport_list = []
             with open(fname, 'r') as s:

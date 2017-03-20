@@ -51,13 +51,6 @@ es_queries = [
                               #         "T"
                               #       ]
                               #     }
-                              #   },
-                              #   {
-                              #     "terms": {
-                              #       "flags.is_donor_blacklisted": [
-                              #         "T"
-                              #       ]
-                              #     }
                               #   }
                               # ]
                             }
@@ -167,13 +160,6 @@ es_queries = [
                                 "T"
                               ]
                             }
-                          },
-                          {
-                            "terms": {
-                              "flags.is_donor_blacklisted": [
-                                "T"
-                              ]
-                            }
                           }
                         ]
                       }
@@ -212,21 +198,7 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
-                      },
-                  # {
-                  #   "terms":{
-                  #     "dcc_project_code": [
-                  #             "LIRI-JP"
-                  #     ]
-                  #   }
-                  # }
+                      }
                  ]
                 }
               },
@@ -258,13 +230,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -303,13 +268,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -385,13 +343,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -427,13 +378,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -493,13 +437,6 @@ es_queries = [
                                     "T"
                             ]
                           }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                   }
@@ -538,13 +475,6 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                       }
                  ]
                 }
@@ -578,13 +508,6 @@ es_queries = [
                   {
                     "terms": {
                       "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                      },
-                  {
-                    "terms": {
-                      "flags.is_donor_blacklisted": [
                               "T"
                             ]
                           }
@@ -633,13 +556,6 @@ es_queries = [
                                     "T"
                             ]
                           }
-                        },
-                        {
-                          "term": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
                         }
                       ]
                   }
@@ -683,14 +599,7 @@ es_queries = [
                                   "T"
                                 ]
                               }
-                            },
-                            # {
-                            #   "terms": {
-                            #     "flags.is_donor_blacklisted": [
-                            #       "T"
-                            #     ]
-                            #   }
-                            # }
+                            }
                           ]
                         }
                     },
@@ -726,10 +635,114 @@ es_queries = [
                               "T"
                             ]
                           }
-                      },
+                      }
+                 ]
+             }
+         },
+         "size": 10000
+     }
+},
+# query 14: get sanger uploads 
+{
+      "name": "sanger_uploads_svfixed_status",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_sanger_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
                   {
                     "terms": {
-                      "flags.is_donor_blacklisted": [
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+# query 15: get broad uploads 
+{
+      "name": "broad_uploads_snvfixed_status",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_broad_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+
+# query 16: get missing gnos_entry from mar2016_release 
+{
+     "name": "missing_gnos_entry_from_mar2016_release",
+     "content":{
+         "fields": ["donor_unique_id"],
+         "filter":{
+             "bool": {
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_mar2016_donor":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
                               "T"
                             ]
                           }
@@ -741,6 +754,234 @@ es_queries = [
      }
 },
 
+# query 17: get oxog uploads 
+{
+      "name": "variant_call_entries_with_broad_oxog_filter_applied",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_oxog_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+# query 18: get minibam uploads 
+{
+      "name": "minibams_extracted_from_variant_regions",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_minibam_variant_calling_performed":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+# query 19: get gender information of pcawg donors
+{
+      "name": "pcawg_donors_gender_info",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },
+                    {
+                      "terms":{
+                        "flags.is_normal_specimen_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    {
+                      "terms":{
+                        "flags.are_all_tumor_specimens_aligned":[
+                          "T"
+                        ]
+                      }
+                    },
+                    # {
+                    #    "terms":{
+                    #       "flags.is_mar2016_donor":[
+                    #          "T"
+                    #       ]
+                    #    }
+                    # }                               
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
+
+# query 20: get missing gnos_entry from may2016_release 
+{
+     "name": "missing_gnos_entry_from_may2016_release",
+     "content":{
+         "fields": ["donor_unique_id"],
+         "filter":{
+             "bool": {
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                       "terms":{
+                          "flags.is_may2016_donor":[
+                             "T"
+                          ]
+                       }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+             }
+         },
+         "size": 10000
+     }
+},
+
+# query 21: get all RNA-Seq data information 
+{
+      "name": "rna-seq_summary",
+      "content":{
+           "fields":[
+               "donor_unique_id"
+           ],  
+           "filter":{
+              "bool":{
+                 "must":[
+                    {
+                       "type":{
+                          "value":"donor"
+                       }
+                    },          
+                    {
+                      "bool": {
+                        "should":[
+                          {
+                            "terms": {
+                              "flags.is_normal_star_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.is_normal_tophat_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.is_tumor_star_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          },
+                          {
+                            "terms": {
+                              "flags.is_tumor_tophat_rna_seq_alignment_performed": [
+                                "T"
+                              ]
+                            }
+                          }                        
+                        ]
+                      }
+                    }                        
+                  ],
+                  "must_not": [
+                  {
+                    "terms": {
+                      "flags.is_manual_qc_failed": [
+                              "T"
+                            ]
+                          }
+                      }
+                 ]
+                }
+              },
+              "size": 10000
+      }
+},
 ]
 
 
@@ -768,7 +1009,7 @@ def get_donors_list(es, es_index, es_queries, q_index):
 
     return donors_list 
 
-def create_report_info(donor_unique_id, es_json, q_index):
+def create_report_info(donor_unique_id, es_json, q_index, annotations):
     report_info_list = []
 
     report_info = OrderedDict()
@@ -776,7 +1017,7 @@ def create_report_info(donor_unique_id, es_json, q_index):
     report_info['submitter_donor_id'] = es_json['submitter_donor_id']
     report_info['dcc_project_code'] = es_json['dcc_project_code']
     
-    annotations = {}
+    # annotations = {}
     if q_index == 0:
         add_report_info_0(report_info, report_info_list, es_json)
 
@@ -803,6 +1044,14 @@ def create_report_info(donor_unique_id, es_json, q_index):
         flag = 'is_oct2015_entry' 
         add_report_info_4_10(report_info, report_info_list, es_json, flag)
 
+    if q_index == 16:
+        flag = 'is_mar2016_entry' 
+        add_report_info_4_10(report_info, report_info_list, es_json, flag)
+
+    if q_index == 20:
+        flag = 'is_may2016_entry' 
+        add_report_info_4_10(report_info, report_info_list, es_json, flag)
+
     if q_index == 5:
         add_report_info_5(report_info, report_info_list, es_json)
 
@@ -816,12 +1065,112 @@ def create_report_info(donor_unique_id, es_json, q_index):
         add_report_info_9(report_info, report_info_list, es_json)
 
     if q_index == 11:
-        add_report_info_11(report_info, report_info_list, es_json)
+        add_report_info_14_15(report_info, report_info_list, es_json, 'dkfz_embl')
 
     if q_index == 12:
-        annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+        # annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
         add_report_info_12(report_info, report_info_list, es_json, annotations)
 
+    if q_index == 14:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'sanger')
+
+    if q_index == 15:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'broad')
+
+    if q_index == 17:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'oxog')
+
+    if q_index == 18:
+        add_report_info_14_15(report_info, report_info_list, es_json, 'minibam')
+
+    if q_index == 19:
+        # annotations = read_annotations(annotations, 'gender', '../pcawg-ega-submission/annotation/donor.all_projects.release20.tsv')
+        # annotations = read_annotations(annotations, 'gender_update', '../pcawg-ega-submission/annotation/donor.gender_update.release21.tsv')
+        add_report_info_19(report_info, report_info_list, es_json, annotations)
+
+    if q_index == 21:
+        add_report_info_21(report_info, report_info_list, es_json)
+
+    return report_info_list
+
+def get_mapping(source):
+    target = {
+        "XX": "female",
+        "XY": "male",
+        "female": "female",
+        "male": "male"
+    }
+    return target.get(source)
+
+def gen_dict_extract(key, var):
+    if hasattr(var,'iteritems'):
+        for k, v in var.iteritems():
+            if k.startswith(key) and not isinstance(v, dict):
+                yield v
+            if isinstance(v, dict):
+                for result in gen_dict_extract(key, v):
+                    yield result
+            elif isinstance(v, list):
+                for d in v:
+                    for result in gen_dict_extract(key, d):
+                        yield result
+
+def add_report_info_21(report_info, report_info_list, es_json):
+    rna_seq_info = es_json.get('rna_seq').get('alignment')
+    report_info['library_strategy'] = 'RNA-Seq'
+    for specimen_type in rna_seq_info.keys():
+        if not rna_seq_info.get(specimen_type): # the specimen_type has no alignment result
+            continue
+        if 'normal' in specimen_type:
+            aliquot = rna_seq_info.get(specimen_type)
+            for workflow_type in aliquot.keys():
+                report_info['workflow'] = workflow_type
+                add_report_info_21_alignment(aliquot.get(workflow_type), report_info, report_info_list)
+        else:
+            for aliquot in rna_seq_info.get(specimen_type):
+                for workflow_type in aliquot.keys():
+                    report_info['workflow'] = workflow_type
+                    add_report_info_21_alignment(aliquot.get(workflow_type), report_info, report_info_list) 
+    return report_info_list
+
+
+def add_report_info_21_alignment(alignment, report_info, report_info_list):
+    report_info['aliquot_id'] = alignment.get('aliquot_id')
+    report_info['icgc_sample_id'] = alignment.get('icgc_sample_id')
+    report_info['icgc_specimen_id'] = alignment.get('icgc_specimen_id')
+    report_info['dcc_specimen_type'] = alignment.get('dcc_specimen_type')
+    if alignment.get('aligned_bam'):
+        report_info['gnos_id'] = alignment.get('aligned_bam').get('gnos_id')
+        report_info['gnos_repo'] = alignment.get('aligned_bam').get('gnos_repo')
+        report_info['exist_bai_file'] = True if alignment.get('aligned_bam').get('bai_file_name') else False        
+    report_info_list.append(copy.deepcopy(report_info))
+    return report_info_list
+
+
+def add_report_info_19(report_info, report_info_list, es_json, annotations):
+    report_info['gender'] = set()
+    report_info['dcc_gender'] = annotations.get('gender').get(es_json.get('donor_unique_id')) if annotations.get('gender').get(es_json.get('donor_unique_id')) else None
+    if report_info.get('dcc_gender'): report_info['gender'].add(report_info['dcc_gender']) 
+    for vcf in ['sanger', 'dkfz_embl', 'broad', 'muse']:
+        report_info[vcf+'_gender'] = None
+        if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(vcf+'_variant_calling'):
+            if es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details') and \
+                es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics'):
+                v = list(gen_dict_extract('gender', es_json.get('variant_calling_results').get(vcf+'_variant_calling').get('workflow_details').get('variant_qc_metrics')))
+                report_info[vcf+'_gender'] = get_mapping(v[0]) if v else None
+                if report_info.get(vcf+'_gender'): report_info['gender'].add(report_info[vcf+'_gender'])
+    report_info['exist_gender_discrepancy'] = False if len(report_info['gender']) == 1 else True
+    report_info_list.append(copy.deepcopy(report_info))
+
+
+def add_report_info_14_15(report_info, report_info_list, es_json, workflow_type):
+    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+    if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get(workflow_type+'_variant_calling'):
+        report_info['gnos_repo'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_repo')
+        report_info['gnos_id'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_id')
+        report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('gnos_last_modified')
+        report_info['vcf_workflow_result_version'] = es_json.get('variant_calling_results').get(workflow_type+'_variant_calling').get('vcf_workflow_result_version') 
+        report_info_list.append(copy.deepcopy(report_info)) 
     return report_info_list
 
 def add_report_info_12(report_info, report_info_list, es_json, annotations):
@@ -881,13 +1230,14 @@ def add_report_info_12_aliquot(aliquot, report_info, report_info_list, annotatio
     return report_info_list
 
 
-def add_report_info_11(report_info, report_info_list, es_json):
-    report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
-    if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('dkfz_embl_variant_calling'):
-        report_info['gnos_repo'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_repo')
-        report_info['gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id')
-        report_info_list.append(copy.deepcopy(report_info))
-    return report_info_list
+# def add_report_info_11(report_info, report_info_list, es_json):
+#     report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
+#     if es_json.get('variant_calling_results') and es_json.get('variant_calling_results').get('dkfz_embl_variant_calling'):
+#         report_info['gnos_repo'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_repo')
+#         report_info['gnos_id'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_id')
+#         report_info['gnos_last_modified'] = es_json.get('variant_calling_results').get('dkfz_embl_variant_calling').get('gnos_last_modified')
+#         report_info_list.append(copy.deepcopy(report_info))
+#     return report_info_list
 
 def add_report_info_9(report_info, report_info_list, es_json):
     report_info['tumor_aliquot_ids'] = es_json.get('all_tumor_specimen_aliquots')
@@ -934,11 +1284,13 @@ def add_report_info_8(report_info, report_info_list, es_json):
 
 
 def add_report_info_6_7(report_info, report_info_list, es_json):
+    report_info['tumor_aliquot_ids'] = es_json.get('aligned_tumor_specimen_aliquots')
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
         for workflow_type in ['broad', 'broad_tar', 'muse']:
             report_info[workflow_type+'_gnos_repo'] = vcf.get(workflow_type+'_variant_calling').get('gnos_repo')[0] if vcf.get(workflow_type+'_variant_calling') else None
             report_info[workflow_type+'_gnos_id'] = vcf.get(workflow_type+'_variant_calling').get('gnos_id') if vcf.get(workflow_type+'_variant_calling') else None
+            report_info[workflow_type+'_gnos_last_modified'] = vcf.get(workflow_type+'_variant_calling').get('gnos_last_modified')[0].split('T')[0] if vcf.get(workflow_type+'_variant_calling') else None
         report_info['is_cross_referencing_mismatch'] = es_json.get('flags').get('broad').get('exist_file_subsets_mismatch')
 
         report_info_list.append(copy.deepcopy(report_info))
@@ -997,7 +1349,7 @@ def add_report_info_4_10(report_info, report_info_list, es_json, flag):
 
     if es_json.get('variant_calling_results'):
         vcf = es_json.get('variant_calling_results')
-        for workflow in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar']:
+        for workflow in ['sanger', 'dkfz_embl', 'broad', 'muse', 'broad_tar', 'minibam']:
             if vcf.get(workflow+'_variant_calling') and vcf.get(workflow+'_variant_calling').get(flag):
                 report_info['gnos_id'] =  vcf.get(workflow+'_variant_calling').get('gnos_id')
                 report_info_list.append(copy.deepcopy(report_info))
@@ -1124,8 +1476,8 @@ def add_report_info_3_aliquot(aliquot, report_info, report_info_list):
 
 def init_report_dir(metadata_dir, report_name, repo):
     report_dir = metadata_dir + '/reports/' + report_name if not repo else metadata_dir + '/reports/' + report_name + '/' + repo
-    if os.path.exists(report_dir): shutil.rmtree(report_dir, ignore_errors=True)  # empty the folder if exists
-    os.makedirs(report_dir)
+    if not os.path.exists(report_dir): os.makedirs(report_dir)  # make the folder if not exists
+    
 
     return report_dir
 
@@ -1143,6 +1495,19 @@ def read_annotations(annotations, type, file_name):
                 if line.startswith('#'): continue
                 if len(line.rstrip()) == 0: continue
                 annotations[type].add(line.rstrip())
+        elif type == 'gender':
+            annotations[type] = {}
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                # if not row.get('study_donor_involved_in') == 'PCAWG': continue
+                if not row.get('project_code') or not row.get('submitted_donor_id'): continue
+                annotations[type][row.get('project_code')+'::'+row.get('submitted_donor_id')] = row.get('donor_sex') if row.get('donor_sex') else None
+        elif type == 'gender_update':
+            reader = csv.DictReader(r, delimiter='\t')
+            for row in reader:
+                if not row.get('donor_unique_id'): continue
+                annotations['gender'][row.get('donor_unique_id')] = row.get('DCC ICGC21 submitted donor_sex') if row.get('DCC ICGC21 submitted donor_sex') else None
+
         else:
             print('unknown annotation type: {}'.format(type))
     return annotations
@@ -1181,6 +1546,11 @@ def main(argv=None):
     report_name = re.sub(r'\.py$', '', report_name)
     report_dir = init_report_dir(metadata_dir, report_name, repo)
 
+    annotations = {}
+    annotations = read_annotations(annotations, 'esad-uk_reheader_uuid', 'esad-uk_uuids.txt')
+    annotations = read_annotations(annotations, 'gender', '../pcawg-operations/lists/donor.all_projects.release20.tsv')
+    annotations = read_annotations(annotations, 'gender_update', '../pcawg-operations/lists/donor.gender_update.release21.tsv')
+
     for q in q_index:
         report_tsv_fh = open(report_dir + '/' + es_queries[q].get('name') + '.txt', 'w')  
 
@@ -1192,18 +1562,22 @@ def main(argv=None):
             # get json doc for each donor                 
             es_json = get_donor_json(es, es_index, donor_unique_id)
             
-            report_info_list_donor = create_report_info(donor_unique_id, es_json, q)
+            report_info_list_donor = create_report_info(donor_unique_id, es_json, q, annotations)
 
             report_info_list_full.extend(report_info_list_donor)
 
         # do diff for santa_cruz missing only
-        if q in [4, 10, 13]:
+        if q in [4, 10, 13, 16, 20]:
             if q==4:
                 release_tsv = '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv' 
             elif q==10:
                 release_tsv = '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv'
             elif q==13:
                 release_tsv = '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv'
+            elif q==16:
+                release_tsv = '../pcawg-operations/data_releases/mar2016/release_mar2016_entry.tsv'
+            elif q==20:
+                release_tsv = '../pcawg-operations/data_releases/may2016/release_may2016_entry.tsv'
             else:
                 print('No entry for this query!')
             # generate the set of gnos_id

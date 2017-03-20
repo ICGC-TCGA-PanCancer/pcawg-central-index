@@ -25,6 +25,8 @@ import hashlib
 logger = logging.getLogger('gnos parser')
 # create console handler with a higher log level
 ch = logging.StreamHandler()
+latest_release = 'may2016'
+previous_releases = ['mar2016','oct2015', 'aug2015', 'santa_cruz']
 
 
 def init_es(es_host, es_index):
@@ -44,7 +46,7 @@ def init_es(es_host, es_index):
     return es
 
 
-def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations):
+def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_output_fh, annotations, consensus_entries):
   analysis_attrib = get_analysis_attrib(gnos_analysis)
 
   if analysis_attrib and analysis_attrib.get('variant_workflow_name'):  # variant call gnos entry
@@ -68,8 +70,15 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     if not vcf_entries.get(donor_unique_id):
         vcf_entries[donor_unique_id] = {}
         vcf_entries[donor_unique_id]['vcf_entry_files'] = []
-    
-    vcf_entries.get(donor_unique_id)['vcf_entry_files'].append(copy.deepcopy(vcf_file))
+
+    if not consensus_entries.get(donor_unique_id):
+        consensus_entries[donor_unique_id] = {}
+        consensus_entries[donor_unique_id]['consensus_entry_files'] = []
+
+    if vcf_file.get('vcf_workflow_type') in ['snv_mnv', 'indel', 'cnv', 'sv']:
+        consensus_entries.get(donor_unique_id)['consensus_entry_files'].append(copy.deepcopy(vcf_file))
+    else:
+        vcf_entries.get(donor_unique_id)['vcf_entry_files'].append(copy.deepcopy(vcf_file))
 
   else:  # BAM entry
     if gnos_analysis.get('dcc_project_code') and gnos_analysis.get('dcc_project_code').upper() == 'TEST':
@@ -86,6 +95,12 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         logger.warning('ignore entry does not have aliquot_id, GNOS entry: {}'
                          .format(gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
         return
+
+    if is_in_aliquot_blacklist(gnos_analysis.get('aliquot_id'), annotations):
+        logger.warning('ignore blacklisted aliquot: {} GNOS entry: {}'
+                         .format(gnos_analysis.get('aliquot_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+        return         
+
 
     if gnos_analysis.get('refassem_short_name') != 'unaligned' and gnos_analysis.get('refassem_short_name') != 'GRCh37':
         logger.warning('ignore entry that is aligned but not aligned to GRCh37: {}'
@@ -116,6 +131,14 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
         return
 
     donor_unique_id = analysis_attrib.get('dcc_project_code') + '::' + analysis_attrib.get('submitter_donor_id')
+
+    #disable this check for specimen and sample for now as we are still fixing these IDs
+    #for id_type in ['donor', 'specimen', 'sample']:
+    for id_type in ['donor']:
+        if not is_in_pcawg_final_list(analysis_attrib.get('dcc_project_code'), analysis_attrib.get('submitter_'+id_type+'_id'), id_type, annotations):
+            logger.warning('ignore non-pcawg final list {}: {} GNOS entry: {}'
+                             .format(id_type, analysis_attrib.get('dcc_project_code')+'::'+analysis_attrib.get('submitter_'+id_type+'_id'), gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+            return
 
     if is_in_donor_blacklist(donor_unique_id):
         logger.warning('ignore blacklisted donor: {} GNOS entry: {}'
@@ -160,10 +183,10 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
 
     # temporary hack here to skip any BAM entries from odsc-tcga repo as it's supposed not contain
     # any BAM data, but it does, and those aligned BAMs it has overlap with what in CGHub hence causes problems
-    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
-        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
-                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-        return
+#    if 'osdc-tcga' in gnos_analysis.get('analysis_detail_uri'):
+#        logger.warning('ignore BAM entry in osdc-tcga repo: {}'
+#                         .format( gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
+#        return
 
     if not donors.get(donor_unique_id):
         # create a new donor if not exist
@@ -186,7 +209,7 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
      
 
     # only do the following when it is WGS
-    if bam_file.get('library_strategy') == 'WGS':
+    if bam_file.get('library_strategy') == 'WGS' and bam_file.get('bam_type') == 'Specimen level aligned BAM':
         if 'normal' in bam_file.get('dcc_specimen_type').lower(): # normal
             if donors.get(donor_unique_id).get('normal_specimen'): # normal specimen exists
                 if donors.get(donor_unique_id).get('normal_specimen').get('aliquot_id') == gnos_analysis.get('aliquot_id'):
@@ -278,6 +301,43 @@ def process_gnos_analysis(gnos_analysis, donors, vcf_entries, es_index, es, bam_
     bam_output_fh.write(json.dumps(bam_file, default=set_default) + '\n')
 
 
+def is_in_aliquot_blacklist(aliquot_id, annotations):
+    if annotations.get('aliquot_blacklist') and aliquot_id in annotations.get('aliquot_blacklist'):
+        return True
+    else:
+        return False
+
+
+def is_in_pcawg_final_list(dcc_project_code, pcawg_id, id_type, annotations):
+    if annotations.get('pcawg_final_list').get(id_type).intersection([dcc_project_code+'::'+pcawg_id]):
+        return True
+    else:
+        return False
+
+
+
+def exist_in_previous_releases(vcf_entry):
+    for r in previous_releases:
+        if vcf_entry.get('is_'+r+'_entry'): return True
+    return False
+
+
+def choose_consensus_entry(consensus_entries, donor_unique_id):
+    # It is very naive now to append all the entries for the same variant type.(snv_mnv/indel/sv/cnv)
+    # The assumption: there is no duplicated uploading for the same aliquot of the same variant type
+    if not consensus_entries or not consensus_entries.get(donor_unique_id) or not consensus_entries.get(donor_unique_id).get('consensus_entry_files'):
+        return
+    for current_vcf_entry in consensus_entries.get(donor_unique_id).get('consensus_entry_files'):
+        variant_workflow = current_vcf_entry.get('vcf_workflow_type')
+        workflow_label = variant_workflow  
+
+        if not consensus_entries.get(donor_unique_id).get(workflow_label):  # new vcf for workflow_type
+            consensus_entries.get(donor_unique_id)[workflow_label] = []
+        consensus_entries.get(donor_unique_id)[workflow_label].append(current_vcf_entry)
+
+    return consensus_entries
+
+
 def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
 
     if not vcf_entries or not vcf_entries.get(donor_unique_id) or not vcf_entries.get(donor_unique_id).get('vcf_entry_files'):
@@ -306,59 +366,54 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                                     .format(donor_unique_id, workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo')))) 
             
             else:
-                if current_vcf_entry['is_oct2015_entry']:
+                if LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) > LooseVersion(workflow_previous.get('vcf_workflow_result_version')):
                     vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the oct2015_freeze_entry: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                elif current_vcf_entry['is_s3_transfer_scheduled']:
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the one scheduled for S3 transfer: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-                
-                elif current_vcf_entry['is_aug2015_entry']:
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the aug2015_freeze_entry: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                    logger.info(workflow_label+' results for donor: {}. Keep the {} result version: {}, additional {} result version: {}'
+                        .format(donor_unique_id, current_vcf_entry.get('vcf_workflow_result_version'), current_vcf_entry['gnos_id'], workflow_previous.get('vcf_workflow_result_version'), workflow_previous['gnos_id'])) 
+                elif LooseVersion(current_vcf_entry.get('vcf_workflow_result_version')) == LooseVersion(workflow_previous.get('vcf_workflow_result_version')):
+                    if not workflow_previous['is_'+latest_release+'_entry']:                   
+                        if current_vcf_entry['is_'+latest_release+'_entry']:
+                            vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                            logger.info(workflow_label+' results for donor: {}. Keep the '+latest_release+'_freeze_entry: {}, additional {}'
+                                .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                        elif not exist_in_previous_releases(current_vcf_entry) and exist_in_previous_releases(workflow_previous):
+                            vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
+                            logger.info(workflow_label+' results for donor: {}. Keep the entry not in previous releases: {}, additional {}'
+                                .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                        elif exist_in_previous_releases(current_vcf_entry) and not exist_in_previous_releases(workflow_previous):
+                            # no need to replace
+                            logger.warning('{} variant calling result already exist and not in the previous releases for donor: {}, ignoring entry {} in {}'
+                                      .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))                        
+                        else:
+                            workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
+                            workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
+                            gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
+                            gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
 
-                elif current_vcf_entry['is_santa_cruz_entry']:
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the santa_cruz_freeze_entry: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-
-                elif annotations.get(variant_workflow) and current_vcf_entry.get('gnos_id') in annotations.get(variant_workflow):
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the one in whitelist: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
-
-                elif annotations.get(variant_workflow+'_vcf_in_jamboree') and \
-                       annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) and \
-                         annotations.get(variant_workflow+'_vcf_in_jamboree').get(donor_unique_id) == current_vcf_entry.get('gnos_id'):
-                    vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                    logger.info(workflow_label+' results for donor: {}. Keep the one already saved in Jamboree: {}, additional {}'
-                        .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))                         
-
+                            if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
+                                logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                                    .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
+                                        current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                        workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                                vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                            elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
+                                 and gnos_updated_current > gnos_updated_previous: # current is newer
+                                logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
+                                    .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
+                                        current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
+                                        workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
+                                vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
+                            else: # no need to replace
+                                logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
+                                    .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
+                    else:
+                        # no need to replace
+                        logger.warning('{} variant calling result already exist and in the latest release for donor: {}, ignoring entry {} in {}'
+                                      .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
                 else:
-                    workflow_version_current = current_vcf_entry.get('workflow_details').get('variant_workflow_version')
-                    workflow_version_previous = workflow_previous.get('workflow_details').get('variant_workflow_version')
-                    gnos_updated_current = current_vcf_entry.get('gnos_last_modified')[0]
-                    gnos_updated_previous = workflow_previous.get('gnos_last_modified')[0]
-
-                    if LooseVersion(workflow_version_current) > LooseVersion(workflow_version_previous): # current is newer version
-                        logger.info('Newer {} variant calling result with version: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
-                            .format(variant_workflow.upper(), workflow_version_current, donor_unique_id, \
-                                current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
-                                workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
-                        vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-                    elif LooseVersion(workflow_version_current) == LooseVersion(workflow_version_previous) \
-                         and gnos_updated_current > gnos_updated_previous: # current is newer
-                        logger.info('Newer {} variant calling result with last modified date: {} for donor: {}, with GNOS entry: {} in {} replacing older GNOS entry {} in {}'
-                            .format(variant_workflow.upper(), gnos_updated_current, donor_unique_id, \
-                                current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0],\
-                                workflow_previous.get('gnos_id'), '|'.join(workflow_previous.get('gnos_repo'))))
-                        vcf_entries.get(donor_unique_id)[workflow_label] = current_vcf_entry
-                    else: # no need to replace
-                        logger.warning('{} variant calling result already exist and is latest for donor: {}, ignoring entry {} in {}'
-                            .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
+                    # no need to replace
+                    logger.warning('{} variant calling result already exist and has latest result version for donor: {}, ignoring entry {} in {}'
+                                  .format(variant_workflow.upper(), donor_unique_id, current_vcf_entry.get('gnos_id'), current_vcf_entry.get('gnos_repo')[0]))
 
     
 
@@ -390,6 +445,8 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
+        "is_mar2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('mar2016').get('gnos_id') else False,
+        "is_may2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('may2016').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
         "exists_xml_md5sum_mismatch": False,
@@ -420,41 +477,92 @@ def create_vcf_entry(donor_unique_id, analysis_attrib, gnos_analysis, annotation
     workflow_name = vcf_entry.get('workflow_details').get('variant_workflow_name')
     workflow_version = vcf_entry.get('workflow_details').get('variant_workflow_version')
 
-    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+    if workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX2' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
             and not workflow_version in ['1.0.0', '1.0.1']):
         vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v3'
+
+    elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr+SVFIX' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v2'
+
+    elif workflow_name == 'SangerPancancerCgpCnIndelSnvStr' and (( workflow_version.startswith('1.0.') or workflow_version.startswith('1.1.'))
+            and not workflow_version in ['1.0.0', '1.0.1']):
+        vcf_entry['vcf_workflow_type'] = 'sanger'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name.startswith('EMBLPancancer') and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
         vcf_entry['vcf_workflow_type'] = 'embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZPancancerCnIndelSnv' and LooseVersion(workflow_version) >= LooseVersion('1.0.0'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz'      
+        vcf_entry['vcf_workflow_type'] = 'dkfz'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'   
 
     elif workflow_name == 'EMBLDKFZPancancerStrCnIndelSNV' and LooseVersion(workflow_version) >= LooseVersion('1.0.5'):
-        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'      
+        vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZ_EMBL_Combined_HPC':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
     elif workflow_name == 'DKFZ_EMBL_Merged':
         vcf_entry['vcf_workflow_type'] = 'dkfz_embl'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
 
-    elif workflow_name == 'BROAD_MUSE_PIPELINE':
+    elif workflow_name == 'BROAD_MUSE_PIPELINE' or workflow_name == 'BROAD_MUSE_PIPELINE_SEVEN_BRIDGES':
         vcf_entry.get('workflow_details')['workflow_file_subset'] = analysis_attrib.get('workflow_file_subset')
         vcf_entry.get('workflow_details')['related_file_subset_uuids'] = analysis_attrib.get('related_file_subset_uuids').split(',')
         if vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad':
             vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v2':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v2'
+        elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad-v3':
+            vcf_entry['vcf_workflow_type'] = 'broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v3'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'muse':
             vcf_entry['vcf_workflow_type'] = 'muse'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'
         elif vcf_entry.get('workflow_details').get('workflow_file_subset') == 'broad_tar':
-            vcf_entry['vcf_workflow_type'] = 'broad_tar'   
+            vcf_entry['vcf_workflow_type'] = 'broad_tar'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'   
         else:
             vcf_entry['vcf_workflow_type'] = 'Unknown_broad'
+            vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016
             logger.warning('broad variant calling entry which has unknown file type {}, donor: {} GNOS entry: {}'
                      .format(vcf_entry.get('workflow_details')['workflow_file_subset'], donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
-            
+    
+    elif workflow_name == 'OxoGWorkflow-OxoGFiltering':
+        vcf_entry['vcf_workflow_type'] = 'oxog'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'     
+
+    elif workflow_name == 'OxoGWorkflow-variantbam':
+        vcf_entry['vcf_workflow_type'] = 'minibam'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_snv_mnv':
+        vcf_entry['vcf_workflow_type'] = 'snv_mnv'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_indel':
+        vcf_entry['vcf_workflow_type'] = 'indel'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_cnv':
+        vcf_entry['vcf_workflow_type'] = 'cnv'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
+    elif workflow_name == 'consensus_sv':
+        vcf_entry['vcf_workflow_type'] = 'sv'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'
+
     else:
         vcf_entry['vcf_workflow_type'] = 'Unknown'
+        vcf_entry['vcf_workflow_result_version'] = 'v1'  # we always need this key, this line is added by Junjun on Feb 24, 2016 to avoid code crash when an unknow variant call entry shows up
         logger.warning('the entry is variant calling but likely is test entry, donor: {} GNOS entry: {}'
             .format(donor_unique_id, gnos_analysis.get('analysis_detail_uri').replace('analysisDetail', 'analysisFull') ))
 
@@ -503,11 +611,16 @@ def create_bam_file_entry(donor_unique_id, analysis_attrib, gnos_analysis, annot
         "aliquot_id": gnos_analysis.get('aliquot_id'),
         "use_cntl": analysis_attrib.get('use_cntl'),
         "total_lanes": analysis_attrib.get('total_lanes'),
+        "oxog_score": annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) if annotations.get('oxog_score').get(gnos_analysis.get('aliquot_id')) else None,
+        "ContEST": annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) if annotations.get('ContEST').get(gnos_analysis.get('aliquot_id')) else None,
+        "Stars": annotations.get('Stars').get(gnos_analysis.get('aliquot_id')) if annotations.get('Stars').get(gnos_analysis.get('aliquot_id')) else None,
 
         "effective_xml_md5sum": gnos_analysis.get('_effective_xml_md5sum'),
         "is_santa_cruz_entry": True if gnos_analysis.get('analysis_id') in annotations.get('santa_cruz').get('gnos_id') else False,
         "is_aug2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('aug2015').get('gnos_id') else False,
         "is_oct2015_entry": True if gnos_analysis.get('analysis_id') in annotations.get('oct2015').get('gnos_id') else False,
+        "is_mar2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('mar2016').get('gnos_id') else False,
+        "is_may2016_entry": True if gnos_analysis.get('analysis_id') in annotations.get('may2016').get('gnos_id') else False,
         "is_s3_transfer_scheduled": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_scheduled') else False,
         "is_s3_transfer_completed": True if gnos_analysis.get('analysis_id') in annotations.get('s3_transfer_completed') else False,
 
@@ -672,6 +785,9 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_santa_cruz_donor': True if donor_unique_id in annotations.get('santa_cruz').get('donor') else False,
             'is_aug2015_donor': True if donor_unique_id in annotations.get('aug2015').get('donor') else False,
             'is_oct2015_donor': True if donor_unique_id in annotations.get('oct2015').get('donor') else False,
+            'is_mar2016_donor': True if donor_unique_id in annotations.get('mar2016').get('donor') else False,
+            'is_may2016_donor': True if donor_unique_id in annotations.get('may2016').get('donor') else False,
+            'TiN': annotations.get('TiN').get(donor_unique_id, 'NA'),
             'is_normal_specimen_aligned': False,
             'are_all_tumor_specimens_aligned': False,
             'has_aligned_tumor_specimen': False,
@@ -681,6 +797,8 @@ def create_donor(donor_unique_id, analysis_attrib, gnos_analysis, annotations):
             'is_dkfz_variant_calling_performed': False,
             'is_embl_variant_calling_performed': False,
             'is_dkfz_embl_variant_calling_performed': False,
+            'is_oxog_variant_calling_performed': False,
+            'is_minibam_variant_calling_performed': False,
             'is_broad_variant_calling_performed': False,
             'broad':{
                 'broad_file_subset_exist': False,
@@ -849,6 +967,7 @@ def get_xml_files( metadata_dir, conf, repo ):
 def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_output_jsonl_file, repo, exclude_gnos_id_lists):
     donors = {}
     vcf_entries = {}
+    consensus_entries = {}
 
     # update the pc_annotation-sanger_vcf_in_jamboree files using the jamboree subdirectory files
     vcf_in_jamboree_dir = '../pcawg-operations/variant_calling/sanger_workflow/jamboree/'
@@ -860,21 +979,25 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
     annotations = {}
     read_annotations(annotations, 'gnos_assignment', 'pc_annotation-gnos_assignment.yml')  # hard-code file name for now
     read_annotations(annotations, 'train2_pilot', 'pc_annotation-train2_pilot.tsv')  # hard-code file name for now
-    read_annotations(annotations, 'donor_blacklist', 'pc_annotation-donor_blacklist.tsv')  # hard-code file name for now
+    read_annotations(annotations, 'donor_blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv')  # hard-code file name for now
     read_annotations(annotations, 'manual_qc_failed', 'pc_annotation-manual_qc_failed.tsv')  # hard-code file name for now
     read_annotations(annotations, 'sanger_vcf_in_jamboree', 'pc_annotation-sanger_vcf_in_jamboree.tsv')  # hard-code file name for now
     read_annotations(annotations, 'santa_cruz', '../pcawg-operations/data_releases/santa_cruz/santa_cruz_freeze_entry.tsv')
-    read_annotations(annotations, 'aug2015', '../pcawg-operations/data_releases/aug2015/release_aug2015_entry.tsv')
-    read_annotations(annotations, 'oct2015', '../pcawg-operations/data_releases/oct2015/release_oct2015_entry.tsv')
     read_annotations(annotations, 's3_transfer_scheduled', '../s3-transfer-operations/s3-transfer-jobs*/*/*.json')
     read_annotations(annotations, 's3_transfer_completed', '../s3-transfer-operations/s3-transfer-jobs*/completed-jobs/*.json')
     read_annotations(annotations, 'qc_donor_prioritization', 'qc_donor_prioritization.txt')
     read_annotations(annotations, 'uuid_to_barcode', 'pc_annotation-tcga_uuid2barcode.tsv')    
-    read_annotations(annotations, 'icgc_donor_id', 'pc_annotation-icgc_donor_ids.csv')
-    read_annotations(annotations, 'icgc_specimen_id', 'pc_annotation-icgc_specimen_ids.csv')
-    read_annotations(annotations, 'icgc_sample_id', 'pc_annotation-icgc_sample_ids.csv')
-
-
+    read_annotations(annotations, 'icgc_donor_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_donor_ids.csv')
+    read_annotations(annotations, 'icgc_specimen_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_specimen_ids.csv')
+    read_annotations(annotations, 'icgc_sample_id', '../pcawg-operations/lists/icgc_bioentity_ids/pc_annotation-icgc_sample_ids.csv')
+    read_annotations(annotations, 'pcawg_final_list', '../pcawg-operations/lists/pc_annotation-pcawg_final_list.tsv')
+    read_annotations(annotations, 'aliquot_blacklist', '../pcawg-operations/lists/blacklist/pc_annotation-aliquot_blacklist.tsv')
+    read_annotations(annotations, 'oxog_score', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
+    read_annotations(annotations, 'ContEST', '../pcawg-operations/lists/quality_control_info/broad_qc_metrics.tsv')
+    read_annotations(annotations, 'Stars', '../pcawg-operations/lists/quality_control_info/PAWG_QC_Summary_of_Measures.tsv')
+    read_annotations(annotations, 'TiN', '../pcawg-operations/lists/quality_control_info/TiN_donor.TiNsorted.tsv')
+    for r in ['aug2015', 'oct2015', 'mar2016', 'may2016']:
+        read_annotations(annotations, r, '../pcawg-operations/data_releases/'+r+'/release_'+r+'_entry.tsv')
 
     # hard-code the file name for now    
     train2_freeze_bams = read_train2_bams('../pcawg-operations/variant_calling/train2-lists/Data_Freeze_Train_2.0_GoogleDocs__2015_04_10_1150.tsv')
@@ -901,14 +1024,14 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
                     .format(f, gnos_analysis.get('analysis_id')) )
                 continue
 
-            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations)
+            process_gnos_analysis( gnos_analysis, donors, vcf_entries, es_index, es, bam_fh, annotations, consensus_entries)
         else:
             logger.warning( 'skipping invalid xml file: {}'.format(f) )
 
     for donor_id in donors.keys():
         donor = donors[donor_id]
 
-        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams)
+        process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, consensus_entries)
 
         # push to Elasticsearch
         es.index(index=es_index, doc_type='donor', id=donor['donor_unique_id'], \
@@ -994,14 +1117,14 @@ def read_annotations(annotations, type, file_name):
                     donor_id, ao_id = str.split(line.rstrip(), '\t')
                     annotations[type][donor_id] = ao_id
                     
-            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed']:
+            elif type in ['train2_donors', 'train2_pilot', 'donor_blacklist', 'manual_qc_failed', 'aliquot_blacklist']:
                 annotations[type] = set()
                 for line in r:
                     if line.startswith('#'): continue
                     if len(line.rstrip()) == 0: continue
                     annotations[type].add(line.rstrip())
 
-            elif type in ['santa_cruz', 'aug2015', 'oct2015']:
+            elif type in ['santa_cruz', 'aug2015', 'oct2015', 'mar2016', 'may2016']:
                 annotations[type] = {
                     'donor': set(),
                     'gnos_id': set()
@@ -1038,13 +1161,59 @@ def read_annotations(annotations, type, file_name):
                     if len(line.rstrip()) == 0: continue
                     icgc_id, id_pcawg, dcc_project_code, creation_release = str.split(line.rstrip(), ',')
                     id_pcawg = detect_and_low_case_uuid(id_pcawg)
-                    annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id 
+                    annotations[type][dcc_project_code+'::'+id_pcawg] = prefix.upper()+icgc_id
+
+            elif type == 'pcawg_final_list':
+                annotations[type] = {
+                    'donor': set(),
+                    'specimen': set(),
+                    'sample': set()
+                }
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    annotations[type]['donor'].add(row.get('donor_unique_id'))
+                    annotations[type]['specimen'].add(row.get('dcc_project_code')+'::'+row.get('submitter_specimen_id'))
+                    annotations[type]['sample'].add(row.get('dcc_project_code')+'::'+row.get('submitter_sample_id'))
+
+            elif type in ['oxog_score', 'ContEST']:
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('aliquot_GUUID'): continue
+                    if type == 'oxog_score' and not row.get('picard_oxoQ'): 
+                        logger.warning('aliquot: {} has no oxog_score'.format(row.get('aliquot_GUUID')))
+                        continue
+                    if type == 'ContEST' and not row.get('contamination_percentage_whole_genome_no_array_value'): 
+                        logger.warning('aliquot: {} has no ContEST'.format(row.get('aliquot_GUUID')))
+                        continue
+                    annotations[type][row.get('aliquot_GUUID')] = row.get('picard_oxoQ') if type=='oxog_score' else row.get('contamination_percentage_whole_genome_no_array_value')
+
+            elif type == 'Stars':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('Tumour_WGS_aliquot_ID'): continue
+                    if row.get('Stars') == 'NA':  
+                        logger.warning('aliquot:{} has no stars information.'.format(row.get('Tumour_WGS_aliquot_ID')))
+                        continue
+                    annotations[type][row.get('Tumour_WGS_aliquot_ID')] = row.get('Stars')
+
+            elif type == 'TiN':
+                annotations[type] = {}
+                reader = csv.DictReader(r, delimiter='\t')
+                for row in reader:
+                    if not row.get('donor_unique_id'): continue
+                    if not row.get('TiN_donor'):  
+                        logger.warning('donor:{} has no TiN information.'.format(row.get('donor_unique_id')))
+                        continue
+                    annotations[type][row.get('donor_unique_id')] = row.get('TiN_donor')
+
 
             else:
                 logger.warning('unknown annotation type: {}'.format(type))
 
 
-def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
+def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams, consensus_entries):
     logger.info( 'processing donor: {} ...'.format(donor.get('donor_unique_id')) )
 
     # check whether all tumor specimen(s) aligned
@@ -1123,7 +1292,62 @@ def process_donor(donor, annotations, vcf_entries, conf, train2_freeze_bams):
 
     add_vcf_entry(donor, vcf_entries.get(donor.get('donor_unique_id')))
 
+    # choose consensus by iterating all cached vcfs
+    choose_consensus_entry(consensus_entries, donor.get('donor_unique_id'))
+
+    # add the consensus to donor
+    add_consensus_entry(donor, consensus_entries.get(donor.get('donor_unique_id')))
+
     check_bwa_duplicates(donor, train2_freeze_bams)
+
+    reshape_minibam(donor)
+
+def reshape_minibam(donor):
+    if not donor.get('variant_calling_results'): return
+    if not donor.get('normal_alignment_status') or not donor.get('tumor_alignment_status'): return
+    if not donor.get('normal_alignment_status').get('aligned_bam'): return
+    if not donor.get('variant_calling_results').get('minibam_variant_calling'): return
+    minibam_info = donor.get('variant_calling_results').get('minibam_variant_calling')
+    # add minibam to normal
+    wgs_normal_alignment = donor.get('normal_alignment_status').get('aligned_bam')
+    donor.get('normal_alignment_status')['minibam'] = create_minibam(wgs_normal_alignment, minibam_info)
+    # add minibam to tumour
+    for aliquot in donor.get('tumor_alignment_status'):
+        wgs_tumor_alignment = aliquot.get('aligned_bam')
+        aliquot['minibam'] = create_minibam(wgs_tumor_alignment, minibam_info)
+
+    return donor
+
+
+
+def create_minibam(alignment, minibam_info):
+    minibam_entry = {
+        "gnos_id": minibam_info['gnos_id'],
+        "effective_xml_md5sum": minibam_info['effective_xml_md5sum'],
+        "gnos_last_modified": minibam_info['gnos_last_modified'],
+        "gnos_repo": minibam_info['gnos_repo'],
+        "is_santa_cruz_entry": minibam_info['is_santa_cruz_entry'],
+        "is_aug2015_entry": minibam_info['is_aug2015_entry'],
+        "is_oct2015_entry": minibam_info['is_oct2015_entry'],
+        "is_mar2016_entry": minibam_info['is_mar2016_entry'],
+        "is_may2016_entry": minibam_info['is_may2016_entry'],
+        "is_s3_transfer_scheduled": minibam_info['is_s3_transfer_scheduled'],
+        "is_s3_transfer_completed": minibam_info['is_s3_transfer_completed']
+    }
+    minibam_files = minibam_info.get('files')
+    if not minibam_files:
+        logger.warning('The minibam with gnos_id {} is missing files.'.format(minibam_entry.get('gnos_id')))
+        return
+    for ftype in ['bam', 'bai']:
+        for f in minibam_files:            
+            if not f.get('file_name').replace('_minibam', '') == alignment.get(ftype+'_file_name'): continue
+            for feature in ['name', 'size', 'md5sum']:
+                minibam_entry[ftype+'_file_'+feature] = f.get('file_'+feature) if f.get('file_'+feature) else None
+        for feature in ['name', 'size', 'md5sum']:
+            if not minibam_entry.get(ftype+'_file_'+feature):
+                logger.warning('The minibam with gnos_id: {} is missing {} data for file {}.'.format(minibam_entry.get('gnos_id'), feature, alignment.get(ftype+'_file_name')))
+    
+    return minibam_entry
 
 
 def reorganize_dkfz_embl_calls(vcf_entries):
@@ -1224,7 +1448,9 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                         bam_file.get('bam_gnos_ao_id')),
                                 'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                                 'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
-                                'is_oct2015_entry': bam_file.get('is_oct2015_entry')
+                                'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
+                                'is_mar2016_entry': bam_file.get('is_mar2016_entry'),
+                                'is_may2016_entry': bam_file.get('is_may2016_entry')
                             }
                         )
                 else:
@@ -1246,7 +1472,9 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                         bam_file.get('bam_gnos_ao_id')),
                                 'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                                 'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
-                                'is_oct2015_entry': bam_file.get('is_oct2015_entry')
+                                'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
+                                'is_mar2016_entry': bam_file.get('is_mar2016_entry'),
+                                'is_may2016_entry': bam_file.get('is_may2016_entry')
                             }
                         ]
                     }
@@ -1274,7 +1502,9 @@ def check_bwa_duplicates(donor, train2_freeze_bams):
                                     bam_file.get('bam_gnos_ao_id')),
                             'is_santa_cruz_entry': bam_file.get('is_santa_cruz_entry'),
                             'is_aug2015_entry': bam_file.get('is_aug2015_entry'),
-                            'is_oct2015_entry': bam_file.get('is_oct2015_entry')
+                            'is_oct2015_entry': bam_file.get('is_oct2015_entry'),
+                            'is_mar2016_entry': bam_file.get('is_mar2016_entry'),
+                            'is_may2016_entry': bam_file.get('is_may2016_entry')
                         }
                     )
 
@@ -1475,6 +1705,19 @@ def is_train2_bam(donor, train2_freeze_bams, gnos_id, specimen_type):
         return True
     return False
 
+def add_consensus_entry(donor, consensus_entry):
+    if not consensus_entry:
+        return
+    donor['consensus_files'] = copy.deepcopy(consensus_entry.get('consensus_entry_files'))
+    del consensus_entry['consensus_entry_files']
+    for ct in ['somatic']:
+        if not donor.get('consensus_'+ct+'_variant_calls'): donor['consensus_'+ct+'_variant_calls'] = {}
+    for k, v in consensus_entry.iteritems():
+        if k in ['indel', 'snv_mnv', 'sv', 'cnv']:
+            donor.get('consensus_somatic_variant_calls').update({k: v})
+
+    return donor   
+
 
 def add_vcf_entry(donor, vcf_entry):
     if not vcf_entry:
@@ -1564,7 +1807,7 @@ def add_vcf_entry(donor, vcf_entry):
             donor.get('flags')['exists_vcf_file_prefix_mismatch'] = True
     
     # update the flags for sanger, dkfz_embl
-    for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz']:
+    for workflow in ['sanger', 'dkfz_embl', 'embl', 'dkfz', 'oxog', 'minibam']:
         if donor.get('variant_calling_results').get(workflow + '_variant_calling'):
             donor.get('flags')['is_' + workflow + '_variant_calling_performed'] = True
             donor.get('flags').get('variant_calling_performed').append(workflow)
@@ -1792,11 +2035,16 @@ def create_aggregated_bam_info_dict(bam):
             "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
             "is_aug2015_entry": bam['is_aug2015_entry'],
             "is_oct2015_entry": bam['is_oct2015_entry'],
+            "is_mar2016_entry": bam['is_mar2016_entry'],
+            "is_may2016_entry": bam['is_may2016_entry'],
             "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],
             "is_s3_transfer_completed": bam['is_s3_transfer_completed']
          },
          "bam_with_unmappable_reads": {},
-         "unaligned_bams": {}
+         "unaligned_bams": {},
+         "oxog_score": bam['oxog_score'],
+         "ContEST": bam['ContEST'],
+         "Stars": bam['Stars']
     }
     
     return aggregated_bam_info_dict
@@ -1847,7 +2095,15 @@ def bam_aggregation(bam_files):
                     alignment_status['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
                     
             else:
-                if bam['is_oct2015_entry']:
+                if bam['is_may2016_entry']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in may2016: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
+                elif bam['is_mar2016_entry']:
+                    aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
+                    logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in mar2016: {}, additional: {}'
+                        .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
+                elif bam['is_oct2015_entry']:
                     aggregated_bam_info[bam['aliquot_id']] = create_aggregated_bam_info_dict(bam)
                     logger.info( 'Same aliquot: {} from donor: {} has different aligned GNOS BWA BAM entries, keep the one in oct2015: {}, additional: {}'
                         .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('aligned_bam').get('gnos_id')))
@@ -2016,7 +2272,17 @@ def bam_aggregation(bam_files):
 
 
                 else:
-                    if bam['is_oct2015_entry']:
+                    if bam['is_may2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in may2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('tophat').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_mar2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['tophat'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in mar2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('tophat').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_oct2015_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['tophat'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different tophat aligned GNOS RNA_Seq BAM entries, keep the one in oct2015: {}, additional: {}'
@@ -2071,7 +2337,17 @@ def bam_aggregation(bam_files):
                         alignment_status.get('star')['exists_xml_md5sum_mismatch'] = False if len(set(alignment_status.get('star').get('aligned_bam').get('effective_xml_md5sum'))) == 1 else True
 
                 else:
-                    if bam['is_oct2015_entry']:
+                    if bam['is_may2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in may2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('star').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_mar2016_entry']:
+                        aliquot_tmp = create_aggregated_rna_bam_info(bam)
+                        alignment_status['star'] = aliquot_tmp
+                        logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in mar2016: {}, additional: {}'
+                            .format(bam['aliquot_id'], bam['donor_unique_id'], bam['gnos_metadata_url'], alignment_status.get('star').get('aligned_bam').get('gnos_id')))
+                    elif bam['is_oct2015_entry']:
                         aliquot_tmp = create_aggregated_rna_bam_info(bam)
                         alignment_status['star'] = aliquot_tmp
                         logger.info( 'Same aliquot: {} from donor: {} has different star aligned GNOS RNA_Seq BAM entries, keep the one in oct2015: {}, additional: {}'
@@ -2127,6 +2403,8 @@ def create_aggregated_rna_bam_info(bam):
         "is_santa_cruz_entry": bam['is_santa_cruz_entry'],
         "is_aug2015_entry": bam['is_aug2015_entry'],
         "is_oct2015_entry": bam['is_oct2015_entry'],
+        "is_mar2016_entry": bam['is_mar2016_entry'],
+        "is_may2016_entry": bam['is_may2016_entry'],
         "is_s3_transfer_scheduled": bam['is_s3_transfer_scheduled'],  
         "is_s3_transfer_completed": bam['is_s3_transfer_completed'],
         "exists_xml_md5sum_mismatch": False,           

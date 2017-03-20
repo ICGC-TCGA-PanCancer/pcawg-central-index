@@ -3,11 +3,11 @@
 output_dir: gnos_metadata
 
 gnos_repos:
-  - 
-    repo_location: Seoul
-    repo_code: etri
-    base_url: https://gtrepo-etri.annailabs.com/
-    cgquery_para: study=*
+  # - 
+  #   repo_location: Seoul
+  #   repo_code: etri
+  #   base_url: https://gtrepo-etri.annailabs.com/
+  #   cgquery_para: study=*
   - 
     repo_location: London
     repo_code: ebi

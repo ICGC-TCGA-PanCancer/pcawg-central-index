@@ -753,6 +753,12 @@
                "is_oct2015_donor":{
                   "type":"boolean"
                },
+               "is_mar2016_donor":{
+                  "type":"boolean"
+               },
+               "is_may2016_donor":{
+                  "type":"boolean"
+               },
                "is_cell_line":{
                   "type":"boolean"
                },
@@ -787,6 +793,12 @@
                   "type":"boolean"
                },
                "is_dkfz_embl_variant_calling_performed":{
+                  "type":"boolean"
+               },
+               "is_oxog_variant_calling_performed":{
+                  "type":"boolean"
+               },
+               "is_minibam_variant_calling_performed":{
                   "type":"boolean"
                },
                "is_broad_variant_calling_performed":{
