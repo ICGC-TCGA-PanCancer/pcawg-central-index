@@ -238,7 +238,7 @@ def create_gnos_entity_info(donor_unique_id, es_json, compute_sites):
 
     add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites)
 
-    add_rna_seq_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites)
+    add_rna_seq_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json)
 
     return gnos_entity_info_list
 
@@ -267,7 +267,7 @@ def add_wgs_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_list
         gnos_entity_info['gnos_id'] = aliquot.get('aligned_bam').get('gnos_id')
         gnos_entity_info['gnos_repo'] = sort_repos_by_time(aliquot.get('aligned_bam'))[1]
         gnos_entity_info['published_date'] = sort_repos_by_time(aliquot.get('aligned_bam'))[0]
-        gnos_entity_info['compute_site'] = get_compute_site(gnos_entity_info['donor_unique_id'], compute_sites['bwa'], gnos_entity_info['gnos_repo'])
+        gnos_entity_info['compute_site'] = get_compute_site(gnos_entity_info['donor_unique_id'], compute_sites['bwa_alignment'], gnos_entity_info['gnos_repo'])
         gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
 
     return gnos_entity_info_list
@@ -284,13 +284,13 @@ def get_compute_site(donor_unique_id, compute_sites, gnos_repo):
 
 
 def sort_repos_by_time(obj):    
-    published_dates = obj.get('gnos_published_date')
+    published_dates = obj.get('gnos_last_modified')
     gnos_repos = obj.get('gnos_repo')
     published_dates_sort, gnos_repos_sort = izip(*sorted(izip(published_dates, gnos_repos), key=lambda x: x[0]))
     return [published_dates_sort[0], gnos_repos_sort[0]]
 
 
-def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
+def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json, compute_sites):
     if es_json.get('variant_calling_results'):
         gnos_entity_info['library_strategy'] = 'WGS'
         gnos_entity_info['aliquot_id'] = None
@@ -303,7 +303,7 @@ def add_vcf_gnos_entity(gnos_entity_info_list, gnos_entity_info, es_json):
                 gnos_entity_info['gnos_id'] = es_json.get('variant_calling_results').get(vcf_type).get('gnos_id')    
                 gnos_entity_info['gnos_repo'] = sort_repos_by_time(es_json.get('variant_calling_results').get(vcf_type))[1]
                 gnos_entity_info['published_date'] = sort_repos_by_time(es_json.get('variant_calling_results').get(vcf_type))[0]
-                gnos_entity_info['compute_site'] = get_compute_site(gnos_entity_info['donor_unique_id'], compute_sites['vcf_type'], gnos_entity_info['gnos_repo'])
+                gnos_entity_info['compute_site'] = get_compute_site(gnos_entity_info['donor_unique_id'], compute_sites[vcf_type], gnos_entity_info['gnos_repo'])
                 gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))
 
     return gnos_entity_info_list
@@ -341,7 +341,7 @@ def add_rna_seq_aliquot_gnos_entity(aliquot, gnos_entity_info, gnos_entity_info_
         gnos_entity_info['gnos_id'] = aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')
         gnos_entity_info['gnos_repo'] = sort_repos_by_time(aliquot.get(workflow_type).get('aligned_bam'))[1]
         gnos_entity_info['published_date'] = sort_repos_by_time(aliquot.get(workflow_type).get('aligned_bam'))[0]
-        gnos_entity_info['compute_site'] = gnos_entity_info['gnos_repo']
+        gnos_entity_info['compute_site'] = get_formal_repo_name(gnos_entity_info['gnos_repo'])
         gnos_entity_info_list.append(copy.deepcopy(gnos_entity_info))         
 
     return gnos_entity_info_list
@@ -411,12 +411,16 @@ def get_formal_repo_name(repo):
 
     return repo_url_to_repo.get(repo)
 
-def generate_report(es, es_index, es_queries, report_dir):
-    repos = set()
+def generate_report(es, es_index, es_queries, report_dir, compute_sites):
 
     for q_index in range(len(es_queries)):
         counts_per_day = OrderedDict()
         
+        if compute_sites.get(es_queries[q_index].get('name')):
+            repos = set(['bsc', 'ebi', 'cghub', 'dkfz', 'riken', 'osdc-icgc', 'osdc-tcga', 'etri']+compute_sites.get(es_queries[q_index].get('name')).keys())
+        else:
+            repos = set(['bsc', 'ebi', 'cghub', 'dkfz', 'riken', 'osdc-icgc', 'osdc-tcga', 'etri'])
+
         # initialized
         start_date = datetime.date(2014, 8, 1)
         current_date = datetime.date.today()
@@ -425,8 +429,8 @@ def generate_report(es, es_index, es_queries, report_dir):
         while start_date<current_date:
             counts_per_day[start_date.strftime("%Y-%m-%d")]={}
             counts_per_day[start_date.strftime("%Y-%m-%d")]['count']=0
-            # for r in repos:
-            #     counts_per_day[start_date.strftime("%Y-%m-%d")][r]=0
+            for r in repos:
+                counts_per_day[start_date.strftime("%Y-%m-%d")][r]=0
             all_dates.append(start_date.strftime("%Y-%m-%d"))
             start_date += step
         
@@ -436,12 +440,11 @@ def generate_report(es, es_index, es_queries, report_dir):
             published_date = p.get('key_as_string').split('T')[0]
             counts_per_day[published_date]['count'] = p.get('doc_count')
             for d in p.get('repo').get('buckets'):
-                repos.add(d.get('key'))
                 counts_per_day[published_date][d.get('key')] = d.get('doc_count')
 
         # get the cumulative sum
         counts_sum = OrderedDict()
-        counts_sum_list = [['Date', 'count']+repos]
+        counts_sum_list = [['Date', 'count']+list(repos)]
                 
         for d in range(len(all_dates)):
             counts_list = [all_dates[d]]
@@ -477,12 +480,12 @@ def get_whitelists(whitelist_dir):
 
     for d in whitelist_dir:
         # get the compute_site_names from the subfolder name
-        site_name = next(os.walk(d))[1]
+        site_name = next(os.walk(whitelist_dir[d]))[1]
         for c in site_name:
             files = glob.glob(whitelist_dir[d] + '/' + c + '/' + c + '.*.txt')
             for f in files:
                 if not compute_sites.get(d): compute_sites[d] = {} 
-                if not compute_sites[d].get(c): compute_sites[d][c] = {}
+                if not compute_sites[d].get(c): compute_sites[d][c] = set()
                 compute_sites[d][c].update(get_donors(f))
     return compute_sites
 
@@ -529,7 +532,7 @@ def main(argv=None):
 
     # get the computer sites info
     whitelist_dir = {
-        'bwa': '../pcawg-operations/bwa_alignment',
+        'bwa_alignment': '../pcawg-operations/bwa_alignment',
         'sanger_variant_calling': '../pcawg-operations/variant_calling/sanger_workflow/whitelists',
         'broad_variant_calling': '../pcawg-operations/variant_calling/broad_workflow/whitelists',
         'dkfz_embl_variant_calling': '../pcawg-operations/variant_calling/dkfz_embl_workflow/whitelists',
@@ -541,7 +544,7 @@ def main(argv=None):
     # get json doc for each donor and reorganize it 
     for donor_unique_id in donors_list:     
         
-    	  es_json = get_donor_json(es, es_index, donor_unique_id)
+    	es_json = get_donor_json(es, es_index, donor_unique_id)
         
         gnos_entity_info_list = create_gnos_entity_info(donor_unique_id, es_json, compute_sites)
         
