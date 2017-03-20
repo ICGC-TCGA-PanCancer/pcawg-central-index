@@ -7,7 +7,7 @@ import json
 from collections import OrderedDict
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-from elasticsearch import Elasticsearch
+from elasticsearch1 import Elasticsearch
 
 es_host = 'localhost:9200'
 es_type = "donor"

@@ -10,7 +10,7 @@ import copy
 import logging
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-from elasticsearch import Elasticsearch
+from elasticsearch1 import Elasticsearch
 from collections import OrderedDict
 import datetime
 import csv

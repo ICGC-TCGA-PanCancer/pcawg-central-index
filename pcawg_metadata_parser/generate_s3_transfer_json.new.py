@@ -29,7 +29,7 @@ json_prefix_code = 'a'
 json_prefix_start = 1
 json_prefix_inc = 10
 
-logger = logging.getLogger('ceph transfer json generator')
+logger = logging.getLogger('s3 transfer json generator')
 ch = logging.StreamHandler()
 
 es_queries = [
@@ -48,7 +48,14 @@ es_queries = [
             {
               "terms": {
                 "dcc_project_code": [
-                  "EOPC-DE"
+                 "CLLE-ES" 
+               ]
+              }
+            },
+            {
+              "terms":{
+                "flags.is_aug2015_donor":[
+                  "T"
                 ]
               }
             },
@@ -102,6 +109,13 @@ es_queries = [
             {
               "terms": {
                 "flags.is_manual_qc_failed": [
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
+                "flags.is_donor_blacklisted": [
                   "T"
                 ]
               }
@@ -581,7 +595,7 @@ def main(argv=None):
     gnos_ids_to_be_excluded = generate_gnos_id_list(exclude_gnos_id_lists)
 
     # read and parse git for the gnos_ids and fnames which are scheduled for s3 transfer
-    git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
+    git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
     files = glob.glob(git_s3_fnames)
     for f in files:
         fname = str.split(f, '/')[-1]
@@ -647,9 +661,9 @@ def main(argv=None):
         reorganized_donor = create_reorganized_donor(donor_unique_id, es_json,\
                 gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
 
-        #donor_fh.write(json.dumps(reorganized_donor, default=set_default, sort_keys=True) + '\n')
+       # donor_fh.write(json.dumps(reorganized_donor, default=set_default, sort_keys=True) + '\n')
 
-    #donor_fh.close()
+   # donor_fh.close()
 
     if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
