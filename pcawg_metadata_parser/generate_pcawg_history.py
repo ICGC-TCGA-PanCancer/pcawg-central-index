@@ -573,7 +573,7 @@ def main(argv=None):
     report_name = re.sub(r'\.py$', '', report_name)
     report_dir = init_report_dir(metadata_dir, report_name)
 
-    generate_report(es, es_index_history, es_queries_history, report_dir)
+    generate_report(es, es_index_history, es_queries_history, report_dir, compute_sites)
 
 
     return 0
