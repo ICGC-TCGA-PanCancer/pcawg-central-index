@@ -7,7 +7,7 @@ import json
 from collections import OrderedDict
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-from elasticsearch1 import Elasticsearch
+from elasticsearch import Elasticsearch
 import glob
 import shutil
 import copy
