@@ -10,7 +10,7 @@ import json
 import sys
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-from elasticsearch import Elasticsearch
+^from elasticsearch1 import Elasticsearch
 import logging
 import glob
 from collections import OrderedDict
