@@ -39,7 +39,7 @@ def download_manifest(gnos_repo, mani_output_dir, use_previous=False):
 
     manifest_file = mani_output_dir + '/manifest.' + gnos_repo.get('repo_code') + '.xml'
 
-    download_command = 'cgquery -s ' + gnos_repo.get('base_url'
+    download_command = 'gnosquery -s ' + gnos_repo.get('base_url'
                           ) + ' --all-states ' + ' -o ' + manifest_file + ' "' + gnos_repo.get('cgquery_para') + '"'
 
     if subprocess.call(download_command, shell=True) == 0:
