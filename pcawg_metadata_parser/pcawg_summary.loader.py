@@ -3,7 +3,7 @@
 
 import sys
 import json 
-from elasticsearch import Elasticsearch
+from elasticsearch1 import Elasticsearch
 
 
 def init_es(es_host, es_index):

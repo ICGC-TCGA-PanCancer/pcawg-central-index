@@ -2,7 +2,7 @@
 
 import yaml
 import json
-^from elasticsearch1 import Elasticsearch
+from elasticsearch1 import Elasticsearch
 from parse_gnos_xml import *
 
 repo = ''

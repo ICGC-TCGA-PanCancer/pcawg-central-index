@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-^from elasticsearch1 import Elasticsearch
+from elasticsearch1 import Elasticsearch
 
 
 ES_QUERY = {

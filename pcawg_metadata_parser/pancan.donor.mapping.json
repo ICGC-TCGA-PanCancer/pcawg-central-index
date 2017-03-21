@@ -1,6 +1,6 @@
 {
    "donor":{
-      "dynamic":"false",
+      "dynamic":"true",
       "dynamic_templates":[
          {
             "template_1":{
