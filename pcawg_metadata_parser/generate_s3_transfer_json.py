@@ -24,8 +24,9 @@ import shutil
 import requests
 
 id_service_token = os.environ.get('ICGC_TOKEN')
+icgc_project_code = os.environ.get('ICGC_PROJECT_CODE')
 
-logger = logging.getLogger('s3 transfer json generator')
+logger = logging.getLogger('Transfer json generator')
 ch = logging.StreamHandler()
 
 es_queries = [
@@ -42,36 +43,9 @@ es_queries = [
             },
             {
               "terms": {
-                "dcc_project_code": [
-                    "LIRI-JP",
-                    "PACA-CA",
-                    "PRAD-CA",
-                    "RECA-EU",
-                    "PAEN-AU",
-                    "PACA-AU",
-                    "BOCA-UK",
-                    "OV-AU",
-                    "MELA-AU",
-                    "BRCA-UK"
-                    "PRAD-UK",
-                    "CMDI-UK",
-                    "LINC-JP",
-                    "ORCA-IN",
-                    "BTCA-SG",
-                    "LAML-KR",
-                    "LICA-FR",
-                    "CLLE-ES",
-                    "ESAD-UK"
-                ]
+                "dcc_project_code": [icgc_project_code]
               }
-            },
-            # {
-            #   "terms":{
-            #     "donor_unique_id":[
-            #       "PACA-AU::ICGC_0088"
-            #     ]
-            #   }
-            # },           
+            },          
             {
               "terms":{
                 "flags.is_normal_specimen_aligned":[
@@ -88,7 +62,7 @@ es_queries = [
             },
             {
               "terms":{
-                "flags.is_oct2015_donor":[
+                "flags.is_may2016_donor":[
                   "T"
                 ]
               }
@@ -98,30 +72,30 @@ es_queries = [
             #     "flags.all_tumor_specimen_aliquot_counts":{"gte": 2}
             #   }
             # },
-            {
-              "range":{
-                    "qc_score":{"gte": 0, "lt": 10000}
-                }
-            }
+            # {
+            #   "range":{
+            #         "qc_score":{"gte": 0, "lt": 10000}
+            #     }
+            # }
           ],
           "must_not": [
-            {
-              "regexp": {
-                "dcc_project_code": ".*-US"
-              }
-            },
-            {
-              "regexp": {
-                "dcc_project_code": ".*-DE"
-              }
-            },
-            {
-              "terms": {
-                "flags.is_bam_used_by_variant_calling_missing": [
-                  "T"
-                ]
-              }
-            },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-US"
+            #   }
+            # },
+            # {
+            #   "regexp": {
+            #     "dcc_project_code": ".*-DE"
+            #   }
+            # },
+            # {
+            #   "terms": {
+            #     "flags.is_bam_used_by_variant_calling_missing": [
+            #       "T"
+            #     ]
+            #   }
+            # },
             {
               "terms": {
                 "duplicated_bwa_alignment_summary.exists_mismatch_bwa_bams": [
@@ -129,6 +103,13 @@ es_queries = [
                 ]
               }
             },
+            # {
+            #    "terms":{
+            #       "flags.exists_vcf_file_prefix_mismatch":[
+            #          "T"
+            #       ]
+            #    }
+            # }, 
             # {
             #   "terms": {
             #     "flags.exists_xml_md5sum_mismatch": [
@@ -139,6 +120,13 @@ es_queries = [
             {
               "terms": {
                 "flags.is_manual_qc_failed": [
+                  "T"
+                ]
+              }
+            },
+            {
+              "terms": {
+                "flags.is_donor_blacklisted": [
                   "T"
                 ]
               }
@@ -156,9 +144,9 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         "https://gtrepo-osdc-icgc.annailabs.com/",
         "https://gtrepo-ebi.annailabs.com/",
         "https://gtrepo-riken.annailabs.com/",
-        "https://gtrepo-etri.annailabs.com/",
         "https://gtrepo-bsc.annailabs.com/",
-        "https://gtrepo-dkfz.annailabs.com/"
+        "https://gtrepo-dkfz.annailabs.com/",
+        "https://gtrepo-osdc-tcga.annailabs.com/"
     ]
     if chosen_gnos_repo and get_formal_repo_name(chosen_gnos_repo) in available_repos:
         source_repo_rank = [ get_formal_repo_name(chosen_gnos_repo) ]
@@ -168,7 +156,7 @@ def get_source_repo_index_pos (available_repos, chosen_gnos_repo=None):
         except:
             pass
 
-    logger.warning('Source repo not allowed to be transferred to S3')
+    logger.warning('Source repo not allowed to be transferred')
     return None
 
 
@@ -207,7 +195,7 @@ def generate_md5_size(metadata_xml_file):
     return [xml_md5, xml_size]
 
 
-def generate_object_id(filename, gnos_id):
+def generate_object_id(filename, gnos_id, project_code):
     global id_service_token
     url = 'https://meta.icgc.org/entities'
     # try get request first
@@ -230,7 +218,8 @@ def generate_object_id(filename, gnos_id):
         }
         body = {
             "gnosId": gnos_id,
-            "fileName": filename
+            "fileName": filename,
+            "projectCode": project_code
         }
         r = requests.post(url, data=json.dumps(body), headers=headers)
         if not r or not r.ok:
@@ -251,7 +240,7 @@ def add_wgs_normal_specimen(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
     write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
 
 
-def add_metadata_xml_info(obj, chosen_gnos_repo=None):
+def add_metadata_xml_info(obj, project_code, chosen_gnos_repo=None):
     repo = get_formal_repo_name(obj.get('gnos_repo')[ get_source_repo_index_pos(obj.get('gnos_repo'), chosen_gnos_repo) ])
     gnos_id = obj.get('gnos_id')
     ao_state = 'live'
@@ -262,7 +251,7 @@ def add_metadata_xml_info(obj, chosen_gnos_repo=None):
         'file_name': gnos_id + '.xml',
         'file_md5sum': generate_md5_size(metadata_xml_file)[0],
         'file_size': generate_md5_size(metadata_xml_file)[1],
-        'object_id': generate_object_id(gnos_id+'.xml', gnos_id)
+        'object_id': generate_object_id(gnos_id+'.xml', gnos_id, project_code) if project_code else None
     }
 
     return metadata_xml_file_info
@@ -270,9 +259,11 @@ def add_metadata_xml_info(obj, chosen_gnos_repo=None):
 
 def get_available_repos(obj):
     repos = obj.get('gnos_repo')
+    if get_formal_repo_name('cghub') in repos:
+        repos.remove(get_formal_repo_name('cghub'))
     ret_repos = []
     for r in repos:
-        metadata_xml_info = add_metadata_xml_info(obj, get_formal_repo_name(r))
+        metadata_xml_info = add_metadata_xml_info(obj, None, get_formal_repo_name(r))
         ret_repos.append({
               r:{
                   'file_md5sum': metadata_xml_info.get('file_md5sum'),
@@ -301,7 +292,7 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
                 'file_name': aliquot.get('aligned_bam').get('bam_file_name'),
                 'file_md5sum': aliquot.get('aligned_bam').get('bam_file_md5sum'),
                 'file_size': aliquot.get('aligned_bam').get('bam_file_size'),
-                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                       
+                'object_id': generate_object_id(aliquot.get('aligned_bam').get('bam_file_name'), aliquot.get('aligned_bam').get('gnos_id'), es_json['dcc_project_code'])                       
             }
         ]
     }
@@ -312,14 +303,14 @@ def create_bwa_alignment(aliquot, es_json, chosen_gnos_repo):
             'file_name': aliquot.get('aligned_bam').get('bai_file_name'),
             'file_md5sum': aliquot.get('aligned_bam').get('bai_file_md5sum'),
             'file_size': aliquot.get('aligned_bam').get('bai_file_size'),
-            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'))                        
+            'object_id': generate_object_id(aliquot.get('aligned_bam').get('bai_file_name'), aliquot.get('aligned_bam').get('gnos_id'), aliquot_info.get('project_code'))                        
         }
         aliquot_info.get('files').append(bai_file)
     else:
         logger.warning('BWA alignment GNOS entry {} has no .bai file'.format(aliquot_info.get('gnos_id')))
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), chosen_gnos_repo)
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get('aligned_bam'), aliquot_info.get('project_code'), chosen_gnos_repo)
     aliquot_info.get('files').append(metadata_xml_file_info)   
 
     return aliquot_info
@@ -336,6 +327,60 @@ def add_wgs_tumor_specimens(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exc
         aliquot_info = create_bwa_alignment(aliquot, es_json, chosen_gnos_repo)
         write_s3_transfer_json(jobs_dir, aliquot_info, gnos_ids_to_be_excluded)
 
+def add_consensus_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, consensus):
+    for ct in ['somatic']:
+        if not es_json.get('consensus_'+ct+'_variant_calls'): return
+
+        for v in consensus:
+            if not es_json.get('consensus_'+ct+'_variant_calls').get(v): continue
+            for c in es_json.get('consensus_'+ct+'_variant_calls').get(v):
+                gnos_id = c.get('gnos_id')
+                if gnos_ids_to_be_included and not gnos_id in gnos_ids_to_be_included: continue
+                if gnos_ids_to_be_excluded and gnos_id in gnos_ids_to_be_excluded: continue
+                
+                # get prefix of the file, which is tumor aliquot_id
+                vcf_files = c.get('files')
+                prefix = set()
+                for f in vcf_files:
+                    prefix.add(f.get('file_name').split('.')[0])
+                if not len(prefix) == 1:
+                    logger.warning('donor: {} has mismatch file prefix for consensus: {}'.format(es_json.get('donor_unique_id'), v))
+                    continue
+                aliquot_id = prefix.pop()
+
+                consensus_calling = {
+                    'data_type': 'Consensus-'+ct+'-'+v.upper(),
+                    'project_code': es_json['dcc_project_code'],
+                    'submitter_donor_id': es_json['submitter_donor_id'],  
+                    'vcf_workflow_result_version': c.get('vcf_workflow_result_version'),             
+                    'submitter_specimen_id': aliquot_id,
+                    'submitter_sample_id': None,
+                    'specimen_type': None,
+                    'aliquot_id': aliquot_id,
+                    'available_repos': get_available_repos(c),
+                    'gnos_repo': [ c.get('gnos_repo')[ \
+                        get_source_repo_index_pos(c.get('gnos_repo'), chosen_gnos_repo) ] ],
+                    'gnos_id': c.get('gnos_id'),
+                    'files': []            
+                }            
+
+
+                # add the object_id for each file object
+                for f in vcf_files:
+                    if int(f.get('file_size')) == 0: 
+                        logger.warning('donor: {} has consensus_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
+                        continue
+                    f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
+                    f.update({'object_id': generate_object_id(f.get('file_name'), consensus_calling.get('gnos_id'), consensus_calling.get('project_code'))})
+                    consensus_calling.get('files').append(f)
+
+                # add the metadata_xml_file_info
+                metadata_xml_file_info = add_metadata_xml_info(c, consensus_calling.get('project_code'), chosen_gnos_repo)
+
+                consensus_calling.get('files').append(metadata_xml_file_info) 
+
+                write_s3_transfer_json(jobs_dir, consensus_calling, gnos_ids_to_be_excluded)  
+
 
 def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf, vcf_result_version):
     if not es_json.get('variant_calling_results'): return
@@ -344,7 +389,7 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
     for v in variant_callings:
 
         if not es_json.get('variant_calling_results').get(v): continue
-        if not es_json.get('variant_calling_results').get(v).get('vcf_workflow_result_version') == vcf_result_version: continue
+        # if not es_json.get('variant_calling_results').get(v).get('vcf_workflow_result_version') == vcf_result_version: continue
 
         wgs_tumor_vcf_info = es_json.get('variant_calling_results').get(v)
 
@@ -357,7 +402,7 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
             'project_code': es_json['dcc_project_code'],
             'submitter_donor_id': es_json['submitter_donor_id'],  
             'vcf_workflow_result_version': wgs_tumor_vcf_info.get('vcf_workflow_result_version'),             
-            'submitter_specimen_id': None,
+            'submitter_specimen_id': '-',
             'submitter_sample_id': None,
             'specimen_type': None,
             'aliquot_id': None,
@@ -365,19 +410,21 @@ def add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_exclude
             'gnos_repo': [ wgs_tumor_vcf_info.get('gnos_repo')[ \
                 get_source_repo_index_pos(wgs_tumor_vcf_info.get('gnos_repo'), chosen_gnos_repo) ] ],
             'gnos_id': wgs_tumor_vcf_info.get('gnos_id'),
-            'files': wgs_tumor_vcf_info.get('files')
+            'files': []
         }
         
+        vcf_files = wgs_tumor_vcf_info.get('files')
         # add the object_id for each file object
-        for f in variant_calling.get('files'):
+        for f in vcf_files:
             if int(f.get('file_size')) == 0: 
                 logger.warning('donor: {} has variant_calling file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
-                variant_calling.get('files').remove(f)
+                continue
             f.update({'file_size': None if f.get('file_size') == None else int(f.get('file_size'))})
-            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'))})
+            f.update({'object_id': generate_object_id(f.get('file_name'), variant_calling.get('gnos_id'), variant_calling.get('project_code'))})
+            variant_calling.get('files').append(f)
 
         # add the metadata_xml_file_info
-        metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, chosen_gnos_repo)
+        metadata_xml_file_info = add_metadata_xml_info(wgs_tumor_vcf_info, variant_calling.get('project_code'), chosen_gnos_repo)
 
         variant_calling.get('files').append(metadata_xml_file_info) 
 
@@ -393,17 +440,24 @@ def choose_variant_calling(es_json, vcf):
         if get_formal_vcf_name(v) in es_json.get('variant_calling_results').keys() and \
             not es_json.get('variant_calling_results').get(get_formal_vcf_name(v)).get('is_stub'):
             variant_calling.add(get_formal_vcf_name(v))
-            if not check_broad_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
+            if not check_vcf(es_json, v): variant_calling.discard(get_formal_vcf_name(v))
         else:
             logger.warning('donor: {} has no {}'.format(es_json.get('donor_unique_id'), get_formal_vcf_name(v)))
     return variant_calling
 
 
-def check_broad_vcf(es_json, vcf_calling):
+def check_vcf(es_json, vcf_calling):
     if vcf_calling == 'broad' or vcf_calling == 'muse' or vcf_calling == 'broad_tar':
         if not es_json.get('flags').get('is_broad_variant_calling_performed'):
             return False
+        elif not es_json.get('variant_calling_results').get(get_formal_vcf_name('broad')).get('vcf_workflow_result_version') == 'v3':
+            return False
         else: 
+            return True
+    elif vcf_calling == 'sanger':
+        if not es_json.get('variant_calling_results').get(get_formal_vcf_name('sanger')).get('vcf_workflow_result_version') == 'v3':
+            return False
+        else:
             return True
     else:
         return True
@@ -461,6 +515,10 @@ def add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, 
 
 
 def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
+    # if not aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
+    #     logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(aliquot.get(workflow_type).get('aligned_bam').get('gnos_id')))
+    #     return None
+
     alignment_info = {
         'data_type': 'RNA_Seq-'+workflow_type.capitalize()+'-Normal' if 'normal' in aliquot.get(workflow_type).get('dcc_specimen_type').lower() else 'RNA_Seq-'+workflow_type.capitalize()+'-Tumor',
         'project_code': es_json['dcc_project_code'],
@@ -474,30 +532,25 @@ def create_rna_seq_alignment(aliquot, es_json, workflow_type, chosen_gnos_repo):
         'gnos_repo': [ aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo')[ \
             get_source_repo_index_pos(aliquot.get(workflow_type).get('aligned_bam').get('gnos_repo'), chosen_gnos_repo)] ],
         'gnos_id': aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'),
-        'files': [
-            {
-                'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'),
-                'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_md5sum'),
-                'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bam_file_size'),
-                'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bam_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                          
-            }
-        ]
+        'files': []
     }
 
-    # add the bai file info if exist
-    if aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'):
-        bai_file = {
-            'file_name': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'),
-            'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_md5sum'),
-            'file_size': aliquot.get(workflow_type).get('aligned_bam').get('bai_file_size'),
-            'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get('bai_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'))                        
-        }
-        alignment_info.get('files').append(bai_file)
-    else:
-        logger.warning('RNA-Seq alignment GNOS entry {} has no .bai file'.format(alignment_info.get('gnos_id')))
+    # add the bam/bai file info if exist
+    for file_type in ('bam', 'bai'):
+        if aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_name'):
+            file_obj = {
+                'file_name': aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_name'),
+                'file_md5sum': aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_md5sum'),
+                'file_size': aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_size'),
+                'object_id': generate_object_id(aliquot.get(workflow_type).get('aligned_bam').get(file_type+'_file_name'), aliquot.get(workflow_type).get('aligned_bam').get('gnos_id'), alignment_info.get('project_code'))                        
+            }
+            alignment_info.get('files').append(file_obj)
+        # else:
+        #     logger.warning('RNA-Seq alignment GNOS entry {} has no {} file'.format(alignment_info.get('gnos_id')))
+            
 
     # add the metadata_xml_file_info
-    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), chosen_gnos_repo)
+    metadata_xml_file_info = add_metadata_xml_info(aliquot.get(workflow_type).get('aligned_bam'), alignment_info.get('project_code'), chosen_gnos_repo)
     alignment_info.get('files').append(metadata_xml_file_info)
 
     return alignment_info
@@ -539,7 +592,7 @@ def write_s3_transfer_json(jobs_dir, transfer_json, gnos_ids_to_be_excluded):
 
         project_code = transfer_json.get('project_code')
         donor_id = transfer_json.get('submitter_donor_id')
-        specimen_id = '-' if transfer_json.get('data_type').endswith('-VCF') else transfer_json.get('submitter_specimen_id')
+        specimen_id = transfer_json.get('submitter_specimen_id')
         data_type = transfer_json.get('data_type')
         
         json_name_list = [gnos_id, project_code, donor_id, specimen_id, data_type, 'json']
@@ -561,7 +614,9 @@ def generate_id_list(id_lists):
         files = glob.glob(id_lists)
         for fname in files:
             with open(fname) as f:
-                for d in f: ids_list.add(d.rstrip())
+                for d in f: 
+                    if d.startswith('#'): continue
+                    ids_list.add(d.rstrip())
 
     return ids_list
 
@@ -588,6 +643,8 @@ def main(argv=None):
              help="List sequence_type types", required=False)
     parser.add_argument("-v", "--variant_calling", dest="vcf", nargs="*",
              help="List variant_calling types", required=False) 
+    parser.add_argument("-u", "--consensus", dest="consensus", nargs="*",
+             help="List consensus types", required=False) 
     parser.add_argument("-n", "--specify the vcf_workflow_result_version", dest="vcf_result_version", default="v2", type=str,
              help="Specify vcf_workflow_result_version", required=False)   
 
@@ -604,10 +661,12 @@ def main(argv=None):
     seq = args.seq
     vcf = args.vcf
     vcf_result_version = args.vcf_result_version
+    consensus = args.consensus
 
 
     seq= list(seq) if seq else [] 
-    vcf = list(vcf) if vcf else []   
+    vcf = list(vcf) if vcf else []
+    consensus = list(consensus) if consensus else []   
 
     # pre-exclude gnos entries when this option is chosen
     gnos_ids_to_be_excluded = generate_id_list(exclude_gnos_id_lists)
@@ -617,6 +676,8 @@ def main(argv=None):
         git_s3_fnames = '../s3-transfer-operations/s3-transfer-jobs*/*/*.json'
     elif target_cloud == 'collab':
         git_s3_fnames = '../ceph_transfer_ops/ceph-transfer-jobs*/*/*.json'
+    elif target_cloud == 'tcga':
+        git_s3_fnames = '../tcga_transfer_ops/tcga-transfer-jobs*/*/*.json'
     else:
         sys.exit('Error: unknown target_cloud!')
     files = glob.glob(git_s3_fnames)
@@ -624,8 +685,8 @@ def main(argv=None):
         fname = str.split(f, '/')[-1]
         gnos_id = str.split(fname, '.')[0]
         gnos_ids_to_be_excluded.add(gnos_id)
-        sub_file_name = '.'.join(str.split(fname, '.')[1:])
-        gnos_ids_to_be_excluded.add(sub_file_name)
+        # sub_file_name = '.'.join(str.split(fname, '.')[1:])
+        # gnos_ids_to_be_excluded.add(sub_file_name)
 
     # only process the gnos entries when this option is chosen
     gnos_ids_to_be_included = generate_id_list(include_gnos_id_lists) 
@@ -659,7 +720,7 @@ def main(argv=None):
 
     report_dir = re.sub(r'^generate_', '', os.path.basename(__file__))
     report_dir = re.sub(r'\.py$', '', report_dir)
-    jobs_dir = metadata_dir + '/reports/' + report_dir
+    jobs_dir = metadata_dir + '/reports/' + report_dir + '_' + target_cloud
 
     if os.path.exists(jobs_dir): shutil.rmtree(jobs_dir, ignore_errors=True)  # empty the folder if exists
     os.makedirs(jobs_dir)
@@ -694,7 +755,10 @@ def main(argv=None):
             add_variant_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, vcf, vcf_result_version)
 
         if seq and 'rna_seq' in seq:
-            add_rna_seq_info(reorganized_donor, es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
+            add_rna_seq_info(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir)
+
+        if consensus:
+            add_consensus_calling(es_json, gnos_ids_to_be_included, gnos_ids_to_be_excluded, chosen_gnos_repo, jobs_dir, consensus)
 
     if os.path.isfile('tmp.xml'): os.remove('tmp.xml')
 
