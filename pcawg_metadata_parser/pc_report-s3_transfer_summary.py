@@ -181,7 +181,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
 
     report_name = re.sub(r'^pc_report-', '', os.path.basename(__file__))
     report_name = re.sub(r'\.py$', '', report_name)

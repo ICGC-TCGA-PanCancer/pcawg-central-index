@@ -30,7 +30,7 @@ previous_releases = ['mar2016','oct2015', 'aug2015', 'santa_cruz']
 
 
 def init_es(es_host, es_index):
-    es = Elasticsearch([ es_host ])
+    es = Elasticsearch([ es_host ], http_auth=('elastic', 'changeme'), timeout=600)
     #es.indices.delete( es_index, ignore=[400, 404] )
     es.indices.create( es_index, ignore=400 )
 
@@ -1035,7 +1035,7 @@ def process(metadata_dir, conf, es_index, es, donor_output_jsonl_file, bam_outpu
 
         # push to Elasticsearch
         es.index(index=es_index, doc_type='donor', id=donor['donor_unique_id'], \
-            body=json.loads(json.dumps(donor, default=set_default)), timeout=90 )
+            body=json.loads(json.dumps(donor, default=set_default)) )
         del donor['bam_files']  # prune this before dumping JSON for Keiran
         donor_fh.write(json.dumps(donor, default=set_default) + '\n')
 

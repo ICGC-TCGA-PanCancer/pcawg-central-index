@@ -230,7 +230,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
 
     donor_ids = {}
     # get the list of donors in blacklist/graylist donors

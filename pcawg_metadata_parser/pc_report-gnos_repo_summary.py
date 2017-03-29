@@ -13,7 +13,7 @@ import shutil
 
 es_host = 'localhost:9200'
 es_type = "donor"
-es = Elasticsearch([es_host])
+es = Elasticsearch([es_host], timeout=600)
 
 es_queries = [
   # order of the queries is important

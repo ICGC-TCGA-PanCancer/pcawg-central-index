@@ -1,6 +1,6 @@
 {
    "donor":{
-      "dynamic":"true",
+      "dynamic":"false",
       "dynamic_templates":[
          {
             "template_1":{
@@ -1079,6 +1079,10 @@
                         "type":"string",
                         "index":"not_analyzed"
                      },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
+                     },
                      "gnos_last_modified":{
                         "type":"date",
                         "format":"dateOptionalTime"
@@ -1525,6 +1529,10 @@
                         "type":"string",
                         "index":"not_analyzed"
                      },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
+                     },
                      "gnos_last_modified":{
                         "type":"date",
                         "format":"dateOptionalTime"
@@ -1639,6 +1647,10 @@
                                 "type" : "string",
                                 "index" : "not_analyzed"
                               },
+                              "gnos_published_date":{
+                                "type":"date",
+                                "format":"dateOptionalTime"
+                              },
                               "gnos_last_modified" : {
                                 "type" : "date",
                                 "format" : "dateOptionalTime"
@@ -1684,6 +1696,10 @@
                               "gnos_id" : {
                                 "type" : "string",
                                 "index" : "not_analyzed"
+                              },
+                              "gnos_published_date":{
+                                "type":"date",
+                                "format":"dateOptionalTime"
                               },
                               "gnos_last_modified" : {
                                 "type" : "date",
@@ -1736,6 +1752,10 @@
                                 "type" : "string",
                                 "index" : "not_analyzed"
                               },
+                              "gnos_published_date":{
+                                "type":"date",
+                                "format":"dateOptionalTime"
+                              },
                               "gnos_last_modified" : {
                                 "type" : "date",
                                 "format" : "dateOptionalTime"
@@ -1782,6 +1802,10 @@
                                 "type" : "string",
                                 "index" : "not_analyzed"
                               },
+                              "gnos_published_date":{
+                                "type":"date",
+                                "format":"dateOptionalTime"
+                              },
                               "gnos_last_modified" : {
                                 "type" : "date",
                                 "format" : "dateOptionalTime"
@@ -1815,6 +1839,10 @@
                      "gnos_id":{
                         "type":"string",
                         "index":"not_analyzed"
+                     },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
                      },
                      "gnos_last_modified":{
                         "type":"date",
@@ -1927,6 +1955,10 @@
                         "type":"string",
                         "index":"not_analyzed"
                      },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
+                     },
                      "gnos_last_modified":{
                         "type":"date",
                         "format":"dateOptionalTime"
@@ -2037,6 +2069,10 @@
                      "gnos_id":{
                         "type":"string",
                         "index":"not_analyzed"
+                     },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
                      },
                      "gnos_last_modified":{
                         "type":"date",
@@ -2149,6 +2185,10 @@
                         "type":"string",
                         "index":"not_analyzed"
                      },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
+                     },
                      "gnos_last_modified":{
                         "type":"date",
                         "format":"dateOptionalTime"
@@ -2259,6 +2299,10 @@
                      "gnos_id":{
                         "type":"string",
                         "index":"not_analyzed"
+                     },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
                      },
                      "gnos_last_modified":{
                         "type":"date",
@@ -2371,6 +2415,10 @@
                         "type":"string",
                         "index":"not_analyzed"
                      },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
+                     },
                      "gnos_last_modified":{
                         "type":"date",
                         "format":"dateOptionalTime"
@@ -2481,6 +2529,10 @@
                      "gnos_id":{
                         "type":"string",
                         "index":"not_analyzed"
+                     },
+                     "gnos_published_date":{
+                        "type":"date",
+                        "format":"dateOptionalTime"
                      },
                      "gnos_last_modified":{
                         "type":"date",

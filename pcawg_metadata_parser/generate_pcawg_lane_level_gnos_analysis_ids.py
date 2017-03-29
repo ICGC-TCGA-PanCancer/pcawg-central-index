@@ -190,7 +190,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
 
     # output result
     report_name = re.sub(r'^generate_', '', os.path.basename(__file__))

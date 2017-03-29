@@ -13,7 +13,7 @@ from operator import itemgetter
 
 es_host = 'localhost:9200'
 es_type = "donor"
-es = Elasticsearch([es_host])
+es = Elasticsearch([es_host], timeout=600)
 
 es_queries = [
   # query 0: bwa_bams_missing_used_by_sanger 

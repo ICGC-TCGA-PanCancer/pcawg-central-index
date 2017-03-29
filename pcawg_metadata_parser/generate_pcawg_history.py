@@ -37,20 +37,20 @@ es_queries = [
                         }                   
                       ],
                       "must_not": [
-                        {
-                          "terms": {
-                            "flags.is_manual_qc_failed": [
-                              "T"
-                            ]
-                          }
-                        },
-                        {
-                          "terms": {
-                            "flags.is_donor_blacklisted": [
-                              "T"
-                            ]
-                          }
-                        }
+#                        {
+#                          "terms": {
+#                            "flags.is_manual_qc_failed": [
+#                              "T"
+#                            ]
+#                          }
+#                        },
+#                        {
+#                          "terms": {
+#                            "flags.is_donor_blacklisted": [
+#                              "T"
+#                            ]
+#                          }
+#                        }
                       ]
                     }
                 },
@@ -284,7 +284,7 @@ def get_compute_site(donor_unique_id, compute_sites, gnos_repo):
 
 
 def sort_repos_by_time(obj):    
-    published_dates = obj.get('gnos_last_modified')
+    published_dates = obj.get('gnos_published_date')
     gnos_repos = obj.get('gnos_repo')
     published_dates_sort, gnos_repos_sort = izip(*sorted(izip(published_dates, gnos_repos), key=lambda x: x[0]))
     return [published_dates_sort[0], gnos_repos_sort[0]]
@@ -518,7 +518,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
 
     fh = open(metadata_dir+'/pcawg_history_entities_'+es_index+'.jsonl', 'w')
     tsv_fh = open(metadata_dir + '/pcawg_history_entities_' + es_index + '.tsv', 'w')
@@ -529,7 +529,7 @@ def main(argv=None):
 
 	# get the full list of donors in PCAWG
     donors_list = get_donors_list(es, es_index, es_queries)
-
+    print len(donors_list)
     # get the computer sites info
     whitelist_dir = {
         'bwa_alignment': '../pcawg-operations/bwa_alignment',

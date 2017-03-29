@@ -410,7 +410,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
     #es_reorganized = init_es(es_host, es_index_reorganize)
 
     donor_fh = open(metadata_dir+'/reports/sanger_variant_called_donors.jsonl', 'w')

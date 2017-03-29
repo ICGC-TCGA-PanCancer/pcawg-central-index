@@ -318,13 +318,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host],
-                        # sniff before doing anything
-                        sniff_on_start=True,
-                        # refresh nodes after a node fails to respond
-                        sniff_on_connection_fail=True,
-                        # and also every 60 seconds
-                        sniffer_timeout=60)
+    es = Elasticsearch([es_host], timeout=600)
 
     report_name = re.sub(r'^generate_pcawg_', '', os.path.basename(__file__))
     report_name = re.sub(r'\.py$', '', report_name)

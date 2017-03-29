@@ -674,7 +674,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
     es_summary = init_es(es_host, es_index_summary)
 
     logger.setLevel(logging.INFO)

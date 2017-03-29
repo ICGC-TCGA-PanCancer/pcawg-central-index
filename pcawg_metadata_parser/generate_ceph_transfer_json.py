@@ -609,7 +609,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
 
 	# get the list of donors which is santa cruz
     donors_list = get_donors_list(es, es_index, es_queries)

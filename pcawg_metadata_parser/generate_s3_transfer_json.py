@@ -644,7 +644,7 @@ def main(argv=None):
     es_type = "donor"
     es_host = 'localhost:9200'
 
-    es = Elasticsearch([es_host])
+    es = Elasticsearch([es_host], timeout=600)
 
     # pre-exclude donors when this option is chosen
     donor_ids_to_be_excluded = generate_id_list(exclude_donor_id_lists)
