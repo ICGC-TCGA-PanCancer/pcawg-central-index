@@ -123,14 +123,14 @@ es_queries = [
                   "T"
                 ]
               }
-            },
-            {
-              "terms": {
-                "flags.is_donor_blacklisted": [
-                  "T"
-                ]
-              }
             }
+            #{
+            #  "terms": {
+            #    "flags.is_donor_blacklisted": [
+            #      "T"
+            #    ]
+            #  }
+            #}
           ]
         }
     },
@@ -219,7 +219,8 @@ def generate_object_id(filename, gnos_id, project_code):
         body = {
             "gnosId": gnos_id,
             "fileName": filename,
-            "projectCode": project_code
+            "projectCode": project_code,
+            "access": "controlled"
         }
         r = requests.post(url, data=json.dumps(body), headers=headers)
         if not r or not r.ok:
