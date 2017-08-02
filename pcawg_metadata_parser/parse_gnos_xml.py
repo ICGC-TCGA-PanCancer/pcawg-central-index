@@ -374,8 +374,8 @@ def choose_vcf_entry(vcf_entries, donor_unique_id, annotations):
                     if not workflow_previous['is_'+latest_release+'_entry']:                   
                         if current_vcf_entry['is_'+latest_release+'_entry']:
                             vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
-                            logger.info(workflow_label+' results for donor: {}. Keep the '+latest_release+'_freeze_entry: {}, additional {}'
-                                .format(donor_unique_id, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
+                            logger.info(workflow_label+' results for donor: {}. Keep the {}_freeze_entry: {}, additional {}'
+                                .format(donor_unique_id, latest_release, current_vcf_entry['gnos_id'], workflow_previous['gnos_id']))
                         elif not exist_in_previous_releases(current_vcf_entry) and exist_in_previous_releases(workflow_previous):
                             vcf_entries.get(donor_unique_id).update({workflow_label: current_vcf_entry})
                             logger.info(workflow_label+' results for donor: {}. Keep the entry not in previous releases: {}, additional {}'
