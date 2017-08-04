@@ -38,9 +38,9 @@ gnos_repos:
     repo_code: osdc-tcga
     base_url: https://gtrepo-osdc-tcga.annailabs.com/
     cgquery_para: study=*
-  - 
-    repo_location: Santa Cruz
-    repo_code: cghub
-    base_url: https://cghub.ucsc.edu/
-    cgquery_para: study=PCAWG\ 2.0
+#  - 
+#    repo_location: Santa Cruz
+#    repo_code: cghub
+#    base_url: https://cghub.ucsc.edu/
+#    cgquery_para: study=PCAWG\ 2.0
 

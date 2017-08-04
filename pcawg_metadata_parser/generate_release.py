@@ -272,6 +272,9 @@ def create_variant_calling(es_json, aliquot, wgs_tumor_vcf_info, data_type, gnos
     vcf_files = wgs_tumor_vcf_info.get('files')
     if vcf_files:
         for f in vcf_files:
+            if int(f.get('file_size')) == 0:
+                logger.warning('donor: {} has file: {} file_size is 0'.format(es_json.get('donor_unique_id'), f.get('file_name')))
+                continue
             if variant_calling.get('aliquot_id') in f.get('file_name'):
                 variant_calling.get('files').append(f)   
     else:

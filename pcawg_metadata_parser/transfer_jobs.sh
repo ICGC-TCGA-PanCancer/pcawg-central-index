@@ -14,8 +14,8 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	for f in `cat $PROJECT_FILE`; do
 		echo
 		echo --------------------------------------
-	    echo generate $CLOUD transfer jsons from $f
-	    echo Script location: $DIR
+	        echo generate $CLOUD transfer jsons from $f
+	        echo Script location: $DIR
 		cd $DIR
 
 		M=`find gnos_metadata -maxdepth 1 -type d -regex 'gnos_metadata/20[0-9][0-9]-[0-9][0-9].*[0-9][0-9]_[A-Z][A-Z][A-Z]' | sort | tail -1`
@@ -50,7 +50,7 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 		cd $DIR
 
 		echo generating the transfer jsons from $f...
-		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -u indel snv_mnv -d ../pcawg-operations/lists/blacklist/pc_annotation-donor_blacklist.tsv
+		ICGC_TOKEN=$ICGC_TOKEN_CODE ICGC_PROJECT_CODE=$f ./generate_s3_transfer_json.py -m $M -t $CLOUD -s rna_seq -v dkfz muse -u snv_mnv indel -i transfer_include_gnos_id.txt 
 
 		JOB_NUM=`ls -l $M/reports/s3_transfer_json_$CLOUD/ |grep json|wc -l`
 		Z=0
@@ -59,18 +59,18 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 			echo move job to job folders
 			if [ "$CLOUD" == "collab" ]; then
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Consensus*.json ../ceph_transfer_ops/ceph-transfer-jobs-consensus/backlog-jobs/.
-				# cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../ceph_transfer_ops/ceph-transfer-jobs-rna-seq/backlog-jobs/.
+				#cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../ceph_transfer_ops/ceph-transfer-jobs-rna-seq/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../ceph_transfer_ops/ceph-transfer-jobs-bwa/backlog-jobs/.
-				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../ceph_transfer_ops/ceph-transfer-jobs-vcf-v3/backlog-jobs/.
 			elif [ "$CLOUD" == "aws" ]; then
 				cp $M/reports/s3_transfer_json_$CLOUD/*.Consensus*.json ../s3-transfer-operations/s3-transfer-jobs-consensus/backlog-jobs/.
-				# cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../s3-transfer-operations/s3-transfer-jobs-rna-seq/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.RNA_Seq*.json ../s3-transfer-operations/s3-transfer-jobs-rna-seq/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.WGS-BWA*.json ../s3-transfer-operations/s3-transfer-jobs-bwa/backlog-jobs/.
-				# cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
-				# cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Dkfz_embl-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
+				cp $M/reports/s3_transfer_json_$CLOUD/*.Muse-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v1/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Sanger-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
 				# cp $M/reports/s3_transfer_json_$CLOUD/*.Broad-VCF.json ../s3-transfer-operations/s3-transfer-jobs-vcf-v3/backlog-jobs/.
 			else
@@ -84,12 +84,12 @@ while [  $COUNTER -lt $MAX_TIME ]; do
 	        
 	        echo check the job into git
 	        if [ "$CLOUD" == "collab" ]; then
-		        cd ../ceph_transfer_ops
-		    elif [ "$CLOUD" == "aws" ]; then
-		    	cd ../s3-transfer-operations
-		    else
-		    	cd ../tcga-transfer-operations
-		    fi
+		   cd ../ceph_transfer_ops
+       	        elif [ "$CLOUD" == "aws" ]; then
+		   cd ../s3-transfer-operations
+		else
+		   cd ../tcga-transfer-operations
+		fi
 	        git checkout master
 	        git reset --hard origin/master
 	        git pull
