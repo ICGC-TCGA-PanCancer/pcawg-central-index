@@ -63,13 +63,13 @@ es_queries_history = [
     "name": "bwa_alignment",
     "content":
               {
-                "size": 10000,
+                "size": 0,
                 "aggs": {
                   "published_date": {
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "compute_site"}
+                        "terms": {"field": "compute_site", "size": 30}
                       }
                     }
                   }
@@ -90,13 +90,13 @@ es_queries_history = [
 {
     "name": "sanger_variant_calling",
     "content": {
-        "size": 10000,
+        "size": 0,
                 "aggs": {
                   "published_date": {
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "compute_site"}
+                        "terms": {"field": "compute_site", "size": 30}
                       }
                     }
                   }
@@ -117,13 +117,13 @@ es_queries_history = [
 {
     "name": "dkfz_embl_variant_calling",
     "content": {
-        "size": 10000,
+        "size": 0,
                 "aggs": {
                   "published_date": {
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "compute_site"}
+                        "terms": {"field": "compute_site", "size": 30}
                       }
                     }
                   }
@@ -144,13 +144,13 @@ es_queries_history = [
 {
     "name": "broad_variant_calling",
     "content": {
-        "size": 10000,
+        "size": 0,
                 "aggs": {
                   "published_date": {
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "compute_site"}
+                        "terms": {"field": "compute_site", "size": 30}
                       }
                     }
                   }
@@ -171,13 +171,13 @@ es_queries_history = [
 {
     "name": "rna_seq_tophat_alignment",
     "content": {
-        "size": 10000,
+        "size": 0,
                 "aggs": {
                   "published_date": {
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "compute_site"}
+                        "terms": {"field": "compute_site", "size": 30}
                       }
                     }
                   }
@@ -198,13 +198,13 @@ es_queries_history = [
 {
     "name": "rna_seq_star_alignment",
     "content": {
-        "size": 10000,
+        "size": 0,
                 "aggs": {
                   "published_date": {
                     "date_histogram": {"field": "published_date", "interval": "day"},
                     "aggs": {
                       "repo": {
-                        "terms": {"field": "compute_site"}
+                        "terms": {"field": "compute_site", "size": 30}
                       }
                     }
                   }
@@ -529,7 +529,6 @@ def main(argv=None):
 
 	# get the full list of donors in PCAWG
     donors_list = get_donors_list(es, es_index, es_queries)
-    print len(donors_list)
     # get the computer sites info
     whitelist_dir = {
         'bwa_alignment': '../pcawg-operations/bwa_alignment',
@@ -539,7 +538,7 @@ def main(argv=None):
         'muse_variant_calling': '../pcawg-operations/variant_calling/broad_workflow/whitelists'
     }
     compute_sites = get_whitelists(whitelist_dir)
-   
+  
     header = True
     # get json doc for each donor and reorganize it 
     for donor_unique_id in donors_list:     
